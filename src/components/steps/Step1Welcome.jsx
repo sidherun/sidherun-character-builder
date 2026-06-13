@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import styles from './Step1Welcome.module.css'
+import { safeParseCharacter } from '../../utils/characterSchema.js'
 
 export default function Step1Welcome({ onUpdate, onStartNew, onLoadFromRoster, onNavigate, addToast }) {
   const fileRef = useRef()
@@ -9,12 +10,19 @@ export default function Step1Welcome({ onUpdate, onStartNew, onLoadFromRoster, o
     if (!file) return
     const reader = new FileReader()
     reader.onload = evt => {
+      let data
       try {
-        const data = JSON.parse(evt.target.result)
-        onUpdate(data)
-        addToast('Character imported!', 'success')
+        data = JSON.parse(evt.target.result)
       } catch {
         addToast('Invalid JSON file.', 'error')
+        return
+      }
+      const result = safeParseCharacter(data)
+      if (result.success) {
+        onUpdate(result.data)
+        addToast('Character imported!', 'success')
+      } else {
+        addToast('That file is not a valid Sidherun character.', 'error')
       }
     }
     reader.readAsText(file)
