@@ -1,6 +1,7 @@
 import { calcHitPoints, calcMana, xpForLevel } from '../../utils/characterDerived.js'
 import xpTable from '../../data/xpTable.json'
 import styles from './Step8Resources.module.css'
+import { useEffect } from 'react'
 
 function ResourceBlock({ title, total, current, onCurrentChange, color, formula }) {
   return (
@@ -64,6 +65,17 @@ export default function Step8Resources({ character, onUpdate }) {
   function updateSP(field, val) {
     onUpdate({ storyPoints: { ...sp, [field]: val } })
   }
+
+  // Auto-sync on first visit (when total is 0, meaning never synced)
+  useEffect(() => {
+    if (hp.total === 0) {
+      onUpdate({
+        hitPoints: { ...hp, total: calcedHP, current: calcedHP },
+        mana:      { ...mana, total: calcedMana, current: calcedMana },
+        xp:        { ...xp, needed: xpNeeded ?? xp.needed },
+      })
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Sync calculated totals
   function syncTotals() {
