@@ -34,7 +34,7 @@ export default function Step5Powers({ character, onUpdate }) {
       </div>
 
       {powers.length === 0 && (
-        <p className={styles.empty}>No powers added yet. Work with your GM to define your character's powers.</p>
+        <p className={styles.empty}>No powers added yet. Work with your GM to define your character&#39;s powers.</p>
       )}
 
       {powers.map(p => {

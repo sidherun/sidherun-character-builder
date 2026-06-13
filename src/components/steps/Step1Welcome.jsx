@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import styles from './Step1Welcome.module.css'
 import { safeParseCharacter } from '../../utils/characterSchema.js'
 
-export default function Step1Welcome({ onUpdate, onStartNew, onLoadFromRoster, onNavigate, addToast }) {
+export default function Step1Welcome({ onUpdate, onStartNew, onNavigate, addToast }) {
   const fileRef = useRef()
 
   function handleImport(e) {

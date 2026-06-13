@@ -1,4 +1,4 @@
-import { calcHitPoints, calcMana, xpForLevel } from '../../utils/characterDerived.js'
+import { calcHitPoints, calcMana } from '../../utils/characterDerived.js'
 import xpTable from '../../data/xpTable.json'
 import styles from './Step8Resources.module.css'
 import { useEffect } from 'react'
@@ -47,7 +47,7 @@ export default function Step8Resources({ character, onUpdate }) {
   const xp   = character.xp
   const armor = character.armor
 
-  const { raceType, raceValue, raceSize, ageCategory } = character
+  const { raceType, raceSize, ageCategory } = character
   const str = character.attributes.strength.base + character.attributes.strength.racialMod + character.attributes.strength.tempMod
   const end = character.attributes.endurance.base + character.attributes.endurance.racialMod + character.attributes.endurance.tempMod
   const con = character.attributes.constitution.base + character.attributes.constitution.racialMod + character.attributes.constitution.tempMod
@@ -91,7 +91,7 @@ export default function Step8Resources({ character, onUpdate }) {
       <h2>Resources</h2>
       <p className={styles.intro}>
         Hit Points and Mana are calculated from your attributes. Story Points default to 2.
-        Click "Sync Calculated Values" to pull the latest from your attributes.
+        Click &quot;Sync Calculated Values&quot; to pull the latest from your attributes.
       </p>
 
       <button className={`btn-secondary ${styles.syncBtn}`} onClick={syncTotals}>

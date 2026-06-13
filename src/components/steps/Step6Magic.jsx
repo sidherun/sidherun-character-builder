@@ -39,7 +39,7 @@ export default function Step6Magic({ character, onUpdate }) {
     <div className={styles.step}>
       <h2>Magic & Craft</h2>
       <p className={styles.intro}>
-        Define your character's magical crafts and consult the Spell Target table to understand
+        Define your character&#39;s magical crafts and consult the Spell Target table to understand
         your chances when casting against foes of different levels.
       </p>
 
@@ -107,12 +107,12 @@ export default function Step6Magic({ character, onUpdate }) {
       <section className={styles.section}>
         <h3>Spell Target Calculator</h3>
         <p className={styles.spellNote}>
-          Roll below this target (%) to cast successfully. Based on your level ({level}) vs target's level.
+          Roll below this target (%) to cast successfully. Based on your level ({level}) vs target&#39;s level.
           Your magical attribute ({magicAttribute || '—'}: {magicAttrVal}) is added to the base target (capped at 95%).
         </p>
         <div className={styles.spellCalc}>
           <label className={styles.selectField}>
-            <span>Target's Level</span>
+            <span>Target&#39;s Level</span>
             <select value={targetLevel} onChange={e => setTargetLevel(parseInt(e.target.value))}>
               {Array.from({ length: 20 }, (_, i) => i + 1).map(l => (
                 <option key={l} value={l}>Level {l}</option>

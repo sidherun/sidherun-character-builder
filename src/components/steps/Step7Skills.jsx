@@ -92,7 +92,7 @@ export default function Step7Skills({ character, onUpdate }) {
 
       {skills.length === 0 && (
         <p className={styles.empty}>
-          No skills yet. Add skills based on your character's background and story.
+          No skills yet. Add skills based on your character&#39;s background and story.
         </p>
       )}
 
