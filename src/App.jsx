@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import { createDefaultCharacter } from './utils/defaultCharacter.js'
 import { loadCurrent, saveCharacterToRoster } from './utils/rosterStorage.js'
 import { decodeCharacterFromURL } from './utils/urlState.js'
+import { safeParseCharacter } from './utils/characterSchema.js'
 import { useAutoSave } from './hooks/useAutoSave.js'
 import { usePlayMode } from './hooks/usePlayMode.js'
 import { useNotesPanel } from './hooks/useNotesPanel.js'
@@ -48,7 +49,10 @@ export default function App({ onNavigate, shareMode }) {
   const [character, setCharacter] = useState(() => {
     if (shareMode) {
       const data = decodeCharacterFromURL()
-      if (data) return data
+      if (data) {
+        const result = safeParseCharacter(data)
+        if (result.success) return result.data
+      }
     }
     return loadCurrent() || createDefaultCharacter()
   })
