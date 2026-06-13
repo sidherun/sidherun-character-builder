@@ -100,7 +100,10 @@ export default function Step3Attributes({ character, onUpdate }) {
         {CORE_ATTRS.map(a => (
           <AttrRow
             key={a.key}
-            {...a}
+            attrKey={a.key}
+            label={a.label}
+            abbr={a.abbr}
+            desc={a.desc}
             value={attributes[a.key] || { base: 0, racialMod: 0, tempMod: 0 }}
             onChange={handleAttrChange}
           />
@@ -114,7 +117,10 @@ export default function Step3Attributes({ character, onUpdate }) {
         {SOCIAL_ATTRS.map(a => (
           <AttrRow
             key={a.key}
-            {...a}
+            attrKey={a.key}
+            label={a.label}
+            abbr={a.abbr}
+            desc={a.desc}
             value={attributes[a.key] || { base: 0, racialMod: 0, tempMod: 0 }}
             onChange={handleAttrChange}
           />
