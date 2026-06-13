@@ -39,16 +39,24 @@ export default function Step5Powers({ character, onUpdate }) {
 
       {powers.map(p => {
         const total = (p.base || 0) + (p.attributeBonus || 0) + (p.skillBonus || 0) + (p.misc || 0)
+        const powerName = p.name || 'unnamed power'
         return (
-          <div key={p.id} className={styles.card}>
+          <div key={p.id} className={styles.card} role="group" aria-label={`Power: ${powerName}`}>
             <div className={styles.cardTop}>
               <input
                 className={styles.powerName}
                 value={p.name}
                 onChange={e => updatePower(p.id, { name: e.target.value })}
                 placeholder="Power name…"
+                aria-label="Power name"
               />
-              <button className="btn-danger" onClick={() => removePower(p.id)}>✕</button>
+              <button
+                className="btn-danger"
+                onClick={() => removePower(p.id)}
+                aria-label={`Remove power: ${powerName}`}
+              >
+                ✕
+              </button>
             </div>
             <div className={styles.numRow}>
               {[
@@ -63,12 +71,13 @@ export default function Step5Powers({ character, onUpdate }) {
                     type="number"
                     value={p[field] || ''}
                     onChange={e => updatePower(p.id, { [field]: parseInt(e.target.value) || 0 })}
+                    aria-label={`${label} for ${powerName}`}
                   />
                 </label>
               ))}
               <div className={styles.totalBadge}>
                 <span>Total</span>
-                <strong>{total}</strong>
+                <strong aria-label={`Total: ${total}`}>{total}</strong>
               </div>
             </div>
             <textarea
@@ -77,6 +86,7 @@ export default function Step5Powers({ character, onUpdate }) {
               onChange={e => updatePower(p.id, { description: e.target.value })}
               placeholder="Describe this power…"
               rows={2}
+              aria-label={`Description for ${powerName}`}
             />
           </div>
         )

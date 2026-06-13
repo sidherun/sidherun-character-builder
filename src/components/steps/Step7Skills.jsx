@@ -74,7 +74,13 @@ export default function Step7Skills({ character, onUpdate }) {
         (max 15 per skill). Mark Specialties — exceptional skills that require use each level to maintain bonuses.
       </p>
 
-      <div className={styles.budget} style={{ color: budgetColor }}>
+      <div
+        className={styles.budget}
+        style={{ color: budgetColor }}
+        role="status"
+        aria-live="polite"
+        aria-label={`Skill points used: ${budgetUsed} of ${MAX_BUDGET}${overBudget ? ' — over budget' : ''}`}
+      >
         <span>Skill Points Used:</span>
         <strong>{budgetUsed} / {MAX_BUDGET}</strong>
         {overBudget && <span className={styles.overWarning}>⚠ Over budget!</span>}
@@ -104,21 +110,29 @@ export default function Step7Skills({ character, onUpdate }) {
 
       {skills.map(s => {
         const total = calcSkillTotal(s)
+        const skillLabel = s.name || 'unnamed skill'
         return (
-          <div key={s.id} className={`${styles.skillRow} ${s.isSpecialty ? styles.specialty : ''}`}>
+          <div
+            key={s.id}
+            className={`${styles.skillRow} ${s.isSpecialty ? styles.specialty : ''}`}
+            role="group"
+            aria-label={`Skill: ${skillLabel}`}
+          >
             <input
               value={s.name}
               onChange={e => updateSkill(s.id, { name: e.target.value })}
-              placeholder={`Skill name…`}
+              placeholder="Skill name…"
               className={styles.nameInput}
+              aria-label="Skill name"
             />
             <select
               value={s.attributeName}
               onChange={e => updateSkill(s.id, { attributeName: e.target.value })}
+              aria-label={`Linked attribute for ${skillLabel}`}
             >
               {ATTR_KEYS.map(a => <option key={a} value={a}>{a}</option>)}
             </select>
-            <span className={styles.attrScore}>{s.attributeScore}</span>
+            <span className={styles.attrScore} aria-label={`Attribute score: ${s.attributeScore}`}>{s.attributeScore}</span>
             <input
               type="number"
               value={s.skillPoints || ''}
@@ -126,33 +140,46 @@ export default function Step7Skills({ character, onUpdate }) {
               max={MAX_PER_SKILL}
               onChange={e => updateSkill(s.id, { skillPoints: parseInt(e.target.value) || 0 })}
               className={styles.numInput}
+              aria-label={`Skill points for ${skillLabel} (max ${MAX_PER_SKILL})`}
             />
             <input
               type="number"
               value={s.tempMod || ''}
               onChange={e => updateSkill(s.id, { tempMod: parseInt(e.target.value) || 0 })}
               className={styles.numInput}
+              aria-label={`Temporary modifier for ${skillLabel}`}
             />
-            <strong className={styles.total}>{total}</strong>
-            <label className={styles.specialtyToggle} title="Mark as Specialty (use-it-or-lose-it)">
+            <strong className={styles.total} aria-label={`Total: ${total}`}>{total}</strong>
+            <label
+              className={styles.specialtyToggle}
+              title="Mark as Specialty (use-it-or-lose-it)"
+              aria-label={`Mark ${skillLabel} as specialty`}
+            >
               <input
                 type="checkbox"
                 checked={s.isSpecialty}
                 onChange={e => updateSkill(s.id, { isSpecialty: e.target.checked })}
               />
-              {s.isSpecialty && <span className={styles.specialtyTag}>★</span>}
+              {s.isSpecialty && <span className={styles.specialtyTag} aria-hidden="true">★</span>}
             </label>
-            <div className={styles.pips}>
+            <div className={styles.pips} role="group" aria-label={`Use tracking for ${skillLabel}`}>
               {[0,1,2,3,4].map(i => (
                 <button
                   key={i}
                   className={`${styles.pip} ${i < s.usePips ? styles.pipFilled : ''}`}
                   onClick={() => togglePip(s.id, i)}
-                  title="Track skill use"
+                  aria-pressed={i < s.usePips}
+                  aria-label={`Use pip ${i + 1} of 5 for ${skillLabel}`}
                 />
               ))}
             </div>
-            <button className="btn-danger" onClick={() => removeSkill(s.id)}>✕</button>
+            <button
+              className="btn-danger"
+              onClick={() => removeSkill(s.id)}
+              aria-label={`Remove skill: ${skillLabel}`}
+            >
+              ✕
+            </button>
           </div>
         )
       })}

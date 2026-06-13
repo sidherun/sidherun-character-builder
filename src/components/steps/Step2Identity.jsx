@@ -45,8 +45,9 @@ export default function Step2Identity({ character, onUpdate }) {
 
       <div className={styles.grid}>
         <div className={styles.field}>
-          <label>Character Name</label>
+          <label htmlFor="identity-name">Character Name</label>
           <input
+            id="identity-name"
             type="text"
             value={character.name}
             onChange={e => onUpdate({ name: e.target.value })}
@@ -55,8 +56,9 @@ export default function Step2Identity({ character, onUpdate }) {
         </div>
 
         <div className={styles.field}>
-          <label>Level</label>
+          <label htmlFor="identity-level">Level</label>
           <select
+            id="identity-level"
             value={character.level}
             onChange={e => onUpdate({ level: parseInt(e.target.value) })}
           >
@@ -67,18 +69,27 @@ export default function Step2Identity({ character, onUpdate }) {
         </div>
 
         <div className={styles.field}>
-          <label>Race</label>
-          <select value={character.race} onChange={e => handleRaceChange(e.target.value)}>
+          <label htmlFor="identity-race">Race</label>
+          <select
+            id="identity-race"
+            value={character.race}
+            onChange={e => handleRaceChange(e.target.value)}
+            aria-describedby={selectedRace ? 'identity-race-hint' : undefined}
+          >
             {races.map(r => (
               <option key={r.id} value={r.id}>{r.name}</option>
             ))}
           </select>
-          {selectedRace && <p className={styles.hint}>{selectedRace.description}</p>}
+          {selectedRace && <p id="identity-race-hint" className={styles.hint}>{selectedRace.description}</p>}
         </div>
 
         <div className={styles.field}>
-          <label>Age Category</label>
-          <select value={character.ageCategory} onChange={e => onUpdate({ ageCategory: e.target.value })}>
+          <label htmlFor="identity-age">Age Category</label>
+          <select
+            id="identity-age"
+            value={character.ageCategory}
+            onChange={e => onUpdate({ ageCategory: e.target.value })}
+          >
             {AGE_CATEGORIES.map(a => (
               <option key={a.id} value={a.id}>{a.label}</option>
             ))}
@@ -86,13 +97,18 @@ export default function Step2Identity({ character, onUpdate }) {
         </div>
 
         <div className={`${styles.field} ${styles.fullWidth}`}>
-          <label>Archetype</label>
-          <select value={character.archetype} onChange={e => handleArchetypeChange(e.target.value)}>
+          <label htmlFor="identity-archetype">Archetype</label>
+          <select
+            id="identity-archetype"
+            value={character.archetype}
+            onChange={e => handleArchetypeChange(e.target.value)}
+            aria-describedby={selectedArchetype ? 'identity-archetype-hint' : undefined}
+          >
             {archetypes.map(a => (
               <option key={a.id} value={a.id}>{a.name}</option>
             ))}
           </select>
-          {selectedArchetype && <p className={styles.hint}>{selectedArchetype.description}</p>}
+          {selectedArchetype && <p id="identity-archetype-hint" className={styles.hint}>{selectedArchetype.description}</p>}
         </div>
 
         {character.archetype === 'custom' && (
@@ -115,8 +131,9 @@ export default function Step2Identity({ character, onUpdate }) {
             </label>
             {character.hasMagic && (
               <div className={styles.field}>
-                <label>Primary Magic Attribute</label>
+                <label htmlFor="identity-magic-attr">Primary Magic Attribute</label>
                 <select
+                  id="identity-magic-attr"
                   value={character.magicAttribute || 'thaumaturgy'}
                   onChange={e => onUpdate({ magicAttribute: e.target.value })}
                 >
@@ -130,8 +147,11 @@ export default function Step2Identity({ character, onUpdate }) {
         )}
 
         <div className={`${styles.field} ${styles.fullWidth}`}>
-          <label>Backstory <span className={styles.optional}>(optional)</span></label>
+          <label htmlFor="identity-backstory">
+            Backstory <span className={styles.optional} aria-label="optional">(optional)</span>
+          </label>
           <textarea
+            id="identity-backstory"
             value={character.backstory}
             onChange={e => onUpdate({ backstory: e.target.value })}
             placeholder="Write your character's backstory…"

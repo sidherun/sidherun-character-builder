@@ -32,22 +32,32 @@ export default function NotesPanel({ notes, onChange, onClose }) {
   }
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.panel}>
+    <div className={styles.overlay} aria-hidden="true" onClick={onClose}>
+      <div
+        className={styles.panel}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="notes-panel-heading"
+        onClick={e => e.stopPropagation()}
+      >
         <div className={styles.header}>
-          <h3>Session Notes</h3>
-          <button className={styles.close} onClick={onClose}>✕</button>
+          <h3 id="notes-panel-heading">Session Notes</h3>
+          <button className={styles.close} onClick={onClose} aria-label="Close session notes">✕</button>
         </div>
 
         {editing ? (
           <div className={styles.editor}>
+            <label htmlFor="note-title" className="sr-only">Note title</label>
             <input
+              id="note-title"
               className={styles.titleInput}
               placeholder="Note title…"
               value={draft.title}
               onChange={e => setDraft(d => ({ ...d, title: e.target.value }))}
             />
+            <label htmlFor="note-body" className="sr-only">Note body</label>
             <textarea
+              id="note-body"
               className={styles.body}
               placeholder="Note body…"
               value={draft.body}
@@ -69,8 +79,20 @@ export default function NotesPanel({ notes, onChange, onClose }) {
                   <div className={styles.noteTitle}>{n.title}</div>
                   <div className={styles.noteBody}>{n.body}</div>
                   <div className={styles.noteActions}>
-                    <button className="btn-secondary" onClick={() => startEdit(n)}>Edit</button>
-                    <button className="btn-danger" onClick={() => remove(n.id)}>Delete</button>
+                    <button
+                      className="btn-secondary"
+                      onClick={() => startEdit(n)}
+                      aria-label={`Edit note: ${n.title}`}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn-danger"
+                      onClick={() => remove(n.id)}
+                      aria-label={`Delete note: ${n.title}`}
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
               ))}

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { createDefaultCharacter } from './utils/defaultCharacter.js'
 import { loadCurrent, saveCharacterToRoster } from './utils/rosterStorage.js'
 import { decodeCharacterFromURL } from './utils/urlState.js'
@@ -81,6 +81,12 @@ export default function App({ onNavigate, shareMode }) {
   const steps = visibleSteps(character.hasPowers, character.hasMagic)
   const currentStepIdx = steps.indexOf(character.wizardStep)
   const totalVisible = steps.length
+  const mainRef = useRef(null)
+
+  // Move focus to main content area when the wizard step changes
+  useEffect(() => {
+    mainRef.current?.focus()
+  }, [character.wizardStep])
 
   function nextStep() {
     const nextIdx = currentStepIdx + 1
@@ -129,8 +135,13 @@ export default function App({ onNavigate, shareMode }) {
   return (
     <ErrorBoundary>
       <div className={styles.app}>
+        <a href="#main-content" className="skip-link">Skip to main content</a>
         <header className={styles.header}>
-          <button className={styles.brand} onClick={() => goToStep(1)}>
+          <button
+            className={styles.brand}
+            onClick={() => goToStep(1)}
+            aria-label="Sidherun Character Builder — return to welcome screen"
+          >
             <h1>Sidherun</h1>
             <span className={styles.subtitle}>Character Builder</span>
           </button>
@@ -149,7 +160,13 @@ export default function App({ onNavigate, shareMode }) {
           />
         )}
 
-        <main className={styles.main}>
+        <main
+          id="main-content"
+          className={styles.main}
+          ref={mainRef}
+          tabIndex={-1}
+          aria-label="Character creation step"
+        >
           <StepComponent
             character={character}
             onUpdate={update}

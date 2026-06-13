@@ -14,21 +14,27 @@ const STEPS = [
 
 export default function StepIndicator({ current, hasPowers, hasMagic, onGoTo }) {
   return (
-    <nav className={styles.nav}>
+    <nav className={styles.nav} aria-label="Character creation steps">
       {STEPS.map(({ n, label }) => {
         const isHidden = (n === 5 && !hasPowers) || (n === 6 && !hasMagic)
         if (isHidden) return null
         const isCurrent = n === current
         const isDone    = n < current
+        const ariaLabel = isCurrent
+          ? `${label} — current step`
+          : isDone
+            ? `${label} — completed, click to return`
+            : `${label} — upcoming`
         return (
           <button
             key={n}
             className={`${styles.step} ${isCurrent ? styles.current : ''} ${isDone ? styles.done : ''}`}
             onClick={() => isDone && onGoTo(n)}
             disabled={!isDone && !isCurrent}
-            title={label}
+            aria-label={ariaLabel}
+            aria-current={isCurrent ? 'step' : undefined}
           >
-            <span className={styles.num}>{isDone ? '✓' : n}</span>
+            <span className={styles.num} aria-hidden="true">{isDone ? '✓' : n}</span>
             <span className={styles.label}>{label}</span>
           </button>
         )
