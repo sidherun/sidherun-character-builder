@@ -130,10 +130,10 @@ export default function App({ onNavigate, shareMode }) {
     <ErrorBoundary>
       <div className={styles.app}>
         <header className={styles.header}>
-          <div className={styles.brand}>
+          <button className={styles.brand} onClick={() => goToStep(1)}>
             <h1>Sidherun</h1>
             <span className={styles.subtitle}>Character Builder</span>
-          </div>
+          </button>
           <div className={styles.headerActions}>
             <button className="btn-secondary" onClick={() => onNavigate('roster')}>Roster</button>
             <button className="btn-secondary" onClick={toggleNotes}>Notes</button>
