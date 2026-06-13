@@ -104,7 +104,7 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
           <section className={styles.section}>
             <h3>Attributes</h3>
             <div className={styles.attrGrid}>
-              {Object.entries(character.attributes).map(([key, val]) => (
+              {Object.entries(character.attributes).filter(([key]) => key in ATTR_LABELS).map(([key, val]) => (
                 <div key={key} className={styles.attrChip}>
                   <span className={styles.attrName}>{ATTR_LABELS[key]}</span>
                   <strong className={styles.attrVal}>{attrTotal(val)}</strong>
