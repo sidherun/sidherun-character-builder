@@ -18,7 +18,7 @@ export default function WizardNav({ step, totalSteps, onBack, onNext, onSave, ca
       <button
         className="btn-primary"
         onClick={onNext}
-        disabled={!canNext || step >= totalSteps}
+        disabled={!canNext && step < totalSteps}
       >
         {nextLabel || (step >= totalSteps ? 'Complete' : 'Next →')}
       </button>
