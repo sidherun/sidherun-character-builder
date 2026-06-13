@@ -1,0 +1,50 @@
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background: var(--ink);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--gold-dim);
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.brand h1 {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1.6rem;
+  color: var(--gold-bright);
+  letter-spacing: 0.1em;
+}
+
+.subtitle {
+  font-family: 'EB Garamond', serif;
+  font-size: 0.9rem;
+  color: var(--gold-dim);
+  font-style: italic;
+  letter-spacing: 0.05em;
+}
+
+.headerActions {
+  display: flex;
+  gap: 10px;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: var(--step-max-width);
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px;
+}

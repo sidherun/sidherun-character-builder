@@ -1,0 +1,214 @@
+.playMode {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--ink);
+}
+
+.header {
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--gold-dim);
+}
+
+.charInfo h1 {
+  font-family: 'Cinzel Decorative', serif;
+  color: var(--gold-bright);
+  font-size: 1.4rem;
+  margin-bottom: 2px;
+}
+
+.charInfo span {
+  color: var(--gold-dim);
+  font-size: 0.82rem;
+  text-transform: capitalize;
+}
+
+.headerActions {
+  display: flex;
+  gap: 10px;
+}
+
+.content {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Counters */
+.counters {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.counter {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(200,168,75,0.2);
+  border-radius: 6px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.armorCounter {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(200,168,75,0.2);
+  border-radius: 6px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.counterLabel {
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.armorAbsorb {
+  font-size: 0.78rem;
+  color: var(--gold-dim);
+  font-style: italic;
+}
+
+.counterDisplay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.adjBtn {
+  width: 36px;
+  height: 36px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(200,168,75,0.3);
+  color: var(--gold-bright);
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.adjBtn:hover { background: rgba(200,168,75,0.15); }
+
+.counterValue {
+  font-family: 'Cinzel', serif;
+  font-size: 2.4rem;
+  font-weight: 700;
+  min-width: 80px;
+  text-align: center;
+}
+
+.counterTotal {
+  font-size: 1rem;
+  color: rgba(255,255,255,0.3);
+  margin-left: 2px;
+}
+
+.counterBar {
+  height: 8px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.counterFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.2s;
+}
+
+.quickAdj {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.quickBtn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(200,168,75,0.2);
+  color: var(--gold-dim);
+  padding: 3px 8px;
+  font-size: 0.75rem;
+  font-family: 'Cinzel', serif;
+  border-radius: 3px;
+}
+
+.quickBtn:hover { background: rgba(200,168,75,0.1); color: var(--gold-bright); }
+
+/* Reference */
+.reference {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.refSection h3 {
+  font-size: 0.78rem;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-bottom: 1px solid rgba(200,168,75,0.2);
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+}
+
+.defGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.defItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 8px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 3px;
+  font-size: 0.85rem;
+  color: var(--gold-pale);
+}
+
+.defItem strong {
+  color: var(--crimson);
+  font-family: 'Cinzel', serif;
+}
+
+.weaponItem {
+  display: grid;
+  grid-template-columns: 1fr 40px 1fr;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(200,168,75,0.1);
+  font-size: 0.85rem;
+  color: var(--gold-pale);
+  align-items: center;
+}
+
+.weaponBonus { font-family: 'Cinzel', serif; color: var(--crimson); text-align: center; }
+.weaponDesc  { color: rgba(255,255,255,0.4); font-style: italic; font-size: 0.78rem; }
+
+.skillItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 0;
+  font-size: 0.85rem;
+  color: var(--gold-pale);
+  border-bottom: 1px solid rgba(200,168,75,0.08);
+}
+
+.skillItem strong { font-family: 'Cinzel', serif; color: var(--gold-bright); }

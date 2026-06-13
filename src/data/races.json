@@ -1,0 +1,82 @@
+[
+  {
+    "id": "human",
+    "name": "Human",
+    "raceType": "healthy",
+    "raceValue": 20,
+    "defaultSize": "medium",
+    "description": "Versatile and adaptable, Humans form the backbone of the Southern Shores. Capable across all disciplines."
+  },
+  {
+    "id": "glamredhel",
+    "name": "Glamredhel",
+    "raceType": "healthy",
+    "raceValue": 20,
+    "defaultSize": "medium",
+    "description": "Wild elves of the deep forests, fierce and unpredictable."
+  },
+  {
+    "id": "aerian",
+    "name": "Aerian",
+    "raceType": "healthy",
+    "raceValue": 20,
+    "defaultSize": "medium",
+    "description": "A proud and ancient people with ties to the sky and open plains."
+  },
+  {
+    "id": "eledhel",
+    "name": "Eledhel",
+    "raceType": "slight",
+    "raceValue": 15,
+    "defaultSize": "medium",
+    "description": "High elves of great grace and magical attunement. Slender and long-lived."
+  },
+  {
+    "id": "vale_dwarf",
+    "name": "Vale Dwarf",
+    "raceType": "slight",
+    "raceValue": 15,
+    "defaultSize": "small",
+    "description": "Smaller cousins of the Mountain Dwarves, nimble and sharp-eyed."
+  },
+  {
+    "id": "avian",
+    "name": "Avian",
+    "raceType": "slight",
+    "raceValue": 15,
+    "defaultSize": "medium",
+    "description": "Bird-like humanoids with hollow bones and keen sight. Swift but fragile."
+  },
+  {
+    "id": "mountain_dwarf",
+    "name": "Mountain Dwarf",
+    "raceType": "stout",
+    "raceValue": 30,
+    "defaultSize": "medium",
+    "description": "Stocky and enduring, Mountain Dwarves are legendary warriors and craftsmen."
+  },
+  {
+    "id": "orc",
+    "name": "Orc",
+    "raceType": "stout",
+    "raceValue": 30,
+    "defaultSize": "medium",
+    "description": "Powerful and fierce, Orcs are formidable in combat and deeply tribal."
+  },
+  {
+    "id": "ogre",
+    "name": "Ogre",
+    "raceType": "stout",
+    "raceValue": 30,
+    "defaultSize": "large",
+    "description": "Massive and brutish, Ogres are rare player characters of extraordinary strength."
+  },
+  {
+    "id": "fae",
+    "name": "Fae",
+    "raceType": "frail",
+    "raceValue": 10,
+    "defaultSize": "small",
+    "description": "Mystical creatures of pure magical essence. Fragile but uniquely attuned to the weave."
+  }
+]

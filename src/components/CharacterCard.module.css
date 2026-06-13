@@ -1,0 +1,50 @@
+.card {
+  background: var(--parchment-dark);
+  border: var(--border-gold);
+  border-radius: 4px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: box-shadow 0.15s;
+}
+
+.card:hover {
+  box-shadow: 0 2px 12px var(--shadow);
+}
+
+.name {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.meta {
+  font-size: 0.85rem;
+  color: var(--ink-light);
+  text-transform: capitalize;
+}
+
+.hp {
+  font-size: 0.85rem;
+  color: var(--crimson);
+  font-weight: 600;
+}
+
+.saved {
+  font-size: 0.75rem;
+  color: var(--gold-dim);
+  font-style: italic;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.actions button {
+  font-size: 0.8rem;
+  padding: 5px 14px;
+}

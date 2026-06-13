@@ -1,0 +1,193 @@
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sheetHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.title h1 {
+  font-size: 2rem;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: var(--ink-light);
+  font-style: italic;
+  text-transform: capitalize;
+}
+
+.headerActions {
+  display: flex;
+  gap: 10px;
+}
+
+.exportBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.exportLabel {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  color: var(--gold-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.exportBar button {
+  font-size: 0.78rem;
+  padding: 5px 12px;
+}
+
+.resourcesRow {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.resourceChip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 16px;
+  border: 2px solid;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.3);
+  min-width: 80px;
+}
+
+.resourceChip span {
+  font-family: 'Cinzel', serif;
+  font-size: 0.68rem;
+  color: var(--gold-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.resourceChip strong {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 24px;
+}
+
+.left, .right {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.section h3 {
+  border-bottom: var(--border-gold);
+  padding-bottom: 4px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  color: var(--gold-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Attributes */
+.attrGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.attrChip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  background: rgba(200,168,75,0.05);
+  border-radius: 3px;
+}
+
+.attrName { font-size: 0.82rem; color: var(--ink-light); }
+.attrVal  { font-family: 'Cinzel', serif; font-size: 1rem; }
+
+/* Defense */
+.defTable { display: flex; flex-direction: column; gap: 3px; }
+.defRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 8px;
+  font-size: 0.9rem;
+  background: rgba(200,168,75,0.04);
+}
+.defRow strong { font-family: 'Cinzel', serif; font-size: 1rem; color: var(--crimson); }
+
+/* Weapons */
+.weaponRow {
+  display: grid;
+  grid-template-columns: 1fr 80px 50px 1fr;
+  gap: 8px;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(200,168,75,0.15);
+  font-size: 0.88rem;
+}
+.weaponName { font-weight: 500; }
+.weaponAttr { color: var(--gold-dim); font-size: 0.78rem; }
+.weaponTotal { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--crimson); text-align: center; }
+.weaponDesc  { color: var(--ink-light); font-size: 0.78rem; font-style: italic; }
+
+/* Skills */
+.skillRow {
+  display: grid;
+  grid-template-columns: 2fr 90px 50px;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 0.87rem;
+  border-bottom: 1px solid rgba(200,168,75,0.1);
+}
+.skillName { font-weight: 500; }
+.skillAttr { color: var(--gold-dim); font-size: 0.78rem; }
+.skillTotal { font-family: 'Cinzel', serif; text-align: right; color: var(--gold-bright); }
+.starNote { font-size: 0.72rem; color: var(--gold-dim); font-family: 'EB Garamond', serif; margin-left: 6px; letter-spacing: 0; text-transform: none; }
+
+/* Powers */
+.powerRow {
+  display: grid;
+  grid-template-columns: 1fr 50px;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 0.87rem;
+  border-bottom: 1px solid rgba(200,168,75,0.1);
+}
+.powerName { font-weight: 500; }
+.powerTotal { font-family: 'Cinzel', serif; text-align: right; color: var(--gold-bright); }
+.powerDesc  { grid-column: 1 / -1; color: var(--ink-light); font-style: italic; font-size: 0.78rem; }
+
+/* Crafts */
+.craftRow {
+  display: grid;
+  grid-template-columns: 1fr 80px 50px;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 0.87rem;
+  border-bottom: 1px solid rgba(200,168,75,0.1);
+}
+.craftName { font-weight: 500; }
+.craftAttr { color: var(--gold-dim); font-size: 0.78rem; }
+.craftTotal { font-family: 'Cinzel', serif; text-align: right; color: var(--gold-bright); }
+.craftDesc  { grid-column: 1 / -1; color: var(--ink-light); font-style: italic; font-size: 0.78rem; }
+
+/* Backstory */
+.backstory {
+  border-top: var(--border-gold);
+  padding-top: 16px;
+}
+.backstory h3 { margin-bottom: 8px; font-size: 0.9rem; color: var(--gold-dim); text-transform: uppercase; letter-spacing: 0.08em; }
+.backstory p { line-height: 1.7; color: var(--ink-light); }

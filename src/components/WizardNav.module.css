@@ -1,0 +1,19 @@
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: var(--parchment-dark);
+  border-top: var(--border-gold);
+  margin-top: auto;
+}
+
+.center {
+  display: flex;
+  gap: 12px;
+}
+
+.save {
+  font-size: 0.8rem;
+  padding: 6px 14px;
+}

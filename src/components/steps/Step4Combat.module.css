@@ -1,0 +1,148 @@
+.step h2 { margin-bottom: 20px; }
+.section { margin-bottom: 8px; }
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.sectionHeader h3 { margin: 0; }
+
+.empty {
+  color: var(--ink-light);
+  font-style: italic;
+  font-size: 0.85rem;
+  padding: 8px 0;
+}
+
+.weaponRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px;
+  background: rgba(200, 168, 75, 0.03);
+  border: var(--border-gold);
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.wName { flex: 2; min-width: 120px; }
+.wDesc { flex: 3; min-width: 140px; }
+
+.numLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.72rem;
+  color: var(--gold-dim);
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.05em;
+}
+.numLabel input { width: 72px; text-align: center; }
+
+.totalBadge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.72rem;
+  color: var(--gold-dim);
+  font-family: 'Cinzel', serif;
+  min-width: 48px;
+}
+.totalBadge strong {
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+
+.armorRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.selectLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.72rem;
+  color: var(--gold-dim);
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.05em;
+}
+
+.armorStats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  margin-top: 18px;
+}
+
+.hint {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  font-style: italic;
+  margin-bottom: 12px;
+}
+
+.defenseTable {
+  border: var(--border-gold);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.defenseHeader {
+  display: grid;
+  grid-template-columns: 90px 60px 130px 100px 80px 70px;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--ink);
+  color: var(--gold-dim);
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.07em;
+}
+
+.defenseRow {
+  display: grid;
+  grid-template-columns: 90px 60px 130px 100px 80px 70px;
+  gap: 8px;
+  padding: 8px 12px;
+  align-items: center;
+  border-bottom: 1px solid rgba(200, 168, 75, 0.1);
+}
+
+.defenseRow:last-child { border-bottom: none; }
+.defenseRow:hover { background: rgba(200, 168, 75, 0.03); }
+
+.defLabel {
+  font-family: 'Cinzel', serif;
+  font-size: 0.82rem;
+  color: var(--ink-light);
+}
+
+.attrCell {
+  font-size: 0.9rem;
+}
+.attrCell em {
+  font-size: 0.72rem;
+  color: var(--gold-dim);
+}
+
+.defenseRow input {
+  width: 100%;
+  text-align: center;
+  padding: 3px;
+}
+
+.defTotal {
+  font-family: 'Cinzel', serif;
+  font-size: 1.05rem;
+  color: var(--crimson);
+  text-align: center;
+}

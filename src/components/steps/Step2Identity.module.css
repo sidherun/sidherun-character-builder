@@ -1,0 +1,73 @@
+.step h2 { margin-bottom: 8px; }
+
+.intro {
+  color: var(--ink-light);
+  margin-bottom: 24px;
+  font-style: italic;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  color: var(--gold-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.hint {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.optional {
+  font-size: 0.75rem;
+  color: var(--gold-dim);
+  font-style: italic;
+  font-family: 'EB Garamond', serif;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.customToggles {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 12px;
+  background: rgba(200, 168, 75, 0.05);
+  border: var(--border-gold);
+  border-radius: 4px;
+}
+
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}

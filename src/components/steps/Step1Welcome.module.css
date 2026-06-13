@@ -1,0 +1,78 @@
+.welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 40px;
+  text-align: center;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.ornament {
+  font-size: 2rem;
+  color: var(--gold-bright);
+  animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+.title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 3.5rem;
+  color: var(--ink);
+  letter-spacing: 0.15em;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.tagline {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  color: var(--gold-dim);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.desc {
+  max-width: 480px;
+  color: var(--ink-light);
+  line-height: 1.6;
+  font-size: 1rem;
+  margin-top: 8px;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.mainBtn {
+  width: 100%;
+  padding: 14px 24px;
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+}
+
+.actionBtn {
+  width: 100%;
+  padding: 10px 20px;
+}
+
+.footer {
+  color: var(--gold-dim);
+  font-style: italic;
+  font-size: 0.85rem;
+}

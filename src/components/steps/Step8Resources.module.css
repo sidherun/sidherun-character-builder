@@ -1,0 +1,127 @@
+.step h2 { margin-bottom: 8px; }
+
+.intro {
+  color: var(--ink-light);
+  font-style: italic;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+}
+
+.syncBtn {
+  margin-bottom: 20px;
+  font-size: 0.82rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.resourceCard {
+  border: var(--border-gold);
+  border-top: 3px solid;
+  border-radius: 4px;
+  padding: 14px;
+  background: rgba(255,255,255,0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.resourceTitle {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.formula {
+  font-size: 0.75rem;
+  color: var(--ink-light);
+  font-style: italic;
+}
+
+.resourceRow {
+  display: flex;
+  gap: 16px;
+}
+
+.resourceStat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+}
+
+.resourceStat span {
+  font-size: 0.7rem;
+  color: var(--gold-dim);
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.resourceStat strong {
+  font-size: 1.4rem;
+  font-family: 'Cinzel', serif;
+}
+
+.resourceStat input {
+  font-size: 1.3rem;
+  text-align: center;
+  width: 100%;
+  font-family: 'Cinzel', serif;
+  padding: 4px;
+}
+
+.bar {
+  height: 6px;
+  background: rgba(0,0,0,0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+/* XP */
+.xpBlock { margin-top: 8px; }
+.xpBlock h3 { margin-bottom: 14px; }
+
+.xpRow {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.xpField {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.72rem;
+  color: var(--gold-dim);
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.05em;
+}
+.xpField input { width: 120px; padding: 6px 8px; font-size: 1rem; }
+
+.xpStat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.9rem;
+}
+
+.xpNeeded {
+  font-size: 0.8rem;
+  color: var(--gold-dim);
+}
+.xpMax { font-size: 0.8rem; color: var(--gold-bright); }

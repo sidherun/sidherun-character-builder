@@ -1,0 +1,118 @@
+.step h2 { margin-bottom: 8px; }
+.section { margin-bottom: 8px; }
+
+.intro, .empty {
+  color: var(--ink-light);
+  font-style: italic;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.sectionHeader h3 { margin: 0; }
+
+.craftCard {
+  border: var(--border-gold);
+  border-radius: 4px;
+  padding: 14px;
+  margin-bottom: 12px;
+  background: rgba(200, 168, 75, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.craftTop {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.craftName { flex: 1; font-family: 'Cinzel', serif; }
+
+.craftRow {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.selectField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.72rem;
+  color: var(--gold-dim);
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.05em;
+}
+
+.numField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.72rem;
+  color: var(--gold-dim);
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.05em;
+}
+.numField input { width: 72px; text-align: center; }
+
+.totalBadge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.72rem;
+  color: var(--gold-dim);
+  font-family: 'Cinzel', serif;
+}
+.totalBadge strong { font-size: 1.1rem; color: var(--gold-bright); }
+
+.craftDesc { width: 100%; resize: vertical; padding: 6px; }
+
+/* Spell target */
+.spellNote {
+  font-size: 0.85rem;
+  color: var(--ink-light);
+  margin-bottom: 16px;
+  font-style: italic;
+}
+
+.spellCalc {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.targetResult {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.targetLabel {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: var(--gold-dim);
+}
+
+.targetNum {
+  font-family: 'Cinzel', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.redNote {
+  font-size: 0.75rem;
+  color: var(--crimson);
+  font-style: italic;
+}

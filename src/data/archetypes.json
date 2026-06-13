@@ -1,0 +1,106 @@
+[
+  {
+    "id": "worldly",
+    "name": "Worldly",
+    "hasPowers": false,
+    "hasMagic": false,
+    "magicAttribute": null,
+    "description": "A seasoned traveler and social operator. Masters of persuasion, trade, and survival in civilized society."
+  },
+  {
+    "id": "barbarian",
+    "name": "Barbarian",
+    "hasPowers": false,
+    "hasMagic": false,
+    "magicAttribute": null,
+    "description": "Fearsome warriors from harsh lands. Driven by primal instinct, near-limitless endurance, and raw power."
+  },
+  {
+    "id": "acrobat",
+    "name": "Acrobat",
+    "hasPowers": false,
+    "hasMagic": false,
+    "magicAttribute": null,
+    "description": "Nimble and quick, the Acrobat excels at movement, evasion, and getting into (and out of) impossible situations."
+  },
+  {
+    "id": "ranger",
+    "name": "Ranger / Woodsman",
+    "hasPowers": false,
+    "hasMagic": false,
+    "magicAttribute": null,
+    "description": "Expert trackers, hunters, and wilderness survivalists. Often has an affinity with specific terrains or enemies."
+  },
+  {
+    "id": "rogue",
+    "name": "Rogue",
+    "hasPowers": false,
+    "hasMagic": false,
+    "magicAttribute": null,
+    "description": "Cunning operatives skilled in stealth, subterfuge, and precision strikes. Masters of the shadows."
+  },
+  {
+    "id": "guardsman",
+    "name": "Guardsman",
+    "hasPowers": false,
+    "hasMagic": false,
+    "magicAttribute": null,
+    "description": "Disciplined fighters trained in organized combat, defense, and martial tactics."
+  },
+  {
+    "id": "druid",
+    "name": "Druid",
+    "hasPowers": true,
+    "hasMagic": true,
+    "magicAttribute": "enlightenment",
+    "description": "Protectors of the natural world with deep attunement to the weave of nature. Magic flows through Enlightenment."
+  },
+  {
+    "id": "conjurer",
+    "name": "Conjurer",
+    "hasPowers": true,
+    "hasMagic": true,
+    "magicAttribute": "thaumaturgy",
+    "description": "Arcane specialists who summon and bind entities from beyond. Magic flows through Thaumaturgy."
+  },
+  {
+    "id": "enlightened",
+    "name": "Enlightened",
+    "hasPowers": true,
+    "hasMagic": true,
+    "magicAttribute": "enlightenment",
+    "description": "Those who can see the lines connecting all things. Gifted with divine perception and spiritual power."
+  },
+  {
+    "id": "warlock",
+    "name": "Warlock",
+    "hasPowers": true,
+    "hasMagic": true,
+    "magicAttribute": "thaumaturgy",
+    "description": "Those who have made pacts with powerful beings for arcane power. Magic flows through Thaumaturgy."
+  },
+  {
+    "id": "mage",
+    "name": "Mage / Magician",
+    "hasPowers": true,
+    "hasMagic": true,
+    "magicAttribute": "thaumaturgy",
+    "description": "Scholarly practitioners of the arcane arts. Power derived from study, knowledge, and Thaumaturgy."
+  },
+  {
+    "id": "holy_warrior",
+    "name": "Holy Warrior",
+    "hasPowers": true,
+    "hasMagic": true,
+    "magicAttribute": "enlightenment",
+    "description": "Warriors empowered by divine faith. Combines martial skill with Enlightenment-based divine magic."
+  },
+  {
+    "id": "custom",
+    "name": "Custom (GM Defined)",
+    "hasPowers": false,
+    "hasMagic": false,
+    "magicAttribute": null,
+    "description": "A custom archetype defined with your GM. Adjust the Powers and Magic toggles below as appropriate."
+  }
+]

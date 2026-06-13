@@ -1,0 +1,211 @@
+import { calcHitPoints, calcMana, xpForLevel } from '../../utils/characterDerived.js'
+import xpTable from '../../data/xpTable.json'
+import styles from './Step8Resources.module.css'
+
+function ResourceBlock({ title, total, current, onCurrentChange, color, formula }) {
+  return (
+    <div className={styles.resourceCard} style={{ borderTopColor: color }}>
+      <div className={styles.resourceTitle} style={{ color }}>{title}</div>
+      {formula && <div className={styles.formula}>{formula}</div>}
+      <div className={styles.resourceRow}>
+        <div className={styles.resourceStat}>
+          <span>Total</span>
+          <strong>{total}</strong>
+        </div>
+        <div className={styles.resourceStat}>
+          <span>Current</span>
+          <input
+            type="number"
+            value={current}
+            onChange={e => onCurrentChange(parseInt(e.target.value) || 0)}
+            min={0}
+            max={total}
+          />
+        </div>
+      </div>
+      {total > 0 && (
+        <div className={styles.bar}>
+          <div
+            className={styles.barFill}
+            style={{ width: `${Math.min(100, (current / total) * 100)}%`, background: color }}
+          />
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function Step8Resources({ character, onUpdate }) {
+  const calcedHP   = calcHitPoints(character)
+  const calcedMana = calcMana(character)
+
+  // Sync calculated values to character on render
+  const hp   = character.hitPoints
+  const mana = character.mana
+  const sp   = character.storyPoints
+  const xp   = character.xp
+  const armor = character.armor
+
+  const { raceType, raceValue, raceSize, ageCategory } = character
+  const str = character.attributes.strength.base + character.attributes.strength.racialMod + character.attributes.strength.tempMod
+  const end = character.attributes.endurance.base + character.attributes.endurance.racialMod + character.attributes.endurance.tempMod
+  const con = character.attributes.constitution.base + character.attributes.constitution.racialMod + character.attributes.constitution.tempMod
+  const hpFormula = `(${raceType}×${raceSize}×${ageCategory}) + (${str}+${end})/2 + ${con} = ${calcedHP}`
+
+  const nextLevelRow = xpTable.find(r => r.level === character.level + 1)
+  const xpNeeded = nextLevelRow?.xpStart ?? null
+
+  function updateHP(field, val) {
+    onUpdate({ hitPoints: { ...hp, [field]: val } })
+  }
+  function updateMana(field, val) {
+    onUpdate({ mana: { ...mana, [field]: val } })
+  }
+  function updateSP(field, val) {
+    onUpdate({ storyPoints: { ...sp, [field]: val } })
+  }
+
+  // Sync calculated totals
+  function syncTotals() {
+    onUpdate({
+      hitPoints:   { ...hp, total: calcedHP, current: hp.current || calcedHP },
+      mana:        { ...mana, total: calcedMana, current: mana.current || calcedMana },
+      xp:          { ...xp, needed: xpNeeded ?? xp.needed },
+    })
+  }
+
+  return (
+    <div className={styles.step}>
+      <h2>Resources</h2>
+      <p className={styles.intro}>
+        Hit Points and Mana are calculated from your attributes. Story Points default to 2.
+        Click "Sync Calculated Values" to pull the latest from your attributes.
+      </p>
+
+      <button className={`btn-secondary ${styles.syncBtn}`} onClick={syncTotals}>
+        ↻ Sync Calculated Values
+      </button>
+
+      <div className={styles.grid}>
+        <ResourceBlock
+          title="Hit Points"
+          total={hp.total || calcedHP}
+          current={hp.current}
+          onCurrentChange={val => updateHP('current', val)}
+          color="#8b1a1a"
+          formula={hpFormula}
+        />
+
+        {character.hasMagic && (
+          <ResourceBlock
+            title="Mana"
+            total={mana.total || calcedMana}
+            current={mana.current}
+            onCurrentChange={val => updateMana('current', val)}
+            color="#1a3a8b"
+            formula={`${character.magicAttribute || '—'} total = ${calcedMana}`}
+          />
+        )}
+
+        <div className={styles.resourceCard} style={{ borderTopColor: '#2d5a27' }}>
+          <div className={styles.resourceTitle} style={{ color: '#2d5a27' }}>Story Points</div>
+          <div className={styles.formula}>GM awards additional points for great play</div>
+          <div className={styles.resourceRow}>
+            <div className={styles.resourceStat}>
+              <span>Total</span>
+              <input
+                type="number"
+                value={sp.total}
+                onChange={e => updateSP('total', parseInt(e.target.value) || 2)}
+                min={0}
+              />
+            </div>
+            <div className={styles.resourceStat}>
+              <span>Current</span>
+              <input
+                type="number"
+                value={sp.current}
+                onChange={e => updateSP('current', parseInt(e.target.value) || 0)}
+                min={0}
+                max={sp.total}
+              />
+            </div>
+          </div>
+          {sp.total > 0 && (
+            <div className={styles.bar}>
+              <div
+                className={styles.barFill}
+                style={{ width: `${Math.min(100, (sp.current / sp.total) * 100)}%`, background: '#2d5a27' }}
+              />
+            </div>
+          )}
+        </div>
+
+        {armor.type !== 'none' && (
+          <div className={styles.resourceCard} style={{ borderTopColor: '#5a4a27' }}>
+            <div className={styles.resourceTitle} style={{ color: '#5a4a27' }}>Armor</div>
+            <div className={styles.formula}>{armor.absorption} absorption per hit</div>
+            <div className={styles.resourceRow}>
+              <div className={styles.resourceStat}>
+                <span>Remaining</span>
+                <input
+                  type="number"
+                  value={armor.remaining}
+                  onChange={e => onUpdate({ armor: { ...armor, remaining: parseInt(e.target.value) || 0 } })}
+                  min={0}
+                  max={armor.max}
+                />
+              </div>
+              <div className={styles.resourceStat}>
+                <span>Max</span>
+                <strong>{armor.max}</strong>
+              </div>
+            </div>
+            {armor.max > 0 && (
+              <div className={styles.bar}>
+                <div
+                  className={styles.barFill}
+                  style={{ width: `${Math.min(100, (armor.remaining / armor.max) * 100)}%`, background: '#5a4a27' }}
+                />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <hr className="divider" />
+
+      {/* XP */}
+      <div className={styles.xpBlock}>
+        <h3>Experience Points</h3>
+        <div className={styles.xpRow}>
+          <label className={styles.xpField}>
+            <span>Current XP</span>
+            <input
+              type="number"
+              value={xp.current}
+              onChange={e => onUpdate({ xp: { ...xp, current: parseInt(e.target.value) || 0 } })}
+              min={0}
+            />
+          </label>
+          <div className={styles.xpStat}>
+            <span>Level {character.level}</span>
+            {xpNeeded && <span className={styles.xpNeeded}>Next level at: {xpNeeded.toLocaleString()} XP</span>}
+            {!xpNeeded && <span className={styles.xpMax}>Maximum level reached</span>}
+          </div>
+          {xpNeeded && xp.current > 0 && (
+            <div className={styles.bar} style={{ alignSelf: 'flex-end', flex: 1, minWidth: 120 }}>
+              <div
+                className={styles.barFill}
+                style={{
+                  width: `${Math.min(100, (xp.current / xpNeeded) * 100)}%`,
+                  background: 'var(--gold-bright)',
+                }}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}

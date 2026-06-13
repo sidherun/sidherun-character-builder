@@ -1,0 +1,58 @@
+[
+  {
+    "id": "none",
+    "name": "None",
+    "absorption": 0,
+    "maxDurability": 0,
+    "movementShift": 0,
+    "description": "No armor worn."
+  },
+  {
+    "id": "padded",
+    "name": "Padded Armor",
+    "absorption": 4,
+    "maxDurability": 80,
+    "movementShift": 0,
+    "description": "Light padding. No movement penalty."
+  },
+  {
+    "id": "leather",
+    "name": "Leather Armor",
+    "absorption": 6,
+    "maxDurability": 120,
+    "movementShift": 1,
+    "description": "Tanned leather. Shifts movement 1 column left."
+  },
+  {
+    "id": "chain",
+    "name": "Chain / Scale Armor",
+    "absorption": 8,
+    "maxDurability": 160,
+    "movementShift": 2,
+    "description": "Interlocking metal rings or overlapping scales. Shifts movement 2 columns left."
+  },
+  {
+    "id": "half_plate",
+    "name": "Heavy Scale / Half Plate",
+    "absorption": 10,
+    "maxDurability": 200,
+    "movementShift": 3,
+    "description": "Heavy protection with significant movement penalty. Shifts movement 3 columns left."
+  },
+  {
+    "id": "full_steel",
+    "name": "Full Steel Armor",
+    "absorption": 12,
+    "maxDurability": 240,
+    "movementShift": 4,
+    "description": "Complete steel plate coverage. Shifts movement 4 columns left."
+  },
+  {
+    "id": "blue_steel",
+    "name": "Blue Steel Full Plate",
+    "absorption": 15,
+    "maxDurability": 300,
+    "movementShift": 5,
+    "description": "Legendary blue-forged steel. Maximum protection. Shifts movement 5 columns left."
+  }
+]

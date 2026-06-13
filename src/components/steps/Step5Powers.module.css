@@ -1,0 +1,80 @@
+.step h2 { margin-bottom: 8px; }
+
+.intro {
+  color: var(--ink-light);
+  font-style: italic;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+}
+
+.header {
+  margin-bottom: 16px;
+}
+
+.empty {
+  color: var(--ink-light);
+  font-style: italic;
+  font-size: 0.85rem;
+  padding: 12px 0;
+}
+
+.card {
+  border: var(--border-gold);
+  border-radius: 4px;
+  padding: 14px;
+  margin-bottom: 12px;
+  background: rgba(200, 168, 75, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cardTop {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.powerName {
+  flex: 1;
+  font-size: 1rem;
+  font-family: 'Cinzel', serif;
+}
+
+.numRow {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.numField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.72rem;
+  color: var(--gold-dim);
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.05em;
+}
+.numField input { width: 72px; text-align: center; }
+
+.totalBadge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.72rem;
+  color: var(--gold-dim);
+  font-family: 'Cinzel', serif;
+}
+.totalBadge strong {
+  font-size: 1.1rem;
+  color: var(--gold-bright);
+}
+
+.desc {
+  width: 100%;
+  resize: vertical;
+  padding: 6px;
+}

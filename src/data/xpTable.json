@@ -1,0 +1,22 @@
+[
+  { "level": 1,  "xpStart": 0,      "xpEnd": 1000,   "bonus": 100  },
+  { "level": 2,  "xpStart": 1001,   "xpEnd": 3000,   "bonus": 200  },
+  { "level": 3,  "xpStart": 3001,   "xpEnd": 6000,   "bonus": 300  },
+  { "level": 4,  "xpStart": 6001,   "xpEnd": 10000,  "bonus": 400  },
+  { "level": 5,  "xpStart": 10001,  "xpEnd": 16000,  "bonus": 600  },
+  { "level": 6,  "xpStart": 16001,  "xpEnd": 24000,  "bonus": 800  },
+  { "level": 7,  "xpStart": 24001,  "xpEnd": 34000,  "bonus": 1000 },
+  { "level": 8,  "xpStart": 34001,  "xpEnd": 46000,  "bonus": 1200 },
+  { "level": 9,  "xpStart": 46001,  "xpEnd": 60000,  "bonus": 1400 },
+  { "level": 10, "xpStart": 60001,  "xpEnd": 76000,  "bonus": 1600 },
+  { "level": 11, "xpStart": 76001,  "xpEnd": 94000,  "bonus": 1800 },
+  { "level": 12, "xpStart": 94001,  "xpEnd": 114000, "bonus": 2000 },
+  { "level": 13, "xpStart": 114001, "xpEnd": 136000, "bonus": 2200 },
+  { "level": 14, "xpStart": 136001, "xpEnd": 150000, "bonus": 2400 },
+  { "level": 15, "xpStart": 150001, "xpEnd": 176000, "bonus": 2600 },
+  { "level": 16, "xpStart": 176001, "xpEnd": 204000, "bonus": 2800 },
+  { "level": 17, "xpStart": 204001, "xpEnd": 234000, "bonus": 3000 },
+  { "level": 18, "xpStart": 234001, "xpEnd": 266000, "bonus": 3200 },
+  { "level": 19, "xpStart": 266001, "xpEnd": 300000, "bonus": 3400 },
+  { "level": 20, "xpStart": 300001, "xpEnd": null,   "bonus": null }
+]

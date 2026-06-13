@@ -1,0 +1,118 @@
+.step h2 { margin-bottom: 4px; }
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.avgBadge {
+  font-size: 0.9rem;
+  font-family: 'Cinzel', serif;
+}
+
+.target {
+  font-size: 0.75rem;
+  color: var(--gold-dim);
+  margin-left: 6px;
+  font-family: 'EB Garamond', serif;
+}
+
+.intro {
+  color: var(--ink-light);
+  font-style: italic;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+.tableHeader {
+  display: grid;
+  grid-template-columns: 1fr 80px 80px 80px 60px;
+  gap: 8px;
+  padding: 6px 8px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.07em;
+  color: var(--gold-dim);
+  border-bottom: var(--border-gold);
+  margin-bottom: 4px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sectionLabel {
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  color: var(--gold-bright);
+  padding: 8px 0 4px;
+  letter-spacing: 0.05em;
+}
+
+.sectionNote {
+  font-size: 0.72rem;
+  color: var(--gold-dim);
+  font-family: 'EB Garamond', serif;
+  font-style: italic;
+  letter-spacing: 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 80px 80px 80px 60px;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 8px;
+  border-radius: 3px;
+  transition: background 0.1s;
+}
+
+.row:hover { background: rgba(200, 168, 75, 0.04); }
+
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.abbr {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  color: var(--gold-dim);
+  letter-spacing: 0.1em;
+}
+
+.name {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.desc {
+  font-size: 0.75rem;
+  color: var(--ink-light);
+  font-style: italic;
+}
+
+.input {
+  width: 100%;
+  text-align: center;
+  padding: 4px;
+  font-size: 0.9rem;
+}
+
+.total {
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink-light);
+  padding: 4px;
+}
+
+.totalGood {
+  color: #2d5a27;
+}
