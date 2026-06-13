@@ -66,6 +66,13 @@ export function deleteCharacterFromRoster(id) {
   localStorage.removeItem(versKey(id))
   const roster = loadRoster().filter(r => r.id !== id)
   saveRosterIndex(roster)
+  // Prevent auto-save from re-adding the deleted character when the user
+  // returns to the wizard. The current character retains its data but loses
+  // its roster link so useAutoSave won't re-save it back.
+  const current = loadCurrent()
+  if (current?._rosterId === id) {
+    saveCurrent({ ...current, _rosterId: null })
+  }
 }
 
 export function loadVersionHistory(id) {
