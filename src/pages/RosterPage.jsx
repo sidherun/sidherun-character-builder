@@ -23,10 +23,14 @@ export default function RosterPage({ onNavigate }) {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <div className={styles.brand}>
+        <button
+          className={styles.brand}
+          onClick={() => onNavigate('app')}
+          aria-label="Sidherun — return to home screen"
+        >
           <h1>Sidherun</h1>
           <span>Character Roster</span>
-        </div>
+        </button>
         <div className={styles.actions}>
           <button className="btn-primary" onClick={() => onNavigate('app')}>
             + New Character
