@@ -6,6 +6,7 @@ function getRoute() {
   const hash = window.location.hash
   if (hash.startsWith('#roster')) return 'roster'
   if (hash.startsWith('#share=')) return 'share'
+  if (hash.startsWith('#play='))  return 'play'
   return 'app'
 }
 
@@ -19,9 +20,15 @@ export default function Router() {
   }, [])
 
   function navigate(to) {
-    window.location.hash = to === 'app' ? '' : to
+    window.location.hash = (to === 'app' || to === 'home') ? '' : to
   }
 
   if (route === 'roster') return <RosterPage onNavigate={navigate} />
-  return <App onNavigate={navigate} shareMode={route === 'share'} />
+  return (
+    <App
+      onNavigate={navigate}
+      shareMode={route === 'share'}
+      playMode={route === 'play'}
+    />
+  )
 }

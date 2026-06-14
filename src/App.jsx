@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { createDefaultCharacter } from './utils/defaultCharacter.js'
-import { loadCurrent, saveCharacterToRoster } from './utils/rosterStorage.js'
+import { loadCurrent, saveCharacterToRoster, saveCurrent } from './utils/rosterStorage.js'
 import { decodeCharacterFromURL } from './utils/urlState.js'
 import { safeParseCharacter } from './utils/characterSchema.js'
 import { useAutoSave } from './hooks/useAutoSave.js'
@@ -45,19 +45,27 @@ function visibleSteps(hasPowers, hasMagic) {
     7, 8, 9]
 }
 
-export default function App({ onNavigate, shareMode }) {
+export default function App({ onNavigate, shareMode, playMode }) {
   const [character, setCharacter] = useState(() => {
-    if (shareMode) {
+    if (shareMode || playMode) {
       const data = decodeCharacterFromURL()
       if (data) {
         const result = safeParseCharacter(data)
-        if (result.success) return result.data
+        if (result.success) {
+          if (playMode) {
+            // Auto-save so the player's HP/Mana/notes persist across refreshes
+            const saved = saveCharacterToRoster(result.data)
+            saveCurrent(saved)
+            return saved
+          }
+          return result.data
+        }
       }
     }
     return loadCurrent() || createDefaultCharacter()
   })
 
-  const { isPlayMode, enterPlayMode, exitPlayMode } = usePlayMode()
+  const { isPlayMode, enterPlayMode, exitPlayMode } = usePlayMode(playMode)
   const { isNotesOpen, toggleNotes, closeNotes }    = useNotesPanel()
   const { toasts, addToast, removeToast }           = useToast()
   const { startNew, loadFromRoster }                = useCharacterManagement(setCharacter)
