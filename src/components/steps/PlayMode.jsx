@@ -185,7 +185,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes })
               {character.inventory.map((item, i) => {
                 const isStr = typeof item === 'string'
                 const name  = isStr ? item : (item.name || '—')
-                const qty   = !isStr && item.quantity != null ? `×${item.quantity}` : ''
+                const qty   = !isStr && item.quantity ? `×${item.quantity}` : ''
                 const notes = !isStr && item.notes ? item.notes : ''
                 return (
                   <div key={i} className={styles.skillItem}>

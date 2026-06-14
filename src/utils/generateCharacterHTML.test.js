@@ -41,6 +41,14 @@ describe('generateCharacterHTML', () => {
     expect(html).toContain('Tinderbox')
   })
 
+  it('does not render a bare "×" for an item without a quantity (schema defaults quantity to "")', () => {
+    const html = generateCharacterHTML(mk('Dulu', {
+      inventory: [{ name: 'Cloak' }, { name: 'Cloak2', quantity: '' }],
+    }))
+    expect(html).toContain('Cloak')
+    expect(html).not.toContain('×')
+  })
+
   it('omits the inventory section when there are no items', () => {
     const html = generateCharacterHTML(mk('Aerin', { inventory: [] }))
     expect(html).not.toContain('<h2>Inventory</h2>')

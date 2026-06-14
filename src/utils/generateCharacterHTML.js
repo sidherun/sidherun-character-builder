@@ -44,7 +44,9 @@ function sheetBody(character) {
   // adds it to the schema). Accepts either strings or {name, quantity, notes}.
   const inv = (character.inventory || []).map(item => {
     if (typeof item === 'string') return `<tr><td>${esc(item)}</td><td></td><td></td></tr>`
-    const qty = item.quantity != null ? `×${esc(item.quantity)}` : ''
+    // quantity defaults to '' in the schema; treat empty/zero as "no quantity"
+    // so an item without a count doesn't render a bare "×".
+    const qty = item.quantity ? `×${esc(item.quantity)}` : ''
     return `<tr><td>${esc(item.name) || '—'}</td><td>${qty}</td><td>${esc(item.notes)}</td></tr>`
   }).join('')
 
