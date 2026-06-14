@@ -8,13 +8,13 @@ A browser-based character creation tool for the **Sidherun** tabletop RPG. Build
 
 ## Features
 
-- **9-step wizard** — Identity → Attributes → Combat → Powers → Magic → Skills → Resources → Review
+- **9-step wizard** — Welcome → Identity → Attributes → Combat → Powers → Magic → Skills → Resources → Review (Powers and Magic appear only for archetypes that use them)
 - **Auto-calculated stats** — HP, Mana, Defense, and Spell Target table update automatically from your attributes
 - **Play Mode** — Live HP/Mana/Story Points tracking with quick-adjust buttons
-- **Character Roster** — Save multiple characters to localStorage, load or delete them
+- **Character Roster** — Save multiple characters to localStorage, load or delete them. The Review step's **Complete** button and the **Save to Roster** button both save here; Complete then opens the Roster.
 - **Export** — JSON backup, self-contained HTML (print/PDF), shareable compressed URL
 - **Session Notes** — Slide-in notes panel with per-character CRUD
-- **Import** — Paste any exported JSON to restore a character on any device
+- **Import** — Load any exported JSON file to restore a character on any device (validated against the schema on import; invalid files are rejected)
 
 ---
 
@@ -25,11 +25,12 @@ npm install
 npm run dev
 ```
 
-Opens at `http://localhost:5174/sidherun-character-builder/`
+Opens at `http://localhost:5173/sidherun-character-builder/` (Vite picks the next free port if 5173 is taken).
 
 ```bash
 npm run build   # production build → dist/
 npm test        # Vitest unit tests
+npm run lint    # ESLint (flat config, zero-warning gate)
 ```
 
 ---
@@ -38,11 +39,12 @@ npm test        # Vitest unit tests
 
 | Layer | Choice |
 |---|---|
-| Framework | React 19 + Vite 7 |
+| Framework | React 19 + Vite 6 |
 | Styling | CSS Modules (no Tailwind) |
 | Validation | Zod 3 |
 | Persistence | localStorage (no backend) |
-| Tests | Vitest 2 |
+| Tests | Vitest 2 (jsdom env) |
+| Linting | ESLint 9 (flat config) |
 | Deploy | GitHub Pages via GitHub Actions |
 
 ---
@@ -88,7 +90,7 @@ src/
 
 ## Importing a Character
 
-On the Welcome screen, click **Import JSON** and paste a previously exported character JSON. The schema is validated on import — invalid files are rejected gracefully.
+On the Welcome screen, click **Import JSON** and choose a previously exported character `.json` file. The data is validated against the Zod schema on import (and on share-link load) — malformed or wrong-shape files are rejected with an error toast rather than silently loading defaults.
 
 A sample character (Dulu Breac, Human Druid Level 2) is included in the repo root at `dulu-breac-import.json` for testing.
 
