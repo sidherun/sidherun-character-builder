@@ -55,7 +55,7 @@ const skillSchema = z.object({
   name:           z.string(),
   attributeName:  z.string(),
   attributeScore: z.number().int().default(0),
-  skillPoints:    z.number().int().min(0).max(15).default(0),
+  skillPoints:    z.number().int().min(0).default(0),
   tempMod:        z.number().int().default(0),
   isSpecialty:    z.boolean().default(false),
   usePips:        z.number().int().min(0).max(10).default(0),

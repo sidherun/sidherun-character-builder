@@ -97,6 +97,11 @@
   padding: 3px;
 }
 
+.overCap {
+  outline: 1px solid var(--danger, #cf8a7a);
+  color: var(--danger, #cf8a7a);
+}
+
 .total {
   text-align: center;
   font-family: 'JetBrains Mono', monospace;

@@ -13,11 +13,28 @@ const ATTR_MAP = {
   'Wisdom': 'wisdom', 'Thaumaturgy': 'thaumaturgy', 'Enlightenment': 'enlightenment', 'Charisma': 'charisma',
 }
 
-const MAX_BUDGET = 30
-const MAX_PER_SKILL = 15
+const SKILL_BUDGET_TABLE = [
+  { pool: 30,  max: 15  }, // level 1
+  { pool: 50,  max: 30  }, // level 2
+  { pool: 70,  max: 40  }, // level 3
+  { pool: 80,  max: 50  }, // level 4
+  { pool: 80,  max: 60  }, // level 5
+  { pool: 100, max: 70  }, // level 6
+  { pool: 110, max: 80  }, // level 7
+  { pool: 120, max: 90  }, // level 8
+  { pool: 125, max: 95  }, // level 9
+  { pool: 130, max: 100 }, // level 10
+]
+
+function skillBudgetForLevel(level) {
+  const lvl = Math.max(1, Math.min(20, level || 1))
+  if (lvl <= 10) return SKILL_BUDGET_TABLE[lvl - 1]
+  return { pool: 130 + 5 * (lvl - 10), max: 100 }
+}
 
 export default function Step7Skills({ character, onUpdate }) {
   const { skills, attributes } = character
+  const { pool: MAX_BUDGET, max: MAX_PER_SKILL } = skillBudgetForLevel(character.level)
   const budgetUsed = calcSkillBudgetUsed(skills)
   const overBudget = budgetUsed > MAX_BUDGET
 
@@ -64,14 +81,14 @@ export default function Step7Skills({ character, onUpdate }) {
     updateSkill(skillId, { usePips: newPips })
   }
 
-  const budgetColor = overBudget ? '#8b1a1a' : budgetUsed >= 25 ? '#8b6914' : '#2d5a27'
+  const budgetColor = overBudget ? 'var(--danger)' : budgetUsed >= MAX_BUDGET * 0.85 ? 'var(--bronze)' : 'var(--story)'
 
   return (
     <div className={styles.step}>
       <h2>Skills & Specialties</h2>
       <p className={styles.intro}>
-        Skills are defined during character creation based on your backstory. Allocate your 30 skill points
-        (max 15 per skill). Mark Specialties — exceptional skills that require use each level to maintain bonuses.
+        Skills are defined during character creation based on your backstory. Allocate your {MAX_BUDGET} skill points
+        (max {MAX_PER_SKILL} per skill at Level {character.level}). Mark Specialties — exceptional skills that require use each level to maintain bonuses.
       </p>
 
       <div
@@ -79,7 +96,7 @@ export default function Step7Skills({ character, onUpdate }) {
         style={{ color: budgetColor }}
         role="status"
         aria-live="polite"
-        aria-label={`Skill points used: ${budgetUsed} of ${MAX_BUDGET}${overBudget ? ' — over budget' : ''}`}
+        aria-label={`Skill points used: ${budgetUsed} of ${MAX_BUDGET} at Level ${character.level}${overBudget ? ' — over budget' : ''}`}
       >
         <span>Skill Points Used:</span>
         <strong>{budgetUsed} / {MAX_BUDGET}</strong>
@@ -139,7 +156,7 @@ export default function Step7Skills({ character, onUpdate }) {
               min={0}
               max={MAX_PER_SKILL}
               onChange={e => updateSkill(s.id, { skillPoints: parseInt(e.target.value) || 0 })}
-              className={styles.numInput}
+              className={`${styles.numInput}${s.skillPoints > MAX_PER_SKILL ? ` ${styles.overCap}` : ''}`}
               aria-label={`Skill points for ${skillLabel} (max ${MAX_PER_SKILL})`}
             />
             <input
