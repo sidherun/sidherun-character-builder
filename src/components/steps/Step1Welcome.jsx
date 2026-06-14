@@ -22,7 +22,10 @@ export default function Step1Welcome({ onUpdate, onStartNew, onNavigate, addToas
         onUpdate(result.data)
         addToast('Character imported!', 'success')
       } else {
-        addToast('That file is not a valid Sidherun character.', 'error')
+        const detail = result.error.issues.slice(0, 3)
+          .map(i => `${i.path.join('.') || 'root'}: ${i.message}`)
+          .join('; ')
+        addToast(`Invalid character — ${detail}`, 'error')
       }
     }
     reader.readAsText(file)
