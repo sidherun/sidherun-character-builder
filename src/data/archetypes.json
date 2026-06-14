@@ -96,6 +96,14 @@
     "description": "Warriors empowered by divine faith. Combines martial skill with Enlightenment-based divine magic."
   },
   {
+    "id": "priest",
+    "name": "Priest",
+    "hasPowers": true,
+    "hasMagic": true,
+    "magicAttribute": "enlightenment",
+    "description": "Devoted servants of the divine. Channels spiritual power through Enlightenment to heal, protect, and commune with gods."
+  },
+  {
     "id": "custom",
     "name": "Custom (GM Defined)",
     "hasPowers": false,
