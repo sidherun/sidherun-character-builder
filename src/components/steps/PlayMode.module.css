@@ -158,11 +158,11 @@
 }
 
 .refSection h3 {
-  font-size: 0.78rem;
-  color: var(--gold-dim);
+  font-size: 0.82rem;
+  color: var(--gold-pale);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  border-bottom: 1px solid rgba(200,168,75,0.2);
+  border-bottom: 1px solid rgba(200,168,75,0.35);
   padding-bottom: 4px;
   margin-bottom: 8px;
 }
@@ -172,6 +172,25 @@
   grid-template-columns: 1fr 1fr;
   gap: 4px;
 }
+
+.attrGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.attrItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 8px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 3px;
+  font-size: 0.85rem;
+  color: var(--gold-pale);
+}
+
+.attrItem span { color: var(--gold-dim); font-size: 0.72rem; align-self: center; }
+.attrItem strong { color: var(--gold-bright); font-family: 'Cinzel', serif; }
 
 .defItem {
   display: flex;
@@ -200,7 +219,7 @@
 }
 
 .weaponBonus { font-family: 'Cinzel', serif; color: var(--crimson); text-align: center; }
-.weaponDesc  { color: rgba(255,255,255,0.4); font-style: italic; font-size: 0.78rem; }
+.weaponDesc  { color: rgba(255,255,255,0.55); font-style: italic; font-size: 0.78rem; }
 
 .skillItem {
   display: flex;

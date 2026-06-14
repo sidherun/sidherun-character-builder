@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { loadRoster, deleteCharacterFromRoster, loadCharacterFromRoster, saveCurrent } from '../utils/rosterStorage.js'
+import { generateBatchHTML } from '../utils/generateCharacterHTML.js'
 import CharacterCard from '../components/CharacterCard.jsx'
 import styles from './RosterPage.module.css'
 
@@ -12,6 +13,19 @@ export default function RosterPage({ onNavigate }) {
       saveCurrent(char)
       onNavigate('app')
     }
+  }
+
+  function handlePrintAll() {
+    const chars = roster
+      .map(entry => loadCharacterFromRoster(entry.id))
+      .filter(Boolean)
+    if (chars.length === 0) return
+    const html = generateBatchHTML(chars)
+    const blob = new Blob([html], { type: 'text/html' })
+    const url  = URL.createObjectURL(blob)
+    window.open(url, '_blank')
+    // Revoke after the new tab has had time to load the document.
+    setTimeout(() => URL.revokeObjectURL(url), 60000)
   }
 
   function handleDelete(id) {
@@ -32,6 +46,11 @@ export default function RosterPage({ onNavigate }) {
           <span>Character Roster</span>
         </button>
         <div className={styles.actions}>
+          {roster.length > 0 && (
+            <button className="btn-secondary" onClick={handlePrintAll}>
+              🖨 Print all ({roster.length})
+            </button>
+          )}
           <button className="btn-primary" onClick={() => onNavigate('app')}>
             + New Character
           </button>
