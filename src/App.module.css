@@ -17,7 +17,7 @@
 .wizardCard {
   width: 100%;
   max-width: 960px;
-  background: linear-gradient(#1e1813, #191309);
+  background: linear-gradient(var(--card), var(--card2));
   border: 1px solid var(--line-strong, #3a3025);
   border-radius: 9px;
   box-shadow: var(--card-shadow, 0 24px 64px rgba(0, 0, 0, 0.5));
@@ -32,7 +32,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 14px 28px;
-  background: linear-gradient(#1e1813, #181208);
+  background: linear-gradient(var(--card), var(--card2));
   border-bottom: 1px solid var(--hair, #2e2619);
   flex-shrink: 0;
 }
