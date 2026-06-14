@@ -72,7 +72,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes })
       <header className={styles.header}>
         <div className={styles.charInfo}>
           <h1>{character.name || 'Unnamed'}</h1>
-          <span>{character.race} · {character.archetype} · Level {character.level}</span>
+          <span>{character.race} · {character.archetype === 'custom' ? (character.customArchetypeName || 'Custom') : character.archetype} · Level {character.level}</span>
         </div>
         <div className={styles.headerActions}>
           <button className="btn-secondary" onClick={onToggleNotes}>Notes</button>

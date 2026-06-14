@@ -37,10 +37,11 @@ export function saveCharacterToRoster(character) {
   const idx = roster.findIndex(r => r.id === id)
   const entry = {
     id,
-    name:      char.name || 'Unnamed',
-    race:      char.race,
-    archetype: char.archetype,
-    level:     char.level,
+    name:                char.name || 'Unnamed',
+    race:                char.race,
+    archetype:           char.archetype,
+    customArchetypeName: char.customArchetypeName || '',
+    level:               char.level,
     hp:        char.hitPoints?.total ?? 0,
     savedAt:   new Date().toISOString(),
   }

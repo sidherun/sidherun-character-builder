@@ -25,10 +25,11 @@ export default function Step2Identity({ character, onUpdate }) {
     const arch = archetypes.find(a => a.id === archetypeId)
     if (arch) {
       onUpdate({
-        archetype:      arch.id,
-        hasPowers:      arch.hasPowers,
-        hasMagic:       arch.hasMagic,
-        magicAttribute: arch.magicAttribute,
+        archetype:           arch.id,
+        customArchetypeName: '',
+        hasPowers:           arch.hasPowers,
+        hasMagic:            arch.hasMagic,
+        magicAttribute:      arch.magicAttribute,
       })
     }
   }
@@ -112,37 +113,58 @@ export default function Step2Identity({ character, onUpdate }) {
         </div>
 
         {character.archetype === 'custom' && (
-          <div className={styles.customToggles}>
-            <label className={styles.toggleLabel}>
-              <input
-                type="checkbox"
-                checked={character.hasPowers}
-                onChange={e => onUpdate({ hasPowers: e.target.checked })}
-              />
-              Has Powers
-            </label>
-            <label className={styles.toggleLabel}>
-              <input
-                type="checkbox"
-                checked={character.hasMagic}
-                onChange={e => onUpdate({ hasMagic: e.target.checked })}
-              />
-              Has Magic
-            </label>
-            {character.hasMagic && (
+          <div className={`${styles.fullWidth} ${styles.customPanel}`}>
+            <p className={styles.customPanelTitle}>Custom Archetype</p>
+            <div className={styles.customPanelGrid}>
               <div className={styles.field}>
-                <label htmlFor="identity-magic-attr">Primary Magic Attribute</label>
-                <select
-                  id="identity-magic-attr"
-                  value={character.magicAttribute || 'thaumaturgy'}
-                  onChange={e => onUpdate({ magicAttribute: e.target.value })}
-                >
-                  <option value="thaumaturgy">Thaumaturgy (Arcane)</option>
-                  <option value="enlightenment">Enlightenment (Divine/Nature)</option>
-                  <option value="intelligence">Intelligence (Psychic)</option>
-                </select>
+                <label htmlFor="identity-custom-name">Archetype Name</label>
+                <input
+                  id="identity-custom-name"
+                  type="text"
+                  value={character.customArchetypeName || ''}
+                  onChange={e => onUpdate({ customArchetypeName: e.target.value })}
+                  placeholder="e.g. Bard, Witch Hunter, Merchant…"
+                />
               </div>
-            )}
+              <div className={styles.customToggles}>
+                <label className={styles.toggleLabel}>
+                  <input
+                    type="checkbox"
+                    checked={character.hasPowers}
+                    onChange={e => onUpdate({ hasPowers: e.target.checked })}
+                  />
+                  Has Powers
+                </label>
+                <label className={styles.toggleLabel}>
+                  <input
+                    type="checkbox"
+                    checked={character.hasMagic}
+                    onChange={e => {
+                      const hasMagic = e.target.checked
+                      onUpdate({
+                        hasMagic,
+                        magicAttribute: hasMagic ? (character.magicAttribute || 'thaumaturgy') : null,
+                      })
+                    }}
+                  />
+                  Has Magic
+                </label>
+                {character.hasMagic && (
+                  <div className={styles.field}>
+                    <label htmlFor="identity-magic-attr">Magic Attribute</label>
+                    <select
+                      id="identity-magic-attr"
+                      value={character.magicAttribute || 'thaumaturgy'}
+                      onChange={e => onUpdate({ magicAttribute: e.target.value })}
+                    >
+                      <option value="thaumaturgy">Thaumaturgy (Arcane)</option>
+                      <option value="enlightenment">Enlightenment (Divine/Nature)</option>
+                      <option value="intelligence">Intelligence (Psychic)</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
 

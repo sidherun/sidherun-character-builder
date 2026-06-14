@@ -12,6 +12,7 @@ export function createDefaultCharacter() {
     raceValue: 20,
     raceSize: 'medium',
     archetype: 'worldly',
+    customArchetypeName: '',
     hasPowers: false,
     hasMagic: false,
     magicAttribute: null,

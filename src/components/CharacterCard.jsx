@@ -39,7 +39,7 @@ export default function CharacterCard({ entry, onLoad, onDelete, onGetCharacter 
     <div className={styles.card}>
       <div className={styles.name}>{entry.name || 'Unnamed'}</div>
       <div className={styles.meta}>
-        {entry.race} · {entry.archetype} · Level {entry.level}
+        {entry.race} · {entry.archetype === 'custom' ? (entry.customArchetypeName || 'Custom') : entry.archetype} · Level {entry.level}
       </div>
       <div className={styles.hp}>HP: {entry.hp}</div>
       <div className={styles.saved}>

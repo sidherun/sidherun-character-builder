@@ -52,16 +52,37 @@
   letter-spacing: 0;
 }
 
-.customToggles {
-  grid-column: 1 / -1;
-  display: flex;
-  gap: 20px;
-  align-items: center;
-  flex-wrap: wrap;
-  padding: 12px;
+.customPanel {
+  padding: 16px;
   background: rgba(200, 168, 75, 0.05);
   border: var(--border-gold);
-  border-radius: 4px;
+  border-radius: 6px;
+}
+
+.customPanelTitle {
+  font-family: 'Cinzel', serif;
+  font-size: 0.78rem;
+  color: var(--gold-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 0 0 14px;
+}
+
+.customPanelGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 560px) {
+  .customPanelGrid { grid-template-columns: 1fr; }
+}
+
+.customToggles {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .toggleLabel {
