@@ -1,11 +1,17 @@
 import { useState } from 'react'
-import { loadRoster, deleteCharacterFromRoster, loadCharacterFromRoster, saveCurrent, clearCurrent } from '../utils/rosterStorage.js'
+import { loadRoster, deleteCharacterFromRoster, loadCharacterFromRoster, saveCurrent, loadCurrent, clearCurrent } from '../utils/rosterStorage.js'
 import { generateBatchHTML } from '../utils/generateCharacterHTML.js'
 import CharacterCard from '../components/CharacterCard.jsx'
 import styles from './RosterPage.module.css'
 
 export default function RosterPage({ onNavigate }) {
   const [roster, setRoster] = useState(() => loadRoster())
+
+  function handleGoHome() {
+    const current = loadCurrent()
+    if (current) saveCurrent({ ...current, wizardStep: 1 })
+    onNavigate('app')
+  }
 
   function handleLoad(id) {
     const char = loadCharacterFromRoster(id)
@@ -47,7 +53,7 @@ export default function RosterPage({ onNavigate }) {
       <header className={styles.header}>
         <button
           className={styles.brand}
-          onClick={() => onNavigate('app')}
+          onClick={handleGoHome}
           aria-label="Sidherun — return to home screen"
         >
           <h1>Sidherun</h1>
