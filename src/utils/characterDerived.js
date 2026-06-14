@@ -37,12 +37,17 @@ export function calcDefense(character) {
   const shieldBonus = SHIELD_BONUS[character.shield] ?? 0
   const d = character.defense
 
+  // Magic users defend with their casting attribute; non-magic characters use (THA+EN)/2
+  const magicDefAttr = character.hasMagic && character.magicAttribute
+    ? attrTotal(attrs[character.magicAttribute] || {})
+    : Math.round((tha + en) / 2)
+
   return {
-    typical:  50  + agi               + (d.typical.skillBonus || 0)  + shieldBonus + (d.typical.misc || 0),
-    prone:    0   + agi               + (d.prone.skillBonus || 0)    + shieldBonus + (d.prone.misc || 0),
-    magic:    0   + Math.round((tha + en) / 2) + (d.magic.skillBonus || 0) + (d.magic.misc || 0),
-    psychic:  0   + int_              + (d.psychic.skillBonus || 0)  + (d.psychic.misc || 0),
-    other:    (d.other.base || 0)     + (d.other.skillBonus || 0)    + (d.other.misc || 0),
+    typical:  50  + agi          + (d.typical.skillBonus || 0)  + shieldBonus + (d.typical.misc || 0),
+    prone:    0   + agi          + (d.prone.skillBonus || 0)    + shieldBonus + (d.prone.misc || 0),
+    magic:    0   + magicDefAttr + (d.magic.skillBonus || 0)   + (d.magic.misc || 0),
+    psychic:  0   + int_         + (d.psychic.skillBonus || 0)  + (d.psychic.misc || 0),
+    other:    (d.other.base || 0) + (d.other.skillBonus || 0)  + (d.other.misc || 0),
   }
 }
 
