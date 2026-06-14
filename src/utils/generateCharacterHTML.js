@@ -28,8 +28,15 @@ function sheetBody(character) {
     `<tr><td>${esc(w.name) || '—'}</td><td>${esc(w.attribute)}</td><td>+${(w.attributeBonus||0)+(w.skillBonus||0)}</td><td>${esc(w.descriptor)}</td></tr>`
   ).join('')
 
+  // "Use" tracking: 10 circles per skill, filled to the recorded count, the
+  // rest left empty for the player to strike by hand during play.
+  const useCircles = (s) => {
+    const used = Math.max(0, Math.min(s.usePips || 0, 10))
+    return '●'.repeat(used) + '○'.repeat(10 - used)
+  }
+
   const skills = (character.skills || []).map(s =>
-    `<tr><td>${s.isSpecialty ? '★ ' : ''}${esc(s.name) || '—'}</td><td>${esc(s.attributeName)}</td><td>${calcSkillTotal(s)}</td></tr>`
+    `<tr><td>${s.isSpecialty ? '★ ' : ''}${esc(s.name) || '—'}</td><td>${esc(s.attributeName)}</td><td>${calcSkillTotal(s)}</td><td class="uses">${useCircles(s)}</td></tr>`
   ).join('')
 
   const powers = (character.powers || []).map(p =>
@@ -79,7 +86,7 @@ function sheetBody(character) {
       </div>
       <div>
         ${weapons ? `<h2>Weapons</h2><table><tr><th>Weapon</th><th>Attr</th><th>Bonus</th><th>Descriptor</th></tr>${weapons}</table>` : ''}
-        ${skills  ? `<h2>Skills</h2><table><tr><th>Skill</th><th>Attribute</th><th>Total</th></tr>${skills}</table>` : ''}
+        ${skills  ? `<h2>Skills</h2><table><tr><th>Skill</th><th>Attribute</th><th>Total</th><th>Use</th></tr>${skills}</table>` : ''}
         ${character.hasPowers && powers ? `<h2>Powers</h2><table><tr><th>Power</th><th>Total</th><th>Description</th></tr>${powers}</table>` : ''}
         ${character.hasMagic && crafts ? `<h2>Magic Crafts</h2><table><tr><th>Craft</th><th>Attribute</th><th>Total</th><th>Description</th></tr>${crafts}</table>` : ''}
         ${inv     ? `<h2>Inventory</h2><table><tr><th>Item</th><th>Qty</th><th>Notes</th></tr>${inv}</table>` : ''}
@@ -114,6 +121,7 @@ const SHEET_CSS = `
   table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 4px; }
   th { font-family: 'Cinzel', serif; font-size: 10px; text-align: left; padding: 4px 6px; color: #6b520f; background: rgba(138,109,31,0.14); }
   td { padding: 4px 6px; border-bottom: 1px solid rgba(138,109,31,0.25); vertical-align: top; }
+  td.uses { letter-spacing: 1px; color: var(--gold); font-size: 11px; white-space: nowrap; }
   .backstory { margin-top: 16px; border-top: 1px solid var(--gold); padding-top: 12px; line-height: 1.7; }
   .toolbar { position: sticky; top: 0; background: var(--ink); color: var(--parchment); padding: 12px 24px; display: flex; gap: 12px; align-items: center; font-family: 'Cinzel', serif; z-index: 10; }
   .toolbar button { font-family: 'Cinzel', serif; font-size: 13px; padding: 8px 18px; background: #c8a84b; color: var(--ink); border: none; border-radius: 4px; cursor: pointer; font-weight: 700; }

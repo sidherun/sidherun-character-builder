@@ -31,6 +31,21 @@ describe('generateCharacterHTML', () => {
     }
   })
 
+  it('renders 10 skill Use circles, filled to usePips', () => {
+    const html = generateCharacterHTML(mk('Dulu', {
+      skills: [{ id: 1, name: 'Herbalism', attributeName: 'wisdom', attributeScore: 14, skillPoints: 5, usePips: 3 }],
+    }))
+    expect(html).toContain('<th>Use</th>')
+    expect(html).toContain('●●●○○○○○○○') // 3 used, 7 open
+  })
+
+  it('clamps Use circles to 10 and treats missing usePips as 0', () => {
+    const over = generateCharacterHTML(mk('A', { skills: [{ id: 1, name: 'S', attributeName: 'wisdom', usePips: 99 }] }))
+    expect(over).toContain('●●●●●●●●●●')
+    const none = generateCharacterHTML(mk('B', { skills: [{ id: 1, name: 'S', attributeName: 'wisdom' }] }))
+    expect(none).toContain('○○○○○○○○○○')
+  })
+
   it('renders inventory when present and accepts strings or objects', () => {
     const html = generateCharacterHTML(mk('Dulu Breac', {
       inventory: [{ name: 'Healing draught', quantity: 3, notes: 'restores 1d8' }, 'Tinderbox'],

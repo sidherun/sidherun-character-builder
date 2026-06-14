@@ -249,7 +249,31 @@
   padding: 3px 0;
   font-size: 0.85rem;
   color: var(--gold-pale);
-  border-bottom: 1px solid rgba(200,168,75,0.08);
 }
 
 .skillItem strong { font-family: 'Cinzel', serif; color: var(--gold-bright); }
+
+.skillRow {
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(200,168,75,0.08);
+}
+
+.usePips {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.usePip {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--gold-dim);
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.usePip:hover { border-color: var(--gold-bright); }
+.usePipFilled { background: var(--gold-bright); border-color: var(--gold-bright); }

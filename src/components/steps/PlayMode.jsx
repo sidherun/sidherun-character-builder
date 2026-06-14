@@ -40,6 +40,18 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes })
     setLastHit(null)
   }
 
+  // Skill "Use" tracking (PHB: strike a circle each time a skill is used in a
+  // session). Clicking a circle sets the count; clicking the highest filled one
+  // clears it back, so you can correct mistakes.
+  function toggleSkillUse(skillId, pipIdx) {
+    const skills = (character.skills || []).map(s => {
+      if (s.id !== skillId) return s
+      const newPips = s.usePips === pipIdx + 1 ? pipIdx : pipIdx + 1
+      return { ...s, usePips: newPips }
+    })
+    onUpdate({ skills })
+  }
+
   function adjustHP(delta) {
     const newCurrent = Math.max(0, Math.min(hp.total, (hp.current || 0) + delta))
     onUpdate({ hitPoints: { ...hp, current: newCurrent } })
@@ -189,9 +201,22 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes })
             <section className={styles.refSection}>
               <h3>Skills</h3>
               {character.skills.map(s => (
-                <div key={s.id} className={styles.skillItem}>
-                  <span>{s.isSpecialty ? '★ ' : ''}{s.name}</span>
-                  <strong>{calcSkillTotal(s)}</strong>
+                <div key={s.id} className={styles.skillRow}>
+                  <div className={styles.skillItem}>
+                    <span>{s.isSpecialty ? '★ ' : ''}{s.name}</span>
+                    <strong>{calcSkillTotal(s)}</strong>
+                  </div>
+                  <div className={styles.usePips} role="group" aria-label={`Use tracking for ${s.name}`}>
+                    {[0,1,2,3,4,5,6,7,8,9].map(i => (
+                      <button
+                        key={i}
+                        className={`${styles.usePip} ${i < (s.usePips || 0) ? styles.usePipFilled : ''}`}
+                        onClick={() => toggleSkillUse(s.id, i)}
+                        aria-pressed={i < (s.usePips || 0)}
+                        aria-label={`Use ${i + 1} of 10 for ${s.name}`}
+                      />
+                    ))}
+                  </div>
                 </div>
               ))}
             </section>

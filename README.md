@@ -10,7 +10,7 @@ A browser-based character creation tool for the **Sidherun** tabletop RPG. Build
 
 - **9-step wizard** — Welcome → Identity → Attributes → Combat → Powers → Magic → Skills → Resources → Review (Powers and Magic appear only for archetypes that use them)
 - **Auto-calculated stats** — HP, Mana, Defense, and Spell Target table update automatically from your attributes
-- **Play Mode** — Live HP/Mana/Story Points tracking with quick-adjust buttons
+- **Play Mode** — Live HP/Mana/Story Points tracking with quick-adjust buttons, armor that absorbs up to its soak value per hit, attributes/powers/magic/inventory at a glance, and per-skill **Use tracking** (strike circles as skills are used)
 - **Character Roster** — Save multiple characters to localStorage, load or delete them. The Review step's **Complete** button and the **Save to Roster** button both save here; Complete then opens the Roster.
 - **Export** — JSON backup, self-contained HTML (print/PDF), shareable compressed URL
 - **Session Notes** — Slide-in notes panel with per-character CRUD
@@ -83,7 +83,7 @@ src/
 - **Magic Defense** = casting attribute (Thaumaturgy, Enlightenment, or Wisdom depending on archetype) + bonuses; non-magic characters fall back to `(THA + EN) / 2`
 - **Psychic Defense** = INT + bonuses
 - **Spell Target** = 20×20 table lookup (caster level vs target level) + magic attribute; capped at 95%; no attribute bonus if base < 25
-- **Skills** — free-form, 30pt budget, max 15 per skill, specialty flag for exceptional skills
+- **Skills** — free-form, 30pt budget, max 15 per skill, specialty flag for exceptional skills, and **Use tracking** — 10 circles per skill (PHB "Impact of Skills"); strike one each time the skill is used in a session. Editable in the Skills step and Play Mode, and printed on the HTML/PDF sheet for hand-tracking.
 - **Story Points** — default 2 per character
 
 ---

@@ -52,6 +52,13 @@ describe('PlayMode', () => {
     expect(html).toContain('Defense')
   })
 
+  it('renders 10 Use-tracking circles per skill', () => {
+    const html = render(base())
+    expect(html).toContain('Use tracking for Herbalism')
+    expect(html).toContain('Use 1 of 10 for Herbalism')
+    expect(html).toContain('Use 10 of 10 for Herbalism')
+  })
+
   it('shows the armor soak + damage-input controls when armored', () => {
     const html = render(base({ armor: { type: 'leather', absorption: 6, remaining: 120, max: 120 } }))
     expect(html).toContain('Soak 6')
