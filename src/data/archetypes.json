@@ -88,6 +88,14 @@
     "description": "Scholarly practitioners of the arcane arts. Power derived from study, knowledge, and Thaumaturgy."
   },
   {
+    "id": "wizard",
+    "name": "Wizard",
+    "hasPowers": true,
+    "hasMagic": true,
+    "magicAttribute": "thaumaturgy",
+    "description": "Masters of structured arcane theory and spell craft. Wield powerful Thaumaturgy-based magic through rigorous study and precise technique."
+  },
+  {
     "id": "holy_warrior",
     "name": "Holy Warrior",
     "hasPowers": true,

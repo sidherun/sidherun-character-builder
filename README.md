@@ -102,7 +102,7 @@ Character sheets maintained in the companion `sidherun` repo as `.xlsx` files ca
 |---|---|---|---|
 | `dulu-breac-import.json` | Dulu Breac | Druid | 2 |
 | `claude-marin-import.json` | Claude Marin | Worldly | 1 |
-| `evie-cress-import.json` | Evie (Evelyn) Cress | Wizard (Mage) | 3 |
+| `evie-cress-import.json` | Evie (Evelyn) Cress | Wizard | 3 |
 | `uri-krupkin-import.json` | Uri Krupkin | Priest | 3 |
 
 To add a new character: provide the `.xlsx` (or photo of the character sheet) and Claude will produce a valid import JSON following the schema in `src/utils/characterSchema.js`.
