@@ -154,20 +154,22 @@ export default function App({ onNavigate, shareMode, playMode }) {
     <ErrorBoundary>
       <div className={styles.app}>
         <a href="#main-content" className="skip-link">Skip to main content</a>
-        <header className={styles.header}>
-          <button
-            className={styles.brand}
-            onClick={() => goToStep(1)}
-            aria-label="Sidherun Character Builder — return to welcome screen"
-          >
-            <h1>Sidherun</h1>
-            <span className={styles.subtitle}>Character Builder</span>
-          </button>
-          <div className={styles.headerActions}>
-            <button className="btn-secondary" onClick={() => onNavigate('roster')}>Roster</button>
-            <button className="btn-secondary" onClick={toggleNotes}>Notes</button>
-          </div>
-        </header>
+        {!isFirstStep && (
+          <header className={styles.header}>
+            <button
+              className={styles.brand}
+              onClick={() => goToStep(1)}
+              aria-label="Sidherun Character Builder — return to welcome screen"
+            >
+              <h1>Sidherun</h1>
+              <span className={styles.subtitle}>Character Builder</span>
+            </button>
+            <div className={styles.headerActions}>
+              <button className="btn-secondary" onClick={() => onNavigate('roster')}>Roster</button>
+              <button className="btn-secondary" onClick={toggleNotes}>Notes</button>
+            </div>
+          </header>
+        )}
 
         {!isFirstStep && (
           <StepIndicator
@@ -180,7 +182,7 @@ export default function App({ onNavigate, shareMode, playMode }) {
 
         <main
           id="main-content"
-          className={styles.main}
+          className={isFirstStep ? styles.mainFullBleed : styles.main}
           ref={mainRef}
           tabIndex={-1}
           aria-label="Character creation step"
