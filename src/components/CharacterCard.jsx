@@ -2,18 +2,38 @@ import { useState } from 'react'
 import { encodeCharacterToPlayURL } from '../utils/urlState.js'
 import styles from './CharacterCard.module.css'
 
-export default function CharacterCard({ entry, onLoad, onDelete, onGetCharacter }) {
-  const [copied, setCopied] = useState(false)
+async function shortenURL(longUrl) {
+  const res = await fetch(
+    `https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`
+  )
+  if (!res.ok) throw new Error('TinyURL request failed')
+  const short = await res.text()
+  if (!short.startsWith('https://')) throw new Error('Unexpected response')
+  return short.trim()
+}
 
-  function handleCopyPlayLink() {
+export default function CharacterCard({ entry, onLoad, onDelete, onGetCharacter }) {
+  const [linkState, setLinkState] = useState('idle') // idle | loading | copied | error
+
+  async function handleCopyPlayLink() {
     const char = onGetCharacter(entry.id)
     if (!char) return
-    const url = encodeCharacterToPlayURL(char)
-    navigator.clipboard.writeText(url).then(() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    })
+    const longUrl = encodeCharacterToPlayURL(char)
+    setLinkState('loading')
+    try {
+      const short = await shortenURL(longUrl)
+      await navigator.clipboard.writeText(short)
+      setLinkState('copied')
+      setTimeout(() => setLinkState('idle'), 2500)
+    } catch {
+      // Fall back to the long URL so the GM isn't left empty-handed
+      await navigator.clipboard.writeText(longUrl).catch(() => {})
+      setLinkState('error')
+      setTimeout(() => setLinkState('idle'), 2500)
+    }
   }
+
+  const btnLabel = { idle: 'Copy play link', loading: 'Shortening…', copied: 'Copied!', error: 'Copied (long)' }
 
   return (
     <div className={styles.card}>
@@ -27,8 +47,12 @@ export default function CharacterCard({ entry, onLoad, onDelete, onGetCharacter 
       </div>
       <div className={styles.actions}>
         <button className="btn-primary" onClick={() => onLoad(entry.id)}>Load</button>
-        <button className="btn-secondary" onClick={handleCopyPlayLink}>
-          {copied ? 'Copied!' : 'Copy play link'}
+        <button
+          className="btn-secondary"
+          onClick={handleCopyPlayLink}
+          disabled={linkState === 'loading'}
+        >
+          {btnLabel[linkState]}
         </button>
         <button className="btn-danger" onClick={() => onDelete(entry.id)}>Delete</button>
       </div>
