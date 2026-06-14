@@ -39,7 +39,7 @@ npm run lint    # ESLint (flat config, zero-warning gate)
 
 | Layer | Choice |
 |---|---|
-| Framework | React 19 + Vite 6 |
+| Framework | React 19 + Vite 7 |
 | Styling | CSS Modules (no Tailwind) |
 | Validation | Zod 3 |
 | Persistence | localStorage (no backend) |
@@ -80,7 +80,7 @@ src/
 - **HP** = `BASE(raceType × size × age) + round((STR + END) / 2) + CON`
 - **Mana** = primary magic attribute total (Thaumaturgy, Enlightenment, or Wisdom depending on archetype)
 - **Defense** = base (50 typical / 0 others) + attribute + shield + skill bonus + misc
-- **Magic Defense** = `(THA + EN) / 2` + bonuses
+- **Magic Defense** = casting attribute (Thaumaturgy, Enlightenment, or Wisdom depending on archetype) + bonuses; non-magic characters fall back to `(THA + EN) / 2`
 - **Psychic Defense** = INT + bonuses
 - **Spell Target** = 20×20 table lookup (caster level vs target level) + magic attribute; capped at 95%; no attribute bonus if base < 25
 - **Skills** — free-form, 30pt budget, max 15 per skill, specialty flag for exceptional skills
@@ -92,7 +92,7 @@ src/
 
 On the Welcome screen, click **Import JSON** and choose a previously exported character `.json` file. The data is validated against the Zod schema on import (and on share-link load) — malformed or wrong-shape files are rejected with an error toast rather than silently loading defaults.
 
-A sample character (Dulu Breac, Human Druid Level 2) is included in the repo root at `dulu-breac-import.json` for testing.
+A sample character (Dulu Breac, Human Druid Level 2) is maintained in the companion `sidherun` repo at `dulu-breac-import.json` for testing.
 
 ---
 
