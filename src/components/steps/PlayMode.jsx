@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { calcDefense, calcSkillTotal, attrTotal } from '../../utils/characterDerived.js'
 import styles from './PlayMode.module.css'
 
@@ -14,6 +15,31 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes })
   const sp    = character.storyPoints
   const armor = character.armor
 
+  const [armorDmg, setArmorDmg] = useState('')
+  const [lastHit, setLastHit]   = useState(null)
+
+  // Apply an incoming hit: armor absorbs up to its soak value (capped by the
+  // durability it has left), durability drops by what it absorbed, and any
+  // leftover damage passes through to HP.
+  function applyArmorHit() {
+    const dmg = Math.max(0, Math.floor(Number(armorDmg) || 0))
+    if (dmg <= 0) return
+    const soak     = armor.absorption || 0
+    const absorbed = Math.min(dmg, soak, armor.remaining || 0)
+    const overflow = dmg - absorbed
+    onUpdate({
+      armor:     { ...armor, remaining: (armor.remaining || 0) - absorbed },
+      hitPoints: { ...hp, current: Math.max(0, (hp.current || 0) - overflow) },
+    })
+    setLastHit({ dmg, absorbed, overflow })
+    setArmorDmg('')
+  }
+
+  function repairArmor() {
+    onUpdate({ armor: { ...armor, remaining: armor.max } })
+    setLastHit(null)
+  }
+
   function adjustHP(delta) {
     const newCurrent = Math.max(0, Math.min(hp.total, (hp.current || 0) + delta))
     onUpdate({ hitPoints: { ...hp, current: newCurrent } })
@@ -27,11 +53,6 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes })
   function adjustSP(delta) {
     const newCurrent = Math.max(0, Math.min(sp.total, (sp.current || 0) + delta))
     onUpdate({ storyPoints: { ...sp, current: newCurrent } })
-  }
-
-  function adjustArmor(delta) {
-    const newRem = Math.max(0, Math.min(armor.max, (armor.remaining || 0) + delta))
-    onUpdate({ armor: { ...armor, remaining: newRem } })
   }
 
   return (
@@ -76,14 +97,38 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes })
           {armor.type !== 'none' && (
             <div className={styles.armorCounter}>
               <div className={styles.counterLabel} style={{ color: '#5a4a27' }}>Armor</div>
-              <div className={styles.armorAbsorb}>Absorbs {armor.absorption} per hit</div>
+              <div className={styles.armorAbsorb}>Soak {armor.absorption} (absorbs up to) · {armor.type}</div>
               <div className={styles.counterDisplay}>
-                <button className={styles.adjBtn} onClick={() => adjustArmor(-armor.absorption)}>-hit</button>
                 <span className={styles.counterValue} style={{ color: '#5a4a27' }}>
                   {armor.remaining}<span className={styles.counterTotal}>/{armor.max}</span>
                 </span>
-                <button className={styles.adjBtn} onClick={() => adjustArmor(armor.absorption)}>+repair</button>
               </div>
+              <div className={styles.counterBar}>
+                <div
+                  className={styles.counterFill}
+                  style={{ width: `${armor.max > 0 ? Math.min(100, (armor.remaining / armor.max) * 100) : 0}%`, background: '#5a4a27' }}
+                />
+              </div>
+              <div className={styles.armorHitRow}>
+                <input
+                  type="number"
+                  min="0"
+                  className={styles.armorInput}
+                  placeholder="dmg"
+                  aria-label="Incoming damage"
+                  value={armorDmg}
+                  onChange={e => setArmorDmg(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') applyArmorHit() }}
+                />
+                <button className={styles.quickBtn} onClick={applyArmorHit}>Apply hit</button>
+                <button className={styles.quickBtn} onClick={repairArmor}>Repair</button>
+              </div>
+              {lastHit && (
+                <div className={styles.armorAbsorb}>
+                  Hit {lastHit.dmg}: armor absorbed {lastHit.absorbed}
+                  {lastHit.overflow > 0 ? `, ${lastHit.overflow} to HP` : ', none through'}
+                </div>
+              )}
             </div>
           )}
         </div>

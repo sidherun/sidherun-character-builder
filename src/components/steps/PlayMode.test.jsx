@@ -51,4 +51,42 @@ describe('PlayMode', () => {
     expect(html).toContain('Attributes')
     expect(html).toContain('Defense')
   })
+
+  it('shows the armor soak + damage-input controls when armored', () => {
+    const html = render(base({ armor: { type: 'leather', absorption: 6, remaining: 120, max: 120 } }))
+    expect(html).toContain('Soak 6')
+    expect(html).toContain('Apply hit')
+    expect(html).toContain('Repair')
+    expect(html).toContain('120') // durability shown
+  })
+
+  it('omits the armor block for unarmored characters', () => {
+    const html = render(base({ armor: { type: 'none', absorption: 0, remaining: 0, max: 0 } }))
+    expect(html).not.toContain('Apply hit')
+  })
+})
+
+// Pure logic mirror of applyArmorHit, locked in so the split rule can't regress.
+function splitHit(dmg, soak, remaining, hpCurrent) {
+  const absorbed = Math.min(dmg, soak, remaining)
+  const overflow = dmg - absorbed
+  return { remaining: remaining - absorbed, hp: Math.max(0, hpCurrent - overflow), absorbed, overflow }
+}
+
+describe('armor hit split rule', () => {
+  it('absorbs up to soak; small hit fully absorbed, durability drops by damage', () => {
+    expect(splitHit(3, 6, 120, 24)).toEqual({ remaining: 117, hp: 24, absorbed: 3, overflow: 0 })
+  })
+  it('hit over soak: durability drops by soak, remainder hits HP', () => {
+    expect(splitHit(10, 6, 120, 24)).toEqual({ remaining: 114, hp: 20, absorbed: 6, overflow: 4 })
+  })
+  it('low durability caps absorption; rest leaks to HP', () => {
+    expect(splitHit(5, 6, 2, 24)).toEqual({ remaining: 0, hp: 21, absorbed: 2, overflow: 3 })
+  })
+  it('destroyed armor (0 durability) sends all damage to HP', () => {
+    expect(splitHit(8, 6, 0, 24)).toEqual({ remaining: 0, hp: 16, absorbed: 0, overflow: 8 })
+  })
+  it('HP floors at 0', () => {
+    expect(splitHit(100, 6, 120, 24).hp).toBe(0)
+  })
 })

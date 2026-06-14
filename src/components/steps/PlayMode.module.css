@@ -82,6 +82,28 @@
   font-style: italic;
 }
 
+.armorHitRow {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.armorInput {
+  width: 64px;
+  padding: 5px 6px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(200,168,75,0.3);
+  color: var(--gold-bright);
+  border-radius: 4px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.armorInput:focus { outline: none; border-color: var(--gold-bright); }
+
 .counterDisplay {
   display: flex;
   align-items: center;
