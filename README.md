@@ -17,6 +17,7 @@ A browser-based character creation tool for the **Sidherun** tabletop RPG. Build
 - **Session Notes** — Slide-in notes panel with per-character CRUD
 - **Import** — Load any exported JSON file to restore a character on any device (validated against the schema on import; invalid files are rejected with a descriptive error)
 - **Inventory** — visible in Play Mode, Step 9 Review, and the print/HTML export; supports free-text strings or structured objects (name, quantity, notes)
+- **Custom archetype** — when "Custom (GM Defined)" is selected in Identity, an inline panel lets you name the archetype and toggle Powers/Magic on or off (with magic attribute selection). The custom name shows everywhere: Roster, Play Mode header, Review sheet.
 
 ---
 
@@ -48,6 +49,21 @@ npm run lint    # ESLint (flat config, zero-warning gate)
 | Tests | Vitest 2 (jsdom env) |
 | Linting | ESLint 9 (flat config) |
 | Deploy | GitHub Pages via GitHub Actions |
+
+---
+
+## Design System — Codex
+
+The app uses the **Codex** design language: editorial-fantasy aesthetic with warm bronze accent, serif display typography, and a dark nightfall theme as default.
+
+**Fonts** (Google Fonts):
+- `Newsreader` — display headings, character names, large numerals
+- `Spectral` — body text, labels, descriptions
+- `JetBrains Mono` — overlines, ALL-CAPS section labels, buttons, stat abbreviations
+
+**Theme tokens** live in `src/tokens.css` as CSS variables on `[data-theme="dark"]` / `[data-theme="light"]`. Components use `var(--token)` — never hardcoded hex values. Default theme is dark; persisted to `localStorage`.
+
+**Status:** Welcome screen ported (#41). Full app port in progress (#47).
 
 ---
 
