@@ -63,7 +63,7 @@ The app uses the **Codex** design language: editorial-fantasy aesthetic with war
 
 **Theme tokens** live in `src/tokens.css` as CSS variables on `[data-theme="dark"]` / `[data-theme="light"]`. Components use `var(--token)` — never hardcoded hex values. Default theme is dark; persisted to `localStorage`.
 
-**Status:** Welcome screen, wizard shell (header, step rail, nav), and Step 2 Identity ported. Steps 3–9, Play Mode, and Roster in progress (#47).
+**Status:** Full wizard (Steps 1–9) ported. Play Mode, Roster/CharacterCard, and light/dark theme toggle remain (#47).
 
 ---
 
