@@ -16,7 +16,7 @@ function toCompact(c) {
   const at  = ATTR_KEYS.map(k => c.attributes?.[k]?.base || 0)
   const w   = (c.weapons || []).map(x => [x.name, x.attribute, x.attributeBonus || 0, x.skillBonus || 0, x.descriptor || ''])
   const sk  = (c.skills  || []).map(x => [x.name, x.attributeName, x.attributeScore || 0, x.skillPoints || 0, x.tempMod || 0, x.isSpecialty ? 1 : 0, x.usePips || 0])
-  const pw  = (c.powers  || []).map(x => [x.name, x.base || 0, x.attributeBonus || 0, x.skillBonus || 0, x.misc || 0, x.description || ''])
+  const pw  = (c.powers  || []).map(x => [x.name, x.base || 0, x.attributeBonus || 0, x.skillBonus || 0, x.misc || 0, x.description || '', x.attributeType || '', x.powerBonus || 0])
   const cr  = (c.crafts  || []).map(x => [x.name, x.attributeName, x.attributeValue || 0, x.skillBonus || 0, x.misc || 0, x.description || ''])
   const inv = (c.inventory || []).map(x => typeof x === 'string' ? x : [x.name, x.quantity || '', x.notes || ''])
   const a   = c.armor || {}
@@ -51,7 +51,7 @@ function fromCompact(a) {
       typical: dt(def && def[0]), prone: dt(def && def[1]), magic: dt(def && def[2]), psychic: dt(def && def[3]),
       other: { base: (def && def[4] && def[4][0]) || 0, skillBonus: (def && def[4] && def[4][1]) || 0, misc: (def && def[4] && def[4][2]) || 0 },
     },
-    powers: (pw || []).map((x, i) => ({ id: 'p' + i, name: x[0] || '', base: x[1] || 0, attributeBonus: x[2] || 0, skillBonus: x[3] || 0, misc: x[4] || 0, description: x[5] || '' })),
+    powers: (pw || []).map((x, i) => ({ id: 'p' + i, name: x[0] || '', base: x[1] || 0, attributeBonus: x[2] || 0, skillBonus: x[3] || 0, misc: x[4] || 0, description: x[5] || '', attributeType: x[6] || '', powerBonus: x[7] || 0 })),
     crafts: (cr || []).map((x, i) => ({ id: 'c' + i, name: x[0] || '', attributeName: x[1] || '', attributeValue: x[2] || 0, skillBonus: x[3] || 0, misc: x[4] || 0, description: x[5] || '' })),
     skills: (sk || []).map((x, i) => ({ id: 's' + i, name: x[0] || '', attributeName: x[1] || '', attributeScore: x[2] || 0, skillPoints: x[3] || 0, tempMod: x[4] || 0, isSpecialty: !!x[5], usePips: x[6] || 0 })),
     inventory: (inv || []).map(x => typeof x === 'string' ? x : { name: x[0] || '', quantity: x[1] || '', notes: x[2] || '' }),
@@ -98,6 +98,21 @@ export function decodeCharacterFromURL() {
     // Compact play payloads are arrays; full share payloads are objects.
     return Array.isArray(parsed) ? fromCompact(parsed) : parsed
   } catch { return null }
+}
+
+// Stable roster id derived from the raw #play= payload. The same play link
+// always maps to the same roster entry, so re-opening or refreshing it resumes
+// the tracked copy (HP/Mana/notes) instead of re-importing the pristine URL
+// state and spawning a duplicate. Returns null when not on a play link.
+export function getPlayLinkId() {
+  const hash = window.location.hash
+  if (!hash.startsWith('#play=')) return null
+  const encoded = hash.slice('#play='.length)
+  let h = 5381
+  for (let i = 0; i < encoded.length; i++) {
+    h = ((h << 5) + h + encoded.charCodeAt(i)) >>> 0 // djb2
+  }
+  return 'play-' + h.toString(36)
 }
 
 export function getURLRouteType() {

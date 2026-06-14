@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { encodeCharacterToPlayURL, encodeCharacterToURL, decodeCharacterFromURL } from './urlState.js'
+import { encodeCharacterToPlayURL, encodeCharacterToURL, decodeCharacterFromURL, getPlayLinkId } from './urlState.js'
 import { safeParseCharacter } from './characterSchema.js'
 
 const A = (b) => ({ base: b, racialMod: 0, tempMod: 0 })
@@ -70,6 +70,35 @@ describe('play URL compact codec', () => {
     const playLen = encodeCharacterToPlayURL(c).length
     const shareLen = encodeCharacterToURL(c).length
     expect(playLen).toBeLessThan(shareLen * 0.6)
+  })
+
+  it('round-trips in-app (attributeType/powerBonus) power fields', () => {
+    const c = character()
+    c.powers = [{ id: 'p-new', name: 'Wild Shape', attributeType: 'wisdom', powerBonus: 5, description: 'become a beast' }]
+    const url = encodeCharacterToPlayURL(c)
+    window.location.hash = url.slice(url.indexOf('#'))
+    const d = decodeCharacterFromURL()
+    expect(d.powers[0]).toMatchObject({ name: 'Wild Shape', attributeType: 'wisdom', powerBonus: 5 })
+  })
+
+  it('getPlayLinkId is stable for one play link and distinct across links', () => {
+    const c = character()
+    const url = encodeCharacterToPlayURL(c)
+    window.location.hash = url.slice(url.indexOf('#'))
+    const id1 = getPlayLinkId()
+    const id2 = getPlayLinkId()
+    expect(id1).toBe(id2)
+    expect(id1).toMatch(/^play-/)
+    const other = character()
+    other.name = 'Someone Else'
+    const url2 = encodeCharacterToPlayURL(other)
+    window.location.hash = url2.slice(url2.indexOf('#'))
+    expect(getPlayLinkId()).not.toBe(id1)
+  })
+
+  it('returns null for getPlayLinkId off a play link', () => {
+    window.location.hash = '#roster'
+    expect(getPlayLinkId()).toBeNull()
   })
 
   it('still decodes full-object (#share=) payloads', () => {

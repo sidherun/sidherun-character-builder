@@ -12,7 +12,7 @@ A browser-based character creation tool for the **Sidherun** tabletop RPG. Build
 - **Auto-calculated stats** — HP, Mana, Defense, and Spell Target table update automatically from your attributes
 - **Play Mode** — Live HP/Mana/Story Points tracking with quick-adjust buttons, armor that absorbs up to its soak value per hit, attributes/powers/magic/inventory at a glance, and per-skill **Use tracking** (strike circles as skills are used)
 - **Character Roster** — Save multiple characters to localStorage, load or delete them. The Review step's **Complete** button and the **Save to Roster** button both save here; Complete then opens the Roster. Each card has a **Copy play link** button that generates a TinyURL-shortened `#play=` link for that character.
-- **Player play links** — Opening a `#play=` link loads the character directly into Play Mode and auto-saves it to the player's local roster so their HP/Mana/notes persist across refreshes. Full wizard access is available if they exit play mode.
+- **Player play links** — Opening a `#play=` link loads the character directly into Play Mode and auto-saves it to the player's local roster under a stable id derived from the link, so their HP/Mana/notes persist across refreshes (a refresh resumes the tracked copy rather than re-importing the link, so no duplicate roster entries are created). Full wizard access is available if they exit play mode.
 - **Export** — JSON backup, self-contained HTML (print/PDF), shareable URL (LZString-compressed; ~3,000 chars for a typical character)
 - **Session Notes** — Slide-in notes panel with per-character CRUD
 - **Import** — Load any exported JSON file to restore a character on any device (validated against the schema on import; invalid files are rejected with a descriptive error)
@@ -129,6 +129,6 @@ To add a new archetype: add an entry to `src/data/archetypes.json` with `id`, `n
 
 ## Deploying
 
-Push to `main` — GitHub Actions runs `npm run build` and deploys `dist/` to GitHub Pages automatically.
+Push to `main` — GitHub Actions runs `npm run lint`, `npm test`, and `npm run build`, then deploys `dist/` to GitHub Pages automatically. A lint error or failing test blocks the deploy.
 
 GitHub Pages must be set to source **GitHub Actions** in repo Settings → Pages.

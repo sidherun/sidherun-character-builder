@@ -66,6 +66,19 @@ export function calcSkillBudgetUsed(skills) {
   return skills.reduce((acc, s) => acc + (s.skillPoints || 0), 0)
 }
 
+// Powers come in two shapes: the in-app editor (Step 5) writes
+// { attributeType, powerBonus } and totals as attribute + bonus, while older
+// hand-authored / imported powers use the legacy { base, attributeBonus,
+// skillBonus, misc } sum. Compute the correct total for either shape so the
+// printout and share/play links agree with the editor.
+export function calcPowerTotal(power, attributes) {
+  if (power.attributeType) {
+    const a = attributes?.[power.attributeType]
+    return (a ? attrTotal(a) : 0) + (power.powerBonus || 0)
+  }
+  return (power.base || 0) + (power.attributeBonus || 0) + (power.skillBonus || 0) + (power.misc || 0)
+}
+
 export function xpForLevel(level) {
   const row = xpTable.find(r => r.level === level)
   return row ? row.xpEnd : null
