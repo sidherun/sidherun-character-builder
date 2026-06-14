@@ -200,6 +200,24 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
               ))}
             </section>
           )}
+          {/* Inventory */}
+          {character.inventory?.length > 0 && (
+            <section className={styles.section}>
+              <h3>Inventory</h3>
+              {character.inventory.map((item, i) => {
+                const isStr = typeof item === 'string'
+                const name  = isStr ? item : (item.name || '—')
+                const qty   = !isStr && item.quantity != null && item.quantity !== '' ? ` ×${item.quantity}` : ''
+                const notes = !isStr && item.notes ? ` — ${item.notes}` : ''
+                return (
+                  <div key={i} className={styles.skillRow}>
+                    <span className={styles.skillName}>{name}{notes}</span>
+                    {qty && <span className={styles.skillAttr}>{qty}</span>}
+                  </div>
+                )
+              })}
+            </section>
+          )}
         </div>
       </div>
 
