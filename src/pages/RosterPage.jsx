@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { loadRoster, deleteCharacterFromRoster, loadCharacterFromRoster, saveCurrent } from '../utils/rosterStorage.js'
+import { loadRoster, deleteCharacterFromRoster, loadCharacterFromRoster, saveCurrent, clearCurrent } from '../utils/rosterStorage.js'
 import { generateBatchHTML } from '../utils/generateCharacterHTML.js'
 import CharacterCard from '../components/CharacterCard.jsx'
 import styles from './RosterPage.module.css'
@@ -34,6 +34,14 @@ export default function RosterPage({ onNavigate }) {
     setRoster(loadRoster())
   }
 
+  // Clear the saved "current" slot first, otherwise App re-opens the last
+  // character (loadCurrent) instead of starting blank. The roster entries
+  // themselves are untouched.
+  function handleNew() {
+    clearCurrent()
+    onNavigate('app')
+  }
+
   return (
     <div className={styles.page}>
       <header className={styles.header}>
@@ -51,7 +59,7 @@ export default function RosterPage({ onNavigate }) {
               🖨 Print all ({roster.length})
             </button>
           )}
-          <button className="btn-primary" onClick={() => onNavigate('app')}>
+          <button className="btn-primary" onClick={handleNew}>
             + New Character
           </button>
         </div>
@@ -61,7 +69,7 @@ export default function RosterPage({ onNavigate }) {
         {roster.length === 0 ? (
           <div className={styles.empty}>
             <p>No saved characters yet.</p>
-            <button className="btn-primary" onClick={() => onNavigate('app')}>
+            <button className="btn-primary" onClick={handleNew}>
               Create Your First Character
             </button>
           </div>
