@@ -1,41 +1,51 @@
 .step h2 { margin-bottom: 8px; }
 
 .intro {
-  color: var(--ink-light);
+  font-family: 'Spectral', serif;
+  color: var(--ink500, #d8ccb4);
   font-style: italic;
   margin-bottom: 16px;
-  font-size: 0.9rem;
+  font-size: 14px;
 }
 
 .budget {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-family: 'Cinzel', serif;
-  font-size: 0.9rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink500, #d8ccb4);
   margin-bottom: 16px;
-  padding: 8px 12px;
-  background: rgba(200,168,75,0.05);
-  border: var(--border-gold);
-  border-radius: 4px;
+  padding: 10px 14px;
+  background: var(--sel, #2a2013);
+  border: 1px solid var(--line, #3a3025);
+  border-radius: 6px;
 }
 
 .budget strong {
-  font-size: 1.1rem;
+  font-family: 'Newsreader', serif;
+  font-size: 1.2rem;
+  color: var(--ink900, #f4ecda);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .overWarning {
-  color: var(--crimson);
-  font-size: 0.85rem;
+  color: var(--danger, #cf8a7a);
+  font-size: 10px;
   margin-left: 8px;
 }
 
 .header { margin-bottom: 12px; }
 
 .empty {
-  color: var(--ink-light);
+  font-family: 'Spectral', serif;
+  color: var(--ink500, #d8ccb4);
   font-style: italic;
-  font-size: 0.85rem;
+  font-size: 13.5px;
   padding: 8px 0;
 }
 
@@ -44,11 +54,12 @@
   grid-template-columns: 2fr 120px 70px 70px 70px 60px 70px 80px 36px;
   gap: 6px;
   padding: 6px 8px;
-  font-family: 'Cinzel', serif;
-  font-size: 0.68rem;
-  color: var(--gold-dim);
-  letter-spacing: 0.05em;
-  border-bottom: var(--border-gold);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--bronze, #c69152);
+  border-bottom: 1px solid var(--line, #3a3025);
   margin-bottom: 4px;
 }
 
@@ -58,25 +69,26 @@
   gap: 6px;
   align-items: center;
   padding: 6px 8px;
-  border-radius: 3px;
+  border-radius: 4px;
   transition: background 0.1s;
 }
 
-.skillRow:hover { background: rgba(200,168,75,0.04); }
+.skillRow:hover { background: rgba(198, 145, 82, 0.04); }
 
 .specialty {
-  background: rgba(200,168,75,0.07);
-  border-left: 3px solid var(--gold-bright);
-  padding-left: 5px;
+  background: rgba(198, 145, 82, 0.07);
+  border-left: 2px solid var(--bronze, #c69152);
+  padding-left: 6px;
 }
 
 .nameInput { width: 100%; }
 
 .attrScore {
   text-align: center;
-  font-family: 'Cinzel', serif;
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink700, #e2d8c2);
 }
 
 .numInput {
@@ -87,9 +99,10 @@
 
 .total {
   text-align: center;
-  font-family: 'Cinzel', serif;
-  font-size: 1.05rem;
-  color: var(--gold-bright);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--bronze, #c69152);
 }
 
 .specialtyToggle {
@@ -101,7 +114,7 @@
 }
 
 .specialtyTag {
-  color: var(--gold-bright);
+  color: var(--bronze, #c69152);
   font-size: 0.9rem;
 }
 
@@ -113,17 +126,18 @@
 }
 
 .pip {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  border: 1px solid var(--gold-dim);
+  border: 1px solid var(--dotted, #4a3d2c);
   background: transparent;
   padding: 0;
   cursor: pointer;
   transition: background 0.1s;
+  flex-shrink: 0;
 }
 
 .pipFilled {
-  background: var(--gold-bright);
-  border-color: var(--gold-bright);
+  background: var(--bronze, #c69152);
+  border-color: var(--bronze, #c69152);
 }

@@ -2,10 +2,11 @@
 .section { margin-bottom: 8px; }
 
 .intro, .empty {
-  color: var(--ink-light);
+  font-family: 'Spectral', serif;
+  color: var(--ink500, #d8ccb4);
   font-style: italic;
   margin-bottom: 16px;
-  font-size: 0.9rem;
+  font-size: 14px;
 }
 
 .sectionHeader {
@@ -17,11 +18,11 @@
 .sectionHeader h3 { margin: 0; }
 
 .craftCard {
-  border: var(--border-gold);
-  border-radius: 4px;
-  padding: 14px;
-  margin-bottom: 12px;
-  background: rgba(200, 168, 75, 0.03);
+  border: 1px solid var(--line, #3a3025);
+  border-radius: 6px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  background: var(--sel, #2a2013);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -32,7 +33,12 @@
   gap: 10px;
   align-items: center;
 }
-.craftName { flex: 1; font-family: 'Cinzel', serif; }
+.craftName {
+  flex: 1;
+  font-family: 'Newsreader', serif;
+  font-size: 16px;
+  color: var(--ink900, #f4ecda);
+}
 
 .craftRow {
   display: flex;
@@ -45,20 +51,22 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-size: 0.72rem;
-  color: var(--gold-dim);
-  font-family: 'Cinzel', serif;
-  letter-spacing: 0.05em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--bronze, #c69152);
 }
 
 .numField {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-size: 0.72rem;
-  color: var(--gold-dim);
-  font-family: 'Cinzel', serif;
-  letter-spacing: 0.05em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--bronze, #c69152);
 }
 .numField input { width: 72px; text-align: center; }
 
@@ -67,18 +75,26 @@
   flex-direction: column;
   align-items: center;
   gap: 3px;
-  font-size: 0.72rem;
-  color: var(--gold-dim);
-  font-family: 'Cinzel', serif;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--bronze, #c69152);
 }
-.totalBadge strong { font-size: 1.1rem; color: var(--gold-bright); }
+.totalBadge strong {
+  font-family: 'Newsreader', serif;
+  font-size: 1.4rem;
+  color: var(--bronze, #c69152);
+  font-weight: 500;
+}
 
-.craftDesc { width: 100%; resize: vertical; padding: 6px; }
+.craftDesc { width: 100%; resize: vertical; }
 
 /* Spell target */
 .spellNote {
-  font-size: 0.85rem;
-  color: var(--ink-light);
+  font-family: 'Spectral', serif;
+  font-size: 13.5px;
+  color: var(--ink400, #8a7a5c);
   margin-bottom: 16px;
   font-style: italic;
 }
@@ -98,21 +114,24 @@
 }
 
 .targetLabel {
-  font-family: 'Cinzel', serif;
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  color: var(--gold-dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bronze, #c69152);
 }
 
 .targetNum {
-  font-family: 'Cinzel', serif;
+  font-family: 'Newsreader', serif;
   font-size: 2.5rem;
-  font-weight: 700;
+  font-weight: 500;
+  color: var(--ink900, #f4ecda);
   line-height: 1;
 }
 
 .redNote {
-  font-size: 0.75rem;
-  color: var(--crimson);
+  font-family: 'Spectral', serif;
+  font-size: 12px;
+  color: var(--danger, #cf8a7a);
   font-style: italic;
 }

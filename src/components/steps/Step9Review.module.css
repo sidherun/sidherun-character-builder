@@ -11,19 +11,25 @@
 }
 
 .title h1 {
+  font-family: 'Newsreader', serif;
   font-size: 2rem;
+  font-weight: 500;
+  color: var(--ink900, #f4ecda);
   margin-bottom: 4px;
 }
 
 .subtitle {
-  color: var(--ink-light);
+  font-family: 'Spectral', serif;
+  color: var(--ink500, #d8ccb4);
   font-style: italic;
+  font-size: 14px;
   text-transform: capitalize;
 }
 
 .headerActions {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .exportBar {
@@ -34,21 +40,21 @@
 }
 
 .exportLabel {
-  font-family: 'Cinzel', serif;
-  font-size: 0.75rem;
-  color: var(--gold-dim);
-  letter-spacing: 0.08em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
+  color: var(--bronze, #c69152);
 }
 
 .exportBar button {
-  font-size: 0.78rem;
-  padding: 5px 12px;
+  font-size: 10px;
+  padding: 6px 12px;
 }
 
 .resourcesRow {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
@@ -58,22 +64,24 @@
   align-items: center;
   padding: 8px 16px;
   border: 2px solid;
-  border-radius: 4px;
-  background: rgba(255,255,255,0.3);
+  border-radius: 6px;
+  background: var(--card2, #1a140e);
   min-width: 80px;
 }
 
 .resourceChip span {
-  font-family: 'Cinzel', serif;
-  font-size: 0.68rem;
-  color: var(--gold-dim);
-  letter-spacing: 0.08em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
+  color: var(--bronze, #c69152);
 }
 
 .resourceChip strong {
-  font-family: 'Cinzel', serif;
-  font-size: 1rem;
+  font-family: 'Newsreader', serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--ink900, #f4ecda);
 }
 
 .columns {
@@ -89,20 +97,16 @@
 }
 
 .section h3 {
-  border-bottom: var(--border-gold);
-  padding-bottom: 4px;
+  border-bottom: 1px solid var(--hair, #2e2619);
+  padding-bottom: 6px;
   margin-bottom: 10px;
-  font-size: 0.9rem;
-  color: var(--gold-dim);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 /* Attributes */
 .attrGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4px;
+  gap: 3px;
 }
 
 .attrChip {
@@ -110,12 +114,21 @@
   justify-content: space-between;
   align-items: center;
   padding: 4px 8px;
-  background: rgba(200,168,75,0.05);
-  border-radius: 3px;
+  background: var(--sel, #2a2013);
+  border-radius: 4px;
 }
 
-.attrName { font-size: 0.82rem; color: var(--ink-light); }
-.attrVal  { font-family: 'Cinzel', serif; font-size: 1rem; }
+.attrName {
+  font-family: 'Spectral', serif;
+  font-size: 13px;
+  color: var(--ink500, #d8ccb4);
+}
+.attrVal {
+  font-family: 'Newsreader', serif;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--ink900, #f4ecda);
+}
 
 /* Defense */
 .defTable { display: flex; flex-direction: column; gap: 3px; }
@@ -123,10 +136,16 @@
   display: flex;
   justify-content: space-between;
   padding: 4px 8px;
-  font-size: 0.9rem;
-  background: rgba(200,168,75,0.04);
+  font-size: 13.5px;
+  background: var(--sel, #2a2013);
+  border-radius: 3px;
+  color: var(--ink700, #e2d8c2);
 }
-.defRow strong { font-family: 'Cinzel', serif; font-size: 1rem; color: var(--crimson); }
+.defRow strong {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  color: var(--danger, #cf8a7a);
+}
 
 /* Weapons */
 .weaponRow {
@@ -135,13 +154,20 @@
   gap: 8px;
   align-items: center;
   padding: 4px 0;
-  border-bottom: 1px solid rgba(200,168,75,0.15);
-  font-size: 0.88rem;
+  border-bottom: 1px solid var(--hair, #2e2619);
+  font-size: 13.5px;
+  color: var(--ink700, #e2d8c2);
 }
-.weaponName { font-weight: 500; }
-.weaponAttr { color: var(--gold-dim); font-size: 0.78rem; }
-.weaponTotal { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--crimson); text-align: center; }
-.weaponDesc  { color: var(--ink-light); font-size: 0.78rem; font-style: italic; }
+.weaponName { font-weight: 500; color: var(--ink900, #f4ecda); }
+.weaponAttr { color: var(--ink400, #8a7a5c); font-size: 12px; }
+.weaponTotal {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--danger, #cf8a7a);
+  text-align: center;
+}
+.weaponDesc { color: var(--ink400, #8a7a5c); font-size: 12px; font-style: italic; }
 
 /* Skills */
 .skillRow {
@@ -149,13 +175,26 @@
   grid-template-columns: 2fr 90px 50px;
   gap: 8px;
   padding: 3px 0;
-  font-size: 0.87rem;
-  border-bottom: 1px solid rgba(200,168,75,0.1);
+  font-size: 13px;
+  border-bottom: 1px solid var(--hair, #2e2619);
+  color: var(--ink700, #e2d8c2);
 }
-.skillName { font-weight: 500; }
-.skillAttr { color: var(--gold-dim); font-size: 0.78rem; }
-.skillTotal { font-family: 'Cinzel', serif; text-align: right; color: var(--gold-bright); }
-.starNote { font-size: 0.72rem; color: var(--gold-dim); font-family: 'EB Garamond', serif; margin-left: 6px; letter-spacing: 0; text-transform: none; }
+.skillName { font-weight: 500; color: var(--ink900, #f4ecda); }
+.skillAttr { color: var(--ink400, #8a7a5c); font-size: 12px; }
+.skillTotal {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  text-align: right;
+  color: var(--bronze, #c69152);
+}
+.starNote {
+  font-family: 'Spectral', serif;
+  font-size: 11px;
+  color: var(--ink400, #8a7a5c);
+  margin-left: 6px;
+  letter-spacing: 0;
+  text-transform: none;
+}
 
 /* Powers */
 .powerRow {
@@ -163,12 +202,18 @@
   grid-template-columns: 1fr 50px;
   gap: 8px;
   padding: 3px 0;
-  font-size: 0.87rem;
-  border-bottom: 1px solid rgba(200,168,75,0.1);
+  font-size: 13px;
+  border-bottom: 1px solid var(--hair, #2e2619);
+  color: var(--ink700, #e2d8c2);
 }
-.powerName { font-weight: 500; }
-.powerTotal { font-family: 'Cinzel', serif; text-align: right; color: var(--gold-bright); }
-.powerDesc  { grid-column: 1 / -1; color: var(--ink-light); font-style: italic; font-size: 0.78rem; }
+.powerName { font-weight: 500; color: var(--ink900, #f4ecda); }
+.powerTotal {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  text-align: right;
+  color: var(--bronze, #c69152);
+}
+.powerDesc { grid-column: 1 / -1; color: var(--ink400, #8a7a5c); font-style: italic; font-size: 12px; }
 
 /* Crafts */
 .craftRow {
@@ -176,18 +221,29 @@
   grid-template-columns: 1fr 80px 50px;
   gap: 8px;
   padding: 3px 0;
-  font-size: 0.87rem;
-  border-bottom: 1px solid rgba(200,168,75,0.1);
+  font-size: 13px;
+  border-bottom: 1px solid var(--hair, #2e2619);
+  color: var(--ink700, #e2d8c2);
 }
-.craftName { font-weight: 500; }
-.craftAttr { color: var(--gold-dim); font-size: 0.78rem; }
-.craftTotal { font-family: 'Cinzel', serif; text-align: right; color: var(--gold-bright); }
-.craftDesc  { grid-column: 1 / -1; color: var(--ink-light); font-style: italic; font-size: 0.78rem; }
+.craftName { font-weight: 500; color: var(--ink900, #f4ecda); }
+.craftAttr { color: var(--ink400, #8a7a5c); font-size: 12px; }
+.craftTotal {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  text-align: right;
+  color: var(--bronze, #c69152);
+}
+.craftDesc { grid-column: 1 / -1; color: var(--ink400, #8a7a5c); font-style: italic; font-size: 12px; }
 
 /* Backstory */
 .backstory {
-  border-top: var(--border-gold);
+  border-top: 1px solid var(--hair, #2e2619);
   padding-top: 16px;
 }
-.backstory h3 { margin-bottom: 8px; font-size: 0.9rem; color: var(--gold-dim); text-transform: uppercase; letter-spacing: 0.08em; }
-.backstory p { line-height: 1.7; color: var(--ink-light); }
+.backstory h3 { margin-bottom: 8px; }
+.backstory p {
+  font-family: 'Spectral', serif;
+  line-height: 1.7;
+  font-size: 14px;
+  color: var(--ink500, #d8ccb4);
+}

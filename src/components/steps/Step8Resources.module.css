@@ -1,16 +1,14 @@
 .step h2 { margin-bottom: 8px; }
 
 .intro {
-  color: var(--ink-light);
+  font-family: 'Spectral', serif;
+  color: var(--ink500, #d8ccb4);
   font-style: italic;
   margin-bottom: 16px;
-  font-size: 0.9rem;
+  font-size: 14px;
 }
 
-.syncBtn {
-  margin-bottom: 20px;
-  font-size: 0.82rem;
-}
+.syncBtn { margin-bottom: 20px; }
 
 .grid {
   display: grid;
@@ -20,27 +18,29 @@
 }
 
 .resourceCard {
-  border: var(--border-gold);
+  border: 1px solid var(--line, #3a3025);
   border-top: 3px solid;
-  border-radius: 4px;
+  border-radius: 6px;
   padding: 14px;
-  background: rgba(255,255,255,0.3);
+  background: var(--card2, #1a140e);
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
 .resourceTitle {
-  font-family: 'Cinzel', serif;
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.07em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
+  color: var(--bronze, #c69152);
 }
 
 .formula {
-  font-size: 0.75rem;
-  color: var(--ink-light);
+  font-family: 'Spectral', serif;
+  font-size: 12px;
+  color: var(--ink400, #8a7a5c);
   font-style: italic;
 }
 
@@ -57,29 +57,31 @@
 }
 
 .resourceStat span {
-  font-size: 0.7rem;
-  color: var(--gold-dim);
-  font-family: 'Cinzel', serif;
-  letter-spacing: 0.07em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
+  color: var(--bronze, #c69152);
 }
 
 .resourceStat strong {
-  font-size: 1.4rem;
-  font-family: 'Cinzel', serif;
+  font-family: 'Newsreader', serif;
+  font-size: 1.6rem;
+  color: var(--ink900, #f4ecda);
+  font-weight: 500;
 }
 
 .resourceStat input {
-  font-size: 1.3rem;
+  font-family: 'Newsreader', serif;
+  font-size: 1.4rem;
   text-align: center;
   width: 100%;
-  font-family: 'Cinzel', serif;
   padding: 4px;
 }
 
 .bar {
-  height: 6px;
-  background: rgba(0,0,0,0.1);
+  height: 5px;
+  background: rgba(0, 0, 0, 0.3);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -105,23 +107,28 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
-  font-size: 0.72rem;
-  color: var(--gold-dim);
-  font-family: 'Cinzel', serif;
-  letter-spacing: 0.05em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--bronze, #c69152);
 }
-.xpField input { width: 120px; padding: 6px 8px; font-size: 1rem; }
+.xpField input { width: 120px; padding: 8px 10px; font-size: 1rem; }
 
 .xpStat {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-family: 'Cinzel', serif;
-  font-size: 0.9rem;
+  font-family: 'Spectral', serif;
+  font-size: 14px;
+  color: var(--ink700, #e2d8c2);
 }
 
 .xpNeeded {
-  font-size: 0.8rem;
-  color: var(--gold-dim);
+  font-size: 12.5px;
+  color: var(--ink400, #8a7a5c);
 }
-.xpMax { font-size: 0.8rem; color: var(--gold-bright); }
+.xpMax {
+  font-size: 12.5px;
+  color: var(--bronze, #c69152);
+}

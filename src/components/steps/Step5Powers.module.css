@@ -1,29 +1,29 @@
 .step h2 { margin-bottom: 8px; }
 
 .intro {
-  color: var(--ink-light);
+  font-family: 'Spectral', serif;
+  color: var(--ink500, #d8ccb4);
   font-style: italic;
   margin-bottom: 16px;
-  font-size: 0.9rem;
+  font-size: 14px;
 }
 
-.header {
-  margin-bottom: 16px;
-}
+.header { margin-bottom: 16px; }
 
 .empty {
-  color: var(--ink-light);
+  font-family: 'Spectral', serif;
+  color: var(--ink500, #d8ccb4);
   font-style: italic;
-  font-size: 0.85rem;
+  font-size: 13.5px;
   padding: 12px 0;
 }
 
 .card {
-  border: var(--border-gold);
-  border-radius: 4px;
-  padding: 14px;
-  margin-bottom: 12px;
-  background: rgba(200, 168, 75, 0.03);
+  border: 1px solid var(--line, #3a3025);
+  border-radius: 6px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  background: var(--sel, #2a2013);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -37,8 +37,9 @@
 
 .powerName {
   flex: 1;
-  font-size: 1rem;
-  font-family: 'Cinzel', serif;
+  font-family: 'Newsreader', serif;
+  font-size: 16px;
+  color: var(--ink900, #f4ecda);
 }
 
 .numRow {
@@ -52,10 +53,11 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-size: 0.72rem;
-  color: var(--gold-dim);
-  font-family: 'Cinzel', serif;
-  letter-spacing: 0.05em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--bronze, #c69152);
 }
 .numField input { width: 72px; text-align: center; }
 
@@ -64,17 +66,21 @@
   flex-direction: column;
   align-items: center;
   gap: 3px;
-  font-size: 0.72rem;
-  color: var(--gold-dim);
-  font-family: 'Cinzel', serif;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--bronze, #c69152);
 }
 .totalBadge strong {
-  font-size: 1.1rem;
-  color: var(--gold-bright);
+  font-family: 'Newsreader', serif;
+  font-size: 1.4rem;
+  color: var(--bronze, #c69152);
+  font-weight: 500;
 }
 
 .desc {
   width: 100%;
   resize: vertical;
-  padding: 6px;
+  padding: 8px 12px;
 }
