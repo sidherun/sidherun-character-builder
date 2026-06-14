@@ -45,7 +45,7 @@ function visibleSteps(hasPowers, hasMagic) {
     7, 8, 9]
 }
 
-export default function App({ onNavigate, shareMode, playMode }) {
+export default function App({ onNavigate, shareMode, playMode, theme, onToggleTheme }) {
   const [character, setCharacter] = useState(() => {
     if (shareMode || playMode) {
       const data = decodeCharacterFromURL()
@@ -134,6 +134,8 @@ export default function App({ onNavigate, shareMode, playMode }) {
           onUpdate={update}
           onExit={exitPlayMode}
           onToggleNotes={toggleNotes}
+          theme={theme}
+          onToggleTheme={onToggleTheme}
         />
         {isNotesOpen && (
           <NotesPanel
@@ -189,6 +191,7 @@ export default function App({ onNavigate, shareMode, playMode }) {
                   <span className={styles.brandSub}>Character Builder</span>
                 </button>
                 <div className={styles.headerActions}>
+                  <button className={styles.headerBtn} onClick={onToggleTheme}>{theme === 'dark' ? 'Light' : 'Dark'}</button>
                   <button className={styles.headerBtn} onClick={() => onNavigate('roster')}>Roster</button>
                   <button className={styles.headerBtn} onClick={toggleNotes}>Notes</button>
                 </div>

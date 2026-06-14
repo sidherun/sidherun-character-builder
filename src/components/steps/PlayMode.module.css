@@ -2,7 +2,6 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--ink);
 }
 
 .header {
@@ -10,19 +9,22 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 2px solid var(--gold-dim);
+  background: linear-gradient(var(--card), var(--card2));
+  border-bottom: 1px solid var(--hair);
 }
 
 .charInfo h1 {
-  font-family: 'Cinzel Decorative', serif;
-  color: var(--gold-bright);
+  font-family: 'Newsreader', serif;
   font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--ink900);
   margin-bottom: 2px;
 }
 
 .charInfo span {
-  color: var(--gold-dim);
-  font-size: 0.82rem;
+  font-family: 'Spectral', serif;
+  font-size: 13px;
+  color: var(--ink500);
   text-transform: capitalize;
 }
 
@@ -50,8 +52,8 @@
 }
 
 .counter {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(200,168,75,0.2);
+  background: var(--sel);
+  border: 1px solid var(--line);
   border-radius: 6px;
   padding: 16px;
   display: flex;
@@ -60,8 +62,8 @@
 }
 
 .armorCounter {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(200,168,75,0.2);
+  background: var(--sel);
+  border: 1px solid var(--line);
   border-radius: 6px;
   padding: 16px;
   display: flex;
@@ -70,15 +72,17 @@
 }
 
 .counterLabel {
-  font-family: 'Cinzel', serif;
-  font-size: 0.8rem;
-  letter-spacing: 0.1em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .armorAbsorb {
-  font-size: 0.78rem;
-  color: var(--gold-dim);
+  font-family: 'Spectral', serif;
+  font-size: 12px;
+  color: var(--ink400);
   font-style: italic;
 }
 
@@ -93,16 +97,8 @@
 .armorInput {
   width: 64px;
   padding: 5px 6px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(200,168,75,0.3);
-  color: var(--gold-bright);
-  border-radius: 4px;
-  font-family: 'Cinzel', serif;
-  font-size: 0.95rem;
   text-align: center;
 }
-
-.armorInput:focus { outline: none; border-color: var(--gold-bright); }
 
 .counterDisplay {
   display: flex;
@@ -114,38 +110,46 @@
 .adjBtn {
   width: 36px;
   height: 36px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(200,168,75,0.3);
-  color: var(--gold-bright);
-  font-family: 'Cinzel', serif;
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  color: var(--ink700);
+  font-family: 'JetBrains Mono', monospace;
   font-size: 1.1rem;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
+  cursor: pointer;
 }
 
-.adjBtn:hover { background: rgba(200,168,75,0.15); }
+.adjBtn:hover {
+  background: var(--ghost-hover);
+  border-color: var(--bronze);
+  color: var(--bronze);
+}
 
 .counterValue {
-  font-family: 'Cinzel', serif;
+  font-family: 'Newsreader', serif;
   font-size: 2.4rem;
-  font-weight: 700;
+  font-weight: 500;
   min-width: 80px;
   text-align: center;
+  line-height: 1;
 }
 
 .counterTotal {
+  font-family: 'Spectral', serif;
   font-size: 1rem;
-  color: rgba(255,255,255,0.3);
+  color: var(--ink400);
   margin-left: 2px;
 }
 
 .counterBar {
   height: 8px;
-  background: rgba(255,255,255,0.1);
+  background: var(--card2);
   border-radius: 4px;
   overflow: hidden;
+  border: 1px solid var(--hair);
 }
 
 .counterFill {
@@ -161,16 +165,22 @@
 }
 
 .quickBtn {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(200,168,75,0.2);
-  color: var(--gold-dim);
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink500);
   padding: 3px 8px;
-  font-size: 0.75rem;
-  font-family: 'Cinzel', serif;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
   border-radius: 3px;
+  cursor: pointer;
 }
 
-.quickBtn:hover { background: rgba(200,168,75,0.1); color: var(--gold-bright); }
+.quickBtn:hover {
+  background: var(--ghost-hover);
+  border-color: var(--bronze);
+  color: var(--bronze);
+}
 
 /* Reference */
 .reference {
@@ -180,11 +190,7 @@
 }
 
 .refSection h3 {
-  font-size: 0.82rem;
-  color: var(--gold-pale);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  border-bottom: 1px solid rgba(200,168,75,0.35);
+  border-bottom: 1px solid var(--hair);
   padding-bottom: 4px;
   margin-bottom: 8px;
 }
@@ -205,28 +211,42 @@
   display: flex;
   justify-content: space-between;
   padding: 5px 8px;
-  background: rgba(255,255,255,0.03);
+  background: var(--sel);
   border-radius: 3px;
-  font-size: 0.85rem;
-  color: var(--gold-pale);
+  font-size: 13px;
 }
 
-.attrItem span { color: var(--gold-dim); font-size: 0.72rem; align-self: center; }
-.attrItem strong { color: var(--gold-bright); font-family: 'Cinzel', serif; }
+.attrItem span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink400);
+  align-self: center;
+}
+
+.attrItem strong {
+  font-family: 'Newsreader', serif;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--ink900);
+}
 
 .defItem {
   display: flex;
   justify-content: space-between;
   padding: 5px 8px;
-  background: rgba(255,255,255,0.03);
+  background: var(--sel);
   border-radius: 3px;
-  font-size: 0.85rem;
-  color: var(--gold-pale);
+  font-size: 13px;
+  color: var(--ink700);
 }
 
 .defItem strong {
-  color: var(--crimson);
-  font-family: 'Cinzel', serif;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--danger);
 }
 
 .weaponItem {
@@ -234,28 +254,42 @@
   grid-template-columns: 1fr 40px 1fr;
   gap: 8px;
   padding: 4px 0;
-  border-bottom: 1px solid rgba(200,168,75,0.1);
-  font-size: 0.85rem;
-  color: var(--gold-pale);
+  border-bottom: 1px solid var(--hair);
+  font-size: 13px;
+  color: var(--ink700);
   align-items: center;
 }
 
-.weaponBonus { font-family: 'Cinzel', serif; color: var(--crimson); text-align: center; }
-.weaponDesc  { color: rgba(255,255,255,0.55); font-style: italic; font-size: 0.78rem; }
+.weaponBonus {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  color: var(--danger);
+  text-align: center;
+}
+
+.weaponDesc {
+  color: var(--ink400);
+  font-style: italic;
+  font-size: 12px;
+}
 
 .skillItem {
   display: flex;
   justify-content: space-between;
   padding: 3px 0;
-  font-size: 0.85rem;
-  color: var(--gold-pale);
+  font-size: 13px;
+  color: var(--ink700);
 }
 
-.skillItem strong { font-family: 'Cinzel', serif; color: var(--gold-bright); }
+.skillItem strong {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  color: var(--bronze);
+}
 
 .skillRow {
   padding: 4px 0;
-  border-bottom: 1px solid rgba(200,168,75,0.08);
+  border-bottom: 1px solid var(--hair);
 }
 
 .usePips {
@@ -269,14 +303,14 @@
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  border: 1px solid var(--gold-dim);
+  border: 1px solid var(--dotted);
   background: transparent;
   cursor: pointer;
   padding: 0;
 }
 
-.usePip:hover { border-color: var(--gold-bright); }
-.usePipFilled { background: var(--gold-bright); border-color: var(--gold-bright); }
+.usePip:hover { border-color: var(--bronze); }
+.usePipFilled { background: var(--bronze); border-color: var(--bronze); }
 
 @media (max-width: 640px) {
   .content {
@@ -285,23 +319,9 @@
     gap: 16px;
   }
 
-  .header {
-    padding: 10px 14px;
-  }
-
-  .charInfo h1 {
-    font-size: 1.1rem;
-  }
-
-  .attrGrid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-
-  .counterValue {
-    font-size: 2rem;
-  }
-
-  .quickAdj {
-    flex-wrap: wrap;
-  }
+  .header { padding: 10px 14px; }
+  .charInfo h1 { font-size: 1.1rem; }
+  .attrGrid { grid-template-columns: repeat(4, 1fr); }
+  .counterValue { font-size: 2rem; }
+  .quickAdj { flex-wrap: wrap; }
 }

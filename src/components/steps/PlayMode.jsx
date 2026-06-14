@@ -8,7 +8,7 @@ const ATTR_LABELS = {
   enlightenment: 'EN', charisma: 'CHA', comeliness: 'COM', fame: 'FAM',
 }
 
-export default function PlayMode({ character, onUpdate, onExit, onToggleNotes }) {
+export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, theme, onToggleTheme }) {
   const defense = calcDefense(character)
   const hp    = character.hitPoints
   const mana  = character.mana
@@ -75,6 +75,9 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes })
           <span>{character.race} · {character.archetype === 'custom' ? (character.customArchetypeName || 'Custom') : character.archetype} · Level {character.level}</span>
         </div>
         <div className={styles.headerActions}>
+          {onToggleTheme && (
+            <button className="btn-secondary" onClick={onToggleTheme}>{theme === 'dark' ? 'Light' : 'Dark'}</button>
+          )}
           <button className="btn-secondary" onClick={onToggleNotes}>Notes</button>
           <button className="btn-secondary" onClick={onExit}>← Edit</button>
         </div>
@@ -87,7 +90,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes })
             label="Hit Points"
             current={hp.current || 0}
             total={hp.total || 0}
-            color="#8b1a1a"
+            color="var(--hp)"
             onAdjust={adjustHP}
           />
           {character.hasMagic && (
@@ -95,7 +98,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes })
               label="Mana"
               current={mana.current || 0}
               total={mana.total || 0}
-              color="#1a3a8b"
+              color="var(--mana)"
               onAdjust={adjustMana}
             />
           )}
@@ -103,22 +106,22 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes })
             label="Story Points"
             current={sp.current || 0}
             total={sp.total || 0}
-            color="#2d5a27"
+            color="var(--story)"
             onAdjust={adjustSP}
           />
           {armor.type !== 'none' && (
             <div className={styles.armorCounter}>
-              <div className={styles.counterLabel} style={{ color: '#5a4a27' }}>Armor</div>
+              <div className={styles.counterLabel} style={{ color: 'var(--armor)' }}>Armor</div>
               <div className={styles.armorAbsorb}>Soak {armor.absorption} (absorbs up to) · {armor.type}</div>
               <div className={styles.counterDisplay}>
-                <span className={styles.counterValue} style={{ color: '#5a4a27' }}>
+                <span className={styles.counterValue} style={{ color: 'var(--armor)' }}>
                   {armor.remaining}<span className={styles.counterTotal}>/{armor.max}</span>
                 </span>
               </div>
               <div className={styles.counterBar}>
                 <div
                   className={styles.counterFill}
-                  style={{ width: `${armor.max > 0 ? Math.min(100, (armor.remaining / armor.max) * 100) : 0}%`, background: '#5a4a27' }}
+                  style={{ width: `${armor.max > 0 ? Math.min(100, (armor.remaining / armor.max) * 100) : 0}%`, background: 'var(--armor)' }}
                 />
               </div>
               <div className={styles.armorHitRow}>

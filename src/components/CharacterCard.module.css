@@ -1,40 +1,45 @@
 .card {
-  background: var(--parchment-dark);
-  border: var(--border-gold);
-  border-radius: 4px;
+  background: var(--card2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  transition: box-shadow 0.15s;
+  transition: box-shadow 0.15s, border-color 0.15s;
 }
 
 .card:hover {
-  box-shadow: 0 2px 12px var(--shadow);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  border-color: var(--bronze);
 }
 
 .name {
-  font-family: 'Cinzel', serif;
+  font-family: 'Newsreader', serif;
   font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--ink);
+  font-weight: 500;
+  color: var(--ink900);
 }
 
 .meta {
-  font-size: 0.85rem;
-  color: var(--ink-light);
+  font-family: 'Spectral', serif;
+  font-size: 13px;
+  color: var(--ink500);
   text-transform: capitalize;
 }
 
 .hp {
-  font-size: 0.85rem;
-  color: var(--crimson);
-  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--hp);
 }
 
 .saved {
-  font-size: 0.75rem;
-  color: var(--gold-dim);
+  font-family: 'Spectral', serif;
+  font-size: 12px;
+  color: var(--ink350);
   font-style: italic;
 }
 
@@ -42,6 +47,7 @@
   display: flex;
   gap: 8px;
   margin-top: 8px;
+  flex-wrap: wrap;
 }
 
 .actions button {

@@ -4,7 +4,7 @@ import { generateBatchHTML } from '../utils/generateCharacterHTML.js'
 import CharacterCard from '../components/CharacterCard.jsx'
 import styles from './RosterPage.module.css'
 
-export default function RosterPage({ onNavigate }) {
+export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
   const [roster, setRoster] = useState(() => loadRoster())
 
   function handleGoHome() {
@@ -64,9 +64,12 @@ export default function RosterPage({ onNavigate }) {
           <span>Character Roster</span>
         </button>
         <div className={styles.actions}>
+          {onToggleTheme && (
+            <button className="btn-secondary" onClick={onToggleTheme}>{theme === 'dark' ? 'Light' : 'Dark'}</button>
+          )}
           {roster.length > 0 && (
             <button className="btn-secondary" onClick={handlePrintAll}>
-              🖨 Print all ({roster.length})
+              Print all ({roster.length})
             </button>
           )}
           <button className="btn-primary" onClick={handleNew}>
