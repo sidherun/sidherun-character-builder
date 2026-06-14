@@ -1,10 +1,12 @@
 .nav {
   display: flex;
-  gap: 4px;
-  padding: 12px 24px;
-  background: var(--ink);
+  justify-content: space-evenly;
+  padding: 20px 28px 18px;
+  background: var(--card2, #1a140e);
+  border-bottom: 1px solid var(--hair, #2e2619);
   overflow-x: auto;
   scrollbar-width: none;
+  flex-shrink: 0;
 }
 
 .nav::-webkit-scrollbar { display: none; }
@@ -13,43 +15,70 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 2px 6px;
+  cursor: default;
+  min-width: 40px;
+}
+
+.circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1.5px dotted var(--dotted, #4a3d2c);
+  color: var(--ink300, #7a6a4f);
   background: transparent;
-  border: 1px solid rgba(200, 168, 75, 0.2);
-  color: rgba(200, 168, 75, 0.4);
-  font-size: 0.7rem;
-  letter-spacing: 0.05em;
-  white-space: nowrap;
-  min-width: 64px;
-  transition: all 0.15s;
+  transition: filter 0.15s, box-shadow 0.15s;
+  flex-shrink: 0;
 }
 
-.step:not(:disabled):hover {
-  background: rgba(200, 168, 75, 0.1);
-  border-color: var(--gold-dim);
-  cursor: pointer;
+.done .circle,
+.current .circle {
+  background: linear-gradient(var(--solid-top, #d6a868), var(--solid-bot, #b5824e));
+  border: none;
+  color: var(--on-bronze, #1a140c);
 }
 
-.current {
-  background: rgba(200, 168, 75, 0.15);
-  border-color: var(--gold-bright);
-  color: var(--gold-bright);
-}
-
-.done {
-  color: var(--gold-dim);
-  border-color: var(--gold-dim);
-  cursor: pointer;
-}
-
-.num {
-  font-family: 'Cinzel', serif;
-  font-size: 0.85rem;
-  font-weight: 600;
+.current .circle {
+  box-shadow: 0 0 0 4px var(--focus-ring, rgba(198, 145, 82, 0.18));
 }
 
 .label {
-  font-family: 'EB Garamond', Georgia, serif;
-  font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink400, #8a7a5c);
+  white-space: nowrap;
+}
+
+.current .label {
+  color: var(--ink900, #f4ecda);
+  font-weight: 700;
+}
+
+.done .label {
+  color: var(--ink450, #b0a488);
+}
+
+@media (max-width: 520px) {
+  .nav { padding: 14px 8px 12px; }
+  .step { min-width: 28px; }
+  .label { display: none; }
+}
+
+.done {
+  cursor: pointer;
+}
+
+.done:hover .circle {
+  filter: brightness(1.1);
 }

@@ -154,61 +154,82 @@ export default function App({ onNavigate, shareMode, playMode }) {
     <ErrorBoundary>
       <div className={styles.app}>
         <a href="#main-content" className="skip-link">Skip to main content</a>
-        {!isFirstStep && (
-          <header className={styles.header}>
-            <button
-              className={styles.brand}
-              onClick={() => goToStep(1)}
-              aria-label="Sidherun Character Builder — return to welcome screen"
-            >
-              <h1>Sidherun</h1>
-              <span className={styles.subtitle}>Character Builder</span>
-            </button>
-            <div className={styles.headerActions}>
-              <button className="btn-secondary" onClick={() => onNavigate('roster')}>Roster</button>
-              <button className="btn-secondary" onClick={toggleNotes}>Notes</button>
+
+        {isFirstStep ? (
+          <main
+            id="main-content"
+            className={styles.mainFullBleed}
+            ref={mainRef}
+            tabIndex={-1}
+            aria-label="Character creation step"
+          >
+            <StepComponent
+              character={character}
+              onUpdate={update}
+              onUpdateNested={updateNested}
+              onSetCharacter={setCharacter}
+              onNavigate={onNavigate}
+              onStartNew={startNew}
+              onLoadFromRoster={loadFromRoster}
+              onEnterPlayMode={enterPlayMode}
+              onSaveToRoster={saveToRoster}
+              addToast={addToast}
+            />
+          </main>
+        ) : (
+          <div className={styles.page}>
+            <div className={styles.wizardCard}>
+              <header className={styles.header}>
+                <button
+                  className={styles.brand}
+                  onClick={() => goToStep(1)}
+                  aria-label="Sidherun Character Builder — return to welcome screen"
+                >
+                  <span className={styles.brandName}>Sidherun</span>
+                  <span className={styles.brandSub}>Character Builder</span>
+                </button>
+                <div className={styles.headerActions}>
+                  <button className={styles.headerBtn} onClick={() => onNavigate('roster')}>Roster</button>
+                  <button className={styles.headerBtn} onClick={toggleNotes}>Notes</button>
+                </div>
+              </header>
+
+              <StepIndicator
+                current={character.wizardStep}
+                hasPowers={character.hasPowers}
+                hasMagic={character.hasMagic}
+                onGoTo={goToStep}
+              />
+
+              <main
+                id="main-content"
+                className={styles.main}
+                ref={mainRef}
+                tabIndex={-1}
+                aria-label="Character creation step"
+              >
+                <StepComponent
+                  character={character}
+                  onUpdate={update}
+                  onUpdateNested={updateNested}
+                  onSetCharacter={setCharacter}
+                  onNavigate={onNavigate}
+                  onStartNew={startNew}
+                  onLoadFromRoster={loadFromRoster}
+                  onEnterPlayMode={enterPlayMode}
+                  onSaveToRoster={saveToRoster}
+                  addToast={addToast}
+                />
+              </main>
+
+              <WizardNav
+                step={currentStepIdx + 1}
+                totalSteps={totalVisible}
+                onBack={prevStep}
+                onNext={isLastStep ? completeCharacter : nextStep}
+              />
             </div>
-          </header>
-        )}
-
-        {!isFirstStep && (
-          <StepIndicator
-            current={character.wizardStep}
-            hasPowers={character.hasPowers}
-            hasMagic={character.hasMagic}
-            onGoTo={goToStep}
-          />
-        )}
-
-        <main
-          id="main-content"
-          className={isFirstStep ? styles.mainFullBleed : styles.main}
-          ref={mainRef}
-          tabIndex={-1}
-          aria-label="Character creation step"
-        >
-          <StepComponent
-            character={character}
-            onUpdate={update}
-            onUpdateNested={updateNested}
-            onSetCharacter={setCharacter}
-            onNavigate={onNavigate}
-            onStartNew={startNew}
-            onLoadFromRoster={loadFromRoster}
-            onEnterPlayMode={enterPlayMode}
-            onSaveToRoster={saveToRoster}
-            addToast={addToast}
-          />
-        </main>
-
-        {!isFirstStep && (
-          <WizardNav
-            step={currentStepIdx + 1}
-            totalSteps={totalVisible}
-            onBack={prevStep}
-            onNext={isLastStep ? completeCharacter : nextStep}
-            onSave={saveToRoster}
-          />
+          </div>
         )}
 
         {isNotesOpen && (

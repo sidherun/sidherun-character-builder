@@ -1,29 +1,27 @@
 import styles from './WizardNav.module.css'
 
-export default function WizardNav({ step, totalSteps, onBack, onNext, onSave, canNext = true, nextLabel }) {
-  const resolvedNextLabel = nextLabel || (step >= totalSteps ? 'Complete' : 'Next')
+export default function WizardNav({ step, totalSteps, onBack, onNext, canNext = true, nextLabel }) {
+  const resolvedNextLabel = nextLabel || (step >= totalSteps ? 'Complete' : 'Next →')
   return (
     <div className={styles.nav}>
       <button
-        className="btn-secondary"
+        className={styles.backBtn}
         onClick={onBack}
         disabled={step <= 1}
         aria-label="Go back to previous step"
       >
         ← Back
       </button>
-      <div className={styles.center}>
-        <button className={`btn-secondary ${styles.save}`} onClick={onSave} aria-label="Save character to roster">
-          Save to Roster
-        </button>
-      </div>
+      <span className={styles.stepCount} aria-hidden="true">
+        Step {step} of {totalSteps}
+      </span>
       <button
-        className="btn-primary"
+        className={styles.nextBtn}
         onClick={onNext}
         disabled={!canNext && step < totalSteps}
         aria-label={`${resolvedNextLabel} — step ${step} of ${totalSteps}`}
       >
-        {nextLabel || (step >= totalSteps ? 'Complete' : 'Next →')}
+        {resolvedNextLabel}
       </button>
     </div>
   )

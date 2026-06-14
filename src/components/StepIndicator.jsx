@@ -34,7 +34,7 @@ export default function StepIndicator({ current, hasPowers, hasMagic, onGoTo }) 
             aria-label={ariaLabel}
             aria-current={isCurrent ? 'step' : undefined}
           >
-            <span className={styles.num} aria-hidden="true">{isDone ? '✓' : n}</span>
+            <span className={styles.circle} aria-hidden="true">{isDone ? '✓' : n}</span>
             <span className={styles.label}>{label}</span>
           </button>
         )

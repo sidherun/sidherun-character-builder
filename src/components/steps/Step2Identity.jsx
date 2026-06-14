@@ -38,14 +38,14 @@ export default function Step2Identity({ character, onUpdate }) {
   const selectedArchetype = archetypes.find(a => a.id === character.archetype)
 
   return (
-    <div className={styles.step}>
-      <h2>Identity</h2>
+    <div>
+      <h2 className={styles.heading}>Identity</h2>
       <p className={styles.intro}>
         Define who your character is. Work with your GM to determine your race and archetype.
       </p>
 
       <div className={styles.grid}>
-        <div className={styles.field}>
+        <div className={`${styles.field} ${styles.fullWidth}`}>
           <label htmlFor="identity-name">Character Name</label>
           <input
             id="identity-name"
@@ -54,19 +54,6 @@ export default function Step2Identity({ character, onUpdate }) {
             onChange={e => onUpdate({ name: e.target.value })}
             placeholder="Enter your character's name…"
           />
-        </div>
-
-        <div className={styles.field}>
-          <label htmlFor="identity-level">Level</label>
-          <select
-            id="identity-level"
-            value={character.level}
-            onChange={e => onUpdate({ level: parseInt(e.target.value) })}
-          >
-            {Array.from({ length: 20 }, (_, i) => i + 1).map(l => (
-              <option key={l} value={l}>Level {l}</option>
-            ))}
-          </select>
         </div>
 
         <div className={styles.field}>
@@ -82,6 +69,19 @@ export default function Step2Identity({ character, onUpdate }) {
             ))}
           </select>
           {selectedRace && <p id="identity-race-hint" className={styles.hint}>{selectedRace.description}</p>}
+        </div>
+
+        <div className={styles.field}>
+          <label htmlFor="identity-level">Level</label>
+          <select
+            id="identity-level"
+            value={character.level}
+            onChange={e => onUpdate({ level: parseInt(e.target.value) })}
+          >
+            {Array.from({ length: 20 }, (_, i) => i + 1).map(l => (
+              <option key={l} value={l}>Level {l}</option>
+            ))}
+          </select>
         </div>
 
         <div className={styles.field}>
