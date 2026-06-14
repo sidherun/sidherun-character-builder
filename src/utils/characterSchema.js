@@ -58,6 +58,15 @@ const skillSchema = z.object({
   usePips:        z.number().int().min(0).max(5).default(0),
 })
 
+const inventoryItemSchema = z.union([
+  z.string(),
+  z.object({
+    name:     z.string(),
+    quantity: z.union([z.string(), z.number()]).default(''),
+    notes:    z.string().default(''),
+  }),
+])
+
 const noteSchema = z.object({
   id:          z.string(),
   title:       z.string(),
@@ -108,9 +117,10 @@ export const characterSchema = z.object({
     other:    defenseTypeSchema.extend({ base: z.number().int().default(0) }),
   }),
 
-  powers: z.array(powerSchema).default([]),
-  crafts: z.array(craftSchema).default([]),
-  skills: z.array(skillSchema).default([]),
+  powers:    z.array(powerSchema).default([]),
+  crafts:    z.array(craftSchema).default([]),
+  skills:    z.array(skillSchema).default([]),
+  inventory: z.array(inventoryItemSchema).default([]),
 
   hitPoints:   z.object({ total: z.number().int().default(0), current: z.number().int().default(0) }),
   mana:        z.object({ total: z.number().int().default(0), current: z.number().int().default(0) }),
