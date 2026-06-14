@@ -11,8 +11,9 @@ A browser-based character creation tool for the **Sidherun** tabletop RPG. Build
 - **9-step wizard** — Welcome → Identity → Attributes → Combat → Powers → Magic → Skills → Resources → Review (Powers and Magic appear only for archetypes that use them)
 - **Auto-calculated stats** — HP, Mana, Defense, and Spell Target table update automatically from your attributes
 - **Play Mode** — Live HP/Mana/Story Points tracking with quick-adjust buttons, armor that absorbs up to its soak value per hit, attributes/powers/magic/inventory at a glance, and per-skill **Use tracking** (strike circles as skills are used)
-- **Character Roster** — Save multiple characters to localStorage, load or delete them. The Review step's **Complete** button and the **Save to Roster** button both save here; Complete then opens the Roster.
-- **Export** — JSON backup, self-contained HTML (print/PDF), shareable URL (base64-encoded character; long URLs work in browsers and Discord but are not yet QR-friendly — compression planned in #32)
+- **Character Roster** — Save multiple characters to localStorage, load or delete them. The Review step's **Complete** button and the **Save to Roster** button both save here; Complete then opens the Roster. Each card has a **Copy play link** button that generates a TinyURL-shortened `#play=` link for that character.
+- **Player play links** — Opening a `#play=` link loads the character directly into Play Mode and auto-saves it to the player's local roster so their HP/Mana/notes persist across refreshes. Full wizard access is available if they exit play mode.
+- **Export** — JSON backup, self-contained HTML (print/PDF), shareable URL (LZString-compressed; ~3,000 chars for a typical character)
 - **Session Notes** — Slide-in notes panel with per-character CRUD
 - **Import** — Load any exported JSON file to restore a character on any device (validated against the schema on import; invalid files are rejected with a descriptive error)
 - **Inventory** — visible in Play Mode, Step 9 Review, and the print/HTML export; supports free-text strings or structured objects (name, quantity, notes)
