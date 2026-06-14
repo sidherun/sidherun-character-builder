@@ -18,7 +18,8 @@
 - [x] LZString share URL compression (#32) — 82% smaller, backwards-compat fallback
 - [x] #play= route — loads character directly into Play Mode, auto-saves to roster (#33)
 - [x] Copy play link button on Roster cards — TinyURL-shortened, fallback to long URL (#33)
-- [ ] Remaining 10 character JSONs — waiting on player sheets
+- [x] uri-krupkin-import.json — 9 skills, 3 powers, hasPowers:true (power 3 desc TBD; inventory TBD pending player)
+- [ ] Remaining 9 character JSONs — waiting on player sheets
 - [ ] Batch-validate all JSONs before game day
 - [ ] QR codes on printed character sheets (#34) — Session B print scope
 

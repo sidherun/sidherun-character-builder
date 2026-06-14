@@ -103,8 +103,11 @@ Character sheets maintained in the companion `sidherun` repo as `.xlsx` files ca
 | `dulu-breac-import.json` | Dulu Breac | Druid | 2 |
 | `claude-marin-import.json` | Claude Marin | Worldly | 1 |
 | `evie-cress-import.json` | Evie (Evelyn) Cress | Wizard (Mage) | 3 |
+| `uri-krupkin-import.json` | Uri Krupkin | Priest | 3 |
 
 To add a new character: provide the `.xlsx` (or photo of the character sheet) and Claude will produce a valid import JSON following the schema in `src/utils/characterSchema.js`.
+
+To add a new archetype: add an entry to `src/data/archetypes.json` with `id`, `name`, `hasPowers`, `hasMagic`, and `magicAttribute`. The wizard automatically shows/hides the Powers and Magic steps based on these flags.
 
 ---
 
