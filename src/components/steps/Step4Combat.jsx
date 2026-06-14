@@ -15,6 +15,12 @@ const ATTR_OPTIONS = [
   'Intelligence','Wisdom','Thaumaturgy','Enlightenment','Charisma',
 ]
 
+const ATTR_ABBREV = {
+  strength: 'STR', agility: 'AGI', dexterity: 'DEX', endurance: 'END',
+  constitution: 'CON', intelligence: 'INT', wisdom: 'WIS',
+  thaumaturgy: 'THA', enlightenment: 'EN', charisma: 'CHA',
+}
+
 export default function Step4Combat({ character, onUpdate }) {
   const derived = calcDefense(character)
 
@@ -48,6 +54,14 @@ export default function Step4Combat({ character, onUpdate }) {
   }
 
   const shieldBonus = SHIELD_OPTIONS.find(s => s.id === character.shield)?.bonus ?? 0
+
+  const magicAttrKey = character.hasMagic && character.magicAttribute ? character.magicAttribute : null
+  const magicDefAttrVal = magicAttrKey
+    ? attrTotal(character.attributes[magicAttrKey] || {})
+    : Math.round((attrTotal(character.attributes.thaumaturgy) + attrTotal(character.attributes.enlightenment)) / 2)
+  const magicDefAttrName = magicAttrKey
+    ? (ATTR_ABBREV[magicAttrKey] || magicAttrKey.toUpperCase())
+    : 'THA+EN÷2'
 
   return (
     <div className={styles.step}>
@@ -187,7 +201,7 @@ export default function Step4Combat({ character, onUpdate }) {
           {[
             { key: 'typical',  label: 'Typical',  base: 50, attrVal: attrTotal(character.attributes.agility),    attrName: 'AGI', total: derived.typical },
             { key: 'prone',    label: 'Prone',    base: 0,  attrVal: attrTotal(character.attributes.agility),    attrName: 'AGI', total: derived.prone   },
-            { key: 'magic',    label: 'Magic',    base: 0,  attrVal: Math.round((attrTotal(character.attributes.thaumaturgy) + attrTotal(character.attributes.enlightenment)) / 2), attrName: 'THA+EN÷2', total: derived.magic },
+            { key: 'magic',    label: 'Magic',    base: 0,  attrVal: magicDefAttrVal, attrName: magicDefAttrName, total: derived.magic },
             { key: 'psychic',  label: 'Psychic',  base: 0,  attrVal: attrTotal(character.attributes.intelligence), attrName: 'INT', total: derived.psychic },
             { key: 'other',    label: 'Other',    base: character.defense.other.base, attrVal: 0, attrName: '—', total: derived.other },
           ].map(row => (
