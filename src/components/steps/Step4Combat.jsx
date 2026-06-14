@@ -24,18 +24,30 @@ const ATTR_ABBREV = {
 export default function Step4Combat({ character, onUpdate }) {
   const derived = calcDefense(character)
 
+  // Total of an attribute given its display name (e.g. "Dexterity").
+  function attrTotalByName(name) {
+    const key = (name || '').toLowerCase()
+    return character.attributes[key] ? attrTotal(character.attributes[key]) : 0
+  }
+
   function addWeapon() {
     onUpdate({
       weapons: [...character.weapons, {
         id: crypto.randomUUID(),
         name: '', attribute: 'Agility',
-        attributeBonus: 0, skillBonus: 0, descriptor: '',
+        attributeBonus: attrTotalByName('Agility'), skillBonus: 0, descriptor: '',
       }]
     })
   }
 
   function updateWeapon(id, patch) {
-    onUpdate({ weapons: character.weapons.map(w => w.id === id ? { ...w, ...patch } : w) })
+    onUpdate({ weapons: character.weapons.map(w => {
+      if (w.id !== id) return w
+      const updated = { ...w, ...patch }
+      // Keep the attribute bonus in sync when the linked attribute changes.
+      if (patch.attribute) updated.attributeBonus = attrTotalByName(patch.attribute)
+      return updated
+    }) })
   }
 
   function removeWeapon(id) {

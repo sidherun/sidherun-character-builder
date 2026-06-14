@@ -15,18 +15,30 @@ export default function Step6Magic({ character, onUpdate }) {
   const magicAttrVal = magicAttribute ? attrTotal(attributes[magicAttribute] || {}) : 0
   const finalTarget  = getFinalSpellTarget(level, targetLevel, magicAttrVal)
 
+  // Total of an attribute given its display name (e.g. "Thaumaturgy").
+  function attrTotalByName(name) {
+    const key = (name || '').toLowerCase()
+    return attributes[key] ? attrTotal(attributes[key]) : 0
+  }
+
   function addCraft() {
     onUpdate({
       crafts: [...crafts, {
         id: crypto.randomUUID(),
         name: '', attributeName: 'Wisdom',
-        attributeValue: 0, skillBonus: 0, misc: 0, description: '',
+        attributeValue: attrTotalByName('Wisdom'), skillBonus: 0, misc: 0, description: '',
       }]
     })
   }
 
   function updateCraft(id, patch) {
-    onUpdate({ crafts: crafts.map(c => c.id === id ? { ...c, ...patch } : c) })
+    onUpdate({ crafts: crafts.map(c => {
+      if (c.id !== id) return c
+      const updated = { ...c, ...patch }
+      // Keep the attribute value in sync when the linked attribute changes.
+      if (patch.attributeName) updated.attributeValue = attrTotalByName(patch.attributeName)
+      return updated
+    }) })
   }
 
   function removeCraft(id) {
