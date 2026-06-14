@@ -10,7 +10,11 @@ export default function RosterPage({ onNavigate }) {
   function handleLoad(id) {
     const char = loadCharacterFromRoster(id)
     if (char) {
-      saveCurrent(char)
+      // Always open the character sheet (Review / step 9), not whatever wizard
+      // step the character was saved at. A character at step 1 (e.g. an import
+      // that omitted wizardStep, which the schema defaults to 1) would otherwise
+      // land on the welcome screen instead of the sheet.
+      saveCurrent({ ...char, wizardStep: 9 })
       onNavigate('app')
     }
   }
