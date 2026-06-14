@@ -1,4 +1,20 @@
+import { attrTotal } from '../../utils/characterDerived.js'
 import styles from './Step5Powers.module.css'
+
+const ATTR_OPTIONS = [
+  { value: 'strength',      label: 'Strength'      },
+  { value: 'agility',       label: 'Agility'       },
+  { value: 'dexterity',     label: 'Dexterity'     },
+  { value: 'endurance',     label: 'Endurance'     },
+  { value: 'constitution',  label: 'Constitution'  },
+  { value: 'intelligence',  label: 'Intelligence'  },
+  { value: 'wisdom',        label: 'Wisdom'        },
+  { value: 'thaumaturgy',   label: 'Thaumaturgy'   },
+  { value: 'enlightenment', label: 'Enlightenment' },
+  { value: 'charisma',      label: 'Charisma'      },
+  { value: 'comeliness',    label: 'Comeliness'    },
+  { value: 'fame',          label: 'Fame'          },
+]
 
 export default function Step5Powers({ character, onUpdate }) {
   const { powers } = character
@@ -7,8 +23,7 @@ export default function Step5Powers({ character, onUpdate }) {
     onUpdate({
       powers: [...powers, {
         id: crypto.randomUUID(),
-        name: '', base: 0, attributeBonus: 0,
-        skillBonus: 0, misc: 0, description: '',
+        name: '', attributeType: '', powerBonus: 0, description: '',
       }]
     })
   }
@@ -38,7 +53,8 @@ export default function Step5Powers({ character, onUpdate }) {
       )}
 
       {powers.map(p => {
-        const total = (p.base || 0) + (p.attributeBonus || 0) + (p.skillBonus || 0) + (p.misc || 0)
+        const attrVal = p.attributeType ? attrTotal(character.attributes[p.attributeType] || {}) : 0
+        const total   = attrVal + (p.powerBonus || 0)
         const powerName = p.name || 'unnamed power'
         return (
           <div key={p.id} className={styles.card} role="group" aria-label={`Power: ${powerName}`}>
@@ -58,28 +74,43 @@ export default function Step5Powers({ character, onUpdate }) {
                 ✕
               </button>
             </div>
+
             <div className={styles.numRow}>
-              {[
-                { field: 'base',           label: 'Base'        },
-                { field: 'attributeBonus', label: 'Attr Bonus'  },
-                { field: 'skillBonus',     label: 'Skill Bonus' },
-                { field: 'misc',           label: 'Misc'        },
-              ].map(({ field, label }) => (
-                <label key={field} className={styles.numField}>
-                  <span>{label}</span>
-                  <input
-                    type="number"
-                    value={p[field] || ''}
-                    onChange={e => updatePower(p.id, { [field]: parseInt(e.target.value) || 0 })}
-                    aria-label={`${label} for ${powerName}`}
-                  />
-                </label>
-              ))}
+              <label className={styles.selectField}>
+                <span>Attribute Type</span>
+                <select
+                  value={p.attributeType || ''}
+                  onChange={e => updatePower(p.id, { attributeType: e.target.value })}
+                  aria-label={`Attribute type for ${powerName}`}
+                >
+                  <option value="">— select —</option>
+                  {ATTR_OPTIONS.map(o => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
+              </label>
+
+              <div className={styles.numField}>
+                <span>Attr Value</span>
+                <div className={styles.attrValue}>{attrVal}</div>
+              </div>
+
+              <label className={styles.numField}>
+                <span>Power Bonus</span>
+                <input
+                  type="number"
+                  value={p.powerBonus ?? ''}
+                  onChange={e => updatePower(p.id, { powerBonus: parseInt(e.target.value) || 0 })}
+                  aria-label={`Power bonus for ${powerName}`}
+                />
+              </label>
+
               <div className={styles.totalBadge}>
                 <span>Total</span>
                 <strong aria-label={`Total: ${total}`}>{total}</strong>
               </div>
             </div>
+
             <textarea
               className={styles.desc}
               value={p.description}

@@ -30,6 +30,9 @@ const defenseTypeSchema = z.object({
 const powerSchema = z.object({
   id:             z.string(),
   name:           z.string(),
+  attributeType:  z.string().default(''),
+  powerBonus:     z.number().int().default(0),
+  // legacy fields — kept so old saved characters still validate
   base:           z.number().int().default(0),
   attributeBonus: z.number().int().default(0),
   skillBonus:     z.number().int().default(0),

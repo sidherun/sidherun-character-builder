@@ -49,6 +49,18 @@
   flex-wrap: wrap;
 }
 
+.selectField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--bronze, #c69152);
+}
+.selectField select { width: 140px; }
+
 .numField {
   display: flex;
   flex-direction: column;
@@ -60,6 +72,21 @@
   color: var(--bronze, #c69152);
 }
 .numField input { width: 72px; text-align: center; }
+
+.attrValue {
+  font-family: 'Newsreader', serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--ink700, #e2d8c2);
+  background: var(--card2, #1a140e);
+  border: 1px solid var(--hair, #2e2619);
+  border-radius: 5px;
+  width: 72px;
+  text-align: center;
+  padding: 6px 0;
+  letter-spacing: 0;
+  text-transform: none;
+}
 
 .totalBadge {
   display: flex;

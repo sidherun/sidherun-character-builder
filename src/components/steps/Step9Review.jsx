@@ -174,7 +174,9 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
             <section className={styles.section}>
               <h3>Powers</h3>
               {character.powers.map(p => {
-                const total = (p.base||0) + (p.attributeBonus||0) + (p.skillBonus||0) + (p.misc||0)
+                const total = p.attributeType
+                  ? attrTotal(character.attributes[p.attributeType] || {}) + (p.powerBonus || 0)
+                  : (p.base||0) + (p.attributeBonus||0) + (p.skillBonus||0) + (p.misc||0)
                 return (
                   <div key={p.id} className={styles.powerRow}>
                     <span className={styles.powerName}>{p.name || '—'}</span>

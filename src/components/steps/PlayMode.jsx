@@ -232,7 +232,10 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
               {character.powers.map(p => (
                 <div key={p.id} className={styles.skillItem}>
                   <span>{p.name}{p.description ? ` — ${p.description}` : ''}</span>
-                  <strong>+{(p.base||0)+(p.attributeBonus||0)+(p.skillBonus||0)+(p.misc||0)}</strong>
+                  <strong>+{p.attributeType
+                    ? attrTotal(character.attributes[p.attributeType] || {}) + (p.powerBonus || 0)
+                    : (p.base||0)+(p.attributeBonus||0)+(p.skillBonus||0)+(p.misc||0)
+                  }</strong>
                 </div>
               ))}
             </section>
