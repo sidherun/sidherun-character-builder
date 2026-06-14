@@ -69,9 +69,9 @@ const inventoryItemSchema = z.union([
 
 const noteSchema = z.object({
   id:          z.string(),
-  title:       z.string(),
-  body:        z.string(),
-  lastEdited:  z.string(),
+  title:       z.string().default(''),
+  body:        z.string().default(''),
+  lastEdited:  z.string().default(''),
 })
 
 export const characterSchema = z.object({
@@ -107,7 +107,7 @@ export const characterSchema = z.object({
   }),
 
   weapons: z.array(weaponSchema).default([]),
-  armor:   armorSchema,
+  armor:   armorSchema.default({ type: 'none', absorption: 0, remaining: 0, max: 0 }),
   shield:  z.string().default('none'),
   defense: z.object({
     typical:  defenseTypeSchema,
@@ -122,17 +122,17 @@ export const characterSchema = z.object({
   skills:    z.array(skillSchema).default([]),
   inventory: z.array(inventoryItemSchema).default([]),
 
-  hitPoints:   z.object({ total: z.number().int().default(0), current: z.number().int().default(0) }),
-  mana:        z.object({ total: z.number().int().default(0), current: z.number().int().default(0) }),
-  storyPoints: z.object({ total: z.number().int().default(2), current: z.number().int().default(2) }),
-  xp:          z.object({ current: z.number().int().default(0), needed: z.number().int().default(1000) }),
+  hitPoints:   z.object({ total: z.number().int().default(0), current: z.number().int().default(0) }).default({ total: 0, current: 0 }),
+  mana:        z.object({ total: z.number().int().default(0), current: z.number().int().default(0) }).default({ total: 0, current: 0 }),
+  storyPoints: z.object({ total: z.number().int().default(2), current: z.number().int().default(2) }).default({ total: 2, current: 2 }),
+  xp:          z.object({ current: z.number().int().default(0), needed: z.number().int().default(1000) }).default({ current: 0, needed: 1000 }),
 
   _notes:    z.array(noteSchema).default([]),
   _tracking: z.object({
     hp:          z.number().int().default(0),
     mana:        z.number().int().default(0),
     storyPoints: z.number().int().default(2),
-  }),
+  }).default({ hp: 0, mana: 0, storyPoints: 2 }),
 })
 
 export function safeParseCharacter(data) {
