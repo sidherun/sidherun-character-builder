@@ -91,6 +91,7 @@ export default function RosterPage({ onNavigate }) {
                 entry={entry}
                 onLoad={handleLoad}
                 onDelete={handleDelete}
+                onGetCharacter={loadCharacterFromRoster}
               />
             ))}
           </div>
