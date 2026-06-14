@@ -77,7 +77,7 @@ src/
   pages/
     RosterPage
   hooks/
-    useAutoSave, useCharacterManagement, usePlayMode, useNotesPanel, useToast
+    useAutoSave, useCharacterManagement, usePlayMode, useNotesPanel, useToast, useTheme
   utils/
     characterSchema.js    # Zod schema + safeParseCharacter
     characterDerived.js   # HP, Mana, Defense, XP auto-calculations
