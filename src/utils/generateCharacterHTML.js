@@ -129,7 +129,7 @@ const SHEET_CSS = `
   .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; border-bottom: 2px solid var(--gold); padding-bottom: 12px; }
   .subtitle { color: #3d2b0a; font-style: italic; font-size: 13px; text-transform: capitalize; }
   .qr { text-align: center; flex-shrink: 0; }
-  .qr svg { width: 84px; height: 84px; display: block; }
+  .qr svg { width: 180px; height: 180px; display: block; background: #fff; padding: 6px; }
   .qr-label { font-family: 'Cinzel', serif; font-size: 8px; text-transform: uppercase; letter-spacing: 0.08em; color: #6b520f; margin-top: 2px; }
   .resources { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
   .res { text-align: center; border: 1px solid var(--gold); padding: 8px 16px; border-radius: 4px; }
