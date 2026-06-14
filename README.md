@@ -63,7 +63,7 @@ The app uses the **Codex** design language: editorial-fantasy aesthetic with war
 
 **Theme tokens** live in `src/tokens.css` as CSS variables on `[data-theme="dark"]` / `[data-theme="light"]`. Components use `var(--token)` — never hardcoded hex values. Default theme is dark; persisted to `localStorage`.
 
-**Status:** Full wizard (Steps 1–9) ported. Play Mode, Roster/CharacterCard, and light/dark theme toggle remain (#47).
+**Status:** Full app ported — wizard (Steps 1–9), Play Mode, Roster/CharacterCard, and light/dark theme toggle all use Codex tokens. Theme toggle persists to localStorage; default is dark.
 
 ---
 
