@@ -46,6 +46,15 @@ describe('generateCharacterHTML', () => {
     expect(none).toContain('○○○○○○○○○○')
   })
 
+  it('embeds a self-contained QR (inline SVG) on the sheet', () => {
+    const html = generateCharacterHTML(mk('Dulu'))
+    expect(html).toContain('class="qr"')
+    expect(html).toContain('<svg')
+    expect(html).toContain('Scan to play')
+    // self-contained: the QR is inline, not a CDN script or remote image
+    expect(html).not.toMatch(/<script[^>]+src=/)
+  })
+
   it('renders inventory when present and accepts strings or objects', () => {
     const html = generateCharacterHTML(mk('Dulu Breac', {
       inventory: [{ name: 'Healing draught', quantity: 3, notes: 'restores 1d8' }, 'Tinderbox'],

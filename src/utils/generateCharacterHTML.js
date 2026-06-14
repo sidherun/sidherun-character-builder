@@ -1,4 +1,6 @@
+import qrcode from 'qrcode-generator'
 import { calcDefense, calcHitPoints, calcMana, attrTotal, calcSkillTotal } from './characterDerived.js'
+import { encodeCharacterToPlayURL } from './urlState.js'
 
 const ATTR_LABELS = {
   strength: 'STR', agility: 'AGI', dexterity: 'DEX', endurance: 'END',
@@ -10,6 +12,24 @@ const ATTR_LABELS = {
 function esc(v) {
   return String(v ?? '')
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
+// QR code linking to the character's #play= URL, generated at export time as an
+// inline SVG so the printed/exported sheet stays fully self-contained (no CDN,
+// no third-party API, works offline). Scanning it opens the character in Play
+// Mode. Returns '' if the compressed URL is too large for a single QR.
+function qrBlock(character) {
+  try {
+    const url = encodeCharacterToPlayURL(character)
+    const qr = qrcode(0, 'L') // type 0 = auto-fit, error correction L = max capacity
+    qr.addData(url)
+    qr.make()
+    const svg = qr.createSvgTag({ cellSize: 2, margin: 2, scalable: true })
+    if (!svg || !svg.includes('<svg')) return ''
+    return `<div class="qr">${svg}<div class="qr-label">Scan to play</div></div>`
+  } catch {
+    return ''
+  }
 }
 
 // One character's sheet markup (no <html>/<head>), so it can be composed
@@ -64,6 +84,7 @@ function sheetBody(character) {
         <h1>${esc(character.name) || 'Unnamed Character'}</h1>
         <div class="subtitle">${esc(character.race)} · ${esc(character.archetype)} · Level ${esc(character.level)}</div>
       </div>
+      ${qrBlock(character)}
     </div>
 
     <div class="resources">
@@ -107,6 +128,9 @@ const SHEET_CSS = `
   h2 { font-family: 'Cinzel', serif; font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); border-bottom: 1px solid var(--gold); padding-bottom: 3px; margin: 16px 0 8px; }
   .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; border-bottom: 2px solid var(--gold); padding-bottom: 12px; }
   .subtitle { color: #3d2b0a; font-style: italic; font-size: 13px; text-transform: capitalize; }
+  .qr { text-align: center; flex-shrink: 0; }
+  .qr svg { width: 84px; height: 84px; display: block; }
+  .qr-label { font-family: 'Cinzel', serif; font-size: 8px; text-transform: uppercase; letter-spacing: 0.08em; color: #6b520f; margin-top: 2px; }
   .resources { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
   .res { text-align: center; border: 1px solid var(--gold); padding: 8px 16px; border-radius: 4px; }
   .res-label { font-family: 'Cinzel', serif; font-size: 10px; text-transform: uppercase; color: #6b520f; display: block; }
