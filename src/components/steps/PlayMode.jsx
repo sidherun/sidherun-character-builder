@@ -1,5 +1,11 @@
-import { calcDefense, calcSkillTotal } from '../../utils/characterDerived.js'
+import { calcDefense, calcSkillTotal, attrTotal } from '../../utils/characterDerived.js'
 import styles from './PlayMode.module.css'
+
+const ATTR_LABELS = {
+  strength: 'STR', agility: 'AGI', dexterity: 'DEX', endurance: 'END',
+  constitution: 'CON', intelligence: 'INT', wisdom: 'WIS', thaumaturgy: 'THA',
+  enlightenment: 'EN', charisma: 'CHA', comeliness: 'COM', fame: 'FAM',
+}
 
 export default function PlayMode({ character, onUpdate, onExit, onToggleNotes }) {
   const defense = calcDefense(character)
@@ -83,6 +89,23 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes })
         </div>
 
         <div className={styles.reference}>
+          {/* Attributes quick-ref */}
+          {character.attributes && (
+            <section className={styles.refSection}>
+              <h3>Attributes</h3>
+              <div className={styles.attrGrid}>
+                {Object.entries(character.attributes)
+                  .filter(([key]) => key in ATTR_LABELS)
+                  .map(([key, val]) => (
+                    <div key={key} className={styles.attrItem}>
+                      <span>{ATTR_LABELS[key]}</span>
+                      <strong>{attrTotal(val)}</strong>
+                    </div>
+                  ))}
+              </div>
+            </section>
+          )}
+
           {/* Defense quick-ref */}
           <section className={styles.refSection}>
             <h3>Defense</h3>
@@ -126,6 +149,51 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes })
                   <strong>{calcSkillTotal(s)}</strong>
                 </div>
               ))}
+            </section>
+          )}
+
+          {/* Powers quick-ref */}
+          {character.hasPowers && character.powers?.length > 0 && (
+            <section className={styles.refSection}>
+              <h3>Powers</h3>
+              {character.powers.map(p => (
+                <div key={p.id} className={styles.skillItem}>
+                  <span>{p.name}{p.description ? ` — ${p.description}` : ''}</span>
+                  <strong>+{(p.base||0)+(p.attributeBonus||0)+(p.skillBonus||0)+(p.misc||0)}</strong>
+                </div>
+              ))}
+            </section>
+          )}
+
+          {/* Magic Crafts quick-ref */}
+          {character.hasMagic && character.crafts?.length > 0 && (
+            <section className={styles.refSection}>
+              <h3>Magic Crafts</h3>
+              {character.crafts.map(c => (
+                <div key={c.id} className={styles.skillItem}>
+                  <span>{c.name}{c.description ? ` — ${c.description}` : ''}</span>
+                  <strong>{(c.attributeValue||0)+(c.skillBonus||0)+(c.misc||0)}</strong>
+                </div>
+              ))}
+            </section>
+          )}
+
+          {/* Inventory quick-ref (forward-compatible with Session A schema work) */}
+          {character.inventory?.length > 0 && (
+            <section className={styles.refSection}>
+              <h3>Inventory</h3>
+              {character.inventory.map((item, i) => {
+                const isStr = typeof item === 'string'
+                const name  = isStr ? item : (item.name || '—')
+                const qty   = !isStr && item.quantity != null ? `×${item.quantity}` : ''
+                const notes = !isStr && item.notes ? item.notes : ''
+                return (
+                  <div key={i} className={styles.skillItem}>
+                    <span>{name}{notes ? ` — ${notes}` : ''}</span>
+                    {qty && <strong>{qty}</strong>}
+                  </div>
+                )
+              })}
             </section>
           )}
         </div>
