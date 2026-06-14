@@ -85,6 +85,7 @@ export default function App({ onNavigate, shareMode }) {
   const steps = visibleSteps(character.hasPowers, character.hasMagic)
   const currentStepIdx = steps.indexOf(character.wizardStep)
   const totalVisible = steps.length
+  const isLastStep = currentStepIdx === steps.length - 1
   const mainRef = useRef(null)
 
   // Move focus to main content area when the wizard step changes
@@ -110,6 +111,11 @@ export default function App({ onNavigate, shareMode }) {
     const saved = saveCharacterToRoster(character)
     setCharacter(saved)
     addToast('Character saved to roster!', 'success')
+  }
+
+  function completeCharacter() {
+    saveCharacterToRoster(character)
+    onNavigate('roster')
   }
 
   if (isPlayMode) {
@@ -190,9 +196,8 @@ export default function App({ onNavigate, shareMode }) {
             step={currentStepIdx + 1}
             totalSteps={totalVisible}
             onBack={prevStep}
-            onNext={nextStep}
+            onNext={isLastStep ? completeCharacter : nextStep}
             onSave={saveToRoster}
-            nextLabel={character.wizardStep === 9 ? undefined : undefined}
           />
         )}
 
