@@ -10,9 +10,10 @@
 
 ## Session A — Import Pipeline (`feat/import-pipeline`)
 
-- [ ] Define the character photo → JSON extraction workflow (how Ed sends photos, how we parse them)
+- [x] Define the character photo → JSON extraction workflow (Excel/photo → JSON via Claude)
 - [ ] Audit characterSchema.js — confirm all fields needed for a full import are covered
-- [ ] Create JSON template / guide for each of the 13 characters
+- [x] claude-marin-import.json created from Claude_Marin_Character_Sheet.xlsx
+- [ ] Remaining 11 character JSONs — waiting on player sheets
 - [ ] Batch-test: import all 13 JSONs, verify no schema errors
 - [ ] Validate dulu-breac-import.json loads cleanly end-to-end after magic defense fix
 
@@ -26,7 +27,7 @@
 ## Shared / Unassigned
 
 - [ ] Confirm GitHub Actions deploy is green after magic defense commits
-- [ ] Close or update accessibility issue #21 (work is done, issue still open)
+- [x] Close accessibility issue #21 (closed 2026-06-13)
 
 ---
 

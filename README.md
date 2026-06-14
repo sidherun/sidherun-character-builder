@@ -92,7 +92,16 @@ src/
 
 On the Welcome screen, click **Import JSON** and choose a previously exported character `.json` file. The data is validated against the Zod schema on import (and on share-link load) — malformed or wrong-shape files are rejected with an error toast rather than silently loading defaults.
 
-A sample character (Dulu Breac, Human Druid Level 2) is maintained in the companion `sidherun` repo at `dulu-breac-import.json` for testing.
+### GM workflow: Excel → JSON
+
+Character sheets maintained in the companion `sidherun` repo as `.xlsx` files can be converted to import-ready JSON by Claude. Completed characters are saved as `[firstname-lastname]-import.json` in that repo. Current characters:
+
+| File | Character | Archetype | Level |
+|---|---|---|---|
+| `dulu-breac-import.json` | Dulu Breac | Druid | 2 |
+| `claude-marin-import.json` | Claude Marin | Worldly | 1 |
+
+To add a new character: provide the `.xlsx` (or photo of the character sheet) and Claude will produce a valid import JSON following the schema in `src/utils/characterSchema.js`.
 
 ---
 
