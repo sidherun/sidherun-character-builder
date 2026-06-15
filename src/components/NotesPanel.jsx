@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { uuid } from '../utils/uuid.js'
 import styles from './NotesPanel.module.css'
 
 export default function NotesPanel({ notes, onChange, onClose }) {
@@ -19,7 +20,7 @@ export default function NotesPanel({ notes, onChange, onClose }) {
     if (!draft.title.trim()) return
     const now = new Date().toISOString()
     if (editing === 'new') {
-      onChange([...notes, { id: crypto.randomUUID(), ...draft, lastEdited: now }])
+      onChange([...notes, { id: uuid(), ...draft, lastEdited: now }])
     } else {
       onChange(notes.map(n => n.id === editing ? { ...n, ...draft, lastEdited: now } : n))
     }

@@ -1,4 +1,5 @@
 import { attrTotal } from '../../utils/characterDerived.js'
+import { uuid } from '../../utils/uuid.js'
 import styles from './Step5Powers.module.css'
 
 const ATTR_OPTIONS = [
@@ -22,7 +23,7 @@ export default function Step5Powers({ character, onUpdate }) {
   function addPower() {
     onUpdate({
       powers: [...powers, {
-        id: crypto.randomUUID(),
+        id: uuid(),
         name: '', attributeType: '', powerBonus: 0, description: '',
       }]
     })

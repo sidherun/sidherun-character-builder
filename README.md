@@ -133,4 +133,4 @@ Push to `main` — GitHub Actions runs `npm run lint`, `npm test`, and `npm run 
 
 GitHub Pages must be set to source **GitHub Actions** in repo Settings → Pages.
 
-The site is served from the custom domain **character-builder.sidherun.com** (root path), so `vite.config.js` uses `base: '/'`. `public/CNAME` pins the domain so each Actions deploy preserves it. After the TLS cert provisions, enable **Enforce HTTPS** in Settings → Pages — the app relies on `crypto.randomUUID()` and the Clipboard API, which require a secure (HTTPS) context.
+The site is served from the custom domain **character-builder.sidherun.com** (root path), so `vite.config.js` uses `base: '/'`. `public/CNAME` pins the domain so each Actions deploy preserves it. After the TLS cert provisions, enable **Enforce HTTPS** in Settings → Pages. ID generation degrades gracefully on a non-secure context (`src/utils/uuid.js` falls back from `crypto.randomUUID()` to `getRandomValues`), but the **Copy play link / Copy share URL** buttons use the Clipboard API, which still requires HTTPS — so HTTPS is the supported configuration.

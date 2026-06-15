@@ -1,4 +1,5 @@
 import { calcDefense, attrTotal } from '../../utils/characterDerived.js'
+import { uuid } from '../../utils/uuid.js'
 import NumberInput from '../NumberInput.jsx'
 import armorTypes from '../../data/armorTypes.json'
 import styles from './Step4Combat.module.css'
@@ -34,7 +35,7 @@ export default function Step4Combat({ character, onUpdate }) {
   function addWeapon() {
     onUpdate({
       weapons: [...character.weapons, {
-        id: crypto.randomUUID(),
+        id: uuid(),
         name: '', attribute: 'Agility',
         attributeBonus: attrTotalByName('Agility'), skillBonus: 0, descriptor: '',
       }]

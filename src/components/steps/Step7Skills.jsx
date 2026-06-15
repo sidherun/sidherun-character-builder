@@ -1,5 +1,6 @@
 import { calcSkillTotal, calcSkillBudgetUsed } from '../../utils/characterDerived.js'
 import { attrTotal } from '../../utils/characterDerived.js'
+import { uuid } from '../../utils/uuid.js'
 import styles from './Step7Skills.module.css'
 
 const ATTR_KEYS = [
@@ -46,7 +47,7 @@ export default function Step7Skills({ character, onUpdate }) {
   function addSkill() {
     onUpdate({
       skills: [...skills, {
-        id: crypto.randomUUID(),
+        id: uuid(),
         name: '', attributeName: 'Intelligence',
         attributeScore: getAttrScore('Intelligence'),
         skillPoints: 0, tempMod: 0,
