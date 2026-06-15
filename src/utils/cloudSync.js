@@ -102,6 +102,14 @@ export function chooseChannel(prev, next) {
   return 'none'
 }
 
+// Apply a realtime broadcast payload to the local character. Only live-counter
+// payloads are broadcast for instant updates (structural 'data' changes sync on
+// reload), so this folds the remote live counters in. Pure.
+export function mergeRemote(local, payload) {
+  if (!local || !payload?.live) return local
+  return foldLive(local, payload.live)
+}
+
 // ── push (impure; talks to Supabase) ─────────────────────────────────────────
 const lastSnapshot = {} // in-memory: last character pushed, per _rosterId
 
@@ -109,6 +117,27 @@ async function rpc(fn, params) {
   const { data, error } = await supabase.rpc(fn, params)
   if (error) throw error
   return data
+}
+
+// ── realtime (client-side broadcast on a per-character channel) ───────────────
+// One channel per open cloud character, topic `char:<cloudId>`. self:false means
+// we never receive our own broadcasts (built-in echo suppression). Persistence
+// is the DB patch; this is just the instant nudge to other connected viewers.
+const channels = {} // rosterId -> supabase RealtimeChannel
+
+export function subscribeCharacter(rosterId, onLivePayload) {
+  if (!supabase || !rosterId || channels[rosterId]) return channels[rosterId] || null
+  const entry = getCloudMap()[rosterId]
+  if (!entry) return null
+  const ch = supabase.channel(`char:${entry.id}`, { config: { broadcast: { self: false } } })
+  ch.on('broadcast', { event: 'live' }, ({ payload }) => onLivePayload(payload)).subscribe()
+  channels[rosterId] = ch
+  return ch
+}
+
+export function unsubscribeCharacter(rosterId) {
+  const ch = channels[rosterId]
+  if (ch && supabase) { supabase.removeChannel(ch); delete channels[rosterId] }
 }
 
 // Fetch a cloud character by capability token. Returns the character with live
@@ -148,7 +177,11 @@ export async function syncCharacter(character, { allowCreate = false } = {}) {
       p_data: character, p_expected_rev: -1,
     })
   } else if (channel === 'live') {
-    await rpc('patch_live', { p_token: entry.token, p_patch: projectLive(character) })
+    const live = projectLive(character)
+    await rpc('patch_live', { p_token: entry.token, p_patch: live })
+    // Nudge other connected viewers instantly (best-effort; persistence is the
+    // patch above, so offline peers still catch up on their next hydrate).
+    channels[character._rosterId]?.send({ type: 'broadcast', event: 'live', payload: { live } })
   }
   lastSnapshot[character._rosterId] = character
   return { created: false, channel }
