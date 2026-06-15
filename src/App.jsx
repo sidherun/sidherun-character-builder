@@ -2,10 +2,11 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import { createDefaultCharacter } from './utils/defaultCharacter.js'
 import { loadCurrent, saveCharacterToRoster, saveCurrent, loadCharacterFromRoster, loadRoster, getLastSaveStatus } from './utils/rosterStorage.js'
 import { decodeCharacterFromURL, getPlayLinkId, parseCloudLink } from './utils/urlState.js'
-import { registerCloudLink, fetchCloudCharacter } from './utils/cloudSync.js'
+import { registerCloudLink, fetchCloudCharacter, mergeRemote } from './utils/cloudSync.js'
 import { safeParseCharacter } from './utils/characterSchema.js'
 import { useAutoSave } from './hooks/useAutoSave.js'
 import { useCloudSync } from './hooks/useCloudSync.js'
+import { useRealtimeCharacter } from './hooks/useRealtimeCharacter.js'
 import { usePlayMode } from './hooks/usePlayMode.js'
 import { useNotesPanel } from './hooks/useNotesPanel.js'
 import { useToast } from './hooks/useToast.js'
@@ -103,6 +104,13 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
 
   useAutoSave(character)
   useCloudSync(character)
+
+  // Apply remote live-counter broadcasts (another viewer's HP/mana/etc. change)
+  // to local state in real time. No-op for non-cloud characters.
+  const applyRemoteLive = useCallback((payload) => {
+    setCharacter(prev => mergeRemote(prev, payload))
+  }, [])
+  useRealtimeCharacter(character._rosterId, applyRemoteLive)
 
   // Hydrate a cloud link from the server (once on mount). Adopt the cloud copy
   // when it's newer than the local one (or there's no local copy); otherwise

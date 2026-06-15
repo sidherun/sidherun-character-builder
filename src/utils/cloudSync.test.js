@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { projectLive, foldLive, dataSignature, chooseChannel } from './cloudSync.js'
+import { projectLive, foldLive, dataSignature, chooseChannel, mergeRemote } from './cloudSync.js'
 import { createDefaultCharacter } from './defaultCharacter.js'
 
 const mk = () => {
@@ -64,5 +64,19 @@ describe('chooseChannel', () => {
   it('structural change → data', () => {
     const a = mk(); const b = mk(); b.name = 'New'
     expect(chooseChannel(a, b)).toBe('data')
+  })
+})
+
+describe('mergeRemote', () => {
+  it('applies a remote live payload', () => {
+    const next = mergeRemote(mk(), { live: { hpCurrent: 9, usePips: { s1: 6 } } })
+    expect(next.hitPoints.current).toBe(9)
+    expect(next.skills[0].usePips).toBe(6)
+  })
+  it('ignores empty / foreign payloads', () => {
+    const c = mk()
+    expect(mergeRemote(c, {})).toBe(c)
+    expect(mergeRemote(c, null)).toBe(c)
+    expect(mergeRemote(null, { live: {} })).toBe(null)
   })
 })
