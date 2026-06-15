@@ -1,11 +1,51 @@
-import { useState } from 'react'
-import { loadRoster, deleteCharacterFromRoster, loadCharacterFromRoster, saveCurrent, loadCurrent, clearCurrent } from '../utils/rosterStorage.js'
+import { useState, useRef } from 'react'
+import { loadRoster, deleteCharacterFromRoster, loadCharacterFromRoster, saveCharacterToRoster, saveCurrent, loadCurrent, clearCurrent } from '../utils/rosterStorage.js'
 import { generateBatchHTML } from '../utils/generateCharacterHTML.js'
+import { buildRosterBackup, extractCharacters, validateCharacters } from '../utils/rosterBackup.js'
 import CharacterCard from '../components/CharacterCard.jsx'
 import styles from './RosterPage.module.css'
 
 export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
   const [roster, setRoster] = useState(() => loadRoster())
+  const [status, setStatus] = useState('')
+  const restoreRef = useRef(null)
+
+  // Download the whole roster as one portable JSON file. localStorage is
+  // per-origin/per-browser, so this is the cross-device / pre-migration backup.
+  function handleBackup() {
+    const chars = roster.map(e => loadCharacterFromRoster(e.id)).filter(Boolean)
+    if (chars.length === 0) return
+    const backup = buildRosterBackup(chars, new Date().toISOString())
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' })
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = `sidherun-roster-${new Date().toISOString().slice(0, 10)}.json`
+    a.click()
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000)
+    setStatus(`Backed up ${chars.length} character${chars.length === 1 ? '' : 's'}.`)
+  }
+
+  // Restore from one or more files. Each file may be a backup wrapper, a bare
+  // array, or a single character (so this also bulk-imports individual
+  // *-import.json files). Valid characters are upserted into the roster.
+  async function handleRestore(e) {
+    const files = Array.from(e.target.files || [])
+    e.target.value = ''
+    if (files.length === 0) return
+    const candidates = []
+    let unreadable = 0
+    for (const f of files) {
+      try { candidates.push(...extractCharacters(JSON.parse(await f.text()))) }
+      catch { unreadable++ }
+    }
+    const { valid, invalid } = validateCharacters(candidates)
+    valid.forEach(saveCharacterToRoster)
+    setRoster(loadRoster())
+    const parts = [`Restored ${valid.length} character${valid.length === 1 ? '' : 's'}.`]
+    if (invalid) parts.push(`${invalid} invalid skipped.`)
+    if (unreadable) parts.push(`${unreadable} unreadable file${unreadable === 1 ? '' : 's'}.`)
+    setStatus(parts.join(' '))
+  }
 
   function handleGoHome() {
     const current = loadCurrent()
@@ -72,19 +112,46 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
               Print all ({roster.length})
             </button>
           )}
+          {roster.length > 0 && (
+            <button className="btn-secondary" onClick={handleBackup}>
+              Back up all
+            </button>
+          )}
+          <button className="btn-secondary" onClick={() => restoreRef.current?.click()}>
+            Restore…
+          </button>
           <button className="btn-primary" onClick={handleNew}>
             + New Character
           </button>
+          <input
+            ref={restoreRef}
+            type="file"
+            accept=".json,application/json"
+            multiple
+            onChange={handleRestore}
+            style={{ display: 'none' }}
+          />
         </div>
       </header>
+
+      {status && (
+        <div className={styles.status} role="status" style={{ textAlign: 'center', padding: '0.5rem 1rem', opacity: 0.85 }}>
+          {status}
+        </div>
+      )}
 
       <main className={styles.main}>
         {roster.length === 0 ? (
           <div className={styles.empty}>
             <p>No saved characters yet.</p>
-            <button className="btn-primary" onClick={handleNew}>
-              Create Your First Character
-            </button>
+            <div className={styles.actions}>
+              <button className="btn-primary" onClick={handleNew}>
+                Create Your First Character
+              </button>
+              <button className="btn-secondary" onClick={() => restoreRef.current?.click()}>
+                Restore from backup
+              </button>
+            </div>
           </div>
         ) : (
           <div className={styles.grid}>
