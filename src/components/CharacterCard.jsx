@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { encodeCharacterToPlayURL } from '../utils/urlState.js'
 import { cloudEnabled } from '../utils/supabaseClient.js'
-import { getCloudLink } from '../utils/cloudSync.js'
+import { getCloudLink, rotateCloudLink } from '../utils/cloudSync.js'
 import styles from './CharacterCard.module.css'
 
 async function shortenURL(longUrl) {
@@ -17,7 +17,7 @@ async function shortenURL(longUrl) {
 export default function CharacterCard({ entry, onLoad, onDelete, onGetCharacter }) {
   const [linkState, setLinkState] = useState('idle') // idle | loading | copied | error
   const [cloudState, setCloudState] = useState('idle') // idle | copied | error
-  const cloudLink = cloudEnabled ? getCloudLink(entry.id) : null
+  const [cloudLink, setCloudLink] = useState(cloudEnabled ? getCloudLink(entry.id) : null)
 
   // Cloud links are short (id + token), so no URL shortener needed — copy directly.
   async function handleCopyCloudLink() {
@@ -28,6 +28,18 @@ export default function CharacterCard({ entry, onLoad, onDelete, onGetCharacter 
     } catch {
       setCloudState('error')
     }
+    setTimeout(() => setCloudState('idle'), 2500)
+  }
+
+  // Rotate the capability token: any link already shared stops working, a fresh
+  // one is generated and copied.
+  async function handleResetLink() {
+    if (!confirm('Reset this character’s live link? Any link you already shared will stop working.')) return
+    try {
+      const fresh = await rotateCloudLink(entry.id)
+      if (fresh) { setCloudLink(fresh); await navigator.clipboard.writeText(fresh).catch(() => {}); setCloudState('copied') }
+      else setCloudState('error')
+    } catch { setCloudState('error') }
     setTimeout(() => setCloudState('idle'), 2500)
   }
 
@@ -74,6 +86,11 @@ export default function CharacterCard({ entry, onLoad, onDelete, onGetCharacter 
         {cloudLink && (
           <button className="btn-secondary" onClick={handleCopyCloudLink}>
             {cloudLabel[cloudState]}
+          </button>
+        )}
+        {cloudLink && (
+          <button className="btn-secondary" onClick={handleResetLink} title="Revoke the shared link and generate a new one">
+            Reset link
           </button>
         )}
         <button className="btn-danger" onClick={() => onDelete(entry.id)}>Delete</button>

@@ -128,6 +128,27 @@ To add a new archetype: add an entry to `src/data/archetypes.json` with `id`, `n
 
 ---
 
+## Cloud sync (optional)
+
+By default the app is localStorage-only (per browser/device). An optional Supabase
+backend (epic #71) makes a character a **shared, live source of truth**: the GM
+pushes the roster to the cloud, shares a per-character **live link**
+(`#c=<id>~<token>`), and a player's HP/notes edits sync back and appear on the
+GM's screen in real time. It stays **local-first** — localStorage is the instant
+store; the cloud syncs in the background and the app keeps working offline.
+
+- **Off by default.** Enabled only when `VITE_CLOUD_SYNC=on` and the Supabase keys
+  are present (see `.env.example` and `supabase/README.md`). With the flag off the
+  cloud code is inert and the UI is hidden.
+- **Security.** The `characters` table is sealed by RLS; all access is via
+  token-gated RPCs. The anon/publishable key is public by design. A per-character
+  **capability token** lives in the link; a per-GM **key** (localStorage) owns the
+  roster — no accounts. The GM key + cloud map are included in the **Back up all**
+  file, so cloud access survives a browser wipe. **Reset link** rotates a token to
+  revoke a shared link.
+- **Setup & cutover:** create a project, apply `supabase/migrations/0001_init.sql`,
+  set the three `VITE_*` repo Variables; flip `VITE_CLOUD_SYNC=on` to go live.
+
 ## Deploying
 
 Push to `main` — GitHub Actions runs `npm run lint`, `npm test`, and `npm run build`, then deploys `dist/` to GitHub Pages automatically. A lint error or failing test blocks the deploy.
