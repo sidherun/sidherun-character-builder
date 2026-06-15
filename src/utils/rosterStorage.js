@@ -1,3 +1,5 @@
+import { uuid } from './uuid.js'
+
 const KEY_CURRENT   = 'sidherun_character'
 const KEY_ROSTER    = 'sidherun_roster'
 const charKey  = id => `sidherun_char_${id}`
@@ -46,7 +48,7 @@ function saveRosterIndex(roster) {
 }
 
 export function saveCharacterToRoster(character) {
-  const id = character._rosterId || crypto.randomUUID()
+  const id = character._rosterId || uuid()
   const char = { ...character, _rosterId: id }
   const charJson = JSON.stringify(char)
 

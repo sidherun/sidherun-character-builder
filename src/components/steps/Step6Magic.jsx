@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { attrTotal } from '../../utils/characterDerived.js'
+import { uuid } from '../../utils/uuid.js'
 import { getFinalSpellTarget } from '../../utils/spellTarget.js'
 import styles from './Step6Magic.module.css'
 
@@ -24,7 +25,7 @@ export default function Step6Magic({ character, onUpdate }) {
   function addCraft() {
     onUpdate({
       crafts: [...crafts, {
-        id: crypto.randomUUID(),
+        id: uuid(),
         name: '', attributeName: 'Wisdom',
         attributeValue: attrTotalByName('Wisdom'), skillBonus: 0, misc: 0, description: '',
       }]
