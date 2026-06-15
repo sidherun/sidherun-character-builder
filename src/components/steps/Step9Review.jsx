@@ -88,7 +88,7 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
         {character.armor?.type !== 'none' && (
           <div className={styles.resourceChip} style={{ borderColor: '#5a4a27' }}>
             <span>Armor</span>
-            <strong>{character.armor.absorption} / {character.armor.remaining}</strong>
+            <strong>{character.armor.remaining} / {character.armor.max}</strong>
           </div>
         )}
         <div className={styles.resourceChip} style={{ borderColor: 'var(--gold-dim)' }}>

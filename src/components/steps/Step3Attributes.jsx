@@ -1,4 +1,5 @@
 import { calcCoreAttrAverage, attrTotal } from '../../utils/characterDerived.js'
+import NumberInput from '../NumberInput.jsx'
 import styles from './Step3Attributes.module.css'
 
 const CORE_ATTRS = [
@@ -22,8 +23,7 @@ const SOCIAL_ATTRS = [
 function AttrRow({ attrKey, label, abbr, desc, value, onChange }) {
   const total = attrTotal(value)
 
-  function handleChange(field, raw) {
-    const n = parseInt(raw) || 0
+  function handleChange(field, n) {
     onChange(attrKey, { ...value, [field]: n })
   }
 
@@ -34,26 +34,23 @@ function AttrRow({ attrKey, label, abbr, desc, value, onChange }) {
         <span className={styles.name}>{label}</span>
         <span className={styles.desc}>{desc}</span>
       </div>
-      <input
-        type="number"
+      <NumberInput
         className={styles.input}
-        value={value.base || ''}
-        onChange={e => handleChange('base', e.target.value)}
+        value={value.base}
+        onChange={n => handleChange('base', n)}
         placeholder="Base"
         min={0}
       />
-      <input
-        type="number"
+      <NumberInput
         className={styles.input}
-        value={value.racialMod || ''}
-        onChange={e => handleChange('racialMod', e.target.value)}
+        value={value.racialMod}
+        onChange={n => handleChange('racialMod', n)}
         placeholder="Racial"
       />
-      <input
-        type="number"
+      <NumberInput
         className={styles.input}
-        value={value.tempMod || ''}
-        onChange={e => handleChange('tempMod', e.target.value)}
+        value={value.tempMod}
+        onChange={n => handleChange('tempMod', n)}
         placeholder="Temp"
       />
       <div className={`${styles.total} ${total >= 15 ? styles.totalGood : ''}`}>

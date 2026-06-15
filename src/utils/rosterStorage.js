@@ -8,12 +8,29 @@ function parse(raw) {
   try { return raw ? JSON.parse(raw) : null } catch { return null }
 }
 
+// Guarded write. localStorage throws on quota (large roster + version history)
+// and in private-mode browsers; callers must never crash on a failed save —
+// especially the autosave timer, which runs unattended during play.
+function safeSet(key, value) {
+  try { localStorage.setItem(key, value); return true } catch { return false }
+}
+
+// Status of the most recent saveCharacterToRoster call, so the UI can warn the
+// user when storage is full instead of silently losing data.
+//   'ok'        — everything written
+//   'truncated' — character saved, but version history was pruned/dropped
+//   'failed'    — the character blob or roster index could not be written
+let lastSaveStatus = 'ok'
+export function getLastSaveStatus() {
+  return lastSaveStatus
+}
+
 export function loadCurrent() {
   return parse(localStorage.getItem(KEY_CURRENT))
 }
 
 export function saveCurrent(character) {
-  localStorage.setItem(KEY_CURRENT, JSON.stringify(character))
+  return safeSet(KEY_CURRENT, JSON.stringify(character))
 }
 
 export function clearCurrent() {
@@ -25,13 +42,17 @@ export function loadRoster() {
 }
 
 function saveRosterIndex(roster) {
-  localStorage.setItem(KEY_ROSTER, JSON.stringify(roster))
+  return safeSet(KEY_ROSTER, JSON.stringify(roster))
 }
 
 export function saveCharacterToRoster(character) {
   const id = character._rosterId || crypto.randomUUID()
   const char = { ...character, _rosterId: id }
-  localStorage.setItem(charKey(id), JSON.stringify(char))
+  const charJson = JSON.stringify(char)
+
+  // The character blob and the roster index are essential; the version snapshot
+  // is expendable and is the first thing we sacrifice when storage is tight.
+  let essentialOk = safeSet(charKey(id), charJson)
 
   const roster = loadRoster()
   const idx = roster.findIndex(r => r.id === id)
@@ -47,14 +68,28 @@ export function saveCharacterToRoster(character) {
   }
   if (idx >= 0) roster[idx] = entry
   else roster.unshift(entry)
-  saveRosterIndex(roster)
+  essentialOk = saveRosterIndex(roster) && essentialOk
 
-  // version snapshot
-  const versions = parse(localStorage.getItem(versKey(id))) || []
+  // version snapshot — on quota failure, prune to the most recent few and retry;
+  // if still failing, drop history entirely and re-attempt the essential writes
+  // now that space has been freed.
+  let versions = parse(localStorage.getItem(versKey(id))) || []
   versions.unshift({ ...char, _savedAt: new Date().toISOString() })
   if (versions.length > MAX_VERSIONS) versions.length = MAX_VERSIONS
-  localStorage.setItem(versKey(id), JSON.stringify(versions))
+  let versionsOk = safeSet(versKey(id), JSON.stringify(versions))
+  if (!versionsOk) {
+    versions = versions.slice(0, 5)
+    versionsOk = safeSet(versKey(id), JSON.stringify(versions))
+  }
+  if (!versionsOk) {
+    try { localStorage.removeItem(versKey(id)) } catch { /* ignore */ }
+    if (!essentialOk) {
+      essentialOk = safeSet(charKey(id), charJson)
+      essentialOk = saveRosterIndex(roster) && essentialOk
+    }
+  }
 
+  lastSaveStatus = !essentialOk ? 'failed' : (versionsOk ? 'ok' : 'truncated')
   return char
 }
 

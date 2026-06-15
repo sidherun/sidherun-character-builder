@@ -52,18 +52,23 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
     onUpdate({ skills })
   }
 
+  // A non-positive total means the cap is unknown (e.g. a play link generated
+  // before Resources were synced); treat it as no cap so the GM can still raise
+  // the value rather than being pinned at 0.
+  const capOf = (total) => (total > 0 ? total : Infinity)
+
   function adjustHP(delta) {
-    const newCurrent = Math.max(0, Math.min(hp.total, (hp.current || 0) + delta))
+    const newCurrent = Math.max(0, Math.min(capOf(hp.total), (hp.current || 0) + delta))
     onUpdate({ hitPoints: { ...hp, current: newCurrent } })
   }
 
   function adjustMana(delta) {
-    const newCurrent = Math.max(0, Math.min(mana.total, (mana.current || 0) + delta))
+    const newCurrent = Math.max(0, Math.min(capOf(mana.total), (mana.current || 0) + delta))
     onUpdate({ mana: { ...mana, current: newCurrent } })
   }
 
   function adjustSP(delta) {
-    const newCurrent = Math.max(0, Math.min(sp.total, (sp.current || 0) + delta))
+    const newCurrent = Math.max(0, Math.min(capOf(sp.total), (sp.current || 0) + delta))
     onUpdate({ storyPoints: { ...sp, current: newCurrent } })
   }
 
