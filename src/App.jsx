@@ -4,6 +4,7 @@ import { loadCurrent, saveCharacterToRoster, saveCurrent, loadCharacterFromRoste
 import { decodeCharacterFromURL, getPlayLinkId } from './utils/urlState.js'
 import { safeParseCharacter } from './utils/characterSchema.js'
 import { useAutoSave } from './hooks/useAutoSave.js'
+import { useCloudSync } from './hooks/useCloudSync.js'
 import { usePlayMode } from './hooks/usePlayMode.js'
 import { useNotesPanel } from './hooks/useNotesPanel.js'
 import { useToast } from './hooks/useToast.js'
@@ -81,6 +82,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   const { startNew, loadFromRoster }                = useCharacterManagement(setCharacter)
 
   useAutoSave(character)
+  useCloudSync(character)
 
   const update = useCallback((patch) => {
     setCharacter(prev => ({ ...prev, ...patch }))

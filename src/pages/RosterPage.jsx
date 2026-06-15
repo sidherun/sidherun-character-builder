@@ -2,13 +2,43 @@ import { useState, useRef } from 'react'
 import { loadRoster, deleteCharacterFromRoster, loadCharacterFromRoster, saveCharacterToRoster, saveCurrent, loadCurrent, clearCurrent } from '../utils/rosterStorage.js'
 import { generateBatchHTML } from '../utils/generateCharacterHTML.js'
 import { buildRosterBackup, extractCharacters, validateCharacters } from '../utils/rosterBackup.js'
+import { cloudEnabled } from '../utils/supabaseClient.js'
+import { pushRoster, ensureGmKey } from '../utils/cloudSync.js'
 import CharacterCard from '../components/CharacterCard.jsx'
 import styles from './RosterPage.module.css'
 
 export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
   const [roster, setRoster] = useState(() => loadRoster())
   const [status, setStatus] = useState('')
+  const [pushing, setPushing] = useState(false)
   const restoreRef = useRef(null)
+
+  // Push the whole local roster to the cloud (idempotent: already-synced
+  // characters are updated, not duplicated). Opt-in entry point for cloud sync.
+  async function handlePushToCloud() {
+    const chars = roster.map(e => loadCharacterFromRoster(e.id)).filter(Boolean)
+    if (chars.length === 0) return
+    setPushing(true)
+    setStatus('Pushing roster to cloud…')
+    try {
+      const { created, updated, failed } = await pushRoster(chars)
+      const parts = [`Synced to cloud: ${created} new, ${updated} updated.`]
+      if (failed) parts.push(`${failed} failed.`)
+      setStatus(parts.join(' '))
+    } catch {
+      setStatus('Cloud push failed — your local characters are unaffected.')
+    } finally {
+      setPushing(false)
+    }
+  }
+
+  function handleCopyGmKey() {
+    const key = ensureGmKey()
+    navigator.clipboard?.writeText(key).then(
+      () => setStatus('GM key copied — keep it to manage these characters from another device.'),
+      () => setStatus(`GM key: ${key}`),
+    )
+  }
 
   // Download the whole roster as one portable JSON file. localStorage is
   // per-origin/per-browser, so this is the cross-device / pre-migration backup.
@@ -120,6 +150,16 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
           <button className="btn-secondary" onClick={() => restoreRef.current?.click()}>
             Restore…
           </button>
+          {cloudEnabled && roster.length > 0 && (
+            <button className="btn-secondary" onClick={handlePushToCloud} disabled={pushing}>
+              {pushing ? 'Syncing…' : 'Push to cloud'}
+            </button>
+          )}
+          {cloudEnabled && (
+            <button className="btn-secondary" onClick={handleCopyGmKey}>
+              Copy GM key
+            </button>
+          )}
           <button className="btn-primary" onClick={handleNew}>
             + New Character
           </button>
