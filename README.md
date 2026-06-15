@@ -2,7 +2,7 @@
 
 A browser-based character creation tool for the **Sidherun** tabletop RPG. Build, track, and play your characters — no account or backend required.
 
-**Live:** https://sidherun.github.io/sidherun-character-builder/
+**Live:** https://character-builder.sidherun.com/
 
 ---
 
@@ -28,7 +28,7 @@ npm install
 npm run dev
 ```
 
-Opens at `http://localhost:5173/sidherun-character-builder/` (Vite picks the next free port if 5173 is taken).
+Opens at `http://localhost:5173/` (Vite picks the next free port if 5173 is taken).
 
 ```bash
 npm run build   # production build → dist/
@@ -132,3 +132,5 @@ To add a new archetype: add an entry to `src/data/archetypes.json` with `id`, `n
 Push to `main` — GitHub Actions runs `npm run lint`, `npm test`, and `npm run build`, then deploys `dist/` to GitHub Pages automatically. A lint error or failing test blocks the deploy.
 
 GitHub Pages must be set to source **GitHub Actions** in repo Settings → Pages.
+
+The site is served from the custom domain **character-builder.sidherun.com** (root path), so `vite.config.js` uses `base: '/'`. `public/CNAME` pins the domain so each Actions deploy preserves it. After the TLS cert provisions, enable **Enforce HTTPS** in Settings → Pages — the app relies on `crypto.randomUUID()` and the Clipboard API, which require a secure (HTTPS) context.
