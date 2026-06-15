@@ -84,6 +84,22 @@ describe('generateCharacterHTML', () => {
     expect(html).not.toContain('<of the glen>')
   })
 
+  it('totals legacy powers (base + bonuses)', () => {
+    const html = generateCharacterHTML(mk('Legacy', {
+      powers: [{ id: 1, name: 'Beast Sense', base: 2, attributeBonus: 3, description: '' }],
+    }))
+    expect(html).toContain('<td>+5</td>')
+  })
+
+  it('totals in-app powers (attribute + powerBonus), not +0', () => {
+    const html = generateCharacterHTML(mk('Editor', {
+      // wisdom base is 14 in mk(); 14 + 3 = 17
+      powers: [{ id: 1, name: 'Wild Shape', attributeType: 'wisdom', powerBonus: 3, description: '' }],
+    }))
+    expect(html).toContain('<td>+17</td>')
+    expect(html).not.toContain('Wild Shape</td><td>+0</td>')
+  })
+
   it('hides mana/crafts for non-casters', () => {
     const html = generateCharacterHTML(mk('Aerin', { hasMagic: false }))
     expect(html).not.toContain('<h2>Magic Crafts</h2>')

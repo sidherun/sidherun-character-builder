@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { createDefaultCharacter } from './utils/defaultCharacter.js'
-import { loadCurrent, saveCharacterToRoster, saveCurrent } from './utils/rosterStorage.js'
-import { decodeCharacterFromURL } from './utils/urlState.js'
+import { loadCurrent, saveCharacterToRoster, saveCurrent, loadCharacterFromRoster } from './utils/rosterStorage.js'
+import { decodeCharacterFromURL, getPlayLinkId } from './utils/urlState.js'
 import { safeParseCharacter } from './utils/characterSchema.js'
 import { useAutoSave } from './hooks/useAutoSave.js'
 import { usePlayMode } from './hooks/usePlayMode.js'
@@ -53,8 +53,18 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
         const result = safeParseCharacter(data)
         if (result.success) {
           if (playMode) {
-            // Auto-save so the player's HP/Mana/notes persist across refreshes
-            const saved = saveCharacterToRoster(result.data)
+            // Map this play link to a stable roster id so HP/Mana/notes persist
+            // across refreshes. On refresh, resume the already-tracked copy
+            // instead of re-importing the pristine URL state (which would reset
+            // tracking and spawn a duplicate roster entry on every reload).
+            const playId = getPlayLinkId()
+            const existing = playId ? loadCharacterFromRoster(playId) : null
+            if (existing) {
+              saveCurrent(existing)
+              return existing
+            }
+            const seeded = playId ? { ...result.data, _rosterId: playId } : result.data
+            const saved = saveCharacterToRoster(seeded)
             saveCurrent(saved)
             return saved
           }

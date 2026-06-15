@@ -1,5 +1,5 @@
 import qrcode from 'qrcode-generator'
-import { calcDefense, calcHitPoints, calcMana, attrTotal, calcSkillTotal } from './characterDerived.js'
+import { calcDefense, calcHitPoints, calcMana, attrTotal, calcSkillTotal, calcPowerTotal } from './characterDerived.js'
 import { encodeCharacterToPlayURL } from './urlState.js'
 
 const ATTR_LABELS = {
@@ -60,7 +60,7 @@ function sheetBody(character) {
   ).join('')
 
   const powers = (character.powers || []).map(p =>
-    `<tr><td>${esc(p.name)||'—'}</td><td>+${(p.base||0)+(p.attributeBonus||0)+(p.skillBonus||0)+(p.misc||0)}</td><td>${esc(p.description)}</td></tr>`
+    `<tr><td>${esc(p.name)||'—'}</td><td>+${calcPowerTotal(p, character.attributes)}</td><td>${esc(p.description)}</td></tr>`
   ).join('')
 
   const crafts = (character.crafts || []).map(c =>

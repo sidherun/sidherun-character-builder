@@ -15,7 +15,7 @@ export function useTheme() {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
-    try { localStorage.setItem(STORAGE_KEY, theme) } catch {}
+    try { localStorage.setItem(STORAGE_KEY, theme) } catch { /* ignore write failures (private mode / quota) */ }
   }, [theme])
 
   function toggleTheme() {
