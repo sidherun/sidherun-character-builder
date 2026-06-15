@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { createDefaultCharacter } from './utils/defaultCharacter.js'
-import { loadCurrent, saveCharacterToRoster, saveCurrent, loadCharacterFromRoster } from './utils/rosterStorage.js'
+import { loadCurrent, saveCharacterToRoster, saveCurrent, loadCharacterFromRoster, getLastSaveStatus } from './utils/rosterStorage.js'
 import { decodeCharacterFromURL, getPlayLinkId } from './utils/urlState.js'
 import { safeParseCharacter } from './utils/characterSchema.js'
 import { useAutoSave } from './hooks/useAutoSave.js'
@@ -128,7 +128,14 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   function saveToRoster() {
     const saved = saveCharacterToRoster(character)
     setCharacter(saved)
-    addToast('Character saved to roster!', 'success')
+    const status = getLastSaveStatus()
+    if (status === 'failed') {
+      addToast('Could not save — browser storage is full. Export a JSON backup.', 'error')
+    } else if (status === 'truncated') {
+      addToast('Saved, but version history was trimmed (storage nearly full).', 'success')
+    } else {
+      addToast('Character saved to roster!', 'success')
+    }
   }
 
   function completeCharacter() {

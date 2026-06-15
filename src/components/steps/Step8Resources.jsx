@@ -1,4 +1,5 @@
 import { calcHitPoints, calcMana } from '../../utils/characterDerived.js'
+import NumberInput from '../NumberInput.jsx'
 import xpTable from '../../data/xpTable.json'
 import styles from './Step8Resources.module.css'
 import { useEffect } from 'react'
@@ -15,12 +16,12 @@ function ResourceBlock({ title, total, current, onCurrentChange, color, formula 
         </div>
         <div className={styles.resourceStat}>
           <span>Current</span>
-          <input
-            type="number"
+          <NumberInput
             value={current}
-            onChange={e => onCurrentChange(parseInt(e.target.value) || 0)}
+            onChange={onCurrentChange}
             min={0}
             max={total}
+            showZero
           />
         </div>
       </div>
@@ -125,21 +126,21 @@ export default function Step8Resources({ character, onUpdate }) {
           <div className={styles.resourceRow}>
             <div className={styles.resourceStat}>
               <span>Total</span>
-              <input
-                type="number"
+              <NumberInput
                 value={sp.total}
-                onChange={e => updateSP('total', parseInt(e.target.value) || 2)}
+                onChange={n => updateSP('total', n)}
                 min={0}
+                showZero
               />
             </div>
             <div className={styles.resourceStat}>
               <span>Current</span>
-              <input
-                type="number"
+              <NumberInput
                 value={sp.current}
-                onChange={e => updateSP('current', parseInt(e.target.value) || 0)}
+                onChange={n => updateSP('current', n)}
                 min={0}
                 max={sp.total}
+                showZero
               />
             </div>
           </div>
@@ -160,12 +161,12 @@ export default function Step8Resources({ character, onUpdate }) {
             <div className={styles.resourceRow}>
               <div className={styles.resourceStat}>
                 <span>Remaining</span>
-                <input
-                  type="number"
+                <NumberInput
                   value={armor.remaining}
-                  onChange={e => onUpdate({ armor: { ...armor, remaining: parseInt(e.target.value) || 0 } })}
+                  onChange={n => onUpdate({ armor: { ...armor, remaining: n } })}
                   min={0}
                   max={armor.max}
+                  showZero
                 />
               </div>
               <div className={styles.resourceStat}>
@@ -193,11 +194,11 @@ export default function Step8Resources({ character, onUpdate }) {
         <div className={styles.xpRow}>
           <label className={styles.xpField}>
             <span>Current XP</span>
-            <input
-              type="number"
+            <NumberInput
               value={xp.current}
-              onChange={e => onUpdate({ xp: { ...xp, current: parseInt(e.target.value) || 0 } })}
+              onChange={n => onUpdate({ xp: { ...xp, current: n } })}
               min={0}
+              showZero
             />
           </label>
           <div className={styles.xpStat}>

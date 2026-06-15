@@ -1,4 +1,5 @@
 import { calcDefense, attrTotal } from '../../utils/characterDerived.js'
+import NumberInput from '../NumberInput.jsx'
 import armorTypes from '../../data/armorTypes.json'
 import styles from './Step4Combat.module.css'
 
@@ -62,7 +63,7 @@ export default function Step4Combat({ character, onUpdate }) {
   }
 
   function updateDefense(type, field, val) {
-    onUpdate({ defense: { ...character.defense, [type]: { ...character.defense[type], [field]: parseInt(val) || 0 } } })
+    onUpdate({ defense: { ...character.defense, [type]: { ...character.defense[type], [field]: val } } })
   }
 
   const shieldBonus = SHIELD_OPTIONS.find(s => s.id === character.shield)?.bonus ?? 0
@@ -109,19 +110,17 @@ export default function Step4Combat({ character, onUpdate }) {
               </select>
               <label className={styles.numLabel}>
                 <span>Attr Bonus</span>
-                <input
-                  type="number"
-                  value={w.attributeBonus || ''}
-                  onChange={e => updateWeapon(w.id, { attributeBonus: parseInt(e.target.value) || 0 })}
+                <NumberInput
+                  value={w.attributeBonus}
+                  onChange={n => updateWeapon(w.id, { attributeBonus: n })}
                   aria-label={`Attribute bonus for ${weaponName}`}
                 />
               </label>
               <label className={styles.numLabel}>
                 <span>Skill Bonus</span>
-                <input
-                  type="number"
-                  value={w.skillBonus || ''}
-                  onChange={e => updateWeapon(w.id, { skillBonus: parseInt(e.target.value) || 0 })}
+                <NumberInput
+                  value={w.skillBonus}
+                  onChange={n => updateWeapon(w.id, { skillBonus: n })}
                   aria-label={`Skill bonus for ${weaponName}`}
                 />
               </label>
@@ -173,11 +172,13 @@ export default function Step4Combat({ character, onUpdate }) {
               <span>Absorb: <strong>{character.armor.absorption}</strong></span>
               <label htmlFor="armor-remaining">
                 Remaining:
-                <input
+                <NumberInput
                   id="armor-remaining"
-                  type="number"
                   value={character.armor.remaining}
-                  onChange={e => onUpdate({ armor: { ...character.armor, remaining: parseInt(e.target.value) || 0 } })}
+                  onChange={n => onUpdate({ armor: { ...character.armor, remaining: n } })}
+                  min={0}
+                  max={character.armor.max}
+                  showZero
                   style={{ width: 60, marginLeft: 6 }}
                 />
               </label>
@@ -221,10 +222,9 @@ export default function Step4Combat({ character, onUpdate }) {
               <span className={styles.defLabel} role="rowheader">{row.label}</span>
               <span role="cell">
                 {row.key === 'other'
-                  ? <input
-                      type="number"
-                      value={character.defense.other.base || ''}
-                      onChange={e => updateDefense('other','base',e.target.value)}
+                  ? <NumberInput
+                      value={character.defense.other.base}
+                      onChange={n => updateDefense('other','base',n)}
                       style={{ width: 50 }}
                       aria-label="Other defense base value"
                     />
@@ -232,17 +232,15 @@ export default function Step4Combat({ character, onUpdate }) {
                 }
               </span>
               <span className={styles.attrCell} role="cell">{row.attrVal} <em>({row.attrName})</em></span>
-              <input
-                type="number"
-                value={character.defense[row.key]?.skillBonus || ''}
-                onChange={e => updateDefense(row.key, 'skillBonus', e.target.value)}
+              <NumberInput
+                value={character.defense[row.key]?.skillBonus}
+                onChange={n => updateDefense(row.key, 'skillBonus', n)}
                 aria-label={`${row.label} defense skill bonus`}
                 role="cell"
               />
-              <input
-                type="number"
-                value={character.defense[row.key]?.misc || ''}
-                onChange={e => updateDefense(row.key, 'misc', e.target.value)}
+              <NumberInput
+                value={character.defense[row.key]?.misc}
+                onChange={n => updateDefense(row.key, 'misc', n)}
                 aria-label={`${row.label} defense miscellaneous bonus`}
                 role="cell"
               />
