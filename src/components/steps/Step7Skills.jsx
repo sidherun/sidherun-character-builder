@@ -181,13 +181,13 @@ export default function Step7Skills({ character, onUpdate }) {
               {s.isSpecialty && <span className={styles.specialtyTag} aria-hidden="true">★</span>}
             </label>
             <div className={styles.pips} role="group" aria-label={`Use tracking for ${skillLabel}`}>
-              {[0,1,2,3,4,5,6,7,8,9].map(i => (
+              {[0,1,2,3,4].map(i => (
                 <button
                   key={i}
                   className={`${styles.pip} ${i < s.usePips ? styles.pipFilled : ''}`}
                   onClick={() => togglePip(s.id, i)}
                   aria-pressed={i < s.usePips}
-                  aria-label={`Use pip ${i + 1} of 10 for ${skillLabel}`}
+                  aria-label={`Use pip ${i + 1} of 5 for ${skillLabel}`}
                 />
               ))}
             </div>

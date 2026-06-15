@@ -58,7 +58,7 @@ const skillSchema = z.object({
   skillPoints:    z.number().int().min(0).default(0),
   tempMod:        z.number().int().default(0),
   isSpecialty:    z.boolean().default(false),
-  usePips:        z.number().int().min(0).max(10).default(0),
+  usePips:        z.number().int().min(0).max(5).default(0),
 })
 
 const inventoryItemSchema = z.union([

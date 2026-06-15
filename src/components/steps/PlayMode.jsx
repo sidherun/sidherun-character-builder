@@ -221,13 +221,13 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
                     <strong>{calcSkillTotal(s)}</strong>
                   </div>
                   <div className={styles.usePips} role="group" aria-label={`Use tracking for ${s.name}`}>
-                    {[0,1,2,3,4,5,6,7,8,9].map(i => (
+                    {[0,1,2,3,4].map(i => (
                       <button
                         key={i}
                         className={`${styles.usePip} ${i < (s.usePips || 0) ? styles.usePipFilled : ''}`}
                         onClick={() => toggleSkillUse(s.id, i)}
                         aria-pressed={i < (s.usePips || 0)}
-                        aria-label={`Use ${i + 1} of 10 for ${s.name}`}
+                        aria-label={`Use ${i + 1} of 5 for ${s.name}`}
                       />
                     ))}
                   </div>

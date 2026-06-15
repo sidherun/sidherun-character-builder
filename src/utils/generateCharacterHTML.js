@@ -48,11 +48,11 @@ function sheetBody(character) {
     `<tr><td>${esc(w.name) || '—'}</td><td>${esc(w.attribute)}</td><td>+${(w.attributeBonus||0)+(w.skillBonus||0)}</td><td>${esc(w.descriptor)}</td></tr>`
   ).join('')
 
-  // "Use" tracking: 10 circles per skill, filled to the recorded count, the
+  // "Use" tracking: 5 circles per skill, filled to the recorded count, the
   // rest left empty for the player to strike by hand during play.
   const useCircles = (s) => {
-    const used = Math.max(0, Math.min(s.usePips || 0, 10))
-    return '●'.repeat(used) + '○'.repeat(10 - used)
+    const used = Math.max(0, Math.min(s.usePips || 0, 5))
+    return '●'.repeat(used) + '○'.repeat(5 - used)
   }
 
   const skills = (character.skills || []).map(s =>
