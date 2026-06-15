@@ -115,8 +115,28 @@ export function getPlayLinkId() {
   return 'play-' + h.toString(36)
 }
 
+// Cloud links reference a server row + capability token instead of embedding the
+// character data. Format: #c=<uuid>~<token>. The token is base64url (no '~'),
+// and the uuid has no '~', so a single split is unambiguous. Much shorter than
+// the embedded #play= blob, so the play-mode QR stays easily scannable.
+export function encodeCloudLink(id, token) {
+  return `${window.location.origin}${window.location.pathname}#c=${id}~${token}`
+}
+
+export function parseCloudLink() {
+  const hash = window.location.hash
+  if (!hash.startsWith('#c=')) return null
+  const sep = hash.indexOf('~')
+  if (sep < 0) return null
+  const id = hash.slice('#c='.length, sep)
+  const token = hash.slice(sep + 1)
+  if (!id || !token) return null
+  return { id, token }
+}
+
 export function getURLRouteType() {
   const hash = window.location.hash
+  if (hash.startsWith('#c='))     return 'cloud'
   if (hash.startsWith('#play='))  return 'play'
   if (hash.startsWith('#share=')) return 'share'
   return null

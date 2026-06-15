@@ -11,6 +11,7 @@
 // validated by safeParseCharacter (Zod strips unknown keys).
 
 import { supabase } from './supabaseClient.js'
+import { encodeCloudLink } from './urlState.js'
 import { uuid } from './uuid.js'
 
 const KEY_GM   = 'sidherun_gm_key'
@@ -31,6 +32,18 @@ export function getCloudMap() {
 function setCloudMapEntry(rosterId, entry) {
   const map = getCloudMap(); map[rosterId] = entry
   try { localStorage.setItem(KEY_MAP, JSON.stringify(map)) } catch { /* ignore */ }
+}
+
+// Record that a rosterId maps to a cloud row + token (e.g. when opening a cloud
+// link), so the background hook keeps it synced.
+export function registerCloudLink(rosterId, { id, token }) {
+  setCloudMapEntry(rosterId, { id, token })
+}
+
+// Build a shareable cloud link for a locally-mapped character, or null.
+export function getCloudLink(rosterId) {
+  const e = getCloudMap()[rosterId]
+  return e ? encodeCloudLink(e.id, e.token) : null
 }
 
 // ── pure helpers (the unit-test surface) ─────────────────────────────────────
@@ -96,6 +109,17 @@ async function rpc(fn, params) {
   const { data, error } = await supabase.rpc(fn, params)
   if (error) throw error
   return data
+}
+
+// Fetch a cloud character by capability token. Returns the character with live
+// counters folded in, plus the server's updated_at (for newer-wins on open),
+// or null if the token is unknown / cloud disabled.
+export async function fetchCloudCharacter(token) {
+  if (!supabase) return null
+  const rows = await rpc('get_character', { p_token: token })
+  if (!rows?.length) return null
+  const r = rows[0]
+  return { character: foldLive(r.data, r.live), updatedAt: r.updated_at, id: r.id }
 }
 
 // Sync one character to the cloud. `allowCreate` lets the migration button

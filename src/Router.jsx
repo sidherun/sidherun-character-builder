@@ -8,6 +8,7 @@ function getRoute() {
   if (hash.startsWith('#roster')) return 'roster'
   if (hash.startsWith('#share=')) return 'share'
   if (hash.startsWith('#play='))  return 'play'
+  if (hash.startsWith('#c='))     return 'play' // cloud link → Play Mode
   return 'app'
 }
 
