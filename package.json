@@ -12,6 +12,7 @@
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.108.1",
     "lz-string": "^1.5.0",
     "qrcode-generator": "^2.0.4",
     "react": "^19.0.0",
