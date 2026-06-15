@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { encodeCharacterToPlayURL, encodeCharacterToURL, decodeCharacterFromURL, getPlayLinkId } from './urlState.js'
+import { encodeCharacterToPlayURL, encodeCharacterToURL, decodeCharacterFromURL, getPlayLinkId, encodeCloudLink, parseCloudLink, getURLRouteType } from './urlState.js'
 import { safeParseCharacter } from './characterSchema.js'
 
 const A = (b) => ({ base: b, racialMod: 0, tempMod: 0 })
@@ -108,5 +108,27 @@ describe('play URL compact codec', () => {
     const d = decodeCharacterFromURL()
     expect(safeParseCharacter(d).success).toBe(true)
     expect(d.name).toBe('Tarben Jarlson')
+  })
+})
+
+describe('cloud link', () => {
+  const ID = 'fa2d17b4-18a5-4a84-8900-c7e04d5a50de'
+  const TOKEN = 'dpL6DXJU65f8CSIXCGew0RV3DF2POAk2ZkYFvDbTiRo' // base64url, no '~'
+
+  it('round-trips id + token and routes as cloud', () => {
+    const url = encodeCloudLink(ID, TOKEN)
+    window.location.hash = url.slice(url.indexOf('#'))
+    expect(getURLRouteType()).toBe('cloud')
+    expect(parseCloudLink()).toEqual({ id: ID, token: TOKEN })
+  })
+
+  it('parseCloudLink returns null off a cloud link', () => {
+    window.location.hash = '#play=xyz'
+    expect(parseCloudLink()).toBeNull()
+  })
+
+  it('does not collide with legacy decoders', () => {
+    window.location.hash = `#c=${ID}~${TOKEN}`
+    expect(decodeCharacterFromURL()).toBeNull() // embedded decoder ignores #c=
   })
 })

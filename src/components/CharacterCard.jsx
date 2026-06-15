@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { encodeCharacterToPlayURL } from '../utils/urlState.js'
+import { cloudEnabled } from '../utils/supabaseClient.js'
+import { getCloudLink } from '../utils/cloudSync.js'
 import styles from './CharacterCard.module.css'
 
 async function shortenURL(longUrl) {
@@ -14,6 +16,20 @@ async function shortenURL(longUrl) {
 
 export default function CharacterCard({ entry, onLoad, onDelete, onGetCharacter }) {
   const [linkState, setLinkState] = useState('idle') // idle | loading | copied | error
+  const [cloudState, setCloudState] = useState('idle') // idle | copied | error
+  const cloudLink = cloudEnabled ? getCloudLink(entry.id) : null
+
+  // Cloud links are short (id + token), so no URL shortener needed — copy directly.
+  async function handleCopyCloudLink() {
+    if (!cloudLink) return
+    try {
+      await navigator.clipboard.writeText(cloudLink)
+      setCloudState('copied')
+    } catch {
+      setCloudState('error')
+    }
+    setTimeout(() => setCloudState('idle'), 2500)
+  }
 
   async function handleCopyPlayLink() {
     const char = onGetCharacter(entry.id)
@@ -34,6 +50,7 @@ export default function CharacterCard({ entry, onLoad, onDelete, onGetCharacter 
   }
 
   const btnLabel = { idle: 'Copy play link', loading: 'Shortening…', copied: 'Copied!', error: 'Copied (long)' }
+  const cloudLabel = { idle: 'Copy live link', copied: 'Copied!', error: 'Copy failed' }
 
   return (
     <div className={styles.card}>
@@ -54,6 +71,11 @@ export default function CharacterCard({ entry, onLoad, onDelete, onGetCharacter 
         >
           {btnLabel[linkState]}
         </button>
+        {cloudLink && (
+          <button className="btn-secondary" onClick={handleCopyCloudLink}>
+            {cloudLabel[cloudState]}
+          </button>
+        )}
         <button className="btn-danger" onClick={() => onDelete(entry.id)}>Delete</button>
       </div>
     </div>

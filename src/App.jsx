@@ -1,7 +1,8 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { createDefaultCharacter } from './utils/defaultCharacter.js'
-import { loadCurrent, saveCharacterToRoster, saveCurrent, loadCharacterFromRoster, getLastSaveStatus } from './utils/rosterStorage.js'
-import { decodeCharacterFromURL, getPlayLinkId } from './utils/urlState.js'
+import { loadCurrent, saveCharacterToRoster, saveCurrent, loadCharacterFromRoster, loadRoster, getLastSaveStatus } from './utils/rosterStorage.js'
+import { decodeCharacterFromURL, getPlayLinkId, parseCloudLink } from './utils/urlState.js'
+import { registerCloudLink, fetchCloudCharacter } from './utils/cloudSync.js'
 import { safeParseCharacter } from './utils/characterSchema.js'
 import { useAutoSave } from './hooks/useAutoSave.js'
 import { useCloudSync } from './hooks/useCloudSync.js'
@@ -47,7 +48,22 @@ function visibleSteps(hasPowers, hasMagic) {
 }
 
 export default function App({ onNavigate, shareMode, playMode, theme, onToggleTheme }) {
+  // Cloud link (#c=<id>~<token>): references a server row instead of embedding
+  // the character. Routed to Play Mode (Router maps #c= → 'play').
+  const cloud = (shareMode || playMode) ? parseCloudLink() : null
+  const cloudId = cloud?.id || null
+  const cloudToken = cloud?.token || null
+
   const [character, setCharacter] = useState(() => {
+    if (cloud && playMode) {
+      // Render the local copy instantly if we have one (local-first); the effect
+      // below refreshes from the cloud. First open shows a brief loading state.
+      const rosterId = 'cloud-' + cloud.id
+      registerCloudLink(rosterId, cloud)
+      const existing = loadCharacterFromRoster(rosterId)
+      if (existing) { saveCurrent(existing); return existing }
+      return { ...createDefaultCharacter(), _rosterId: rosterId }
+    }
     if (shareMode || playMode) {
       const data = decodeCharacterFromURL()
       if (data) {
@@ -76,6 +92,10 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
     return loadCurrent() || createDefaultCharacter()
   })
 
+  const [cloudLoading, setCloudLoading] = useState(
+    Boolean(cloud && playMode && !loadCharacterFromRoster('cloud-' + cloud.id)),
+  )
+
   const { isPlayMode, enterPlayMode, exitPlayMode } = usePlayMode(playMode)
   const { isNotesOpen, toggleNotes, closeNotes }    = useNotesPanel()
   const { toasts, addToast, removeToast }           = useToast()
@@ -83,6 +103,33 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
 
   useAutoSave(character)
   useCloudSync(character)
+
+  // Hydrate a cloud link from the server (once on mount). Adopt the cloud copy
+  // when it's newer than the local one (or there's no local copy); otherwise
+  // keep local and let the background push reconcile.
+  useEffect(() => {
+    if (!cloudToken || !playMode) return
+    let alive = true
+    fetchCloudCharacter(cloudToken)
+      .then(res => {
+        if (!alive) return
+        if (res) {
+          const parsed = safeParseCharacter(res.character)
+          if (parsed.success) {
+            const rosterId = 'cloud-' + cloudId
+            const entry = loadRoster().find(r => r.id === rosterId)
+            if (!entry || res.updatedAt > entry.savedAt) {
+              const saved = saveCharacterToRoster({ ...parsed.data, _rosterId: rosterId })
+              saveCurrent(saved)
+              setCharacter(saved)
+            }
+          }
+        }
+        setCloudLoading(false)
+      })
+      .catch(() => { if (alive) setCloudLoading(false) })
+    return () => { alive = false }
+  }, [cloudId, cloudToken, playMode])
 
   const update = useCallback((patch) => {
     setCharacter(prev => ({ ...prev, ...patch }))
@@ -143,6 +190,23 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   function completeCharacter() {
     saveCharacterToRoster(character)
     onNavigate('roster')
+  }
+
+  if (cloudLoading) {
+    return (
+      <ErrorBoundary>
+        <div className={styles.app}>
+          <main
+            id="main-content"
+            className={styles.mainFullBleed}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}
+          >
+            <p style={{ opacity: 0.8 }}>Loading character…</p>
+          </main>
+          <Toast toasts={toasts} onRemove={removeToast} />
+        </div>
+      </ErrorBoundary>
+    )
   }
 
   if (isPlayMode) {
