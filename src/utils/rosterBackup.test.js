@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildRosterBackup, extractCharacters, validateCharacters } from './rosterBackup.js'
+import { buildRosterBackup, extractCharacters, validateCharacters, extractCloudState } from './rosterBackup.js'
 import { createDefaultCharacter } from './defaultCharacter.js'
 
 describe('buildRosterBackup', () => {
@@ -10,6 +10,22 @@ describe('buildRosterBackup', () => {
     expect(b.version).toBe(1)
     expect(b.exportedAt).toBe('2026-06-15T00:00:00.000Z')
     expect(b.characters).toBe(chars)
+  })
+})
+
+describe('cloud state in backup', () => {
+  it('includes GM key + cloud map when provided, and round-trips', () => {
+    const cloud = { gmKey: 'gm_abc', cloudMap: { r1: { id: 'i1', token: 't1' } } }
+    const b = buildRosterBackup([], 'now', cloud)
+    expect(b._gmKey).toBe('gm_abc')
+    expect(b._cloudMap).toEqual(cloud.cloudMap)
+    expect(extractCloudState(b)).toEqual({ gmKey: 'gm_abc', cloudMap: cloud.cloudMap })
+  })
+  it('omits cloud fields when empty', () => {
+    const b = buildRosterBackup([], 'now')
+    expect(b._gmKey).toBeUndefined()
+    expect(b._cloudMap).toBeUndefined()
+    expect(extractCloudState(b)).toEqual({ gmKey: undefined, cloudMap: undefined })
   })
 })
 

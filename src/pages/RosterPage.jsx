@@ -1,9 +1,9 @@
 import { useState, useRef } from 'react'
 import { loadRoster, deleteCharacterFromRoster, loadCharacterFromRoster, saveCharacterToRoster, saveCurrent, loadCurrent, clearCurrent } from '../utils/rosterStorage.js'
 import { generateBatchHTML } from '../utils/generateCharacterHTML.js'
-import { buildRosterBackup, extractCharacters, validateCharacters } from '../utils/rosterBackup.js'
+import { buildRosterBackup, extractCharacters, validateCharacters, extractCloudState } from '../utils/rosterBackup.js'
 import { cloudEnabled } from '../utils/supabaseClient.js'
-import { pushRoster, ensureGmKey } from '../utils/cloudSync.js'
+import { pushRoster, ensureGmKey, getGmKey, getCloudMap, importCloudState, deleteCloudCharacter } from '../utils/cloudSync.js'
 import CharacterCard from '../components/CharacterCard.jsx'
 import styles from './RosterPage.module.css'
 
@@ -45,7 +45,7 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
   function handleBackup() {
     const chars = roster.map(e => loadCharacterFromRoster(e.id)).filter(Boolean)
     if (chars.length === 0) return
-    const backup = buildRosterBackup(chars, new Date().toISOString())
+    const backup = buildRosterBackup(chars, new Date().toISOString(), { gmKey: getGmKey(), cloudMap: getCloudMap() })
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
@@ -65,8 +65,11 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
     const candidates = []
     let unreadable = 0
     for (const f of files) {
-      try { candidates.push(...extractCharacters(JSON.parse(await f.text()))) }
-      catch { unreadable++ }
+      try {
+        const parsed = JSON.parse(await f.text())
+        candidates.push(...extractCharacters(parsed))
+        importCloudState(extractCloudState(parsed)) // restore GM key + cloud map if present
+      } catch { unreadable++ }
     }
     const { valid, invalid } = validateCharacters(candidates)
     valid.forEach(saveCharacterToRoster)
@@ -108,8 +111,9 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
     setTimeout(() => URL.revokeObjectURL(url), 60000)
   }
 
-  function handleDelete(id) {
+  async function handleDelete(id) {
     if (!confirm('Delete this character? This cannot be undone.')) return
+    if (cloudEnabled) await deleteCloudCharacter(id) // best-effort cloud row delete
     deleteCharacterFromRoster(id)
     setRoster(loadRoster())
   }

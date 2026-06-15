@@ -33,6 +33,21 @@ function setCloudMapEntry(rosterId, entry) {
   const map = getCloudMap(); map[rosterId] = entry
   try { localStorage.setItem(KEY_MAP, JSON.stringify(map)) } catch { /* ignore */ }
 }
+function removeCloudMapEntry(rosterId) {
+  const map = getCloudMap(); delete map[rosterId]
+  try { localStorage.setItem(KEY_MAP, JSON.stringify(map)) } catch { /* ignore */ }
+}
+
+// Restore cloud access from a roster backup (GM key + cloud map) so cloud links
+// survive a browser wipe / move to a new device.
+export function importCloudState({ gmKey, cloudMap } = {}) {
+  try {
+    if (gmKey) localStorage.setItem(KEY_GM, gmKey)
+    if (cloudMap && typeof cloudMap === 'object') {
+      localStorage.setItem(KEY_MAP, JSON.stringify({ ...getCloudMap(), ...cloudMap }))
+    }
+  } catch { /* ignore */ }
+}
 
 // Record that a rosterId maps to a cloud row + token (e.g. when opening a cloud
 // link), so the background hook keeps it synced.
@@ -185,6 +200,27 @@ export async function syncCharacter(character, { allowCreate = false } = {}) {
   }
   lastSnapshot[character._rosterId] = character
   return { created: false, channel }
+}
+
+// Rotate a character's capability token (invalidates old links). Returns the
+// new live link, or null if not cloud-mapped / cloud disabled.
+export async function rotateCloudLink(rosterId) {
+  if (!supabase) return null
+  const entry = getCloudMap()[rosterId]
+  if (!entry) return null
+  const rows = await rpc('rotate_token', { p_gm_key: ensureGmKey(), p_id: entry.id })
+  if (!rows?.length) return null
+  setCloudMapEntry(rosterId, { id: entry.id, token: rows[0].token })
+  return getCloudLink(rosterId)
+}
+
+// Delete a character's cloud row (best-effort) and drop its map entry.
+export async function deleteCloudCharacter(rosterId) {
+  const entry = getCloudMap()[rosterId]
+  if (supabase && entry) {
+    try { await rpc('delete_character', { p_gm_key: ensureGmKey(), p_id: entry.id }) } catch { /* ignore */ }
+  }
+  removeCloudMapEntry(rosterId)
 }
 
 // Migration: push an array of characters, creating cloud rows for any not yet
