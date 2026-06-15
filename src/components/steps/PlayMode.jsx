@@ -139,9 +139,15 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
                 <button className={styles.quickBtn} onClick={repairArmor}>Repair</button>
               </div>
               {lastHit && (
-                <div className={styles.armorAbsorb}>
-                  Hit {lastHit.dmg}: armor absorbed {lastHit.absorbed}
-                  {lastHit.overflow > 0 ? `, ${lastHit.overflow} to HP` : ', none through'}
+                <div className={styles.hitBanner}>
+                  <span className={styles.hitBannerTitle}>Hit: {lastHit.dmg} damage</span>
+                  <span className={styles.hitBannerDetail}>
+                    Armor absorbed {lastHit.absorbed}
+                    {lastHit.overflow > 0
+                      ? <> · <strong>{lastHit.overflow} damage to HP</strong></>
+                      : <> · <strong>Fully blocked</strong></>
+                    }
+                  </span>
                 </div>
               )}
             </div>
