@@ -105,7 +105,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   const { toasts, addToast, removeToast }           = useToast()
   const { startNew, loadFromRoster }                = useCharacterManagement(setCharacter)
 
-  useAutoSave(character)
+  const saveStatus = useAutoSave(character)
   useCloudSync(character)
 
   // Apply remote live-counter broadcasts (another viewer's HP/mana/etc. change)
@@ -286,11 +286,20 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
                   <span className={styles.brandSub}>Character Builder</span>
                 </button>
                 <div className={styles.headerActions}>
+                  {(saveStatus === 'saving' || saveStatus === 'saved') && (
+                    <span className={styles.saveStatus}>{saveStatus === 'saving' ? 'Saving…' : 'Saved ✓'}</span>
+                  )}
                   <button className={styles.headerBtn} onClick={onToggleTheme}>{theme === 'dark' ? 'Light' : 'Dark'}</button>
                   <button className={styles.headerBtn} onClick={() => onNavigate('roster')}>Roster</button>
                   <button className={styles.headerBtn} onClick={toggleNotes}>Notes</button>
                 </div>
               </header>
+
+              {!character._rosterId && character.wizardStep !== 9 && (
+                <div className={styles.saveBanner} role="status">
+                  Not saved yet — finish the <strong>Review</strong> step and click <strong>Complete</strong> to save this character to your roster.
+                </div>
+              )}
 
               <StepIndicator
                 current={character.wizardStep}

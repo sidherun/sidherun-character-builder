@@ -65,6 +65,27 @@
 .headerActions {
   display: flex;
   gap: 8px;
+  align-items: center;
+}
+
+.saveStatus {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink400, #9c8f78);
+  margin-right: 2px;
+}
+
+.saveBanner {
+  margin: 0 0 12px;
+  padding: 9px 14px;
+  border-radius: 6px;
+  font-family: 'Spectral', serif;
+  font-size: 13px;
+  color: var(--ink900);
+  background: color-mix(in srgb, var(--bronze, #c69152) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--bronze, #c69152) 40%, transparent);
 }
 
 .headerBtn {
