@@ -42,15 +42,6 @@ export default function Step1Welcome({ onUpdate, onStartNew, onNavigate, addToas
       <div className={styles.card}>
         <div className={styles.topEdge} />
 
-        {/* Top bar */}
-        <div className={styles.topBar}>
-          <div className={styles.wordmark}>
-            <span className={styles.wordmarkName}>Sidherun</span>
-            <span className={styles.wordmarkSub}>Character Builder</span>
-          </div>
-          <span className={styles.version}>v2.0</span>
-        </div>
-
         {/* Hero */}
         <div className={styles.hero}>
           <div className={styles.glow} aria-hidden="true" />
