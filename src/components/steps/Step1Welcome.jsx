@@ -48,7 +48,7 @@ export default function Step1Welcome({ onUpdate, onStartNew, onNavigate, addToas
             <span className={styles.wordmarkName}>Sidherun</span>
             <span className={styles.wordmarkSub}>Character Builder</span>
           </div>
-          <span className={styles.version}>v1.0</span>
+          <span className={styles.version}>v2.0</span>
         </div>
 
         {/* Hero */}
