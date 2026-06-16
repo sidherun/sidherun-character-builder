@@ -30,17 +30,18 @@ function toCompact(c) {
     pw, cr, sk, inv,
     [c.hitPoints?.total || 0, c.hitPoints?.current || 0, c.mana?.total || 0, c.mana?.current || 0,
      c.storyPoints?.total || 0, c.storyPoints?.current || 0, c.xp?.current || 0, c.xp?.needed || 0],
+    c.playerName || '', // appended last for back-compat with older links
   ]
 }
 
 function fromCompact(a) {
-  const [name, race, archetype, level, flags, magicAttribute, at, w, arm, shield, def, pw, cr, sk, inv, res] = a
+  const [name, race, archetype, level, flags, magicAttribute, at, w, arm, shield, def, pw, cr, sk, inv, res, playerName] = a
   const attributes = {}
   ATTR_KEYS.forEach((k, i) => { attributes[k] = { base: (at && at[i]) || 0, racialMod: 0, tempMod: 0 } })
   const dt = (pair) => ({ skillBonus: (pair && pair[0]) || 0, misc: (pair && pair[1]) || 0 })
   return {
     wizardStep: 9, _rosterId: null,
-    name: name || '', race: race || 'human', raceType: 'healthy', raceValue: 20, raceSize: 'medium',
+    name: name || '', playerName: playerName || '', race: race || 'human', raceType: 'healthy', raceValue: 20, raceSize: 'medium',
     archetype: archetype || 'worldly', hasPowers: !!(flags & 1), hasMagic: !!(flags & 2),
     magicAttribute: magicAttribute || null, level: level || 1, ageCategory: 'adult', backstory: '',
     attributes,

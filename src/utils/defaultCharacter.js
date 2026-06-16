@@ -7,6 +7,7 @@ export function createDefaultCharacter() {
 
     // Step 2
     name: '',
+    playerName: '',
     race: 'human',
     raceType: 'healthy',
     raceValue: 20,

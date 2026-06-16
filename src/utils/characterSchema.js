@@ -82,6 +82,7 @@ export const characterSchema = z.object({
   _rosterId:   z.string().nullable().default(null),
 
   name:           z.string().default(''),
+  playerName:     z.string().default(''),
   race:           z.string().default('human'),
   raceType:       z.string().default('healthy'),
   raceValue:      z.number().int().default(20),

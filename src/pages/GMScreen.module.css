@@ -78,6 +78,13 @@
   text-overflow: ellipsis;
 }
 
+.player {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--bronze);
+}
+
 .meta {
   font-family: 'Spectral', serif;
   font-size: 12px;

@@ -91,6 +91,7 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
               <div key={c._rosterId} className={styles.row}>
                 <div className={styles.who}>
                   <div className={styles.name}>{c.name || 'Unnamed'}</div>
+                  {c.playerName && <div className={styles.player}>{c.playerName}</div>}
                   <div className={styles.meta}>
                     {c.race} · {c.archetype === 'custom' ? (c.customArchetypeName || 'Custom') : c.archetype} · L{c.level}
                   </div>

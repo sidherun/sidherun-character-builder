@@ -56,6 +56,17 @@ export default function Step2Identity({ character, onUpdate }) {
           />
         </div>
 
+        <div className={`${styles.field} ${styles.fullWidth}`}>
+          <label htmlFor="identity-player">Player Name</label>
+          <input
+            id="identity-player"
+            type="text"
+            value={character.playerName || ''}
+            onChange={e => onUpdate({ playerName: e.target.value })}
+            placeholder="Who's playing this character?"
+          />
+        </div>
+
         <div className={styles.field}>
           <label htmlFor="identity-race">Race</label>
           <select
