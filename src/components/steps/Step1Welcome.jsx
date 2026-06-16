@@ -55,8 +55,11 @@ export default function Step1Welcome({ onUpdate, onStartNew, onNavigate, addToas
         <div className={styles.hero}>
           <div className={styles.glow} aria-hidden="true" />
           <div className={styles.heroContent}>
-            <div className={styles.ornament}>✦</div>
-            <h1 className={styles.title}>Sidherun</h1>
+            <img
+              src={`${import.meta.env.BASE_URL}sidherun-logo.png`}
+              alt="Sidherun"
+              className={styles.logo}
+            />
             <p className={styles.kicker}>Character Builder</p>
             <p className={styles.desc}>
               Create, track, and play your characters in the world of Sidherun.

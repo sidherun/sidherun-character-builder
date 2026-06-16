@@ -108,27 +108,18 @@
   position: relative;
 }
 
-.ornament {
-  font-size: 22px;
-  color: var(--bronze);
-  margin-bottom: 20px;
-  animation: pulse 3s ease-in-out infinite;
+.logo {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  margin-bottom: 18px;
+  filter: invert(1) sepia(0.25) saturate(0.8);
+  mix-blend-mode: screen;
 }
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.5; }
-}
-
-.title {
-  font-family: 'Newsreader', serif;
-  font-weight: 500;
-  font-size: 74px;
-  line-height: 1;
-  color: var(--ink900);
-  letter-spacing: 0.02em;
-  text-shadow: 0 2px 30px var(--wordmark-shad);
-  margin-bottom: 14px;
 }
 
 .kicker {
@@ -211,7 +202,7 @@
 
 /* Mobile */
 @media (max-width: 600px) {
-  .title { font-size: 52px; }
+  .logo { max-width: 280px; }
   .glow { width: 320px; height: 200px; }
   .secondaryBtns { flex-direction: column; width: 100%; }
   .ghostBtn { width: 100%; }
