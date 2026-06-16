@@ -66,7 +66,7 @@ export default function Step1Welcome({ onUpdate, onStartNew, onNavigate, addToas
             </p>
             <div className={styles.actions}>
               <button className={styles.mainBtn} onClick={handleStart}>
-                Begin New Character
+                Create New Character
               </button>
               <div className={styles.secondaryBtns}>
                 <button className={styles.ghostBtn} onClick={() => onNavigate('roster')}>
