@@ -62,6 +62,19 @@ describe('PlayMode', () => {
     expect(html).not.toContain('No items yet.')
   })
 
+  it('shows the Spell Target tile for casters (hasMagic + magicAttribute)', () => {
+    const html = render(base({ magicAttribute: 'wisdom' }))
+    expect(html).toContain('Spell Target')
+    expect(html).toContain('vs Target Lvl')
+    expect(html).toContain('roll under')
+  })
+
+  it('hides the Spell Target tile for non-casters', () => {
+    expect(render(base({ hasMagic: false }))).not.toContain('Spell Target')
+    // also hidden when a caster has no magic attribute selected
+    expect(render(base({ hasMagic: true, magicAttribute: undefined }))).not.toContain('Spell Target')
+  })
+
   it('renders 5 Use-tracking circles per skill', () => {
     const html = render(base())
     expect(html).toContain('Use tracking for Herbalism')

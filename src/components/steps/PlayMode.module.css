@@ -388,6 +388,55 @@
   padding: 2px 0;
 }
 
+/* Spell Target tile */
+.spellTile {
+  background: var(--sel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.spellRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.spellSel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.spellSel span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink400);
+}
+
+.spellSel select {
+  padding: 5px 6px;
+  background: var(--card2);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: var(--ink900);
+  font-family: 'Spectral', serif;
+  font-size: 13px;
+}
+
+.spellNum {
+  font-family: 'Newsreader', serif;
+  font-size: 2.4rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
 @media (max-width: 640px) {
   .content {
     grid-template-columns: 1fr;

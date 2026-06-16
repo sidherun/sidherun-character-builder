@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { calcDefense, calcSkillTotal, attrTotal } from '../../utils/characterDerived.js'
+import { getFinalSpellTarget } from '../../utils/spellTarget.js'
 import styles from './PlayMode.module.css'
 
 const ATTR_LABELS = {
@@ -17,6 +18,18 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
 
   const [armorDmg, setArmorDmg] = useState('')
   const [lastHit, setLastHit]   = useState(null)
+  const [targetLevel, setTargetLevel] = useState(1)
+
+  // Spell Target reference (casters only): roll under base(caster vs target) +
+  // magic attribute, capped 95. Same calc as the wizard's Step 6.
+  const magicAttrVal = character.magicAttribute
+    ? attrTotal(character.attributes?.[character.magicAttribute] || {})
+    : 0
+  const spellTarget = getFinalSpellTarget(character.level, targetLevel, magicAttrVal)
+  const spellColor = spellTarget == null ? 'var(--danger)'
+    : spellTarget >= 50 ? 'var(--story)'
+    : spellTarget >= 30 ? 'var(--bronze)'
+    : 'var(--danger)'
 
   // Apply an incoming hit: armor absorbs up to its soak value (capped by the
   // durability it has left), durability drops by what it absorbed, and any
@@ -131,6 +144,23 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
             color="var(--story)"
             onAdjust={adjustSP}
           />
+          {character.hasMagic && character.magicAttribute && (
+            <div className={styles.spellTile}>
+              <div className={styles.counterLabel} style={{ color: 'var(--mana)' }}>Spell Target</div>
+              <div className={styles.armorAbsorb}>
+                L{character.level} caster · {ATTR_LABELS[character.magicAttribute] || character.magicAttribute} {magicAttrVal} · roll under
+              </div>
+              <div className={styles.spellRow}>
+                <label className={styles.spellSel}>
+                  <span>vs Target Lvl</span>
+                  <select value={targetLevel} onChange={e => setTargetLevel(parseInt(e.target.value))} aria-label="Target level">
+                    {Array.from({ length: 20 }, (_, i) => i + 1).map(l => <option key={l} value={l}>{l}</option>)}
+                  </select>
+                </label>
+                <span className={styles.spellNum} style={{ color: spellColor }}>{spellTarget ?? '—'}%</span>
+              </div>
+            </div>
+          )}
           {armor.type !== 'none' && (
             <div className={styles.armorCounter}>
               <div className={styles.counterLabel} style={{ color: 'var(--armor)' }}>Armor</div>
