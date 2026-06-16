@@ -343,6 +343,51 @@
 .usePip:hover { border-color: var(--bronze); }
 .usePipFilled { background: var(--bronze); border-color: var(--bronze); }
 
+/* Inventory editor */
+.invRow {
+  display: grid;
+  grid-template-columns: 1fr 52px 1fr 28px;
+  gap: 6px;
+  align-items: center;
+  padding: 3px 0;
+}
+
+.invInput,
+.invQty {
+  padding: 5px 6px;
+  background: var(--card2);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: var(--ink900);
+  font-family: 'Spectral', serif;
+  font-size: 13px;
+  width: 100%;
+}
+
+.invQty { text-align: center; }
+
+.invInput:focus,
+.invQty:focus { border-color: var(--bronze); outline: none; }
+
+.invRemove {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink500);
+  border-radius: 3px;
+  cursor: pointer;
+  padding: 5px 0;
+  font-size: 12px;
+}
+
+.invRemove:hover { border-color: var(--danger); color: var(--danger); }
+
+.invEmpty {
+  color: var(--ink400);
+  font-style: italic;
+  font-size: 13px;
+  padding: 2px 0;
+}
+
 @media (max-width: 640px) {
   .content {
     grid-template-columns: 1fr;
