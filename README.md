@@ -101,7 +101,7 @@ src/
 - **Defense** = base (50 typical / 0 others) + attribute + shield + skill bonus + misc
 - **Magic Defense** = casting attribute (Thaumaturgy, Enlightenment, or Wisdom depending on archetype) + bonuses; non-magic characters fall back to `(THA + EN) / 2`
 - **Psychic Defense** = INT + bonuses
-- **Spell Target** = 20×20 table lookup (caster level vs target level) + magic attribute; capped at 95%; no attribute bonus if base < 25
+- **Spell Target** = 20×20 Spell Matrix lookup (caster level vs target level) + the caster's relevant magic attribute, capped at 95% (PHB 2.8.2026). The attribute is always added; the GM applies any difficulty modifier and the target's Spell/Psychic Defense at the table.
 - **Skills** — free-form, 30pt budget, max 15 per skill, specialty flag for exceptional skills, and **Use tracking** — 10 circles per skill (PHB "Impact of Skills"); strike one each time the skill is used in a session. Editable in the Skills step and Play Mode, and printed on the HTML/PDF sheet for hand-tracking.
 - **Story Points** — default 2 per character
 
