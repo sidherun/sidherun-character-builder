@@ -60,7 +60,6 @@ export default function Step1Welcome({ onUpdate, onStartNew, onNavigate, addToas
               alt="Sidherun"
               className={styles.logo}
             />
-            <p className={styles.kicker}>Character Builder</p>
             <p className={styles.desc}>
               Create, track, and play your characters in the world of Sidherun.
               Build your story, set your attributes, and bring your character to life.
