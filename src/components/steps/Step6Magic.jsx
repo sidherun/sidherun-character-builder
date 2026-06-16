@@ -136,7 +136,7 @@ export default function Step6Magic({ character, onUpdate }) {
             <span className={styles.targetLabel}>Spell Target</span>
             <span className={styles.targetNum}>{finalTarget ?? '—'}%</span>
             {finalTarget !== null && finalTarget < 25 && (
-              <span className={styles.redNote}>No attribute bonus (very outmatched)</span>
+              <span className={styles.redNote}>Very outmatched — low odds</span>
             )}
           </div>
         </div>
