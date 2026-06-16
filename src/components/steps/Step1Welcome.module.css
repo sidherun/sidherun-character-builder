@@ -110,11 +110,12 @@
 
 .logo {
   width: 100%;
-  max-width: 420px;
+  max-width: 480px;
   height: auto;
-  margin-bottom: 18px;
-  filter: invert(1) sepia(0.25) saturate(0.8);
-  mix-blend-mode: screen;
+  display: block;
+  margin: 0 auto 18px;
+  border-radius: 6px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55);
 }
 
 @keyframes pulse {
@@ -202,7 +203,7 @@
 
 /* Mobile */
 @media (max-width: 600px) {
-  .logo { max-width: 280px; }
+  .logo { max-width: 300px; }
   .glow { width: 320px; height: 200px; }
   .secondaryBtns { flex-direction: column; width: 100%; }
   .ghostBtn { width: 100%; }
