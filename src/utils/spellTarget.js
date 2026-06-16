@@ -9,11 +9,12 @@ export function getSpellTarget(casterLevel, targetLevel) {
   return data.table[row][col]
 }
 
-// Returns final target (base + attribute), capped at 95
+// Spell Target = base (Spell Matrix: caster level vs target level) + the
+// caster's relevant magic attribute, capped at 95 (PHB 2.8.2026). The attribute
+// is always added — there is no "red-zone" suppression in the rules. Roll under
+// the result to succeed.
 export function getFinalSpellTarget(casterLevel, targetLevel, magicAttrValue) {
   const base = getSpellTarget(casterLevel, targetLevel)
   if (base === null) return null
-  // Red zone: attribute not added when base is very low (below 25 threshold is "red")
-  if (base < 25) return base
   return Math.min(95, base + (magicAttrValue || 0))
 }
