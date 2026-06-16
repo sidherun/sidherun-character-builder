@@ -37,19 +37,29 @@ describe('PlayMode', () => {
     expect(html).toContain('FAM')
     expect(html).toContain('Beast Sense')
     expect(html).toContain('Entangle')
-    expect(html).toContain('Healing draught')
-    expect(html).toContain('×3')
+    expect(html).toContain('Healing draught') // inventory item name (now an input value)
     expect(html).toContain('Tinderbox')
   })
 
-  it('hides caster-only and empty sections appropriately', () => {
+  it('hides caster-only sections; Inventory is always present (editable)', () => {
     const html = render(base({ hasMagic: false, hasPowers: false, inventory: [] }))
     expect(html).not.toContain('Magic Crafts')
     expect(html).not.toContain('Powers')
-    expect(html).not.toContain('Inventory')
-    // Attributes and Defense are always present.
+    // Attributes, Defense, and the (now editable) Inventory are always present.
     expect(html).toContain('Attributes')
     expect(html).toContain('Defense')
+    expect(html).toContain('Inventory')
+    expect(html).toContain('+ Add item')
+    expect(html).toContain('No items yet.')
+  })
+
+  it('renders editable inputs for each inventory item', () => {
+    const html = render(base({ inventory: [{ name: 'Rope', quantity: 2, notes: 'hemp' }, 'Torch'] }))
+    expect(html).toContain('value="Rope"')
+    expect(html).toContain('value="hemp"')
+    expect(html).toContain('value="Torch"') // legacy string item rendered as an editable name input
+    expect(html).toContain('+ Add item')
+    expect(html).not.toContain('No items yet.')
   })
 
   it('renders 5 Use-tracking circles per skill', () => {

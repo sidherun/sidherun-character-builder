@@ -52,6 +52,23 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
     onUpdate({ skills })
   }
 
+  // Inventory editing during play. Items may be legacy strings or objects;
+  // normalize to { name, quantity, notes } on edit (the schema accepts both).
+  function addInventoryItem() {
+    onUpdate({ inventory: [...(character.inventory || []), { name: '', quantity: '', notes: '' }] })
+  }
+  function updateInventoryItem(i, patch) {
+    const inventory = (character.inventory || []).map((it, idx) => {
+      if (idx !== i) return it
+      const obj = typeof it === 'string' ? { name: it, quantity: '', notes: '' } : it
+      return { ...obj, ...patch }
+    })
+    onUpdate({ inventory })
+  }
+  function removeInventoryItem(i) {
+    onUpdate({ inventory: (character.inventory || []).filter((_, idx) => idx !== i) })
+  }
+
   // A non-positive total means the cap is unknown (e.g. a play link generated
   // before Resources were synced); treat it as no cap so the GM can still raise
   // the value rather than being pinned at 0.
@@ -265,24 +282,49 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
             </section>
           )}
 
-          {/* Inventory quick-ref (forward-compatible with Session A schema work) */}
-          {character.inventory?.length > 0 && (
-            <section className={styles.refSection}>
-              <h3>Inventory</h3>
-              {character.inventory.map((item, i) => {
-                const isStr = typeof item === 'string'
-                const name  = isStr ? item : (item.name || '—')
-                const qty   = !isStr && item.quantity ? `×${item.quantity}` : ''
-                const notes = !isStr && item.notes ? item.notes : ''
-                return (
-                  <div key={i} className={styles.skillItem}>
-                    <span>{name}{notes ? ` — ${notes}` : ''}</span>
-                    {qty && <strong>{qty}</strong>}
-                  </div>
-                )
-              })}
-            </section>
-          )}
+          {/* Inventory — editable during play (add / edit name·qty·notes / remove) */}
+          <section className={styles.refSection}>
+            <h3>Inventory</h3>
+            {(character.inventory || []).map((item, i) => {
+              const obj = typeof item === 'string' ? { name: item, quantity: '', notes: '' } : item
+              return (
+                <div key={i} className={styles.invRow}>
+                  <input
+                    className={styles.invInput}
+                    value={obj.name || ''}
+                    placeholder="Item"
+                    onChange={e => updateInventoryItem(i, { name: e.target.value })}
+                    aria-label={`Item ${i + 1} name`}
+                  />
+                  <input
+                    className={styles.invQty}
+                    value={obj.quantity ?? ''}
+                    placeholder="Qty"
+                    onChange={e => updateInventoryItem(i, { quantity: e.target.value })}
+                    aria-label={`Item ${i + 1} quantity`}
+                  />
+                  <input
+                    className={styles.invInput}
+                    value={obj.notes || ''}
+                    placeholder="Notes"
+                    onChange={e => updateInventoryItem(i, { notes: e.target.value })}
+                    aria-label={`Item ${i + 1} notes`}
+                  />
+                  <button
+                    className={styles.invRemove}
+                    onClick={() => removeInventoryItem(i)}
+                    aria-label={`Remove item ${i + 1}`}
+                  >✕</button>
+                </div>
+              )
+            })}
+            {(character.inventory || []).length === 0 && (
+              <p className={styles.invEmpty}>No items yet.</p>
+            )}
+            <button className={styles.quickBtn} onClick={addInventoryItem} style={{ marginTop: 8 }}>
+              + Add item
+            </button>
+          </section>
         </div>
       </div>
     </div>
