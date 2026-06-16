@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { projectLive, foldLive, dataSignature, chooseChannel, mergeRemote } from './cloudSync.js'
+import { describe, it, expect, afterEach, vi } from 'vitest'
+import { projectLive, foldLive, dataSignature, chooseChannel, mergeRemote, qrLinkFor } from './cloudSync.js'
 import { createDefaultCharacter } from './defaultCharacter.js'
 
 const mk = () => {
@@ -64,6 +64,23 @@ describe('chooseChannel', () => {
   it('structural change → data', () => {
     const a = mk(); const b = mk(); b.name = 'New'
     expect(chooseChannel(a, b)).toBe('data')
+  })
+})
+
+describe('qrLinkFor (printout QR target)', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('uses the live cloud link when the character is cloud-mapped', () => {
+    vi.stubGlobal('localStorage', {
+      getItem: k => (k === 'sidherun_cloud_map' ? JSON.stringify({ r1: { id: 'abc', token: 'tok' } }) : null),
+      setItem() {}, removeItem() {},
+    })
+    expect(qrLinkFor({ _rosterId: 'r1' })).toContain('#c=abc~tok')
+  })
+
+  it('falls back to the embedded #play= link when not synced', () => {
+    vi.stubGlobal('localStorage', { getItem: () => null, setItem() {}, removeItem() {} })
+    expect(qrLinkFor(mk())).toContain('#play=')
   })
 })
 

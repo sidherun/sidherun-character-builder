@@ -11,7 +11,7 @@
 // validated by safeParseCharacter (Zod strips unknown keys).
 
 import { supabase } from './supabaseClient.js'
-import { encodeCloudLink } from './urlState.js'
+import { encodeCloudLink, encodeCharacterToPlayURL } from './urlState.js'
 import { uuid } from './uuid.js'
 
 const KEY_GM   = 'sidherun_gm_key'
@@ -59,6 +59,13 @@ export function registerCloudLink(rosterId, { id, token }) {
 export function getCloudLink(rosterId) {
   const e = getCloudMap()[rosterId]
   return e ? encodeCloudLink(e.id, e.token) : null
+}
+
+// The best link to put behind a printout QR: the short, live cloud link if the
+// character is synced (always scannable; opens the live character), otherwise
+// the self-contained embedded #play= link. Both use the current origin.
+export function qrLinkFor(character) {
+  return getCloudLink(character?._rosterId) || encodeCharacterToPlayURL(character)
 }
 
 // ── pure helpers (the unit-test surface) ─────────────────────────────────────
