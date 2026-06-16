@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { loadRoster, loadCharacterFromRoster, saveCharacterToRoster, saveCurrent } from '../utils/rosterStorage.js'
 import { cloudEnabled } from '../utils/supabaseClient.js'
-import { getCloudMap, subscribeCharacter, unsubscribeCharacter, syncCharacter, mergeRemote, qrLinkFor } from '../utils/cloudSync.js'
+import { getCloudMap, subscribeCharacter, unsubscribeCharacter, syncCharacter, mergeRemote } from '../utils/cloudSync.js'
 import { applyAdjust } from '../utils/gmAdjust.js'
 import styles from './GMScreen.module.css'
 
@@ -44,15 +44,11 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
   }
 
   function openPlay(c) {
-    // Open the actual roster character in Play Mode. Cloud-synced → its live
-    // link; otherwise set it as current and open the bare #play route.
-    const cloudLink = cloudEnabled ? qrLinkFor(c) : null
-    if (cloudLink && cloudLink.includes('#c=')) {
-      window.location.hash = cloudLink.slice(cloudLink.indexOf('#'))
-    } else {
-      saveCurrent({ ...c, wizardStep: 9 })
-      onNavigate('play')
-    }
+    // Open the existing roster character in Play Mode directly (bare #play loads
+    // the current slot). Cloud sync + realtime still work via its own _rosterId,
+    // and we avoid routing through #c= which would create a duplicate entry.
+    saveCurrent({ ...c, wizardStep: 9 })
+    onNavigate('play')
   }
 
   const Stat = ({ c, kind, label, cur, total, color }) => (

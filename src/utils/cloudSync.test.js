@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, vi } from 'vitest'
-import { projectLive, foldLive, dataSignature, chooseChannel, mergeRemote, qrLinkFor } from './cloudSync.js'
+import { projectLive, foldLive, dataSignature, chooseChannel, mergeRemote, qrLinkFor, rosterIdForCloudId } from './cloudSync.js'
 import { createDefaultCharacter } from './defaultCharacter.js'
 
 const mk = () => {
@@ -64,6 +64,18 @@ describe('chooseChannel', () => {
   it('structural change → data', () => {
     const a = mk(); const b = mk(); b.name = 'New'
     expect(chooseChannel(a, b)).toBe('data')
+  })
+})
+
+describe('rosterIdForCloudId (prevents owner self-duplication)', () => {
+  afterEach(() => vi.unstubAllGlobals())
+  it('finds the local rosterId already mapped to a cloud id, else null', () => {
+    vi.stubGlobal('localStorage', {
+      getItem: k => (k === 'sidherun_cloud_map' ? JSON.stringify({ d1: { id: 'X', token: 't' } }) : null),
+      setItem() {}, removeItem() {},
+    })
+    expect(rosterIdForCloudId('X')).toBe('d1')
+    expect(rosterIdForCloudId('Y')).toBeNull()
   })
 })
 
