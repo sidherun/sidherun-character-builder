@@ -1,6 +1,6 @@
 import qrcode from 'qrcode-generator'
 import { calcDefense, calcHitPoints, calcMana, attrTotal, calcSkillTotal, calcPowerTotal } from './characterDerived.js'
-import { encodeCharacterToPlayURL } from './urlState.js'
+import { qrLinkFor } from './cloudSync.js'
 
 const ATTR_LABELS = {
   strength: 'STR', agility: 'AGI', dexterity: 'DEX', endurance: 'END',
@@ -14,13 +14,14 @@ function esc(v) {
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
 
-// QR code linking to the character's #play= URL, generated at export time as an
-// inline SVG so the printed/exported sheet stays fully self-contained (no CDN,
-// no third-party API, works offline). Scanning it opens the character in Play
-// Mode. Returns '' if the compressed URL is too large for a single QR.
+// QR code generated at export time as an inline SVG so the printed sheet stays
+// self-contained (no CDN/API). For a cloud-synced character this encodes the
+// short, live #c= link (always scannable; opens the live character); otherwise
+// the self-contained embedded #play= link. Either way it uses the origin the
+// sheet was exported from. Returns '' if the URL is too large for a single QR.
 function qrBlock(character) {
   try {
-    const url = encodeCharacterToPlayURL(character)
+    const url = qrLinkFor(character)
     const qr = qrcode(0, 'L') // type 0 = auto-fit, error correction L = max capacity
     qr.addData(url)
     qr.make()
