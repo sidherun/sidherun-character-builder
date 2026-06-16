@@ -1,6 +1,6 @@
 # Sidherun Character Builder
 
-A browser-based character creation tool for the **Sidherun** tabletop RPG. Build, track, and play your characters — no account or backend required.
+A browser-based character creation tool for the **Sidherun** tabletop RPG. Build, track, and play your characters — local-first and account-free, with an optional cloud-sync layer for shared, live play.
 
 **Live:** https://character-builder.sidherun.com/
 
@@ -19,7 +19,7 @@ A browser-based character creation tool for the **Sidherun** tabletop RPG. Build
 - **Back up / Restore all** — the Roster page can export the **entire roster** as one JSON file and restore it on any device or origin. **Restore** accepts multiple files at once and handles the roster-backup wrapper, a bare array, or individual character files — so it also bulk-imports separate `*-import.json` files in one action. Because `localStorage` is per-origin/per-browser, this is the portable cross-device backup (a server-backed store is a planned follow-up).
 - **Session Notes** — Slide-in notes panel with per-character CRUD
 - **Import** — Load any exported JSON file to restore a character on any device (validated against the schema on import; invalid files are rejected with a descriptive error)
-- **Inventory** — visible in Play Mode, Step 9 Review, and the print/HTML export; supports free-text strings or structured objects (name, quantity, notes)
+- **Inventory** — editable in Play Mode (add/edit/remove); also shown in Step 9 Review and the print/HTML export. Supports free-text strings or structured objects (name, quantity, notes)
 - **Custom archetype** — when "Custom (GM Defined)" is selected in Identity, an inline panel lets you name the archetype and toggle Powers/Magic on or off (with magic attribute selection). The custom name shows everywhere: Roster, Play Mode header, Review sheet.
 
 ---
@@ -48,7 +48,7 @@ npm run lint    # ESLint (flat config, zero-warning gate)
 | Framework | React 19 + Vite 7 |
 | Styling | CSS Modules (no Tailwind) |
 | Validation | Zod 3 |
-| Persistence | localStorage (no backend) |
+| Persistence | localStorage (local-first); optional Supabase cloud sync (Postgres + Realtime) |
 | Tests | Vitest 2 (jsdom env) |
 | Linting | ESLint 9 (flat config) |
 | Deploy | GitHub Pages via GitHub Actions |
@@ -76,22 +76,33 @@ The app uses the **Codex** design language: editorial-fantasy aesthetic with war
 src/
   components/
     steps/          # Step1Welcome … Step9Review, PlayMode
-    CharacterCard, StepIndicator, WizardNav, NotesPanel, Toast, ErrorBoundary
+    CharacterCard, StepIndicator, WizardNav, NotesPanel, Toast, ErrorBoundary, NumberInput
   pages/
-    RosterPage
+    RosterPage, GMScreen
   hooks/
-    useAutoSave, useCharacterManagement, usePlayMode, useNotesPanel, useToast, useTheme
+    useAutoSave, useCharacterManagement, usePlayMode, useNotesPanel, useToast, useTheme,
+    useCloudSync, useRealtimeCharacter
   utils/
     characterSchema.js    # Zod schema + safeParseCharacter
-    characterDerived.js   # HP, Mana, Defense, XP auto-calculations
+    characterDerived.js   # HP, Mana, Defense, XP, power totals
     defaultCharacter.js   # createDefaultCharacter()
     rosterStorage.js      # localStorage CRUD + version history
-    urlState.js           # btoa/atob URL encoding
-    spellTarget.js        # 20×20 spell target lookup
-    generateCharacterHTML.js  # standalone HTML export
+    rosterBackup.js       # whole-roster export / restore
+    rosterSort.js         # roster sort + no-player partition
+    urlState.js           # LZString #share=/#play= + #c= cloud links
+    spellTarget.js        # Spell Matrix lookup (caster vs target)
+    gmAdjust.js           # GM Screen counter clamps
+    uuid.js               # secure-context-safe id generation
+    numberInput.js        # numeric input coercion
+    generateCharacterHTML.js  # standalone HTML export (with scan-to-play QR)
+    cloudSync.js          # Supabase push / hydrate / realtime + cloud links
+    supabaseClient.js     # Supabase client + cloudEnabled flag
     validation.js         # per-step validation rules
   data/
     races.json, archetypes.json, armorTypes.json, xpTable.json, spellTarget.json
+supabase/
+    migrations/0001_init.sql   # sealed characters table + capability-token RPCs
+    README.md                  # setup, keys, smoke test, security model
 ```
 
 ---
@@ -115,7 +126,7 @@ On the Welcome screen, click **Import JSON** and choose a previously exported ch
 
 ### GM workflow: Excel → JSON
 
-Character sheets maintained in the companion `sidherun` repo as `.xlsx` files can be converted to import-ready JSON by Claude. Completed characters are saved as `[firstname-lastname]-import.json` in that repo. Current characters:
+Character sheets maintained in the companion `sidherun` repo as `.xlsx` files can be converted to import-ready JSON by Claude. Completed characters are saved as `[firstname-lastname]-import.json` in that repo. Example characters (the live roster is larger and now cloud-synced):
 
 | File | Character | Archetype | Level |
 |---|---|---|---|
