@@ -4,11 +4,15 @@ import { generateBatchHTML } from '../utils/generateCharacterHTML.js'
 import { buildRosterBackup, extractCharacters, validateCharacters, extractCloudState } from '../utils/rosterBackup.js'
 import { cloudEnabled } from '../utils/supabaseClient.js'
 import { pushRoster, ensureGmKey, getGmKey, getCloudMap, importCloudState, deleteCloudCharacter } from '../utils/cloudSync.js'
+import { sortRoster, SORT_KEYS } from '../utils/rosterSort.js'
 import CharacterCard from '../components/CharacterCard.jsx'
 import styles from './RosterPage.module.css'
 
 export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
   const [roster, setRoster] = useState(() => loadRoster())
+  const [sortKey, setSortKey] = useState(() => {
+    try { return localStorage.getItem('sidherun_roster_sort') || 'name' } catch { return 'name' }
+  })
   const [status, setStatus] = useState('')
   const [pushing, setPushing] = useState(false)
   const restoreRef = useRef(null)
@@ -202,19 +206,42 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
               </button>
             </div>
           </div>
-        ) : (
-          <div className={styles.grid}>
-            {roster.map(entry => (
-              <CharacterCard
-                key={entry.id}
-                entry={entry}
-                onLoad={handleLoad}
-                onDelete={handleDelete}
-                onGetCharacter={loadCharacterFromRoster}
-              />
-            ))}
-          </div>
-        )}
+        ) : (() => {
+          const { withPlayer, noPlayer } = sortRoster(roster, sortKey)
+          const card = entry => (
+            <CharacterCard
+              key={entry.id}
+              entry={entry}
+              onLoad={handleLoad}
+              onDelete={handleDelete}
+              onGetCharacter={loadCharacterFromRoster}
+            />
+          )
+          return (
+            <>
+              {roster.length > 1 && (
+                <div className={styles.sortbar}>
+                  <label htmlFor="roster-sort">Sort by</label>
+                  <select
+                    id="roster-sort"
+                    value={sortKey}
+                    onChange={e => {
+                      setSortKey(e.target.value)
+                      try { localStorage.setItem('sidherun_roster_sort', e.target.value) } catch { /* ignore */ }
+                    }}
+                  >
+                    {SORT_KEYS.map(k => <option key={k.value} value={k.value}>{k.label}</option>)}
+                  </select>
+                </div>
+              )}
+              {withPlayer.length > 0 && <div className={styles.grid}>{withPlayer.map(card)}</div>}
+              {withPlayer.length > 0 && noPlayer.length > 0 && (
+                <div className={styles.cutLine}>No player assigned</div>
+              )}
+              {noPlayer.length > 0 && <div className={styles.grid}>{noPlayer.map(card)}</div>}
+            </>
+          )
+        })()}
       </main>
     </div>
   )

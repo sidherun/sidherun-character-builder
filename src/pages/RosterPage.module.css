@@ -54,6 +54,51 @@
   gap: 16px;
 }
 
+.sortbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.sortbar label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink400);
+}
+
+.sortbar select {
+  padding: 6px 8px;
+  background: var(--card2);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--ink900);
+  font-family: 'Spectral', serif;
+  font-size: 13px;
+}
+
+.cutLine {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink400);
+}
+
+.cutLine::before,
+.cutLine::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--hair);
+}
+
 .empty {
   display: flex;
   flex-direction: column;
