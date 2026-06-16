@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import { createDefaultCharacter } from './utils/defaultCharacter.js'
 import { loadCurrent, saveCharacterToRoster, saveCurrent, loadCharacterFromRoster, loadRoster, getLastSaveStatus } from './utils/rosterStorage.js'
 import { decodeCharacterFromURL, getPlayLinkId, parseCloudLink } from './utils/urlState.js'
-import { registerCloudLink, fetchCloudCharacter, mergeRemote } from './utils/cloudSync.js'
+import { registerCloudLink, fetchCloudCharacter, mergeRemote, rosterIdForCloudId } from './utils/cloudSync.js'
 import { safeParseCharacter } from './utils/characterSchema.js'
 import { useAutoSave } from './hooks/useAutoSave.js'
 import { useCloudSync } from './hooks/useCloudSync.js'
@@ -54,16 +54,19 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   const cloud = (shareMode || playMode) ? parseCloudLink() : null
   const cloudId = cloud?.id || null
   const cloudToken = cloud?.token || null
+  // If we already own this cloud character (its id is in our cloud map), reuse
+  // that roster entry; otherwise it's someone else's link — make a 'cloud-<id>'
+  // entry. Prevents the owner's own link from duplicating the card.
+  const cloudRosterId = cloud ? (rosterIdForCloudId(cloud.id) || ('cloud-' + cloud.id)) : null
 
   const [character, setCharacter] = useState(() => {
     if (cloud && playMode) {
       // Render the local copy instantly if we have one (local-first); the effect
       // below refreshes from the cloud. First open shows a brief loading state.
-      const rosterId = 'cloud-' + cloud.id
-      registerCloudLink(rosterId, cloud)
-      const existing = loadCharacterFromRoster(rosterId)
+      registerCloudLink(cloudRosterId, cloud)
+      const existing = loadCharacterFromRoster(cloudRosterId)
       if (existing) { saveCurrent(existing); return existing }
-      return { ...createDefaultCharacter(), _rosterId: rosterId }
+      return { ...createDefaultCharacter(), _rosterId: cloudRosterId }
     }
     if (shareMode || playMode) {
       const data = decodeCharacterFromURL()
@@ -94,7 +97,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   })
 
   const [cloudLoading, setCloudLoading] = useState(
-    Boolean(cloud && playMode && !loadCharacterFromRoster('cloud-' + cloud.id)),
+    Boolean(cloud && playMode && !loadCharacterFromRoster(cloudRosterId)),
   )
 
   const { isPlayMode, enterPlayMode, exitPlayMode } = usePlayMode(playMode)
@@ -124,12 +127,11 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
         if (res) {
           const parsed = safeParseCharacter(res.character)
           if (parsed.success) {
-            const rosterId = 'cloud-' + cloudId
-            const entry = loadRoster().find(r => r.id === rosterId)
+            const entry = loadRoster().find(r => r.id === cloudRosterId)
             // Compare as timestamps: cloud uses "+00:00", local toISOString uses
             // "Z", so a string compare would be wrong.
             if (!entry || Date.parse(res.updatedAt) > Date.parse(entry.savedAt)) {
-              const saved = saveCharacterToRoster({ ...parsed.data, _rosterId: rosterId })
+              const saved = saveCharacterToRoster({ ...parsed.data, _rosterId: cloudRosterId })
               saveCurrent(saved)
               setCharacter(saved)
             }
@@ -139,7 +141,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
       })
       .catch(() => { if (alive) setCloudLoading(false) })
     return () => { alive = false }
-  }, [cloudId, cloudToken, playMode])
+  }, [cloudId, cloudToken, playMode, cloudRosterId])
 
   const update = useCallback((patch) => {
     setCharacter(prev => ({ ...prev, ...patch }))

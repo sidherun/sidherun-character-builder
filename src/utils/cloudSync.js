@@ -61,6 +61,14 @@ export function getCloudLink(rosterId) {
   return e ? encodeCloudLink(e.id, e.token) : null
 }
 
+// Reverse lookup: the local rosterId already mapped to a given cloud row id, or
+// null. Lets an owner opening their own #c= link resolve to the existing roster
+// entry instead of creating a duplicate 'cloud-<id>' one.
+export function rosterIdForCloudId(id) {
+  const m = getCloudMap()
+  return Object.keys(m).find(k => m[k]?.id === id) || null
+}
+
 // The best link to put behind a printout QR: the short, live cloud link if the
 // character is synced (always scannable; opens the live character), otherwise
 // the self-contained embedded #play= link. Both use the current origin.
