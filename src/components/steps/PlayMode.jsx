@@ -137,13 +137,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
               onAdjust={adjustMana}
             />
           )}
-          <Counter
-            label="Story Points"
-            current={sp.current || 0}
-            total={sp.total || 0}
-            color="var(--story)"
-            onAdjust={adjustSP}
-          />
+          {/* Spell Target sits directly under Mana (magic grouping) */}
           {character.hasMagic && character.magicAttribute && (
             <div className={styles.spellTile}>
               <div className={styles.counterLabel} style={{ color: 'var(--mana)' }}>Spell Target</div>
@@ -161,6 +155,13 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
               </div>
             </div>
           )}
+          <Counter
+            label="Story Points"
+            current={sp.current || 0}
+            total={sp.total || 0}
+            color="var(--story)"
+            onAdjust={adjustSP}
+          />
           {armor.type !== 'none' && (
             <div className={styles.armorCounter}>
               <div className={styles.counterLabel} style={{ color: 'var(--armor)' }}>Armor</div>
