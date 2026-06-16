@@ -142,6 +142,11 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
             <button className="btn-secondary" onClick={onToggleTheme}>{theme === 'dark' ? 'Light' : 'Dark'}</button>
           )}
           {roster.length > 0 && (
+            <button className="btn-secondary" onClick={() => onNavigate('gm')}>
+              GM Screen
+            </button>
+          )}
+          {roster.length > 0 && (
             <button className="btn-secondary" onClick={handlePrintAll}>
               Print all ({roster.length})
             </button>
