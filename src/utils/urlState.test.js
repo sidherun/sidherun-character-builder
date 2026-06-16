@@ -7,7 +7,7 @@ const D = () => ({ skillBonus: 0, misc: 0 })
 
 const character = () => ({
   wizardStep: 9, _rosterId: null,
-  name: 'Tarben Jarlson', race: 'human', raceType: 'healthy', raceValue: 20, raceSize: 'medium',
+  name: 'Tarben Jarlson', playerName: 'Ed', race: 'human', raceType: 'healthy', raceValue: 20, raceSize: 'medium',
   archetype: 'paladin', hasPowers: true, hasMagic: true, magicAttribute: 'enlightenment',
   level: 3, ageCategory: 'adult', backstory: 'Long backstory '.repeat(20),
   attributes: Object.fromEntries(
@@ -44,6 +44,7 @@ describe('play URL compact codec', () => {
     window.location.hash = url.slice(url.indexOf('#'))
     const d = decodeCharacterFromURL()
     expect(d.name).toBe('Tarben Jarlson')
+    expect(d.playerName).toBe('Ed')
     expect(d.level).toBe(3)
     expect(d.hasMagic).toBe(true)
     expect(d.hasPowers).toBe(true)

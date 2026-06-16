@@ -83,7 +83,7 @@ function sheetBody(character) {
     <div class="header">
       <div>
         <h1>${esc(character.name) || 'Unnamed Character'}</h1>
-        <div class="subtitle">${esc(character.race)} · ${esc(character.archetype)} · Level ${esc(character.level)}</div>
+        <div class="subtitle">${esc(character.race)} · ${esc(character.archetype)} · Level ${esc(character.level)}${character.playerName ? ` · played by ${esc(character.playerName)}` : ''}</div>
       </div>
       ${qrBlock(character)}
     </div>

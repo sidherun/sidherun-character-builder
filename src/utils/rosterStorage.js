@@ -61,6 +61,7 @@ export function saveCharacterToRoster(character) {
   const entry = {
     id,
     name:                char.name || 'Unnamed',
+    playerName:          char.playerName || '',
     race:                char.race,
     archetype:           char.archetype,
     customArchetypeName: char.customArchetypeName || '',

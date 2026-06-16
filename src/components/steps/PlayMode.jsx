@@ -107,7 +107,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
       <header className={styles.header}>
         <div className={styles.charInfo}>
           <h1>{character.name || 'Unnamed'}</h1>
-          <span>{character.race} · {character.archetype === 'custom' ? (character.customArchetypeName || 'Custom') : character.archetype} · Level {character.level}</span>
+          <span>{character.race} · {character.archetype === 'custom' ? (character.customArchetypeName || 'Custom') : character.archetype} · Level {character.level}{character.playerName ? ` · played by ${character.playerName}` : ''}</span>
         </div>
         <div className={styles.headerActions}>
           {onToggleTheme && (

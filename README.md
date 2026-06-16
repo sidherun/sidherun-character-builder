@@ -8,7 +8,7 @@ A browser-based character creation tool for the **Sidherun** tabletop RPG. Build
 
 ## Features
 
-- **9-step wizard** — Welcome → Identity → Attributes → Combat → Powers → Magic → Skills → Resources → Review (Powers and Magic appear only for archetypes that use them)
+- **9-step wizard** — Welcome → Identity → Attributes → Combat → Powers → Magic → Skills → Resources → Review (Powers and Magic appear only for archetypes that use them). Identity captures both the **character name** and the **player name** (the real person), shown on the GM Screen, Play Mode header, roster card, and printout.
 - **Auto-calculated stats** — HP, Mana, Defense, and Spell Target table update automatically from your attributes
 - **Play Mode** — Live HP/Mana/Story Points tracking with quick-adjust buttons, armor that absorbs up to its soak value per hit, attributes/powers/magic at a glance, an **editable Inventory** section (add/edit/remove items — name, quantity, notes — during play), a **Spell Target** lookup tile for casters (pick a target level, see the roll-under %), and per-skill **Use tracking** (strike circles as skills are used)
 - **GM Screen** — a coordination dashboard (opened from the Roster) showing every character's HP / Mana / Story Points with inline +/− adjusters and an **Open** link into full Play Mode. For cloud-synced characters it updates **live** — a player's HP/notes change on their own device appears on the GM's screen in real time.

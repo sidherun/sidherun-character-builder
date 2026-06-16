@@ -104,6 +104,11 @@ describe('generateCharacterHTML', () => {
     const html = generateCharacterHTML(mk('Aerin', { hasMagic: false }))
     expect(html).not.toContain('<h2>Magic Crafts</h2>')
   })
+
+  it('shows the player name in the header when set', () => {
+    expect(generateCharacterHTML(mk('Dulu', { playerName: 'Ed' }))).toContain('played by Ed')
+    expect(generateCharacterHTML(mk('Dulu'))).not.toContain('played by')
+  })
 })
 
 describe('generateBatchHTML', () => {

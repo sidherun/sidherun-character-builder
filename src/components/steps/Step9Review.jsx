@@ -52,6 +52,7 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
           <h1>{character.name || 'Unnamed Character'}</h1>
           <p className={styles.subtitle}>
             {character.race} · {character.archetype === 'custom' ? (character.customArchetypeName || 'Custom') : character.archetype} · Level {character.level}
+            {character.playerName ? ` · played by ${character.playerName}` : ''}
           </p>
         </div>
         <div className={styles.headerActions}>

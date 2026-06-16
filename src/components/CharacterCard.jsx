@@ -67,6 +67,7 @@ export default function CharacterCard({ entry, onLoad, onDelete, onGetCharacter 
   return (
     <div className={styles.card}>
       <div className={styles.name}>{entry.name || 'Unnamed'}</div>
+      {entry.playerName && <div className={styles.player}>Player: {entry.playerName}</div>}
       <div className={styles.meta}>
         {entry.race} · {entry.archetype === 'custom' ? (entry.customArchetypeName || 'Custom') : entry.archetype} · Level {entry.level}
       </div>
