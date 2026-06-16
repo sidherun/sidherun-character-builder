@@ -126,7 +126,9 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
           if (parsed.success) {
             const rosterId = 'cloud-' + cloudId
             const entry = loadRoster().find(r => r.id === rosterId)
-            if (!entry || res.updatedAt > entry.savedAt) {
+            // Compare as timestamps: cloud uses "+00:00", local toISOString uses
+            // "Z", so a string compare would be wrong.
+            if (!entry || Date.parse(res.updatedAt) > Date.parse(entry.savedAt)) {
               const saved = saveCharacterToRoster({ ...parsed.data, _rosterId: rosterId })
               saveCurrent(saved)
               setCharacter(saved)

@@ -3,8 +3,7 @@ import App from './App.jsx'
 import RosterPage from './pages/RosterPage.jsx'
 import { useTheme } from './hooks/useTheme.js'
 
-function getRoute() {
-  const hash = window.location.hash
+function getRoute(hash = window.location.hash) {
   if (hash.startsWith('#roster')) return 'roster'
   if (hash.startsWith('#share=')) return 'share'
   if (hash.startsWith('#play='))  return 'play'
@@ -13,14 +12,16 @@ function getRoute() {
 }
 
 export default function Router() {
-  const [route, setRoute] = useState(getRoute())
+  const [hash, setHash] = useState(window.location.hash)
   const { theme, toggleTheme } = useTheme()
 
   useEffect(() => {
-    const handler = () => setRoute(getRoute())
+    const handler = () => setHash(window.location.hash)
     window.addEventListener('hashchange', handler)
     return () => window.removeEventListener('hashchange', handler)
   }, [])
+
+  const route = getRoute(hash)
 
   function navigate(to) {
     window.location.hash = (to === 'app' || to === 'home') ? '' : to
@@ -29,6 +30,11 @@ export default function Router() {
   if (route === 'roster') return <RosterPage onNavigate={navigate} theme={theme} onToggleTheme={toggleTheme} />
   return (
     <App
+      // Key by the hash so navigating into a #play=/#c= link (an in-session
+      // hash change, not a full reload) remounts App and re-initializes its
+      // mount-time state (playMode, cloudLoading). Without this, isPlayMode
+      // stays stuck at its first-mount value and Play Mode never shows.
+      key={hash || 'app'}
       onNavigate={navigate}
       shareMode={route === 'share'}
       playMode={route === 'play'}
