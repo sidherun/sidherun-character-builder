@@ -174,6 +174,12 @@ working unchanged, so game-day QR / printout scans still need no login.
   `VITE_AUTH=on`, then sign in once and run the one-time seed/backfill SQL noted
   at the bottom of the migration (make yourself `admin`; adopt existing
   characters). See `supabase/README.md`.
+- **First-admin bootstrap:** a `guard_role_change()` trigger stops a signed-in
+  non-admin from self-promoting. It is scoped to authenticated users
+  (`auth.uid() is not null`), so the very first admin is seeded from a backend
+  context — running `update public.profiles set role='admin' where email=…` in
+  the **SQL Editor** (which has no `auth.uid()`) is allowed. After an admin
+  exists, role changes go through an admin.
 - **Surfaces:** `src/auth/*` (provider + `useAuth`), `src/pages/LoginPage.jsx`,
   `src/utils/characterRepo.js` (cloud-first repository), with role gating in
   `Router.jsx`, `RosterPage.jsx`, `GMScreen.jsx`, `CharacterCard.jsx`, and a
