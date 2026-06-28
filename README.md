@@ -165,8 +165,10 @@ working unchanged, so game-day QR / printout scans still need no login.
   data and any user's role.
 - **Two planes coexist.** Signed-in users get direct table access scoped by RLS
   policies on `auth.uid()` + role; anonymous guests still reach a character only
-  through the sealed capability-token RPCs (`#c=`/`#play=`/`#share=`). The table
-  grants DML to `authenticated` only — `anon` stays sealed.
+  through the sealed capability-token RPCs (`#c=`/`#play=`/`#share=`). Both
+  `characters` and `profiles` grant DML to `authenticated` only and revoke
+  `anon`'s default grant — `anon` is hard-sealed (a direct read returns
+  `permission denied`, verified against the live project).
 - **Off by default.** Enabled only when `VITE_AUTH=on` (which implies cloud) and
   the Supabase keys are present. With it off the app is the legacy single-user /
   guest build, byte-for-byte.
