@@ -169,6 +169,12 @@ working unchanged, so game-day QR / printout scans still need no login.
   `characters` and `profiles` grant DML to `authenticated` only and revoke
   `anon`'s default grant — `anon` is hard-sealed (a direct read returns
   `permission denied`, verified against the live project).
+- **Who owns cloud writes.** For authenticated users `characterRepo` is the ONLY
+  writer to the cloud; the legacy capability-token push (`useCloudSync` →
+  `cloudSync.syncCharacter`) is gated off via `repoEnabled()`. This matters:
+  otherwise the legacy push would send the stale localStorage character over the
+  cloud row and overwrite authoritative data. localStorage is a non-authoritative
+  cache only when signed in.
 - **Off by default.** Enabled only when `VITE_AUTH=on` (which implies cloud) and
   the Supabase keys are present. With it off the app is the legacy single-user /
   guest build, byte-for-byte.
