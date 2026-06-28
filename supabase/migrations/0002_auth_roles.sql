@@ -29,6 +29,11 @@ create table if not exists public.profiles (
   created_at   timestamptz not null default now()
 );
 alter table public.profiles enable row level security;
+-- Supabase grants `anon` a default SELECT on new public tables; revoke it so
+-- profiles is hard-sealed to anonymous clients (parity with `characters` in
+-- 0001). `authenticated` keeps its grant, gated by the policies below; the
+-- signup trigger writes as SECURITY DEFINER, so it is unaffected.
+revoke all on public.profiles from anon;
 
 -- Auto-create a profile row when a user signs up (magic link).
 create or replace function public.handle_new_user()
