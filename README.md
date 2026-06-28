@@ -199,6 +199,14 @@ working unchanged, so game-day QR / printout scans still need no login.
 
 Push to `main` — GitHub Actions runs `npm run lint`, `npm test`, and `npm run build`, then deploys `dist/` to GitHub Pages automatically. A lint error or failing test blocks the deploy.
 
+**Build-time env (repo → Settings → Secrets and variables → Actions → Variables).**
+Vite embeds env vars at build time, so `deploy.yml` forwards each one the app
+reads — anything not listed there ships unset. To run with auth + roles in
+production, set the repo **Variables** (not Secrets; the publishable key is public
+by design): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (the `sb_publishable_…`
+key), and `VITE_AUTH=on`. `VITE_AUTH=on` implies cloud, so `VITE_CLOUD_SYNC` is
+optional. Unset `VITE_AUTH` (and redeploy) to fall back to the guest-only build.
+
 GitHub Pages must be set to source **GitHub Actions** in repo Settings → Pages.
 
 The site is served from the custom domain **character-builder.sidherun.com** (root path), so `vite.config.js` uses `base: '/'`. `public/CNAME` pins the domain so each Actions deploy preserves it. After the TLS cert provisions, enable **Enforce HTTPS** in Settings → Pages. ID generation degrades gracefully on a non-secure context (`src/utils/uuid.js` falls back from `crypto.randomUUID()` to `getRandomValues`), but the **Copy play link / Copy share URL** buttons use the Clipboard API, which still requires HTTPS — so HTTPS is the supported configuration.
