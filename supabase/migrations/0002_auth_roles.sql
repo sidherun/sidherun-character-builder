@@ -78,6 +78,11 @@ $$;
 -- The self-update policy below lets a user edit their own profile (display_name).
 -- Without this, a player could set their own role to 'admin'. Only an admin may
 -- change a role.
+--
+-- The `auth.uid() is not null` clause scopes the guard to AUTHENTICATED users:
+-- a trusted backend context (the SQL editor, service_role, a superuser) has no
+-- auth.uid(), so it is allowed to change roles. This is what lets you bootstrap
+-- the FIRST admin (an authenticated non-admin still can't self-promote).
 create or replace function public.guard_role_change()
 returns trigger
 language plpgsql
@@ -85,7 +90,9 @@ security definer
 set search_path = ''
 as $$
 begin
-  if new.role is distinct from old.role and coalesce(public.caller_role(), 'player') <> 'admin' then
+  if new.role is distinct from old.role
+     and auth.uid() is not null
+     and coalesce(public.caller_role(), 'player') <> 'admin' then
     raise exception 'only an admin may change a role';
   end if;
   return new;
