@@ -69,6 +69,13 @@ export function rosterIdForCloudId(id) {
   return Object.keys(m).find(k => m[k]?.id === id) || null
 }
 
+// Forward lookup: the cloud row id a rosterId maps to (token plane), or null.
+// The authenticated repo (characterRepo.js) treats _rosterId === row id, but
+// token-mapped guest characters still resolve their cloud id through here.
+export function cloudIdForRoster(rosterId) {
+  return getCloudMap()[rosterId]?.id || null
+}
+
 // The best link to put behind a printout QR: the short, live cloud link if the
 // character is synced (always scannable; opens the live character), otherwise
 // the self-contained embedded #play= link. Both use the current origin.

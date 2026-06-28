@@ -3,6 +3,8 @@ import { createDefaultCharacter } from './utils/defaultCharacter.js'
 import { loadCurrent, saveCharacterToRoster, saveCurrent, loadCharacterFromRoster, loadRoster, getLastSaveStatus } from './utils/rosterStorage.js'
 import { decodeCharacterFromURL, getPlayLinkId, parseCloudLink } from './utils/urlState.js'
 import { registerCloudLink, fetchCloudCharacter, mergeRemote, rosterIdForCloudId } from './utils/cloudSync.js'
+import { repoEnabled, createCharacter, saveCharacterData } from './utils/characterRepo.js'
+import { useAuth, isGmOrAdmin } from './auth/useAuth.js'
 import { safeParseCharacter } from './utils/characterSchema.js'
 import { useAutoSave } from './hooks/useAutoSave.js'
 import { useCloudSync } from './hooks/useCloudSync.js'
@@ -100,6 +102,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
     Boolean(cloud && playMode && !loadCharacterFromRoster(cloudRosterId)),
   )
 
+  const { user, role } = useAuth()
   const { isPlayMode, enterPlayMode, exitPlayMode } = usePlayMode(playMode)
   const { isNotesOpen, toggleNotes, closeNotes }    = useNotesPanel()
   const { toasts, addToast, removeToast }           = useToast()
@@ -186,6 +189,23 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
     if (steps.includes(n)) update({ wizardStep: n })
   }
 
+  // Authenticated source-of-truth write: create the cloud row on first save (so
+  // _rosterId becomes the row id), update it thereafter. localStorage is written
+  // too, as the offline cache. No-op (returns the local save) when auth is off.
+  async function persistToCloud(saved) {
+    if (!repoEnabled() || !user) return saved
+    try {
+      const isCloudRow = Boolean(saved._ownerUserId)
+      const row = isCloudRow
+        ? await saveCharacterData(saved._rosterId, saved)
+        : await createCharacter(saved)
+      if (row) { setCharacter(row); saveCharacterToRoster(row); return row }
+    } catch {
+      addToast('Saved locally — cloud sync will retry when you’re back online.', 'success')
+    }
+    return saved
+  }
+
   function saveToRoster() {
     const saved = saveCharacterToRoster(character)
     setCharacter(saved)
@@ -197,11 +217,12 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
     } else {
       addToast('Character saved to roster!', 'success')
     }
+    persistToCloud(saved)
   }
 
   function completeCharacter() {
-    saveCharacterToRoster(character)
-    onNavigate('roster')
+    const saved = saveCharacterToRoster(character)
+    persistToCloud(saved).finally(() => onNavigate('roster'))
   }
 
   if (cloudLoading) {
@@ -221,6 +242,16 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
     )
   }
 
+  // A signed-in user may edit only characters they own, are assigned, or (gm/
+  // admin) any. Unknown ownership (guest #c=/#play= links, local-only chars)
+  // stays editable so printout-scan players can still tick their own HP.
+  const playReadOnly = Boolean(
+    repoEnabled() && user && character._ownerUserId
+    && !isGmOrAdmin(role)
+    && character._ownerUserId !== user.id
+    && character._assignedPlayerId !== user.id,
+  )
+
   if (isPlayMode) {
     return (
       <ErrorBoundary>
@@ -231,6 +262,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
           onToggleNotes={toggleNotes}
           theme={theme}
           onToggleTheme={onToggleTheme}
+          readOnly={playReadOnly}
         />
         {isNotesOpen && (
           <NotesPanel

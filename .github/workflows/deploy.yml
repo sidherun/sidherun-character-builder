@@ -28,11 +28,14 @@ jobs:
       - run: npm test
       - run: npm run build
         env:
-          # Public by design (anon key); security is via RLS + tokens. See epic #71.
-          # Cloud sync stays off until VITE_CLOUD_SYNC repo var is set to "on".
+          # Public by design (anon/publishable key); security is via RLS + tokens.
+          # See epics #71 (guest cloud) and #109 (auth). Vite embeds these at build
+          # time, so each var the app reads MUST be listed here or it ships unset.
+          # Cloud sync stays off until VITE_CLOUD_SYNC="on"; auth+roles until VITE_AUTH="on".
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
           VITE_CLOUD_SYNC: ${{ vars.VITE_CLOUD_SYNC }}
+          VITE_AUTH: ${{ vars.VITE_AUTH }}
       - uses: actions/upload-pages-artifact@v5
         with:
           path: ./dist

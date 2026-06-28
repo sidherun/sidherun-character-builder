@@ -92,6 +92,13 @@
   text-transform: capitalize;
 }
 
+.assign {
+  margin-top: 4px;
+  max-width: 100%;
+  font-size: 12px;
+  padding: 2px 4px;
+}
+
 .stat { display: flex; flex-direction: column; gap: 4px; align-items: center; }
 
 .statLabel {

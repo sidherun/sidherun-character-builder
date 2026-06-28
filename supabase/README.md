@@ -39,9 +39,40 @@ To confirm the table is sealed, query it with the **anon key** from the app/JS
 rows — all real access goes through the RPCs above.
 
 ## Security model (why the anon key being public is fine)
-- The `characters` table has **no grants** to `anon`/`authenticated` and no RLS
-  policies, so it cannot be read or written directly.
-- Every access is a `SECURITY DEFINER` RPC that requires a 256-bit secret:
+- The `characters` table has **no grants** to `anon` and no token-plane RLS
+  policies, so a guest cannot read or write it directly.
+- Every guest access is a `SECURITY DEFINER` RPC that requires a 256-bit secret:
   a per-character **token** (in the share/play link) or the per-GM **key**.
 - Losing the GM key loses multi-character management (per-character tokens still
   work); recovery is via the JSON roster backup, which carries the key (M5).
+
+## 5. Multi-user accounts & roles (epic #109, optional)
+
+Adds an **authenticated** plane on top of the guest one. Apply this only if you
+want player/GM/admin accounts with cloud-as-source-of-truth.
+
+1. **Enable email auth.** Supabase → Authentication → Providers → **Email**:
+   turn on "Email" and (for passwordless) keep **magic link** enabled. Set the
+   Site URL / redirect URLs to your app origin (e.g.
+   `https://character-builder.sidherun.com`).
+2. **Apply the migration.** Paste `migrations/0002_auth_roles.sql` into the SQL
+   Editor and run it (after `0001`). It adds the `profiles` table + signup
+   trigger, `owner_user_id`/`assigned_player_id` on `characters`, the role
+   helpers, and **RLS policies for the `authenticated` role only** — the guest
+   `anon` plane and the seven RPCs are untouched.
+3. **Wire the flag.** Set `VITE_AUTH=on` (local `.env.local` and the GitHub
+   Actions **Variables**). This implies cloud, so `VITE_CLOUD_SYNC` need not be set.
+4. **Seed yourself + adopt existing characters.** Sign in once (this auto-creates
+   your `profiles` row via the trigger), then run the one-time SQL at the bottom
+   of `0002_auth_roles.sql` (commented): make your email `admin`, and set
+   `owner_user_id` on the pre-existing token-plane rows to your account. Reassign
+   each to its player from the GM Screen.
+
+### RLS smoke test (two planes)
+- As **anon** from the app JS: `supabase.from('characters').select('*')` still
+  returns 0 rows / permission denied, and `get_character('<token>')` still works
+  (guest plane intact).
+- As a signed-in **player**: `select` returns only their owned/assigned rows;
+  updating someone else's row, self-promoting to `admin`, or reassigning all fail.
+- As **gm/admin**: `select` returns all rows; update/assign succeed; only `admin`
+  may change a role.

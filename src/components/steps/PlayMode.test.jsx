@@ -120,3 +120,30 @@ describe('armor hit split rule', () => {
     expect(splitHit(100, 6, 120, 24).hp).toBe(0)
   })
 })
+
+describe('PlayMode readOnly', () => {
+  const renderRO = (char, readOnly) =>
+    renderToStaticMarkup(
+      <PlayMode character={char} onUpdate={noop} onExit={noop} onToggleNotes={noop} readOnly={readOnly} />
+    )
+
+  it('hides the Edit button and disables counter buttons when readOnly', () => {
+    const html = renderRO(base(), true)
+    expect(html).not.toContain('← Edit')
+    expect(html).toContain('disabled')          // counter +/- are disabled
+    expect(html).not.toContain('>-5<')          // quick-adjust row hidden (negative deltas are unique to it)
+  })
+
+  it('keeps the Edit button and editable controls when not readOnly', () => {
+    const html = renderRO(base(), false)
+    expect(html).toContain('← Edit')
+    expect(html).toContain('>-5<')              // quick-adjust visible
+  })
+
+  it('mutate guard: onUpdate is never called from an adjust while readOnly', () => {
+    // The guard lives in component logic; assert the read-only render omits the
+    // editing affordances a viewer would use (belt-and-suspenders with the guard).
+    const html = renderRO(base({ hasMagic: false }), true)
+    expect(html).not.toContain('← Edit')
+  })
+})

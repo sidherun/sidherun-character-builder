@@ -162,6 +162,50 @@ store; the cloud syncs in the background and the app keeps working offline.
 - **Setup & cutover:** create a project, apply `supabase/migrations/0001_init.sql`,
   set the three `VITE_*` repo Variables; flip `VITE_CLOUD_SYNC=on` to go live.
 
+## Multi-user accounts & roles (optional)
+
+Epic #109 adds a second, **authenticated** access plane on top of the guest one
+above. With it on, each player signs in (passwordless **magic link**) and the
+cloud — not localStorage — is the **source of truth** for character data
+(localStorage is demoted to an offline cache). The original guest links keep
+working unchanged, so game-day QR / printout scans still need no login.
+
+- **Roles.** `player` reads/edits the characters they own or are assigned and
+  ticks counters during play; `gm` views and administers **every** character in
+  the campaign (HP/Mana/Story, plus assigning players); `admin` can change any
+  data and any user's role.
+- **Two planes coexist.** Signed-in users get direct table access scoped by RLS
+  policies on `auth.uid()` + role; anonymous guests still reach a character only
+  through the sealed capability-token RPCs (`#c=`/`#play=`/`#share=`). Both
+  `characters` and `profiles` grant DML to `authenticated` only and revoke
+  `anon`'s default grant — `anon` is hard-sealed (a direct read returns
+  `permission denied`, verified against the live project).
+- **Off by default.** Enabled only when `VITE_AUTH=on` (which implies cloud) and
+  the Supabase keys are present. With it off the app is the legacy single-user /
+  guest build, byte-for-byte.
+- **Setup:** apply `supabase/migrations/0002_auth_roles.sql` after `0001`, set
+  `VITE_AUTH=on`, then sign in once and run the one-time seed/backfill SQL noted
+  at the bottom of the migration (make yourself `admin`; adopt existing
+  characters). See `supabase/README.md`.
+- **First-admin bootstrap:** a `guard_role_change()` trigger stops a signed-in
+  non-admin from self-promoting. It is scoped to authenticated users
+  (`auth.uid() is not null`), so the very first admin is seeded from a backend
+  context — running `update public.profiles set role='admin' where email=…` in
+  the **SQL Editor** (which has no `auth.uid()`) is allowed. After an admin
+  exists, role changes go through an admin.
+- **Surfaces:** `src/auth/*` (provider + `useAuth`), `src/pages/LoginPage.jsx`,
+  `src/utils/characterRepo.js` (cloud-first repository), with role gating in
+  `Router.jsx`, `RosterPage.jsx`, `GMScreen.jsx`, `CharacterCard.jsx`, and a
+  `readOnly` mode in `PlayMode.jsx`.
+- **Role helper:** the migration's caller-role lookup is `public.caller_role()`
+  (not `current_role` — that's a reserved Postgres keyword and cannot be a
+  function name). `is_gm_or_admin()` and the RLS policies build on it.
+- **Applying the migration:** paste `0002_auth_roles.sql` into the Supabase SQL
+  Editor and **Run**. If the editor reports a syntax error on a line that looks
+  correct, the paste may have dropped characters (some clipboard setups do this
+  on large blocks) — clear the editor fully and re-paste, or apply the file via
+  `psql` / the Management API to rule out paste corruption.
+
 ## Deploying
 
 Push to `main` — GitHub Actions runs `npm run lint`, `npm test`, and `npm run build`, then deploys `dist/` to GitHub Pages automatically. A lint error or failing test blocks the deploy.
