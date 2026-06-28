@@ -178,6 +178,14 @@ working unchanged, so game-day QR / printout scans still need no login.
   `src/utils/characterRepo.js` (cloud-first repository), with role gating in
   `Router.jsx`, `RosterPage.jsx`, `GMScreen.jsx`, `CharacterCard.jsx`, and a
   `readOnly` mode in `PlayMode.jsx`.
+- **Role helper:** the migration's caller-role lookup is `public.caller_role()`
+  (not `current_role` — that's a reserved Postgres keyword and cannot be a
+  function name). `is_gm_or_admin()` and the RLS policies build on it.
+- **Applying the migration:** paste `0002_auth_roles.sql` into the Supabase SQL
+  Editor and **Run**. If the editor reports a syntax error on a line that looks
+  correct, the paste may have dropped characters (some clipboard setups do this
+  on large blocks) — clear the editor fully and re-paste, or apply the file via
+  `psql` / the Management API to rule out paste corruption.
 
 ## Deploying
 

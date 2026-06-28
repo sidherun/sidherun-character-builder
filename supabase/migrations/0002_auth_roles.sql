@@ -54,7 +54,7 @@ create trigger on_auth_user_created
 -- ── role readers (SECURITY DEFINER → read profiles WITHOUT RLS recursion) ─────
 -- An RLS policy on `profiles` must never `select profiles` directly (infinite
 -- recursion). These definer helpers read it with RLS bypassed.
-create or replace function public.current_role()
+create or replace function public.caller_role()
 returns public.user_role
 language sql
 stable
@@ -71,7 +71,7 @@ stable
 security definer
 set search_path = ''
 as $$
-  select coalesce(public.current_role() in ('gm', 'admin'), false)
+  select coalesce(public.caller_role() in ('gm', 'admin'), false)
 $$;
 
 -- ── role-escalation guard ─────────────────────────────────────────────────────
@@ -85,7 +85,7 @@ security definer
 set search_path = ''
 as $$
 begin
-  if new.role is distinct from old.role and coalesce(public.current_role(), 'player') <> 'admin' then
+  if new.role is distinct from old.role and coalesce(public.caller_role(), 'player') <> 'admin' then
     raise exception 'only an admin may change a role';
   end if;
   return new;
@@ -108,7 +108,7 @@ create policy profiles_update_self on public.profiles for update to authenticate
 
 drop policy if exists profiles_admin_all on public.profiles;
 create policy profiles_admin_all on public.profiles for all to authenticated
-  using (public.current_role() = 'admin') with check (public.current_role() = 'admin');
+  using (public.caller_role() = 'admin') with check (public.caller_role() = 'admin');
 
 -- ── characters: ownership columns ────────────────────────────────────────────
 -- owner_user_id      = who created/holds the row (a self-signed-up player, or
@@ -197,8 +197,8 @@ grant   execute on function public.patch_live_by_id(uuid, jsonb) to authenticate
 
 -- The new role helpers are called by policies (running as the policy owner); do
 -- not expose them to anon. authenticated may call them for client-side gating.
-revoke execute on function public.current_role(), public.is_gm_or_admin() from public;
-grant   execute on function public.current_role(), public.is_gm_or_admin() to authenticated;
+revoke execute on function public.caller_role(), public.is_gm_or_admin() from public;
+grant   execute on function public.caller_role(), public.is_gm_or_admin() to authenticated;
 
 -- ── realtime ──────────────────────────────────────────────────────────────────
 -- Allow authenticated clients to subscribe to row changes. The existing
