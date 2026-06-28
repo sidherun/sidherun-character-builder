@@ -9,7 +9,7 @@ const ATTR_LABELS = {
   enlightenment: 'EN', charisma: 'CHA', comeliness: 'COM', fame: 'FAM',
 }
 
-export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, theme, onToggleTheme }) {
+export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, theme, onToggleTheme, readOnly = false }) {
   const defense = calcDefense(character)
   const hp    = character.hitPoints
   const mana  = character.mana
@@ -19,6 +19,11 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
   const [armorDmg, setArmorDmg] = useState('')
   const [lastHit, setLastHit]   = useState(null)
   const [targetLevel, setTargetLevel] = useState(1)
+
+  // Read-only viewers (a player opening a character they don't own/aren't
+  // assigned, when auth is enabled) can see the sheet but not change counters.
+  // Guests on #c=/#play= links stay editable (readOnly defaults to false).
+  const mutate = (patch) => { if (readOnly) return; onUpdate(patch) }
 
   // Spell Target reference (casters only): roll under base(caster vs target) +
   // magic attribute, capped 95. Same calc as the wizard's Step 6.
@@ -40,7 +45,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
     const soak     = armor.absorption || 0
     const absorbed = Math.min(dmg, soak, armor.remaining || 0)
     const overflow = dmg - absorbed
-    onUpdate({
+    mutate({
       armor:     { ...armor, remaining: (armor.remaining || 0) - absorbed },
       hitPoints: { ...hp, current: Math.max(0, (hp.current || 0) - overflow) },
     })
@@ -49,7 +54,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
   }
 
   function repairArmor() {
-    onUpdate({ armor: { ...armor, remaining: armor.max } })
+    mutate({ armor: { ...armor, remaining: armor.max } })
     setLastHit(null)
   }
 
@@ -62,13 +67,13 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
       const newPips = s.usePips === pipIdx + 1 ? pipIdx : pipIdx + 1
       return { ...s, usePips: newPips }
     })
-    onUpdate({ skills })
+    mutate({ skills })
   }
 
   // Inventory editing during play. Items may be legacy strings or objects;
   // normalize to { name, quantity, notes } on edit (the schema accepts both).
   function addInventoryItem() {
-    onUpdate({ inventory: [...(character.inventory || []), { name: '', quantity: '', notes: '' }] })
+    mutate({ inventory: [...(character.inventory || []), { name: '', quantity: '', notes: '' }] })
   }
   function updateInventoryItem(i, patch) {
     const inventory = (character.inventory || []).map((it, idx) => {
@@ -76,10 +81,10 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
       const obj = typeof it === 'string' ? { name: it, quantity: '', notes: '' } : it
       return { ...obj, ...patch }
     })
-    onUpdate({ inventory })
+    mutate({ inventory })
   }
   function removeInventoryItem(i) {
-    onUpdate({ inventory: (character.inventory || []).filter((_, idx) => idx !== i) })
+    mutate({ inventory: (character.inventory || []).filter((_, idx) => idx !== i) })
   }
 
   // A non-positive total means the cap is unknown (e.g. a play link generated
@@ -89,17 +94,17 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
 
   function adjustHP(delta) {
     const newCurrent = Math.max(0, Math.min(capOf(hp.total), (hp.current || 0) + delta))
-    onUpdate({ hitPoints: { ...hp, current: newCurrent } })
+    mutate({ hitPoints: { ...hp, current: newCurrent } })
   }
 
   function adjustMana(delta) {
     const newCurrent = Math.max(0, Math.min(capOf(mana.total), (mana.current || 0) + delta))
-    onUpdate({ mana: { ...mana, current: newCurrent } })
+    mutate({ mana: { ...mana, current: newCurrent } })
   }
 
   function adjustSP(delta) {
     const newCurrent = Math.max(0, Math.min(capOf(sp.total), (sp.current || 0) + delta))
-    onUpdate({ storyPoints: { ...sp, current: newCurrent } })
+    mutate({ storyPoints: { ...sp, current: newCurrent } })
   }
 
   return (
@@ -114,7 +119,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
             <button className="btn-secondary" onClick={onToggleTheme}>{theme === 'dark' ? 'Light' : 'Dark'}</button>
           )}
           <button className="btn-secondary" onClick={onToggleNotes}>Notes</button>
-          <button className="btn-secondary" onClick={onExit}>← Edit</button>
+          {!readOnly && <button className="btn-secondary" onClick={onExit}>← Edit</button>}
         </div>
       </header>
 
@@ -127,6 +132,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
             total={hp.total || 0}
             color="var(--hp)"
             onAdjust={adjustHP}
+            readOnly={readOnly}
           />
           {character.hasMagic && (
             <Counter
@@ -135,6 +141,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
               total={mana.total || 0}
               color="var(--mana)"
               onAdjust={adjustMana}
+              readOnly={readOnly}
             />
           )}
           {/* Spell Target sits directly under Mana (magic grouping) */}
@@ -161,6 +168,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
             total={sp.total || 0}
             color="var(--story)"
             onAdjust={adjustSP}
+            readOnly={readOnly}
           />
           {armor.type !== 'none' && (
             <div className={styles.armorCounter}>
@@ -362,28 +370,30 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
   )
 }
 
-function Counter({ label, current, total, color, onAdjust }) {
+function Counter({ label, current, total, color, onAdjust, readOnly = false }) {
   const pct = total > 0 ? Math.min(100, (current / total) * 100) : 0
   return (
     <div className={styles.counter}>
       <div className={styles.counterLabel} style={{ color }}>{label}</div>
       <div className={styles.counterDisplay}>
-        <button className={styles.adjBtn} onClick={() => onAdjust(-1)}>−</button>
+        <button className={styles.adjBtn} onClick={() => onAdjust(-1)} disabled={readOnly}>−</button>
         <span className={styles.counterValue} style={{ color }}>
           {current}<span className={styles.counterTotal}>/{total}</span>
         </span>
-        <button className={styles.adjBtn} onClick={() => onAdjust(+1)}>+</button>
+        <button className={styles.adjBtn} onClick={() => onAdjust(+1)} disabled={readOnly}>+</button>
       </div>
       <div className={styles.counterBar}>
         <div className={styles.counterFill} style={{ width: `${pct}%`, background: color }} />
       </div>
-      <div className={styles.quickAdj}>
-        {[-5,-3,-1,1,3,5].map(d => (
-          <button key={d} className={styles.quickBtn} onClick={() => onAdjust(d)}>
-            {d > 0 ? `+${d}` : d}
-          </button>
-        ))}
-      </div>
+      {!readOnly && (
+        <div className={styles.quickAdj}>
+          {[-5,-3,-1,1,3,5].map(d => (
+            <button key={d} className={styles.quickBtn} onClick={() => onAdjust(d)}>
+              {d > 0 ? `+${d}` : d}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

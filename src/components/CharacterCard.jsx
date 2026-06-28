@@ -14,7 +14,12 @@ async function shortenURL(longUrl) {
   return short.trim()
 }
 
-export default function CharacterCard({ entry, onLoad, onDelete, onGetCharacter }) {
+export default function CharacterCard({
+  entry, onLoad, onDelete, onGetCharacter,
+  // Authenticated-plane role gating (epic #109). Defaults preserve the legacy
+  // single-user behavior: everything manageable, no reassign control.
+  canManage = true, canReassign = false, players = [], onReassign,
+}) {
   const [linkState, setLinkState] = useState('idle') // idle | loading | copied | error
   const [cloudState, setCloudState] = useState('idle') // idle | copied | error
   const [cloudLink, setCloudLink] = useState(cloudEnabled ? getCloudLink(entry.id) : null)
@@ -94,8 +99,25 @@ export default function CharacterCard({ entry, onLoad, onDelete, onGetCharacter 
             Reset link
           </button>
         )}
-        <button className="btn-danger" onClick={() => onDelete(entry.id)}>Delete</button>
+        {canManage && (
+          <button className="btn-danger" onClick={() => onDelete(entry.id)}>Delete</button>
+        )}
       </div>
+      {canReassign && (
+        <label className={styles.assign}>
+          <span>Player</span>
+          <select
+            value={entry.assignedPlayerId || ''}
+            onChange={e => onReassign?.(entry.id, e.target.value)}
+            aria-label={`Assign player for ${entry.name || 'Unnamed'}`}
+          >
+            <option value="">— Unassigned —</option>
+            {players.map(p => (
+              <option key={p.id} value={p.id}>{p.display_name || p.email}</option>
+            ))}
+          </select>
+        </label>
+      )}
     </div>
   )
 }

@@ -2,9 +2,13 @@ import { useState, useEffect } from 'react'
 import App from './App.jsx'
 import RosterPage from './pages/RosterPage.jsx'
 import GMScreen from './pages/GMScreen.jsx'
+import LoginPage from './pages/LoginPage.jsx'
 import { useTheme } from './hooks/useTheme.js'
+import { useAuth, isGmOrAdmin } from './auth/useAuth.js'
+import { authEnabled } from './utils/supabaseClient.js'
 
 function getRoute(hash = window.location.hash) {
+  if (hash.startsWith('#login'))  return 'login'
   if (hash.startsWith('#roster')) return 'roster'
   if (hash.startsWith('#gm'))     return 'gm'
   if (hash.startsWith('#share=')) return 'share'
@@ -13,9 +17,14 @@ function getRoute(hash = window.location.hash) {
   return 'app'
 }
 
+// Guest links open WITHOUT login so game-day QR / printout scans keep working.
+// Everything else is gated when auth is enabled.
+const GUEST_ROUTES = new Set(['share', 'play'])
+
 export default function Router() {
   const [hash, setHash] = useState(window.location.hash)
   const { theme, toggleTheme } = useTheme()
+  const { user, role, loading } = useAuth()
 
   useEffect(() => {
     const handler = () => setHash(window.location.hash)
@@ -29,6 +38,16 @@ export default function Router() {
     window.location.hash = (to === 'app' || to === 'home') ? '' : to
   }
 
+  // Auth gating (only when auth is actually enabled). Guest links stay open.
+  if (authEnabled && !GUEST_ROUTES.has(route)) {
+    if (loading) return null // brief: resolving the persisted session
+    if (!user && route !== 'login') { navigate('login'); return null }
+    if (user && route === 'login') { navigate('app'); return null }
+    // GM Screen is GM/admin only; players are redirected to their roster.
+    if (route === 'gm' && !isGmOrAdmin(role)) { navigate('roster'); return null }
+  }
+
+  if (route === 'login') return <LoginPage />
   if (route === 'roster') return <RosterPage onNavigate={navigate} theme={theme} onToggleTheme={toggleTheme} />
   if (route === 'gm') return <GMScreen onNavigate={navigate} theme={theme} onToggleTheme={toggleTheme} />
   return (

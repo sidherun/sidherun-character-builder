@@ -151,6 +151,34 @@ store; the cloud syncs in the background and the app keeps working offline.
 - **Setup & cutover:** create a project, apply `supabase/migrations/0001_init.sql`,
   set the three `VITE_*` repo Variables; flip `VITE_CLOUD_SYNC=on` to go live.
 
+## Multi-user accounts & roles (optional)
+
+Epic #109 adds a second, **authenticated** access plane on top of the guest one
+above. With it on, each player signs in (passwordless **magic link**) and the
+cloud — not localStorage — is the **source of truth** for character data
+(localStorage is demoted to an offline cache). The original guest links keep
+working unchanged, so game-day QR / printout scans still need no login.
+
+- **Roles.** `player` reads/edits the characters they own or are assigned and
+  ticks counters during play; `gm` views and administers **every** character in
+  the campaign (HP/Mana/Story, plus assigning players); `admin` can change any
+  data and any user's role.
+- **Two planes coexist.** Signed-in users get direct table access scoped by RLS
+  policies on `auth.uid()` + role; anonymous guests still reach a character only
+  through the sealed capability-token RPCs (`#c=`/`#play=`/`#share=`). The table
+  grants DML to `authenticated` only — `anon` stays sealed.
+- **Off by default.** Enabled only when `VITE_AUTH=on` (which implies cloud) and
+  the Supabase keys are present. With it off the app is the legacy single-user /
+  guest build, byte-for-byte.
+- **Setup:** apply `supabase/migrations/0002_auth_roles.sql` after `0001`, set
+  `VITE_AUTH=on`, then sign in once and run the one-time seed/backfill SQL noted
+  at the bottom of the migration (make yourself `admin`; adopt existing
+  characters). See `supabase/README.md`.
+- **Surfaces:** `src/auth/*` (provider + `useAuth`), `src/pages/LoginPage.jsx`,
+  `src/utils/characterRepo.js` (cloud-first repository), with role gating in
+  `Router.jsx`, `RosterPage.jsx`, `GMScreen.jsx`, `CharacterCard.jsx`, and a
+  `readOnly` mode in `PlayMode.jsx`.
+
 ## Deploying
 
 Push to `main` — GitHub Actions runs `npm run lint`, `npm test`, and `npm run build`, then deploys `dist/` to GitHub Pages automatically. A lint error or failing test blocks the deploy.

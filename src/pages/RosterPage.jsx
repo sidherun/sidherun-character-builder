@@ -1,15 +1,62 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { loadRoster, deleteCharacterFromRoster, loadCharacterFromRoster, saveCharacterToRoster, saveCurrent, loadCurrent, clearCurrent } from '../utils/rosterStorage.js'
 import { generateBatchHTML } from '../utils/generateCharacterHTML.js'
 import { buildRosterBackup, extractCharacters, validateCharacters, extractCloudState } from '../utils/rosterBackup.js'
 import { cloudEnabled } from '../utils/supabaseClient.js'
 import { pushRoster, ensureGmKey, getGmKey, getCloudMap, importCloudState, deleteCloudCharacter } from '../utils/cloudSync.js'
+import { repoEnabled, listCharacters, listPlayers, assignPlayer, deleteCharacter as repoDelete } from '../utils/characterRepo.js'
+import { useAuth, isGmOrAdmin } from '../auth/useAuth.js'
 import { sortRoster, SORT_KEYS } from '../utils/rosterSort.js'
 import CharacterCard from '../components/CharacterCard.jsx'
 import styles from './RosterPage.module.css'
 
+// Project a full (repo) character into the lightweight roster-entry shape the
+// sort + CharacterCard already expect, carrying ownership for role gating.
+function toEntry(c) {
+  return {
+    id: c._rosterId,
+    name: c.name || 'Unnamed',
+    playerName: c.playerName || '',
+    race: c.race,
+    archetype: c.archetype,
+    customArchetypeName: c.customArchetypeName || '',
+    level: c.level,
+    hp: c.hitPoints?.total ?? 0,
+    savedAt: c._updatedAt || new Date().toISOString(),
+    ownerUserId: c._ownerUserId ?? null,
+    assignedPlayerId: c._assignedPlayerId ?? null,
+  }
+}
+
 export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
-  const [roster, setRoster] = useState(() => loadRoster())
+  const { user, role, signOut } = useAuth()
+  const useRepo = repoEnabled()
+  const [roster, setRoster] = useState(() => (useRepo ? [] : loadRoster()))
+  // Full characters by id (repo path), so onGetCharacter/handleLoad have the blob.
+  const [repoChars, setRepoChars] = useState({})
+  const [players, setPlayers] = useState([])
+
+  // Cloud-first load for signed-in users (RLS-scoped). localStorage path is
+  // untouched when auth is off.
+  useEffect(() => {
+    if (!useRepo) return
+    let alive = true
+    listCharacters().then(chars => {
+      if (!alive) return
+      setRoster(chars.map(toEntry))
+      setRepoChars(Object.fromEntries(chars.map(c => [c._rosterId, c])))
+    }).catch(() => {})
+    if (isGmOrAdmin(role)) listPlayers().then(p => { if (alive) setPlayers(p) }).catch(() => {})
+    return () => { alive = false }
+  }, [useRepo, role])
+
+  async function refreshRepo() {
+    const chars = await listCharacters()
+    setRoster(chars.map(toEntry))
+    setRepoChars(Object.fromEntries(chars.map(c => [c._rosterId, c])))
+  }
+
+  const getCharacter = useRepo ? (id => repoChars[id] || null) : loadCharacterFromRoster
   const [sortKey, setSortKey] = useState(() => {
     try { return localStorage.getItem('sidherun_roster_sort') || 'name' } catch { return 'name' }
   })
@@ -20,7 +67,7 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
   // Push the whole local roster to the cloud (idempotent: already-synced
   // characters are updated, not duplicated). Opt-in entry point for cloud sync.
   async function handlePushToCloud() {
-    const chars = roster.map(e => loadCharacterFromRoster(e.id)).filter(Boolean)
+    const chars = roster.map(e => getCharacter(e.id)).filter(Boolean)
     if (chars.length === 0) return
     setPushing(true)
     setStatus('Pushing roster to cloud…')
@@ -47,7 +94,7 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
   // Download the whole roster as one portable JSON file. localStorage is
   // per-origin/per-browser, so this is the cross-device / pre-migration backup.
   function handleBackup() {
-    const chars = roster.map(e => loadCharacterFromRoster(e.id)).filter(Boolean)
+    const chars = roster.map(e => getCharacter(e.id)).filter(Boolean)
     if (chars.length === 0) return
     const backup = buildRosterBackup(chars, new Date().toISOString(), { gmKey: getGmKey(), cloudMap: getCloudMap() })
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' })
@@ -91,7 +138,7 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
   }
 
   function handleLoad(id) {
-    const char = loadCharacterFromRoster(id)
+    const char = getCharacter(id)
     if (char) {
       // Always open the character sheet (Review / step 9), not whatever wizard
       // step the character was saved at. A character at step 1 (e.g. an import
@@ -104,7 +151,7 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
 
   function handlePrintAll() {
     const chars = roster
-      .map(entry => loadCharacterFromRoster(entry.id))
+      .map(entry => getCharacter(entry.id))
       .filter(Boolean)
     if (chars.length === 0) return
     const html = generateBatchHTML(chars)
@@ -117,9 +164,20 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
 
   async function handleDelete(id) {
     if (!confirm('Delete this character? This cannot be undone.')) return
+    if (useRepo) {
+      try { await repoDelete(id) } catch { setStatus('Could not delete from cloud.'); return }
+      await refreshRepo()
+      return
+    }
     if (cloudEnabled) await deleteCloudCharacter(id) // best-effort cloud row delete
     deleteCharacterFromRoster(id)
     setRoster(loadRoster())
+  }
+
+  // GM/admin: assign or reassign a character to a player (authenticated plane).
+  async function handleReassign(id, playerUserId) {
+    try { await assignPlayer(id, playerUserId); await refreshRepo() }
+    catch { setStatus('Could not reassign character.') }
   }
 
   // Clear the saved "current" slot first, otherwise App re-opens the last
@@ -145,7 +203,7 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
           {onToggleTheme && (
             <button className="btn-secondary" onClick={onToggleTheme}>{theme === 'dark' ? 'Light' : 'Dark'}</button>
           )}
-          {roster.length > 0 && (
+          {roster.length > 0 && (!useRepo || isGmOrAdmin(role)) && (
             <button className="btn-secondary" onClick={() => onNavigate('gm')}>
               GM Screen
             </button>
@@ -163,12 +221,12 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
           <button className="btn-secondary" onClick={() => restoreRef.current?.click()}>
             Restore…
           </button>
-          {cloudEnabled && roster.length > 0 && (
+          {cloudEnabled && !useRepo && roster.length > 0 && (
             <button className="btn-secondary" onClick={handlePushToCloud} disabled={pushing}>
               {pushing ? 'Syncing…' : 'Push to cloud'}
             </button>
           )}
-          {cloudEnabled && (
+          {cloudEnabled && !useRepo && (
             <button className="btn-secondary" onClick={handleCopyGmKey}>
               Copy GM key
             </button>
@@ -176,6 +234,11 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
           <button className="btn-primary" onClick={handleNew}>
             + New Character
           </button>
+          {useRepo && (
+            <button className="btn-secondary" onClick={() => { signOut(); onNavigate('app') }}>
+              Sign out
+            </button>
+          )}
           <input
             ref={restoreRef}
             type="file"
@@ -214,7 +277,11 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
               entry={entry}
               onLoad={handleLoad}
               onDelete={handleDelete}
-              onGetCharacter={loadCharacterFromRoster}
+              onGetCharacter={getCharacter}
+              canManage={!useRepo || isGmOrAdmin(role) || entry.ownerUserId === user?.id}
+              canReassign={useRepo && isGmOrAdmin(role)}
+              players={players}
+              onReassign={handleReassign}
             />
           )
           return (

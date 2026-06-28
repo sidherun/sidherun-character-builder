@@ -62,3 +62,18 @@
   font-size: 0.8rem;
   padding: 5px 14px;
 }
+
+.assign {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: var(--ink500);
+}
+
+.assign select {
+  flex: 1;
+  font-size: 0.8rem;
+  padding: 4px 6px;
+}
