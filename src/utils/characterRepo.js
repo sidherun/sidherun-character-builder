@@ -107,14 +107,16 @@ export async function saveCharacterData(id, character) {
 
 // Patch ONLY live counters (play). Uses the SECURITY DEFINER patch_live_by_id
 // RPC for an atomic server-side field-merge (parity with the guest patch_live),
-// instead of a non-atomic client read-modify-write.
+// instead of a non-atomic client read-modify-write. The DB row is the durable
+// store; we ALSO broadcast the new counters on the character's channel so other
+// viewers update instantly (broadcast has no RLS/replication dependency, unlike
+// postgres_changes, so it actually reaches the browser).
 export async function patchLive(id, character) {
   if (!repoEnabled() || !id) return null
-  const { error } = await supabase.rpc('patch_live_by_id', {
-    p_id: id,
-    p_patch: projectLive(character),
-  })
+  const live = projectLive(character)
+  const { error } = await supabase.rpc('patch_live_by_id', { p_id: id, p_patch: live })
   if (error) throw error
+  repoChannels[id]?.send({ type: 'broadcast', event: 'live', payload: { live } })
   return true
 }
 
@@ -151,20 +153,19 @@ export async function listPlayers() {
   return data || []
 }
 
-// Realtime: subscribe to row changes for a character (authenticated plane). This
-// fires for BOTH authenticated direct-table writes and guest patch_live RPC
-// writes (both hit the DB), so a GM watching sees a player's HP tick live. Pass
-// the row id; returns the channel (unsubscribe via removeLiveSubscription).
+// Realtime: subscribe to a character's live-counter broadcasts. We use Supabase
+// Broadcast (not postgres_changes) on a per-character channel `char:<id>`:
+// postgres_changes must pass RLS on the realtime socket, which silently fails to
+// deliver to authenticated browsers; broadcast is plain pub/sub and just works.
+// `onLive` receives `{ live }` — the projected counters. `self:false` so a
+// sender never echoes its own change. patchLive sends on the same channel, and
+// this shares the channel name with the guest plane so the two interoperate.
 const repoChannels = {} // id -> RealtimeChannel
 
-export function subscribeLive(id, onRow) {
+export function subscribeLive(id, onLive) {
   if (!repoEnabled() || !id || repoChannels[id]) return repoChannels[id] || null
-  const ch = supabase
-    .channel(`repo:char:${id}`)
-    .on('postgres_changes',
-      { event: 'UPDATE', schema: 'public', table: 'characters', filter: `id=eq.${id}` },
-      payload => onRow(rowToCharacter(payload.new)))
-    .subscribe()
+  const ch = supabase.channel(`char:${id}`, { config: { broadcast: { self: false } } })
+  ch.on('broadcast', { event: 'live' }, ({ payload }) => onLive(payload)).subscribe()
   repoChannels[id] = ch
   return ch
 }

@@ -129,9 +129,9 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   useEffect(() => {
     if (!repoEnabled() || !user || !character._rosterId) return
     lastLiveSig.current = null // reset for the newly-opened character
-    subscribeLive(character._rosterId, row => {
+    subscribeLive(character._rosterId, ({ live }) => {
       setCharacter(prev => {
-        const next = mergeRemote(prev, { live: projectLive(row) })
+        const next = mergeRemote(prev, { live })
         lastLiveSig.current = JSON.stringify(projectLive(next)) // mark known → don't re-push
         return next
       })

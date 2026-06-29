@@ -38,8 +38,8 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
       const ids = []
       for (const c of charsRef.current) {
         if (!c._rosterId) continue
-        subscribeLive(c._rosterId, row => {
-          setChars(prev => prev.map(x => x._rosterId === row._rosterId ? row : x))
+        subscribeLive(c._rosterId, ({ live }) => {
+          setChars(prev => prev.map(x => x._rosterId === c._rosterId ? mergeRemote(x, { live }) : x))
         })
         ids.push(c._rosterId)
       }
