@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { loadRoster, deleteCharacterFromRoster, loadCharacterFromRoster, saveCharacterToRoster, saveCurrent, loadCurrent, clearCurrent } from '../utils/rosterStorage.js'
+import { loadRoster, deleteCharacterFromRoster, loadCharacterFromRoster, saveCharacterToRoster, saveCurrent, clearCurrent } from '../utils/rosterStorage.js'
 import { generateBatchHTML } from '../utils/generateCharacterHTML.js'
 import { buildRosterBackup, extractCharacters, validateCharacters, extractCloudState } from '../utils/rosterBackup.js'
 import { cloudEnabled } from '../utils/supabaseClient.js'
@@ -132,8 +132,11 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
   }
 
   function handleGoHome() {
-    const current = loadCurrent()
-    if (current) saveCurrent({ ...current, wizardStep: 1 })
+    // Go to the Welcome/home screen (Create New / Load / Import). Clear the
+    // current draft so App mounts fresh: with no _rosterId it's create mode and
+    // shows Welcome, rather than re-opening the last character as a sheet
+    // (manage mode keys off _rosterId). Saved roster characters are untouched.
+    clearCurrent()
     onNavigate('app')
   }
 
