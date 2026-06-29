@@ -186,6 +186,14 @@ working unchanged, so game-day QR / printout scans still need no login.
   otherwise the legacy push would send the stale localStorage character over the
   cloud row and overwrite authoritative data. localStorage is a non-authoritative
   cache only when signed in.
+- **Continuous autosave (all fields).** Signed-in edits persist to the cloud on
+  their own, split by plane so writes stay small: live counters via debounced
+  `patchLive` (`live` column), and structural fields — inventory, notes, name,
+  skills, attributes, etc. — via debounced `saveCharacterData` (`data` column),
+  keyed on `cloudSync.dataSignature` so it fires only on real structural change.
+  Two `useRef` signatures (`lastLiveSig`/`lastDataSig` in `App.jsx`) gate each
+  plane and reset per opened character. A brand-new character is still first
+  created on the explicit **Complete** (it has no cloud row to update yet).
 - **Realtime (bidirectional).** Signed-in play syncs live counters through the
   cloud row (durable) plus a **Broadcast** nudge for instant delivery. Both the
   GM Screen and the player's Play Mode subscribe to the per-character channel
