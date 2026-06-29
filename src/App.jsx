@@ -3,7 +3,7 @@ import { createDefaultCharacter } from './utils/defaultCharacter.js'
 import { loadCurrent, saveCharacterToRoster, saveCurrent, loadCharacterFromRoster, loadRoster, getLastSaveStatus } from './utils/rosterStorage.js'
 import { decodeCharacterFromURL, getPlayLinkId, parseCloudLink } from './utils/urlState.js'
 import { registerCloudLink, fetchCloudCharacter, mergeRemote, rosterIdForCloudId, projectLive } from './utils/cloudSync.js'
-import { repoEnabled, createCharacter, saveCharacterData, subscribeLive, removeLiveSubscription } from './utils/characterRepo.js'
+import { repoEnabled, createCharacter, saveCharacterData, patchLive, subscribeLive, removeLiveSubscription } from './utils/characterRepo.js'
 import { useAuth, isGmOrAdmin } from './auth/useAuth.js'
 import { safeParseCharacter } from './utils/characterSchema.js'
 import { useAutoSave } from './hooks/useAutoSave.js'
@@ -118,18 +118,40 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   }, [])
   useRealtimeCharacter(character._rosterId, applyRemoteLive)
 
-  // Authenticated realtime: the guest broadcast above only covers #c=/#play=
-  // characters and needs a sender. For signed-in users, subscribe to this
-  // character's row changes (Postgres changes) so a GM's (or another viewer's)
-  // live-counter edit shows up here live — the other half of the GM Screen's
-  // subscription. patchLive writes the row; this receives it.
+  // Authenticated realtime + live-counter sync. The guest broadcast above only
+  // covers #c=/#play= links; signed-in play uses the cloud row as source of
+  // truth. We track the last live signature we pushed OR received so the two
+  // effects below never echo each other into a loop.
+  const lastLiveSig = useRef(null)
+
+  // RECEIVE: subscribe to this character's row changes (Postgres changes) so a
+  // GM's (or another viewer's) live-counter edit shows up here in real time.
   useEffect(() => {
     if (!repoEnabled() || !user || !character._rosterId) return
+    lastLiveSig.current = null // reset for the newly-opened character
     subscribeLive(character._rosterId, row => {
-      setCharacter(prev => mergeRemote(prev, { live: projectLive(row) }))
+      setCharacter(prev => {
+        const next = mergeRemote(prev, { live: projectLive(row) })
+        lastLiveSig.current = JSON.stringify(projectLive(next)) // mark known → don't re-push
+        return next
+      })
     })
     return () => removeLiveSubscription(character._rosterId)
   }, [user, character._rosterId])
+
+  // SEND: push local live-counter changes (HP/Mana/Story/armor/use-pips) to the
+  // cloud, debounced, so the GM and other viewers see them and they survive a
+  // reload. Structure/data edits still persist on explicit save. Skips the
+  // initial load and any change that merely echoes a received update.
+  useEffect(() => {
+    if (!repoEnabled() || !user || !character._rosterId || !character._ownerUserId) return
+    const sig = JSON.stringify(projectLive(character))
+    if (lastLiveSig.current === null) { lastLiveSig.current = sig; return }
+    if (sig === lastLiveSig.current) return
+    lastLiveSig.current = sig
+    const t = setTimeout(() => { patchLive(character._rosterId, character).catch(() => {}) }, 800)
+    return () => clearTimeout(t)
+  }, [character, user])
 
   // Hydrate a cloud link from the server (once on mount). Adopt the cloud copy
   // when it's newer than the local one (or there's no local copy); otherwise
