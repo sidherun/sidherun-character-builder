@@ -10,10 +10,43 @@ const ATTR_LABELS = {
   charisma: 'Charisma', comeliness: 'Comeliness', fame: 'Fame',
 }
 
-export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster, addToast }) {
+// Per-section edit affordance on the character sheet (manage mode only). Renders
+// nothing in the wizard's read-only Review (no onEdit passed).
+function EditBtn({ step, label, onEdit }) {
+  if (!onEdit) return null
+  return (
+    <button type="button" className={styles.editBtn} onClick={() => onEdit(step)} aria-label={label} title={label}>
+      ✎ Edit
+    </button>
+  )
+}
+
+export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster, addToast, onUpdate, onEditSection }) {
   const defense  = calcDefense(character)
   const calcedHP = calcHitPoints(character)
   const calcedMana = calcMana(character)
+
+  // `editable` = the manage-mode character sheet (per-section ✎ + inline
+  // inventory). When absent (the wizard's Review step), this stays a read-only
+  // summary, exactly as before.
+  const editable = Boolean(onEditSection)
+
+  // Inline inventory editing on the sheet — inventory has no wizard editor of its
+  // own, and "add a potion" is the headline use case. Mirrors Play Mode.
+  function addInventoryItem() {
+    onUpdate?.({ inventory: [...(character.inventory || []), { name: '', quantity: '', notes: '' }] })
+  }
+  function updateInventoryItem(i, patch) {
+    const inventory = (character.inventory || []).map((it, idx) => {
+      if (idx !== i) return it
+      const obj = typeof it === 'string' ? { name: it, quantity: '', notes: '' } : it
+      return { ...obj, ...patch }
+    })
+    onUpdate?.({ inventory })
+  }
+  function removeInventoryItem(i) {
+    onUpdate?.({ inventory: (character.inventory || []).filter((_, idx) => idx !== i) })
+  }
 
   function exportJSON() {
     const blob = new Blob([JSON.stringify(character, null, 2)], { type: 'application/json' })
@@ -70,7 +103,10 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
         <button className="btn-secondary" onClick={copyShareURL}>Copy Share URL</button>
       </div>
 
-      {/* Resources row */}
+      {/* Resources */}
+      {editable && (
+        <h3 className={styles.resourcesHead}>Resources<EditBtn step={8} label="Edit resources — HP, Mana, Story Points, XP" onEdit={onEditSection} /></h3>
+      )}
       <div className={styles.resourcesRow}>
         <div className={styles.resourceChip} style={{ borderColor: '#8b1a1a' }}>
           <span>HP</span>
@@ -103,7 +139,7 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
         <div className={styles.left}>
           {/* Attributes */}
           <section className={styles.section}>
-            <h3>Attributes</h3>
+            <h3>Attributes<EditBtn step={3} label="Edit attributes" onEdit={onEditSection} /></h3>
             <div className={styles.attrGrid}>
               {Object.entries(character.attributes).filter(([key]) => key in ATTR_LABELS).map(([key, val]) => (
                 <div key={key} className={styles.attrChip}>
@@ -116,7 +152,7 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
 
           {/* Defense */}
           <section className={styles.section}>
-            <h3>Defense</h3>
+            <h3>Defense<EditBtn step={4} label="Edit combat — defense" onEdit={onEditSection} /></h3>
             <div className={styles.defTable}>
               {[
                 { label: 'Typical',  val: defense.typical  },
@@ -139,7 +175,7 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
           {/* Weapons */}
           {character.weapons?.length > 0 && (
             <section className={styles.section}>
-              <h3>Weapons</h3>
+              <h3>Weapons<EditBtn step={4} label="Edit combat — weapons" onEdit={onEditSection} /></h3>
               {character.weapons.map(w => {
                 const total = (w.attributeBonus || 0) + (w.skillBonus || 0)
                 return (
@@ -157,7 +193,7 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
           {/* Skills */}
           {character.skills?.length > 0 && (
             <section className={styles.section}>
-              <h3>Skills {character.skills.some(s => s.isSpecialty) && <span className={styles.starNote}>★ = Specialty</span>}</h3>
+              <h3>Skills {character.skills.some(s => s.isSpecialty) && <span className={styles.starNote}>★ = Specialty</span>}<EditBtn step={7} label="Edit skills" onEdit={onEditSection} /></h3>
               {character.skills.map(s => (
                 <div key={s.id} className={styles.skillRow}>
                   <span className={styles.skillName}>
@@ -173,7 +209,7 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
           {/* Powers */}
           {character.hasPowers && character.powers?.length > 0 && (
             <section className={styles.section}>
-              <h3>Powers</h3>
+              <h3>Powers<EditBtn step={5} label="Edit powers" onEdit={onEditSection} /></h3>
               {character.powers.map(p => {
                 const total = p.attributeType
                   ? attrTotal(character.attributes[p.attributeType] || {}) + (p.powerBonus || 0)
@@ -192,7 +228,7 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
           {/* Crafts */}
           {character.hasMagic && character.crafts?.length > 0 && (
             <section className={styles.section}>
-              <h3>Magic Crafts</h3>
+              <h3>Magic Crafts<EditBtn step={6} label="Edit magic" onEdit={onEditSection} /></h3>
               {character.crafts.map(c => (
                 <div key={c.id} className={styles.craftRow}>
                   <span className={styles.craftName}>{c.name || '—'}</span>
@@ -203,22 +239,43 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
               ))}
             </section>
           )}
-          {/* Inventory */}
-          {character.inventory?.length > 0 && (
+          {/* Inventory — inline-editable on the sheet; read-only in the wizard review */}
+          {(editable || character.inventory?.length > 0) && (
             <section className={styles.section}>
               <h3>Inventory</h3>
-              {character.inventory.map((item, i) => {
-                const isStr = typeof item === 'string'
-                const name  = isStr ? item : (item.name || '—')
-                const qty   = !isStr && item.quantity != null && item.quantity !== '' ? ` ×${item.quantity}` : ''
-                const notes = !isStr && item.notes ? ` — ${item.notes}` : ''
-                return (
-                  <div key={i} className={styles.skillRow}>
-                    <span className={styles.skillName}>{name}{notes}</span>
-                    {qty && <span className={styles.skillAttr}>{qty}</span>}
-                  </div>
-                )
-              })}
+              {editable ? (
+                <>
+                  {(character.inventory || []).map((item, i) => {
+                    const obj = typeof item === 'string' ? { name: item, quantity: '', notes: '' } : item
+                    return (
+                      <div key={i} className={styles.invRow}>
+                        <input className={styles.invInput} value={obj.name || ''} placeholder="Item"
+                          onChange={e => updateInventoryItem(i, { name: e.target.value })} aria-label={`Item ${i + 1} name`} />
+                        <input className={styles.invQty} value={obj.quantity ?? ''} placeholder="Qty"
+                          onChange={e => updateInventoryItem(i, { quantity: e.target.value })} aria-label={`Item ${i + 1} quantity`} />
+                        <input className={styles.invInput} value={obj.notes || ''} placeholder="Notes"
+                          onChange={e => updateInventoryItem(i, { notes: e.target.value })} aria-label={`Item ${i + 1} notes`} />
+                        <button type="button" className={styles.invRemove} onClick={() => removeInventoryItem(i)} aria-label={`Remove item ${i + 1}`}>✕</button>
+                      </div>
+                    )
+                  })}
+                  {(character.inventory || []).length === 0 && <p className={styles.invEmpty}>No items yet.</p>}
+                  <button type="button" className="btn-secondary" onClick={addInventoryItem} style={{ marginTop: 8 }}>+ Add item</button>
+                </>
+              ) : (
+                character.inventory.map((item, i) => {
+                  const isStr = typeof item === 'string'
+                  const name  = isStr ? item : (item.name || '—')
+                  const qty   = !isStr && item.quantity != null && item.quantity !== '' ? ` ×${item.quantity}` : ''
+                  const notes = !isStr && item.notes ? ` — ${item.notes}` : ''
+                  return (
+                    <div key={i} className={styles.skillRow}>
+                      <span className={styles.skillName}>{name}{notes}</span>
+                      {qty && <span className={styles.skillAttr}>{qty}</span>}
+                    </div>
+                  )
+                })
+              )}
             </section>
           )}
         </div>

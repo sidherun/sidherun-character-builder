@@ -42,6 +42,13 @@ const STEP_COMPONENTS = {
   9: Step9Review,
 }
 
+// Step number behind each editable section on the character sheet (manage mode).
+// Identity is intentionally absent — name/race/archetype are set in the builder
+// only, not editable from the sheet.
+const SECTION_LABELS = {
+  3: 'Attributes', 4: 'Combat', 5: 'Powers', 6: 'Magic', 7: 'Skills', 8: 'Resources',
+}
+
 // Returns which wizard steps are visible given hasPowers/hasMagic
 function visibleSteps(hasPowers, hasMagic) {
   return [1, 2, 3, 4,
@@ -107,6 +114,14 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   const { isNotesOpen, toggleNotes, closeNotes }    = useNotesPanel()
   const { toasts, addToast, removeToast }           = useToast()
   const { startNew, loadFromRoster }                = useCharacterManagement(setCharacter)
+
+  // 'create' = the guided wizard (a new character); 'manage' = the character
+  // sheet for an existing one (read view + per-section editors). Seeded from
+  // whether the opened character is already saved. editSection !== null = editing
+  // a single section in a focused shell. Explicit (not derived from _rosterId)
+  // so saving mid-wizard doesn't yank a half-built character into manage mode.
+  const [mode, setMode] = useState(() => (character._rosterId ? 'manage' : 'create'))
+  const [editSection, setEditSection] = useState(null)
 
   const saveStatus = useAutoSave(character)
   useCloudSync(character)
@@ -273,7 +288,10 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
 
   function completeCharacter() {
     const saved = saveCharacterToRoster(character)
-    persistToCloud(saved).finally(() => onNavigate('roster'))
+    setCharacter(saved)
+    setEditSection(null)
+    setMode('manage') // finishing creation drops you onto the character sheet
+    persistToCloud(saved)
   }
 
   if (cloudLoading) {
@@ -323,6 +341,85 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
           />
         )}
         <Toast toasts={toasts} onRemove={removeToast} />
+      </ErrorBoundary>
+    )
+  }
+
+  // Manage mode: an existing character. Show the character sheet (read view +
+  // per-section ✎ edit), or one section's editor in a focused shell. No step bar.
+  if (mode === 'manage') {
+    const SectionComp = editSection != null ? STEP_COMPONENTS[editSection] : null
+    return (
+      <ErrorBoundary>
+        <div className={styles.app}>
+          <a href="#main-content" className="skip-link">Skip to main content</a>
+          <div className={styles.page}>
+            <div className={styles.wizardCard}>
+              <header className={styles.header}>
+                {editSection != null ? (
+                  <button className={styles.brand} onClick={() => setEditSection(null)} aria-label="Done — back to character sheet">
+                    <span className={styles.brandName}>‹ Done</span>
+                    <span className={styles.brandSub}>{SECTION_LABELS[editSection]}</span>
+                  </button>
+                ) : (
+                  <button className={styles.brand} onClick={() => onNavigate('roster')} aria-label="Back to roster">
+                    <span className={styles.brandName}>‹ Roster</span>
+                    <span className={styles.brandSub}>Sidherun</span>
+                  </button>
+                )}
+                <div className={styles.headerActions}>
+                  {(saveStatus === 'saving' || saveStatus === 'saved') && (
+                    <span className={styles.saveStatus}>{saveStatus === 'saving' ? 'Saving…' : 'Saved ✓'}</span>
+                  )}
+                  <button className={styles.headerBtn} onClick={onToggleTheme}>{theme === 'dark' ? 'Light' : 'Dark'}</button>
+                  <button className={styles.headerBtn} onClick={toggleNotes}>Notes</button>
+                </div>
+              </header>
+
+              <main
+                id="main-content"
+                className={styles.main}
+                ref={mainRef}
+                tabIndex={-1}
+                aria-label={editSection != null ? `Edit ${SECTION_LABELS[editSection]}` : 'Character sheet'}
+              >
+                {editSection != null ? (
+                  <SectionComp
+                    character={character}
+                    onUpdate={update}
+                    onUpdateNested={updateNested}
+                    onSetCharacter={setCharacter}
+                    onNavigate={onNavigate}
+                    onStartNew={startNew}
+                    onLoadFromRoster={loadFromRoster}
+                    onEnterPlayMode={enterPlayMode}
+                    onSaveToRoster={saveToRoster}
+                    addToast={addToast}
+                  />
+                ) : (
+                  <Step9Review
+                    character={character}
+                    onUpdate={update}
+                    onEnterPlayMode={enterPlayMode}
+                    onSaveToRoster={saveToRoster}
+                    addToast={addToast}
+                    onEditSection={setEditSection}
+                  />
+                )}
+              </main>
+
+              {editSection != null && (
+                <div className={styles.sectionDoneBar}>
+                  <button className="btn-primary" onClick={() => setEditSection(null)}>Done</button>
+                </div>
+              )}
+            </div>
+          </div>
+          {isNotesOpen && (
+            <NotesPanel notes={character._notes} onChange={notes => update({ _notes: notes })} onClose={closeNotes} />
+          )}
+          <Toast toasts={toasts} onRemove={removeToast} />
+        </div>
       </ErrorBoundary>
     )
   }
