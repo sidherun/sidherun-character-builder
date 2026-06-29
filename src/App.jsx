@@ -2,8 +2,8 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import { createDefaultCharacter } from './utils/defaultCharacter.js'
 import { loadCurrent, saveCharacterToRoster, saveCurrent, loadCharacterFromRoster, loadRoster, getLastSaveStatus } from './utils/rosterStorage.js'
 import { decodeCharacterFromURL, getPlayLinkId, parseCloudLink } from './utils/urlState.js'
-import { registerCloudLink, fetchCloudCharacter, mergeRemote, rosterIdForCloudId } from './utils/cloudSync.js'
-import { repoEnabled, createCharacter, saveCharacterData } from './utils/characterRepo.js'
+import { registerCloudLink, fetchCloudCharacter, mergeRemote, rosterIdForCloudId, projectLive } from './utils/cloudSync.js'
+import { repoEnabled, createCharacter, saveCharacterData, subscribeLive, removeLiveSubscription } from './utils/characterRepo.js'
 import { useAuth, isGmOrAdmin } from './auth/useAuth.js'
 import { safeParseCharacter } from './utils/characterSchema.js'
 import { useAutoSave } from './hooks/useAutoSave.js'
@@ -117,6 +117,19 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
     setCharacter(prev => mergeRemote(prev, payload))
   }, [])
   useRealtimeCharacter(character._rosterId, applyRemoteLive)
+
+  // Authenticated realtime: the guest broadcast above only covers #c=/#play=
+  // characters and needs a sender. For signed-in users, subscribe to this
+  // character's row changes (Postgres changes) so a GM's (or another viewer's)
+  // live-counter edit shows up here live — the other half of the GM Screen's
+  // subscription. patchLive writes the row; this receives it.
+  useEffect(() => {
+    if (!repoEnabled() || !user || !character._rosterId) return
+    subscribeLive(character._rosterId, row => {
+      setCharacter(prev => mergeRemote(prev, { live: projectLive(row) }))
+    })
+    return () => removeLiveSubscription(character._rosterId)
+  }, [user, character._rosterId])
 
   // Hydrate a cloud link from the server (once on mount). Adopt the cloud copy
   // when it's newer than the local one (or there's no local copy); otherwise
