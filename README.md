@@ -187,13 +187,16 @@ working unchanged, so game-day QR / printout scans still need no login.
   cloud row and overwrite authoritative data. localStorage is a non-authoritative
   cache only when signed in.
 - **Realtime (bidirectional).** Signed-in play syncs live counters through the
-  cloud row. The GM Screen and the player's Play Mode both **subscribe** to
-  Postgres `UPDATE`s (`characterRepo.subscribeLive`), and both **push** their
-  live-counter edits to the row (`characterRepo.patchLive`, debounced) — so a
-  player's HP tick appears on the GM Screen and a GM adjustment appears on the
-  player's device, each in real time. App.jsx tracks a last-live signature to
-  keep the push/receive effects from echoing into a loop. The legacy broadcast
-  channel (`useRealtimeCharacter`) stays for guest `#c=`/`#play=` viewers.
+  cloud row (durable) plus a **Broadcast** nudge for instant delivery. Both the
+  GM Screen and the player's Play Mode subscribe to the per-character channel
+  `char:<id>` (`characterRepo.subscribeLive`), and both push their edits via
+  `characterRepo.patchLive` (debounced) which writes the row *and* broadcasts the
+  new counters. We use Broadcast rather than `postgres_changes` on purpose:
+  postgres_changes must pass RLS on the realtime socket and silently fails to
+  deliver to authenticated browsers, whereas Broadcast is plain pub/sub and just
+  works — and it shares the channel name with the guest plane, so guest and
+  authed viewers of the same character interoperate. App.jsx tracks a last-live
+  signature so the push/receive effects don't echo into a loop.
 - **Off by default.** Enabled only when `VITE_AUTH=on` (which implies cloud) and
   the Supabase keys are present. With it off the app is the legacy single-user /
   guest build, byte-for-byte.
