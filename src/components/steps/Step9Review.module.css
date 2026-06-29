@@ -97,10 +97,64 @@
 }
 
 .section h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   border-bottom: 1px solid var(--hair, #2e2619);
   padding-bottom: 6px;
   margin-bottom: 10px;
 }
+
+/* Per-section edit affordance (manage-mode sheet) */
+.editBtn {
+  margin-left: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--bronze);
+  background: none;
+  border: 1px solid var(--hair, #2e2619);
+  border-radius: 6px;
+  padding: 9px 14px;
+  min-height: 40px;
+  cursor: pointer;
+}
+.editBtn:hover { border-color: var(--bronze); color: var(--gold-dim, var(--bronze)); }
+
+.resourcesHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink500, #9a8c70);
+}
+
+/* Inline inventory editing on the sheet */
+.invRow { display: flex; gap: 6px; margin-bottom: 6px; align-items: center; }
+.invInput, .invQty {
+  background: var(--card2, #1c1710);
+  border: 1px solid var(--hair, #2e2619);
+  border-radius: 6px;
+  color: var(--ink900, #e8dcc4);
+  padding: 9px 10px;
+  font-family: 'Spectral', serif;
+  font-size: 14px;
+  min-height: 40px;
+}
+.invInput { flex: 1; min-width: 0; }
+.invQty { width: 60px; flex: none; text-align: center; }
+.invRemove {
+  background: none;
+  border: 1px solid var(--hair, #2e2619);
+  border-radius: 6px;
+  color: var(--danger, #c0392b);
+  width: 40px; height: 40px; flex: none; cursor: pointer;
+}
+.invEmpty { color: var(--ink350, #6b5f48); font-style: italic; margin: 4px 0; }
 
 /* Attributes */
 .attrGrid {
