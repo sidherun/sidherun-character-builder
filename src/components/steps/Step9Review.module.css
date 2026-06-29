@@ -90,6 +90,17 @@
   gap: 24px;
 }
 
+/* Portrait phones: one column, and let row cells shrink/wrap so long weapon or
+   skill names can't force the page wider than the viewport (was cutting text
+   off on the right in portrait). Landscape (>640px) keeps the two columns. */
+@media (max-width: 640px) {
+  .columns { grid-template-columns: 1fr; gap: 16px; }
+  .weaponRow > *, .skillRow > *, .powerRow > *, .craftRow > * {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
 .left, .right {
   display: flex;
   flex-direction: column;
