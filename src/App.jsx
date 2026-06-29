@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import { createDefaultCharacter } from './utils/defaultCharacter.js'
 import { loadCurrent, saveCharacterToRoster, saveCurrent, loadCharacterFromRoster, loadRoster, getLastSaveStatus } from './utils/rosterStorage.js'
 import { decodeCharacterFromURL, getPlayLinkId, parseCloudLink } from './utils/urlState.js'
-import { registerCloudLink, fetchCloudCharacter, mergeRemote, rosterIdForCloudId, projectLive } from './utils/cloudSync.js'
+import { registerCloudLink, fetchCloudCharacter, mergeRemote, rosterIdForCloudId, projectLive, dataSignature } from './utils/cloudSync.js'
 import { repoEnabled, createCharacter, saveCharacterData, patchLive, subscribeLive, removeLiveSubscription } from './utils/characterRepo.js'
 import { useAuth, isGmOrAdmin } from './auth/useAuth.js'
 import { safeParseCharacter } from './utils/characterSchema.js'
@@ -118,17 +118,19 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   }, [])
   useRealtimeCharacter(character._rosterId, applyRemoteLive)
 
-  // Authenticated realtime + live-counter sync. The guest broadcast above only
-  // covers #c=/#play= links; signed-in play uses the cloud row as source of
-  // truth. We track the last live signature we pushed OR received so the two
-  // effects below never echo each other into a loop.
+  // Authenticated cloud sync. The guest broadcast above only covers #c=/#play=
+  // links; signed-in play uses the cloud row as source of truth. We track the
+  // last live + data signatures we pushed OR received so the effects below never
+  // echo each other into a loop.
   const lastLiveSig = useRef(null)
+  const lastDataSig = useRef(null)
 
-  // RECEIVE: subscribe to this character's row changes (Postgres changes) so a
-  // GM's (or another viewer's) live-counter edit shows up here in real time.
+  // RECEIVE: subscribe to this character's live-counter broadcasts so a GM's
+  // (or another viewer's) edit shows up here in real time.
   useEffect(() => {
     if (!repoEnabled() || !user || !character._rosterId) return
     lastLiveSig.current = null // reset for the newly-opened character
+    lastDataSig.current = null
     subscribeLive(character._rosterId, ({ live }) => {
       setCharacter(prev => {
         const next = mergeRemote(prev, { live })
@@ -150,6 +152,20 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
     if (sig === lastLiveSig.current) return
     lastLiveSig.current = sig
     const t = setTimeout(() => { patchLive(character._rosterId, character).catch(() => {}) }, 800)
+    return () => clearTimeout(t)
+  }, [character, user])
+
+  // SEND (structure): push non-counter edits — inventory, notes, name, skills,
+  // attributes, etc. — to the cloud, debounced, so every field persists during
+  // play, not just on an explicit Save. dataSignature excludes the live counters
+  // (handled above) and wizardStep, so this fires only on real structural change.
+  useEffect(() => {
+    if (!repoEnabled() || !user || !character._rosterId || !character._ownerUserId) return
+    const sig = dataSignature(character)
+    if (lastDataSig.current === null) { lastDataSig.current = sig; return } // initial load
+    if (sig === lastDataSig.current) return
+    lastDataSig.current = sig
+    const t = setTimeout(() => { saveCharacterData(character._rosterId, character).catch(() => {}) }, 1200)
     return () => clearTimeout(t)
   }, [character, user])
 
