@@ -1,27 +1,10 @@
-/* Codex dark tokens — scoped to Welcome only */
-.page {
-  --bg:          #15110c;
-  --bg-dot:      #241c12;
-  --card-top:    #1e1813;
-  --card-bot:    #191309;
-  --line:        #3a3025;
-  --hair:        #2e2619;
-  --ink900:      #f4ecda;
-  --ink600:      #cabfa3;
-  --ink400:      #8a7a5c;
-  --ink350:      #7a6a4f;
-  --ink300:      #7a6a4f;
-  --ink500:      #d8ccb4;
-  --bronze:      #c69152;
-  --on-bronze:   #1a140c;
-  --solid-top:   #d6a868;
-  --solid-bot:   #b5824e;
-  --solid-shad:  rgba(181,130,78,0.36);
-  --card-shad:   rgba(0,0,0,0.5);
-  --top-edge-mid: #d9ab6a;
-  --wordmark-shad: rgba(201,145,82,0.25);
-  --glow-color:  rgba(201,145,82,0.16);
+/* Welcome screen — Codex.
+   FIX: the local token re-declaration block that was scoped to `.page` has been
+   removed, so this screen now inherits the theme from tokens.css and responds
+   to the light/dark toggle. All colors reference global tokens; the only inline
+   literals left are the one-off decorative hero glow and image shadow. */
 
+.page {
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -36,16 +19,16 @@
 .card {
   width: 100%;
   max-width: 900px;
-  background: linear-gradient(var(--card-top), var(--card-bot));
+  background: linear-gradient(var(--card), var(--card2));
   border: 1px solid var(--line);
   border-radius: 9px;
-  box-shadow: 0 24px 64px var(--card-shad);
+  box-shadow: var(--card-shadow);
   overflow: hidden;
 }
 
 .topEdge {
   height: 2px;
-  background: linear-gradient(90deg, transparent, var(--bronze) 18%, var(--top-edge-mid) 50%, var(--bronze) 82%, transparent);
+  background: var(--top-edge);
 }
 
 /* Top bar */
@@ -67,7 +50,7 @@
   font-family: 'Newsreader', serif;
   font-size: 21px;
   font-weight: 400;
-  color: var(--ink900);
+  color: var(--ink-900);
   letter-spacing: 0.02em;
 }
 
@@ -83,7 +66,7 @@
   font-size: 10px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--ink350);
+  color: var(--ink-300);
 }
 
 /* Hero */
@@ -100,7 +83,7 @@
   width: 560px;
   height: 300px;
   transform: translate(-50%, -50%);
-  background: radial-gradient(ellipse at center, var(--glow-color), rgba(201,145,82,0.05) 42%, transparent 70%);
+  background: radial-gradient(ellipse at center, rgba(201, 145, 82, 0.16), rgba(201, 145, 82, 0.05) 42%, transparent 70%);
   pointer-events: none;
 }
 
@@ -115,12 +98,12 @@
   display: block;
   margin: 0 auto 18px;
   border-radius: 6px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.55);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
 }
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0.5; }
+  50%      { opacity: 0.5; }
 }
 
 .kicker {
@@ -140,7 +123,7 @@
   font-style: italic;
   font-size: 18px;
   line-height: 1.6;
-  color: var(--ink600);
+  color: var(--ink-600);
 }
 
 /* Actions */
@@ -163,7 +146,7 @@
   padding: 16px 40px;
   border-radius: 7px;
   cursor: pointer;
-  box-shadow: 0 6px 20px var(--solid-shad);
+  box-shadow: 0 6px 20px var(--solid-shadow);
   transition: filter 0.15s;
 }
 
@@ -179,7 +162,7 @@
   font-size: 11.5px;
   letter-spacing: 0.10em;
   text-transform: uppercase;
-  color: var(--ink500);
+  color: var(--ink-700);
   background: transparent;
   border: 1px solid var(--line);
   padding: 12px 22px;
@@ -188,7 +171,7 @@
   transition: background 0.15s;
 }
 
-.ghostBtn:hover { background: rgba(198,145,82,0.10); }
+.ghostBtn:hover { background: var(--ghost-hover); }
 
 /* Footer */
 .footer {
@@ -198,7 +181,7 @@
   font-family: 'Newsreader', serif;
   font-style: italic;
   font-size: 13.5px;
-  color: var(--ink400);
+  color: var(--ink-400);
 }
 
 /* Mobile */

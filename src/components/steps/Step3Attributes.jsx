@@ -68,7 +68,8 @@ export default function Step3Attributes({ character, onUpdate }) {
     onUpdate({ attributes: { ...attributes, [key]: newAttr } })
   }
 
-  const avgColor = avg >= 15 ? '#2d5a27' : avg >= 12 ? '#8b6914' : '#8b1a1a'
+  // Codex tokens instead of raw hex, so the badge adapts to the active theme.
+  const avgColor = avg >= 15 ? 'var(--story)' : avg >= 12 ? 'var(--bronze)' : 'var(--danger)'
 
   return (
     <div className={styles.step}>

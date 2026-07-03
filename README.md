@@ -64,7 +64,7 @@ The app uses the **Codex** design language: editorial-fantasy aesthetic with war
 - `Spectral` — body text, labels, descriptions
 - `JetBrains Mono` — overlines, ALL-CAPS section labels, buttons, stat abbreviations
 
-**Theme tokens** live in `src/tokens.css` as CSS variables on `[data-theme="dark"]` / `[data-theme="light"]`. Components use `var(--token)` — never hardcoded hex values. Default theme is dark; persisted to `localStorage`.
+**Theme tokens** live in `src/tokens.css` as CSS variables on `[data-theme="dark"]` / `[data-theme="light"]`. Components use `var(--token)` — never hardcoded hex values, and never re-declared locally in a component. The ink scale is an *emphasis* ramp: `--ink-900` (strongest text) → `--ink-300` (faintest), monotonic in both themes. Legacy `--inkNNN` names remain as aliases pending a sweep — see `CODEX-MIGRATION.md`. Default theme is dark; persisted to `localStorage`.
 
 **Status:** Full app ported — wizard (Steps 1–9), Play Mode, Roster/CharacterCard, and light/dark theme toggle all use Codex tokens. Theme toggle persists to localStorage; default is dark.
 
