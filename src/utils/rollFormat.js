@@ -17,12 +17,14 @@ export function formatRoll(roll) {
       }
     }
     // Exploded rolls show the dice summed before the modifier (e.g. 97+40 = 137).
+    // The status goes in a player-facing `tag`, not raw engine jargon in the math.
     const exploded = roll.rolls && roll.rolls.length > 1
     const dice = exploded ? `${roll.rolls.join('+')} = ${roll.roll}` : `${roll.roll}`
     return {
       color: 'var(--bronze)',
       headline: String(roll.total),
-      detail: `d100 ${dice} + ${roll.modifier}${exploded ? ' · exploded' : ''} · GM adjudicates`,
+      tag: exploded ? 'Exploding roll!' : null,
+      detail: `d100 ${dice} + ${roll.modifier} · GM adjudicates`,
     }
   }
 

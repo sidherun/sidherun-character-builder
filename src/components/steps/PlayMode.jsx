@@ -462,12 +462,15 @@ function Counter({ label, current, total, color, onAdjust, readOnly = false }) {
 // Shared roll-result banner. For skills/attacks it shows the total to read aloud
 // (the GM adjudicates); for spells it resolves pass/fail against the known target.
 function RollResult({ roll, onClear }) {
-  const { color, headline, detail } = formatRoll(roll)
+  const { color, headline, detail, tag } = formatRoll(roll)
   return (
     <div className={styles.rollResult} role="status" aria-live="polite" style={{ '--roll-color': color }}>
       <div className={styles.rollHeadline} style={{ color }}>{headline}</div>
       <div className={styles.rollMeta}>
-        <span className={styles.rollLabel}>{roll.label}</span>
+        <span className={styles.rollLabelRow}>
+          <span className={styles.rollLabel}>{roll.label}</span>
+          {tag && <span className={styles.rollTag}>{tag}</span>}
+        </span>
         <span className={styles.rollDetail}>{detail}</span>
       </div>
       <button className={styles.rollClear} onClick={onClear} aria-label="Clear roll">✕</button>

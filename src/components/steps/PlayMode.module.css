@@ -394,6 +394,13 @@
   min-width: 0;
 }
 
+.rollLabelRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .rollLabel {
   font-family: 'Newsreader', serif;
   font-size: 1.05rem;
@@ -401,11 +408,29 @@
   text-transform: capitalize;
 }
 
+/* Player-facing status (e.g. "Exploding roll!") — a distinct pill, visually
+   separate from the math breakdown (#155). */
+.rollTag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bronze);
+  background: color-mix(in srgb, var(--bronze) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--bronze) 45%, transparent);
+  padding: 1px 7px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* Roll math breakdown — larger + more contrast than before so it's readable
+   across the table (#155). */
 .rollDetail {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  color: var(--ink-700);
+  font-size: 13px;
+  letter-spacing: 0.01em;
+  color: var(--ink-800);
 }
 
 .rollClear {

@@ -9,10 +9,12 @@ describe('formatRoll — skills & attacks (display total, no pass/fail)', () => 
     expect(out.color).toBe('var(--bronze)') // neutral — the GM decides hit/miss
   })
 
-  it('shows the summed dice for an exploded roll', () => {
+  it('shows the summed dice for an exploded roll, with a player-facing tag (no "exploded" jargon)', () => {
     const out = formatRoll({ kind: 'total', label: 'Quarterstaff', rolls: [97, 40], roll: 137, modifier: 8, total: 145, exploded: true })
     expect(out.headline).toBe('145')
-    expect(out.detail).toBe('d100 97+40 = 137 + 8 · exploded · GM adjudicates')
+    expect(out.detail).toBe('d100 97+40 = 137 + 8 · GM adjudicates') // no engine jargon in the math
+    expect(out.tag).toBe('Exploding roll!')
+    expect(out.detail).not.toMatch(/exploded/)
   })
 
   it('shows a fumble with the unmodified fumble die for the GM', () => {
