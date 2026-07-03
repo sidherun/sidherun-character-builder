@@ -3,7 +3,7 @@ import { createDefaultCharacter } from './utils/defaultCharacter.js'
 import { loadCurrent, saveCharacterToRoster, saveCurrent, loadCharacterFromRoster, loadRoster, getLastSaveStatus } from './utils/rosterStorage.js'
 import { decodeCharacterFromURL, getPlayLinkId, parseCloudLink } from './utils/urlState.js'
 import { registerCloudLink, fetchCloudCharacter, mergeRemote, rosterIdForCloudId, projectLive, dataSignature, hydrateCharacter } from './utils/cloudSync.js'
-import { repoEnabled, createCharacter, getCharacter, saveCharacterData, patchLive, subscribeLive, removeLiveSubscription } from './utils/characterRepo.js'
+import { repoEnabled, upsertCharacter, getCharacter, saveCharacterData, patchLive, subscribeLive, removeLiveSubscription } from './utils/characterRepo.js'
 import { useAuth, isGmOrAdmin } from './auth/useAuth.js'
 import { safeParseCharacter } from './utils/characterSchema.js'
 import { guideEnabled, setGuide } from './utils/onboarding.js'
@@ -185,6 +185,40 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   // putting it in `character` would loop the structural-autosave effect.
   const dataRevRef = useRef(null)
   useEffect(() => { dataRevRef.current = character._dataRev ?? null }, [character._rosterId, character._dataRev])
+
+  // Authed localStorage cutover (#127). When signed in, App still seeds the
+  // working character from the localStorage 'current' slot (deferred cloud-first
+  // load, #119). That draft can predate sign-in: it has a _rosterId but no
+  // _ownerUserId, so the cloud-sync effects below stay dormant and its stored
+  // slot is out of step with the authed format. Once auth resolves, if the draft
+  // already matches a cloud row we own, stamp that row's identity onto it — in
+  // place, preserving any unsaved edits — so background sync re-engages and an
+  // explicit Save updates the row instead of minting a duplicate. useAutoSave
+  // then rewrites the 'current' slot in the authed format, completing the
+  // cutover. A brand-new local draft (no matching cloud row) is left untouched
+  // and is created on first save. No-op when signed out — the unauthenticated
+  // localStorage-only flow is unaffected. upsertCharacter guards Save either way.
+  useEffect(() => {
+    if (!repoEnabled() || !user) return
+    if (!character._rosterId || character._ownerUserId) return
+    let alive = true
+    getCharacter(character._rosterId)
+      .then(row => {
+        if (!alive || !row) return
+        setCharacter(prev =>
+          (prev._rosterId === row._rosterId && !prev._ownerUserId)
+            ? {
+                ...prev,
+                _ownerUserId:      row._ownerUserId,
+                _assignedPlayerId: row._assignedPlayerId,
+                _dataRev:          row._dataRev,
+                _updatedAt:        row._updatedAt,
+              }
+            : prev)
+      })
+      .catch(() => {})
+    return () => { alive = false }
+  }, [user, character._rosterId, character._ownerUserId])
 
   // RECEIVE: subscribe to this character's live-counter broadcasts so a GM's
   // (or another viewer's) edit shows up here in real time.
@@ -394,15 +428,16 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   }
 
   // Authenticated source-of-truth write: create the cloud row on first save (so
-  // _rosterId becomes the row id), update it thereafter. localStorage is written
-  // too, as the offline cache. No-op (returns the local save) when auth is off.
+  // _rosterId becomes the row id), update it thereafter. upsertCharacter keys
+  // create-vs-update on whether a cloud row already exists for this _rosterId —
+  // NOT on the _ownerUserId marker — so a stale localStorage 'current' draft
+  // that predates sign-in can never insert a duplicate (#127). localStorage is
+  // written too, as the offline cache. No-op (returns the local save) when auth
+  // is off.
   async function persistToCloud(saved) {
     if (!repoEnabled() || !user) return saved
     try {
-      const isCloudRow = Boolean(saved._ownerUserId)
-      const row = isCloudRow
-        ? await saveCharacterData(saved._rosterId, saved)
-        : await createCharacter(saved)
+      const row = await upsertCharacter(saved)
       if (row) { setCharacter(row); saveCharacterToRoster(row); return row }
     } catch {
       addToast('Saved locally — cloud sync will retry when you’re back online.', 'success')

@@ -283,6 +283,18 @@ working unchanged, so game-day QR / printout scans still need no login.
   **flushed when the tab is backgrounded, closed, or unmounts** (`visibilitychange`
   → hidden / `pagehide`), so the last HP/Mana/Story tick before you leave a screen
   isn't dropped with the pending timer (#196). Flushes are idempotent.
+- **Save is dedup-safe against a stale `current` slot (#127).** When signed in,
+  App still seeds the wizard from the localStorage `current` draft (cloud-first
+  wizard load is deferred, #119). A draft that predates sign-in has a `_rosterId`
+  but no `_ownerUserId`, so an explicit **Save** used to take the *create* branch
+  and insert a duplicate cloud row. Two guards close this: (1) an authed-cutover
+  effect in `App.jsx` stamps the matching cloud row's identity back onto the draft
+  in place (preserving unsaved edits) so background sync re-engages, and (2)
+  `characterRepo.upsertCharacter` — the single writer behind `persistToCloud` —
+  keys create-vs-update on whether a cloud row *exists* for the `_rosterId`
+  (RLS-scoped `getCharacter`), not on the `_ownerUserId` marker, and propagates a
+  lookup error rather than falling through to create. A transient failure can
+  never mint a duplicate. Both are no-ops when signed out.
 - **Realtime (bidirectional).** Signed-in play syncs live counters through the
   cloud row (durable) plus a **Broadcast** nudge for instant delivery. Both the
   GM Screen and the player's Play Mode subscribe to the per-character channel
