@@ -123,6 +123,8 @@ supabase/
 - **Story Points** — default 2 per character
 - **Dice rolls** (`dice.js` + `rollActions.js`) — two resolution shapes on a d100:
   - **Skills & attacks** roll `d100 + a single modifier` and **display the total**; the player reads it aloud and the GM adjudicates against difficulty/defense verbally (like D&D Beyond). The attack modifier is the weapon's **skill _or_ attribute value — non-stacking** (skill wins when present), computed by `weaponModifier()` and shown consistently in Play Mode, the Review sheet, and the Combat editor.
+    - **Exploding:** a die over 95 (96–100) rolls again and adds — repeating for each new die over 95 — *before* the modifier. E.g. 97 → roll again → 40 → `137 + modifier`.
+    - **Fumble:** a natural 1–5 shows the low roll and rolls one **unmodified fumble die**, announced to the GM who determines the fumble result. The check fails.
   - **Spells** roll **under** the computed Spell Target (`matrix + magic attribute`, cap 95) and the app resolves pass/fail.
   - Rolls take an injectable `rng` (defaults to `Math.random`) so they are deterministic in tests.
   - **In Play Mode** each skill and weapon has a one-tap **Roll / Attack** button and the spell tile has a **Roll** button; results appear in a sticky banner at the top (the total to read aloud for skills/attacks, or Success/Miss for spells). Rolls are ephemeral — not saved.

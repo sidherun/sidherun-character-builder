@@ -32,14 +32,14 @@ describe('weaponModifier (non-stacking skill-or-attribute)', () => {
 describe('rollSkill (roll d100 + skill total, display total)', () => {
   it('adds calcSkillTotal to the roll', () => {
     const skill = { attributeScore: 10, skillPoints: 8, tempMod: 0 } // total 18
-    expect(rollSkill({}, skill, fixed(0.61))).toEqual({ roll: 62, modifier: 18, total: 80 })
+    expect(rollSkill({}, skill, fixed(0.61))).toMatchObject({ roll: 62, modifier: 18, total: 80 })
   })
 })
 
 describe('rollAttack (roll d100 + non-stacking weapon modifier, display total)', () => {
   it('uses the single weapon modifier', () => {
     const weapon = { skillBonus: 18, attributeBonus: 5 }
-    expect(rollAttack({}, weapon, fixed(0.61))).toEqual({ roll: 62, modifier: 18, total: 80 })
+    expect(rollAttack({}, weapon, fixed(0.61))).toMatchObject({ roll: 62, modifier: 18, total: 80 })
   })
 
   it('uses the attribute when the weapon is unskilled', () => {

@@ -2,24 +2,36 @@
 // React. `roll` is the object produced by rollSkill/rollAttack (kind 'total')
 // or rollSpell (kind 'spell'), plus a `label`.
 //
-// Skills & attacks display the total (no pass/fail — the GM adjudicates);
-// spells resolve pass/fail against the computed target, or flag an out-of-range
-// target level.
+// Skills & attacks display the total (no pass/fail — the GM adjudicates), with
+// special cases for a fumble (natural 1-5) and an exploded roll (die over 95
+// rolled again). Spells resolve pass/fail against the computed target, or flag
+// an out-of-range target level.
 export function formatRoll(roll) {
-  const isSpell = roll.kind === 'spell'
-  const oor = isSpell && roll.outOfRange
+  if (roll.kind !== 'spell') {
+    // Fumble: show the low die and the unmodified fumble die for the GM.
+    if (roll.isFumble) {
+      return {
+        color: 'var(--danger)',
+        headline: 'Fumble',
+        detail: `d100 ${roll.rolls?.[0] ?? roll.roll} · fumble die ${roll.fumble} → GM determines the result`,
+      }
+    }
+    // Exploded rolls show the dice summed before the modifier (e.g. 97+40 = 137).
+    const exploded = roll.rolls && roll.rolls.length > 1
+    const dice = exploded ? `${roll.rolls.join('+')} = ${roll.roll}` : `${roll.roll}`
+    return {
+      color: 'var(--bronze)',
+      headline: String(roll.total),
+      detail: `d100 ${dice} + ${roll.modifier}${exploded ? ' · exploded' : ''} · GM adjudicates`,
+    }
+  }
 
-  const color = !isSpell ? 'var(--bronze)'
-    : oor ? 'var(--ink-400)'
-    : roll.success ? 'var(--story)' : 'var(--danger)'
-
-  const headline = !isSpell ? String(roll.total)
-    : oor ? '—'
-    : roll.success ? 'Success' : 'Miss'
-
-  const detail = !isSpell
-    ? `d100 ${roll.roll} + ${roll.modifier} · GM adjudicates`
-    : oor ? 'Target level out of range'
+  // Spells (roll-under, app-resolved).
+  const oor = roll.outOfRange
+  const color = oor ? 'var(--ink-400)' : roll.success ? 'var(--story)' : 'var(--danger)'
+  const headline = oor ? '—' : roll.success ? 'Success' : 'Miss'
+  const detail = oor
+    ? 'Target level out of range'
     : `d100 ${roll.roll} ${roll.roll <= roll.target ? '≤' : '>'} ${roll.target}` +
       (roll.margin >= 0 ? ` · +${roll.margin}` : '')
 

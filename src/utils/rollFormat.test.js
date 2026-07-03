@@ -3,10 +3,23 @@ import { formatRoll } from './rollFormat.js'
 
 describe('formatRoll — skills & attacks (display total, no pass/fail)', () => {
   it('shows the total as the headline and the roll math as detail', () => {
-    const out = formatRoll({ kind: 'total', label: 'Herbalism', roll: 62, modifier: 19, total: 81 })
+    const out = formatRoll({ kind: 'total', label: 'Herbalism', rolls: [62], roll: 62, modifier: 19, total: 81, exploded: false })
     expect(out.headline).toBe('81')
     expect(out.detail).toBe('d100 62 + 19 · GM adjudicates')
     expect(out.color).toBe('var(--bronze)') // neutral — the GM decides hit/miss
+  })
+
+  it('shows the summed dice for an exploded roll', () => {
+    const out = formatRoll({ kind: 'total', label: 'Quarterstaff', rolls: [97, 40], roll: 137, modifier: 8, total: 145, exploded: true })
+    expect(out.headline).toBe('145')
+    expect(out.detail).toBe('d100 97+40 = 137 + 8 · exploded · GM adjudicates')
+  })
+
+  it('shows a fumble with the unmodified fumble die for the GM', () => {
+    const out = formatRoll({ kind: 'total', label: 'Stealth', rolls: [3], roll: 3, modifier: 17, total: 20, isFumble: true, fumble: 40 })
+    expect(out.headline).toBe('Fumble')
+    expect(out.color).toBe('var(--danger)')
+    expect(out.detail).toBe('d100 3 · fumble die 40 → GM determines the result')
   })
 })
 
