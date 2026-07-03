@@ -29,6 +29,7 @@ import Step8Resources from './components/steps/Step8Resources.jsx'
 import Step9Review from './components/steps/Step9Review.jsx'
 import PlayMode from './components/steps/PlayMode.jsx'
 import { broadcastRoll } from './utils/rollFeed.js'
+import { trackPush } from './utils/cloudStatus.js'
 import styles from './App.module.css'
 
 const STEP_COMPONENTS = {
@@ -167,7 +168,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
     if (lastLiveSig.current === null) { lastLiveSig.current = sig; return }
     if (sig === lastLiveSig.current) return
     lastLiveSig.current = sig
-    const t = setTimeout(() => { patchLive(character._rosterId, character).catch(() => {}) }, 800)
+    const t = setTimeout(() => { trackPush(patchLive(character._rosterId, character)).catch(() => {}) }, 800)
     return () => clearTimeout(t)
   }, [character, user])
 
@@ -181,7 +182,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
     if (lastDataSig.current === null) { lastDataSig.current = sig; return } // initial load
     if (sig === lastDataSig.current) return
     lastDataSig.current = sig
-    const t = setTimeout(() => { saveCharacterData(character._rosterId, character).catch(() => {}) }, 1200)
+    const t = setTimeout(() => { trackPush(saveCharacterData(character._rosterId, character)).catch(() => {}) }, 1200)
     return () => clearTimeout(t)
   }, [character, user])
 

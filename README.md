@@ -162,6 +162,11 @@ pushes the roster to the cloud, shares a per-character **live link**
 GM's screen in real time. It stays **local-first** — localStorage is the instant
 store; the cloud syncs in the background and the app keeps working offline.
 
+A small **sync status badge** (Play Mode + GM Screen headers) shows whether cloud
+sync is healthy — **Live** / **Saving…** / **Sync error** / **Offline** — so a
+failed push is never silent (`utils/cloudStatus.js` + `CloudStatus.jsx`). It
+renders nothing in the localStorage-only build.
+
 - **Off by default.** Enabled only when `VITE_CLOUD_SYNC=on` and the Supabase keys
   are present (see `.env.example` and `supabase/README.md`). With the flag off the
   cloud code is inert and the UI is hidden.

@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { cloudEnabled } from '../utils/supabaseClient.js'
 import { getCloudMap, syncCharacter } from '../utils/cloudSync.js'
 import { repoEnabled } from '../utils/characterRepo.js'
+import { trackPush } from '../utils/cloudStatus.js'
 
 // Background cloud push, mirroring useAutoSave's debounce. Runs only when cloud
 // sync is enabled AND this character is already opted into the cloud (present in
@@ -24,7 +25,7 @@ export function useCloudSync(character) {
 
     clearTimeout(timer.current)
     timer.current = setTimeout(() => {
-      syncCharacter(character).catch(() => { /* local-first: a failed push never disrupts the user */ })
+      trackPush(syncCharacter(character)).catch(() => { /* local-first: a failed push never disrupts the user */ })
     }, 1500)
     return () => clearTimeout(timer.current)
   }, [character])

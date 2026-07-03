@@ -3,6 +3,7 @@ import { calcDefense, calcSkillTotal, attrTotal } from '../../utils/characterDer
 import { getFinalSpellTarget } from '../../utils/spellTarget.js'
 import { rollSkill, rollAttack, rollSpell, weaponModifier } from '../../utils/rollActions.js'
 import { formatRoll } from '../../utils/rollFormat.js'
+import CloudStatus from '../CloudStatus.jsx'
 import styles from './PlayMode.module.css'
 
 const ATTR_LABELS = {
@@ -137,6 +138,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
           <span>{character.race} · {character.archetype === 'custom' ? (character.customArchetypeName || 'Custom') : character.archetype} · Level {character.level}{character.playerName ? ` · played by ${character.playerName}` : ''}</span>
         </div>
         <div className={styles.headerActions}>
+          <CloudStatus />
           {onToggleTheme && (
             <button className="btn-secondary" onClick={onToggleTheme}>{theme === 'dark' ? 'Light' : 'Dark'}</button>
           )}

@@ -10,6 +10,8 @@ import { useAuth, isGmOrAdmin } from '../auth/useAuth.js'
 import { applyAdjust } from '../utils/gmAdjust.js'
 import { subscribeRollFeed } from '../utils/rollFeed.js'
 import { formatRoll } from '../utils/rollFormat.js'
+import { trackPush } from '../utils/cloudStatus.js'
+import CloudStatus from '../components/CloudStatus.jsx'
 import styles from './GMScreen.module.css'
 
 const loadAll = () => loadRoster().map(e => loadCharacterFromRoster(e.id)).filter(Boolean)
@@ -92,10 +94,10 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
     const next = applyAdjust(c, kind, delta)
     setChars(prev => prev.map(x => x._rosterId === next._rosterId ? next : x))
     if (useRepo) {
-      patchLive(next._rosterId, next).catch(() => {})
+      trackPush(patchLive(next._rosterId, next)).catch(() => {})
     } else {
       saveCharacterToRoster(next)
-      if (cloudEnabled) syncCharacter(next).catch(() => {})
+      if (cloudEnabled) trackPush(syncCharacter(next)).catch(() => {})
     }
   }
 
@@ -134,6 +136,7 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
           <span>GM Screen{syncedCount > 0 ? ` · ${syncedCount} live` : ''}</span>
         </button>
         <div className={styles.actions}>
+          <CloudStatus />
           {onToggleTheme && (
             <button className="btn-secondary" onClick={onToggleTheme}>{theme === 'dark' ? 'Light' : 'Dark'}</button>
           )}
