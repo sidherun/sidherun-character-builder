@@ -43,6 +43,14 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
     return () => { alive = false }
   }, [useRepo, role])
 
+  // Stable key of the subscribable character ids (not the count) so the live
+  // subscriptions re-bind whenever the SET changes — including a swap that keeps
+  // the roster length the same, which a `.length` dep would miss.
+  const subKey = (useRepo
+    ? chars.filter(c => c._rosterId).map(c => c._rosterId)
+    : (cloudEnabled ? chars.filter(c => c._rosterId && getCloudMap()[c._rosterId]).map(c => c._rosterId) : [])
+  ).sort().join(',')
+
   // Live updates. Repo path: subscribe to row changes (covers both player edits
   // and guest token writes). Legacy path: per-character broadcast channel.
   useEffect(() => {
@@ -74,7 +82,7 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
       }
     }
     return () => subscribed.forEach(unsubscribeCharacter)
-  }, [useRepo, chars.length])
+  }, [useRepo, subKey])
 
   const syncedCount = useRepo
     ? chars.length
