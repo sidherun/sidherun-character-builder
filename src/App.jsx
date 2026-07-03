@@ -28,6 +28,7 @@ import Step7Skills from './components/steps/Step7Skills.jsx'
 import Step8Resources from './components/steps/Step8Resources.jsx'
 import Step9Review from './components/steps/Step9Review.jsx'
 import PlayMode from './components/steps/PlayMode.jsx'
+import { broadcastRoll } from './utils/rollFeed.js'
 import styles from './App.module.css'
 
 const STEP_COMPONENTS = {
@@ -332,6 +333,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
           theme={theme}
           onToggleTheme={onToggleTheme}
           readOnly={playReadOnly}
+          onRoll={broadcastRoll}
         />
         {isNotesOpen && (
           <NotesPanel

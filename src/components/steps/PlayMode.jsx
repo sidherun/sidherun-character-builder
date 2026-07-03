@@ -11,7 +11,7 @@ const ATTR_LABELS = {
   enlightenment: 'EN', charisma: 'CHA', comeliness: 'COM', fame: 'FAM',
 }
 
-export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, theme, onToggleTheme, readOnly = false }) {
+export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, theme, onToggleTheme, readOnly = false, onRoll }) {
   const defense = calcDefense(character)
   const hp    = character.hitPoints
   const mana  = character.mana
@@ -113,15 +113,20 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
   // Dice rolls are ephemeral — shown in the result banner, never persisted.
   // Skills and attacks roll d100 + one modifier and display the total for the
   // GM to adjudicate verbally; spells roll under the computed Spell Target and
-  // resolve pass/fail in-app (the target is fully known).
+  // resolve pass/fail in-app (the target is fully known). Each roll is also
+  // pushed to the shared table feed via onRoll (a no-op when cloud is off).
+  const emitRoll = (entry) => {
+    setLastRoll(entry)
+    onRoll?.({ ...entry, actor: character.name || character.playerName || 'Someone' })
+  }
   function rollSkillCheck(skill) {
-    setLastRoll({ kind: 'total', label: skill.name, ...rollSkill(character, skill) })
+    emitRoll({ kind: 'total', label: skill.name, ...rollSkill(character, skill) })
   }
   function rollWeapon(weapon) {
-    setLastRoll({ kind: 'total', label: weapon.name || 'Attack', ...rollAttack(character, weapon) })
+    emitRoll({ kind: 'total', label: weapon.name || 'Attack', ...rollAttack(character, weapon) })
   }
   function rollSpellCheck() {
-    setLastRoll({ kind: 'spell', label: `Spell vs Lvl ${targetLevel}`, ...rollSpell(character, targetLevel) })
+    emitRoll({ kind: 'spell', label: `Spell vs Lvl ${targetLevel}`, ...rollSpell(character, targetLevel) })
   }
 
   return (

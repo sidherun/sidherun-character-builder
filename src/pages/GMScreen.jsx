@@ -8,6 +8,8 @@ import {
 } from '../utils/characterRepo.js'
 import { useAuth, isGmOrAdmin } from '../auth/useAuth.js'
 import { applyAdjust } from '../utils/gmAdjust.js'
+import { subscribeRollFeed } from '../utils/rollFeed.js'
+import { formatRoll } from '../utils/rollFormat.js'
 import styles from './GMScreen.module.css'
 
 const loadAll = () => loadRoster().map(e => loadCharacterFromRoster(e.id)).filter(Boolean)
@@ -19,8 +21,18 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
   // the legacy localStorage path is unchanged when auth is off.
   const [chars, setChars] = useState(useRepo ? [] : loadAll)
   const [players, setPlayers] = useState([])
+  const [rollFeed, setRollFeed] = useState([])
   const charsRef = useRef(chars)
   charsRef.current = chars
+
+  // Live dice-roll feed from the whole table (#148). One shared channel; every
+  // player's roll lands here. Ephemeral — keep the last 20 in view only.
+  useEffect(() => {
+    if (!cloudEnabled) return
+    return subscribeRollFeed(entry => {
+      setRollFeed(prev => [{ ...entry, _key: `${entry.ts}-${entry.actor}-${entry.roll}` }, ...prev].slice(0, 20))
+    })
+  }, [])
 
   // Cloud-first load (authenticated). Falls back to localStorage when auth off.
   useEffect(() => {
@@ -128,6 +140,24 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
       </header>
 
       <main className={styles.main}>
+        {cloudEnabled && rollFeed.length > 0 && (
+          <section className={styles.rollFeed} aria-label="Live roll feed" aria-live="polite">
+            <h2 className={styles.feedTitle}>Live Rolls</h2>
+            <ul className={styles.feedList}>
+              {rollFeed.map(r => {
+                const f = formatRoll(r)
+                return (
+                  <li key={r._key} className={styles.feedItem}>
+                    <span className={styles.feedHeadline} style={{ color: f.color }}>{f.headline}</span>
+                    <span className={styles.feedWho}>{r.actor}</span>
+                    <span className={styles.feedRoll}>{r.label}</span>
+                    <span className={styles.feedDetail}>{f.detail}</span>
+                  </li>
+                )
+              })}
+            </ul>
+          </section>
+        )}
         {chars.length === 0 ? (
           <p className={styles.empty}>No saved characters. Add characters from the Roster first.</p>
         ) : (
