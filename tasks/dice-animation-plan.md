@@ -5,6 +5,41 @@ dice tumble across the screen, settle realistically, and land showing the correc
 number — with sound. The result must match what the rules already computed (and what
 gets broadcast to the GM feed).
 
+## ✅ Spike outcome (2026-07-03) — VALIDATED on desktop + iPhone
+
+Spike branch `spike/dice-box` (`spike-dice.html`). Findings that update the recommendation:
+
+- **Library = `@3d-dice/dice-box-threejs`**, NOT base `@3d-dice/dice-box`. The base
+  Babylon package does **not** honor predetermined results (every `@`/value form
+  rolled random). dice-box-threejs **does** (`@` notation), with three.js + cannon
+  physics. Confirmed: forced values land ("reason":"forced").
+- **Percentile as a real tens+ones pair.** Roll `1d100+1d10` — the library's `d100`
+  is a tens die (faces 00,10,…,90; value 100 on the "00" face) and `d10` is a units
+  die (0–9). Decompose the 1–100 result → force both → read `tens*10 + units` yourself
+  (00+0 = 100). This looks great on desktop. **This is the exact logic for the
+  production `diceNotation.js`:**
+  ```
+  m = N % 100; tens = ⌊m/10⌋; units = m%10
+  d100val = tens===0 ? 100 : tens*10   // "00" face = value 100
+  d10val  = units===0 ? 10  : units     // "0"  face = value 10
+  notation = `1d100+1d10@${d100val},${d10val}`
+  ```
+- **Sound = our own layer, gesture-unlocked. Do NOT use the library's built-in audio.**
+  With `sounds:true`, dice-box-threejs (a) **hangs `initialize()` on iOS** (HTML5 audio
+  won't preload without a gesture) and (b) **crashes mid-roll on iOS**
+  (`this.sounds_dice[this.sound_dieMaterial]` undefined → kills the physics). So:
+  **init with `sounds:false`**, and play our own clack (HTML5/Web Audio) from inside
+  the roll tap — verified playing on iPhone. This matches the plan's original "own the
+  sound layer" call; production uses Web Audio for a rattle-during-tumble + settle clack.
+- **Mobile perf:** three.js physics + WebGL ran smoothly on the iPhone; dice tumble and
+  settle fully. Init `sounds:false` is also what keeps init from hanging on iOS.
+- **Assets:** copy the package's `public/` (textures + sounds, ~2.3MB) to a static path
+  (`assetPath`); lazy-load the engine on first roll so app start is untouched.
+
+Net: approach fully de-risked. The production build is the wiring in "Integration
+points" + "Phased build" below, with the two spike-driven changes baked in (threejs
+library; own the sound layer).
+
 ---
 
 ## The one principle that shapes everything

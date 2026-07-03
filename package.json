@@ -4,6 +4,9 @@
   "version": "2.0.0",
   "type": "module",
   "scripts": {
+    "copy:dice": "node scripts/copy-dice-assets.mjs",
+    "predev": "node scripts/copy-dice-assets.mjs",
+    "prebuild": "node scripts/copy-dice-assets.mjs",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
@@ -12,6 +15,7 @@
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
+    "@3d-dice/dice-box-threejs": "^0.0.12",
     "@supabase/supabase-js": "^2.108.2",
     "lz-string": "^1.5.0",
     "qrcode-generator": "^2.0.4",

@@ -1,9 +1,14 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { calcDefense, calcSkillTotal, attrTotal } from '../../utils/characterDerived.js'
 import { getFinalSpellTarget } from '../../utils/spellTarget.js'
 import { rollSkill, rollAttack, rollSpell, weaponModifier } from '../../utils/rollActions.js'
 import { formatRoll } from '../../utils/rollFormat.js'
+import { rollToDiceSpec } from '../../utils/diceNotation.js'
+import { rollDice, preloadDice } from '../../utils/diceStage.js'
+import { playRollSound, playSettleSound } from '../../utils/diceSound.js'
+import { animationsOn, soundOn, setAnimations, setSound } from '../../utils/diceSettings.js'
 import CloudStatus from '../CloudStatus.jsx'
+import DiceOverlay from '../DiceOverlay.jsx'
 import styles from './PlayMode.module.css'
 
 const ATTR_LABELS = {
@@ -22,6 +27,11 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
   const [armorDmg, setArmorDmg] = useState('')
   const [lastHit, setLastHit]   = useState(null)
   const [lastRoll, setLastRoll] = useState(null)
+  const [animOn, setAnimOn] = useState(animationsOn)
+  const [sndOn, setSndOn] = useState(soundOn)
+  // Warm the dice engine when Play Mode opens so the first roll isn't a dead
+  // ~1–2s wait while it lazy-loads.
+  useEffect(() => { if (animOn) preloadDice() }, [animOn])
   const [targetLevel, setTargetLevel] = useState(1)
 
   // Read-only viewers (a player opening a character they don't own/aren't
@@ -117,13 +127,19 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
   }
 
   // Dice rolls are ephemeral — shown in the result banner, never persisted.
-  // Skills and attacks roll d100 + one modifier and display the total for the
-  // GM to adjudicate verbally; spells roll under the computed Spell Target and
-  // resolve pass/fail in-app (the target is fully known). Each roll is also
-  // pushed to the shared table feed via onRoll (a no-op when cloud is off).
+  // Broadcast the result to the shared feed IMMEDIATELY (the GM never waits on a
+  // player's local animation). Then, if the 3D animation is on, tumble the dice
+  // and reveal the banner when they settle; otherwise reveal instantly. The
+  // animation/sound are a flourish — the banner + feed are the source of truth,
+  // so a failed or blocked animation still shows the result.
   const emitRoll = (entry) => {
-    setLastRoll(entry)
     onRoll?.({ ...entry, actor: character.name || character.playerName || 'Someone' })
+    const spec = animOn ? rollToDiceSpec(entry) : null
+    if (!spec) { setLastRoll(entry); return }
+    if (sndOn) playRollSound()
+    rollDice(spec.notation)
+      .catch(() => {}) // engine failure → still reveal the result below
+      .finally(() => { if (sndOn) playSettleSound(); setLastRoll(entry) })
   }
   function rollSkillCheck(skill) {
     emitRoll({ kind: 'total', label: skill.name, ...rollSkill(character, skill) })
@@ -137,6 +153,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
 
   return (
     <div className={styles.playMode}>
+      {animOn && <DiceOverlay />}
       <header className={styles.header}>
         <div className={styles.charInfo}>
           <h1>{character.name || 'Unnamed'}</h1>
@@ -144,6 +161,12 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
         </div>
         <div className={styles.headerActions}>
           <CloudStatus />
+          <button className="btn-secondary" style={{ opacity: animOn ? 1 : 0.4 }} aria-pressed={animOn}
+            title={animOn ? '3D dice animation on' : '3D dice animation off'}
+            onClick={() => { const v = !animOn; setAnimOn(v); setAnimations(v) }}>🎲</button>
+          <button className="btn-secondary" aria-pressed={sndOn}
+            title={sndOn ? 'Dice sound on' : 'Dice sound muted'}
+            onClick={() => { const v = !sndOn; setSndOn(v); setSound(v) }}>{sndOn ? '🔊' : '🔇'}</button>
           {onToggleTheme && (
             <button className="btn-secondary" onClick={onToggleTheme}>{theme === 'dark' ? 'Light' : 'Dark'}</button>
           )}
