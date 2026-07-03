@@ -32,9 +32,35 @@ async function getBox() {
 // stage element to already be mounted.
 export function preloadDice() { getBox().catch(() => {}) }
 
+// TEMP diagnostic (roll-only-once bug): the last roll's engine state, so we can
+// see WHY a second roll doesn't animate (WebGL context lost? canvas detached?
+// no dice spawned? error?). Remove once the cause is confirmed.
+let lastDiag = null
+export function diceDiag() { return lastDiag }
+
 // Roll the given engine notation; resolves when the dice settle. Best-effort —
 // the caller swallows errors and falls back to revealing the result instantly.
 export async function rollDice(notation) {
   const box = await getBox()
-  return box.roll(notation)
+  const snap = (phase, err) => {
+    const canvas = box.renderer?.domElement
+    let ctxLost = '?'
+    try { ctxLost = box.renderer?.getContext?.()?.isContextLost?.() } catch { ctxLost = 'err' }
+    lastDiag = {
+      phase,
+      err: err ? (err.message || String(err)) : null,
+      dice: box.diceList?.length ?? '?',
+      canvasConnected: canvas?.isConnected ?? '?',
+      parent: canvas?.parentElement?.id ?? '?',
+      ctxLost,
+    }
+  }
+  try {
+    const r = await box.roll(notation)
+    snap('resolved', null)
+    return r
+  } catch (e) {
+    snap('rejected', e)
+    throw e
+  }
 }

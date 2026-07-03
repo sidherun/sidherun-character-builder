@@ -90,11 +90,13 @@ function pump(startedAt) {
   const elapsed = (typeof performance !== 'undefined' ? performance.now() : 0) - startedAt
   if (elapsed >= MAX_MS) { pumpTimer = null; return }
   const t = Math.min(elapsed / MAX_MS, 1) // 0 (throw) → 1 (nearly stopped)
-  const volume = 0.5 - 0.34 * t + (Math.random() - 0.5) * 0.08
-  const rate = 0.9 + Math.random() * 0.3
-  playHit(Math.max(0.12, volume), rate)
-  // 45ms dense clatter early → ~230ms sparse bounces late, plus jitter.
-  const interval = 45 + 185 * t + Math.random() * 40
+  const volume = 0.42 - 0.3 * t + (Math.random() - 0.5) * 0.06
+  const rate = 0.92 + Math.random() * 0.16
+  playHit(Math.max(0.1, volume), rate)
+  // Distinct clacks, not a buzz: ~95ms between bounces early (≈10/sec, still
+  // reads as individual dice) stretching to ~320ms as they settle, plus jitter
+  // so the spacing feels physical rather than metronomic.
+  const interval = 95 + 220 * t + Math.random() * 70
   pumpTimer = setTimeout(() => pump(startedAt), interval)
 }
 
@@ -105,10 +107,10 @@ export function playRollSound() {
   preloadSound() // no-op if already warmed; covers a first roll with no mount preload
   stopPump()
   const now = typeof performance !== 'undefined' ? performance.now() : 0
-  // Initial throw cluster — two near-simultaneous hits, the dice leaving the hand.
-  playHit(0.5, 0.95 + Math.random() * 0.2)
-  setTimeout(() => playHit(0.45, 0.95 + Math.random() * 0.2), 55)
-  pumpTimer = setTimeout(() => pump(now), 90)
+  // A single crisp throw hit (the dice leaving the hand), then the pump takes
+  // over. One hit, not a cluster — two stacked samples read as a buzz, not dice.
+  playHit(0.5, 0.95 + Math.random() * 0.16)
+  pumpTimer = setTimeout(() => pump(now), 110)
 }
 
 function stopPump() {

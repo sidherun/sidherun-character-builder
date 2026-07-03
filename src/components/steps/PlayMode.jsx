@@ -4,7 +4,7 @@ import { getFinalSpellTarget } from '../../utils/spellTarget.js'
 import { rollSkill, rollAttack, rollSpell, weaponModifier } from '../../utils/rollActions.js'
 import { formatRoll } from '../../utils/rollFormat.js'
 import { rollToDiceSpec } from '../../utils/diceNotation.js'
-import { rollDice, preloadDice } from '../../utils/diceStage.js'
+import { rollDice, preloadDice, diceDiag } from '../../utils/diceStage.js'
 import { playRollSound, playSettleSound, preloadSound } from '../../utils/diceSound.js'
 import { animationsOn, soundOn, setAnimations, setSound } from '../../utils/diceSettings.js'
 import CloudStatus from '../CloudStatus.jsx'
@@ -29,6 +29,8 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
   const [lastRoll, setLastRoll] = useState(null)
   const [animOn, setAnimOn] = useState(animationsOn)
   const [sndOn, setSndOn] = useState(soundOn)
+  const [diag, setDiag] = useState(null) // TEMP: roll-only-once diagnosis
+  const rollCount = useRef(0)
   // Warm the dice engine when Play Mode opens so the first roll isn't a dead
   // ~1–2s wait while it lazy-loads.
   useEffect(() => { if (animOn) preloadDice() }, [animOn])
@@ -140,7 +142,12 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
     if (sndOn) playRollSound()
     rollDice(spec.notation)
       .catch(() => {}) // engine failure → still reveal the result below
-      .finally(() => { if (sndOn) playSettleSound(); setLastRoll(entry) })
+      .finally(() => {
+        if (sndOn) playSettleSound()
+        setLastRoll(entry)
+        rollCount.current += 1 // TEMP diagnostic
+        setDiag({ n: rollCount.current, ...diceDiag() })
+      })
   }
   function rollSkillCheck(skill) {
     emitRoll({ kind: 'total', label: skill.name, ...rollSkill(character, skill) })
@@ -155,6 +162,14 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
   return (
     <div className={styles.playMode}>
       {animOn && <DiceOverlay />}
+      {diag && (
+        <div style={{ position: 'fixed', left: 6, bottom: 6, zIndex: 100, maxWidth: '92vw',
+          font: '11px/1.35 ui-monospace,monospace', color: 'var(--ink-900)',
+          background: 'var(--surface, #fff)', border: '1px solid var(--ink-300)',
+          borderRadius: 6, padding: '6px 8px', opacity: 0.95 }}>
+          roll #{diag.n} · {diag.phase}{diag.err ? ` · ERR: ${diag.err}` : ''} · dice:{String(diag.dice)} · canvas:{String(diag.canvasConnected)}@{String(diag.parent)} · ctxLost:{String(diag.ctxLost)}
+        </div>
+      )}
       <header className={styles.header}>
         <div className={styles.charInfo}>
           <h1>{character.name || 'Unnamed'}</h1>
