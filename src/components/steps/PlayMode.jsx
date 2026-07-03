@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { calcDefense, calcSkillTotal, attrTotal } from '../../utils/characterDerived.js'
 import { getFinalSpellTarget } from '../../utils/spellTarget.js'
+import { rollSkill, rollAttack, rollSpell, weaponModifier } from '../../utils/rollActions.js'
+import { formatRoll } from '../../utils/rollFormat.js'
 import styles from './PlayMode.module.css'
 
 const ATTR_LABELS = {
@@ -18,6 +20,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
 
   const [armorDmg, setArmorDmg] = useState('')
   const [lastHit, setLastHit]   = useState(null)
+  const [lastRoll, setLastRoll] = useState(null)
   const [targetLevel, setTargetLevel] = useState(1)
 
   // Read-only viewers (a player opening a character they don't own/aren't
@@ -107,6 +110,20 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
     mutate({ storyPoints: { ...sp, current: newCurrent } })
   }
 
+  // Dice rolls are ephemeral — shown in the result banner, never persisted.
+  // Skills and attacks roll d100 + one modifier and display the total for the
+  // GM to adjudicate verbally; spells roll under the computed Spell Target and
+  // resolve pass/fail in-app (the target is fully known).
+  function rollSkillCheck(skill) {
+    setLastRoll({ kind: 'total', label: skill.name, ...rollSkill(character, skill) })
+  }
+  function rollWeapon(weapon) {
+    setLastRoll({ kind: 'total', label: weapon.name || 'Attack', ...rollAttack(character, weapon) })
+  }
+  function rollSpellCheck() {
+    setLastRoll({ kind: 'spell', label: `Spell vs Lvl ${targetLevel}`, ...rollSpell(character, targetLevel) })
+  }
+
   return (
     <div className={styles.playMode}>
       <header className={styles.header}>
@@ -124,6 +141,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
       </header>
 
       <div className={styles.content}>
+        {lastRoll && <RollResult roll={lastRoll} onClear={() => setLastRoll(null)} />}
         {/* Counters */}
         <div className={styles.counters}>
           <Counter
@@ -158,7 +176,10 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
                     {Array.from({ length: 20 }, (_, i) => i + 1).map(l => <option key={l} value={l}>{l}</option>)}
                   </select>
                 </label>
-                <span className={styles.spellNum} style={{ color: spellColor }}>{spellTarget ?? '—'}%</span>
+                <div className={styles.spellResult}>
+                  <span className={styles.spellNum} style={{ color: spellColor }}>{spellTarget ?? '—'}%</span>
+                  <button className={styles.rollBtn} onClick={rollSpellCheck} disabled={spellTarget == null}>Roll</button>
+                </div>
               </div>
             </div>
           )}
@@ -259,8 +280,9 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
               {character.weapons.map(w => (
                 <div key={w.id} className={styles.weaponItem}>
                   <span>{w.name}</span>
-                  <span className={styles.weaponBonus}>+{(w.attributeBonus||0)+(w.skillBonus||0)}</span>
+                  <span className={styles.weaponBonus}>+{weaponModifier(w)}</span>
                   <span className={styles.weaponDesc}>{w.descriptor}</span>
+                  <button className={styles.rollBtn} onClick={() => rollWeapon(w)}>Attack</button>
                 </div>
               ))}
             </section>
@@ -274,7 +296,10 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
                 <div key={s.id} className={styles.skillRow}>
                   <div className={styles.skillItem}>
                     <span>{s.isSpecialty ? '★ ' : ''}{s.name}</span>
-                    <strong>{calcSkillTotal(s)}</strong>
+                    <span className={styles.skillRight}>
+                      <strong>{calcSkillTotal(s)}</strong>
+                      <button className={styles.rollBtn} onClick={() => rollSkillCheck(s)}>Roll</button>
+                    </span>
                   </div>
                   <div className={styles.usePips} role="group" aria-label={`Use tracking for ${s.name}`}>
                     {[0,1,2,3,4].map(i => (
@@ -394,6 +419,22 @@ function Counter({ label, current, total, color, onAdjust, readOnly = false }) {
           ))}
         </div>
       )}
+    </div>
+  )
+}
+
+// Shared roll-result banner. For skills/attacks it shows the total to read aloud
+// (the GM adjudicates); for spells it resolves pass/fail against the known target.
+function RollResult({ roll, onClear }) {
+  const { color, headline, detail } = formatRoll(roll)
+  return (
+    <div className={styles.rollResult} role="status" aria-live="polite" style={{ '--roll-color': color }}>
+      <div className={styles.rollHeadline} style={{ color }}>{headline}</div>
+      <div className={styles.rollMeta}>
+        <span className={styles.rollLabel}>{roll.label}</span>
+        <span className={styles.rollDetail}>{detail}</span>
+      </div>
+      <button className={styles.rollClear} onClick={onClear} aria-label="Clear roll">✕</button>
     </div>
   )
 }

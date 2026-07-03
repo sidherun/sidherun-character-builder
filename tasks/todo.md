@@ -74,6 +74,28 @@ separate live tracker. **Identity (name/race/archetype) is read-only on the shee
 
 ---
 
+## Phase 0 — Unlock the shared table  → detail in `tasks/phase-0-1-plan.md`
+
+- [ ] 0.1 Provision Supabase + apply `0001_init.sql`; grab URL + anon key
+- [ ] 0.2 Add `VITE_SUPABASE_URL`/`ANON_KEY` secrets to deploy.yml + local `.env`; default `VITE_CLOUD_SYNC=on`
+- [ ] 0.3 Cloud roster hydrate — wire up unused `list_characters` RPC (cloudSync + GMScreen/Roster)
+- [ ] 0.4 Fix stale GMScreen live-subscription effect (`[]` deps capture roster once)
+- [ ] 0.5 Surface sync status (Live/Offline/Error) — kill the fire-and-forget silent failures
+- [ ] 0.6 Contain LWW clobber — play-link devices push live counters only, not structural data
+- [ ] 0.7 Two-device real-session smoke test (GM screen ↔ player phone `#c=` link)
+
+## Phase 1 — Tap-to-roll dice, wired to the engine  → detail in `tasks/phase-0-1-plan.md`
+
+- [x] DECIDE: mechanics confirmed — skills + combat roll d100 + additive value, DISPLAY TOTAL only (GM adjudicates verbally, like D&D Beyond); spells roll-UNDER, app resolves pass/fail; non-stacking skill-or-attribute modifier
+- [x] 1.1 `src/utils/dice.js` — `rollD100` + `rollTotal` (skills+combat, display total) + `resolveUnder` (spells), injectable rng + test (9 tests)
+- [x] 1.2 `src/utils/rollActions.js` — `rollSkill`/`rollAttack` (roll + display total, non-stacking modifier); `rollSpell` (under) + test (11 tests)
+- [x] 1.3 PlayMode tap-to-roll — one-tap Roll/Attack on skills & weapons (sticky result banner shows total); spell Roll shows pass/fail; FIXED `:254` summed-modifier bug; `formatRoll` extracted + tested (228 tests total). Live browser QA still pending.
+- [ ] 1.4 Shared roll log — `session:` channel broadcast; GMScreen live roll feed
+- [ ] 1.5 Document trust model (act-and-broadcast result; no server-authoritative dice)
+- [ ] 1.6 Tests green + two-device manual verify
+
+---
+
 ## Shipped
 
 | What | PR/Commit | Date |

@@ -282,7 +282,7 @@
 
 .weaponItem {
   display: grid;
-  grid-template-columns: 1fr 40px 1fr;
+  grid-template-columns: 1fr 40px 1fr auto;
   gap: 8px;
   padding: 4px 0;
   border-bottom: 1px solid var(--hair);
@@ -322,6 +322,104 @@
   padding: 4px 0;
   border-bottom: 1px solid var(--hair);
 }
+
+.skillRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Tap-to-roll: per-row Roll / Attack buttons (skills, weapons, spell tile) */
+.rollBtn {
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  color: var(--ink700);
+  padding: 3px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.rollBtn:hover:not(:disabled) {
+  background: var(--ghost-hover);
+  border-color: var(--bronze);
+  color: var(--bronze);
+}
+
+.rollBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.spellResult {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Roll result banner — spans both columns, sticks to the top so the total
+   stays visible to read aloud after any roll. */
+.rollResult {
+  grid-column: 1 / -1;
+  position: sticky;
+  top: 8px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--card);
+  border: 1px solid color-mix(in srgb, var(--roll-color) 45%, var(--line));
+  border-left: 4px solid var(--roll-color);
+  border-radius: 6px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+.rollHeadline {
+  font-family: 'Newsreader', serif;
+  font-size: 2.4rem;
+  font-weight: 500;
+  line-height: 1;
+  min-width: 72px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.rollMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.rollLabel {
+  font-family: 'Newsreader', serif;
+  font-size: 1.05rem;
+  color: var(--ink900);
+  text-transform: capitalize;
+}
+
+.rollDetail {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink500);
+}
+
+.rollClear {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink400);
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.rollClear:hover { border-color: var(--danger); color: var(--danger); }
 
 .usePips {
   display: flex;
@@ -449,4 +547,5 @@
   .attrGrid { grid-template-columns: repeat(4, 1fr); }
   .counterValue { font-size: 2rem; }
   .quickAdj { flex-wrap: wrap; }
+  .rollHeadline { font-size: 2rem; min-width: 60px; }
 }

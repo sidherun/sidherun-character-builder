@@ -91,6 +91,9 @@ src/
     rosterSort.js         # roster sort + no-player partition
     urlState.js           # LZString #share=/#play= + #c= cloud links
     spellTarget.js        # Spell Matrix lookup (caster vs target)
+    dice.js               # d100 core: rollTotal (skills/attacks) + resolveUnder (spells)
+    rollActions.js        # binds dice to the engine: rollSkill / rollAttack / rollSpell
+    rollFormat.js         # pure roll-result banner formatting
     gmAdjust.js           # GM Screen counter clamps
     uuid.js               # secure-context-safe id generation
     numberInput.js        # numeric input coercion
@@ -117,6 +120,11 @@ supabase/
 - **Spell Target** = 20×20 Spell Matrix lookup (caster level vs target level) + the caster's relevant magic attribute, capped at 95% (PHB 2.8.2026). The attribute is always added; the GM applies any difficulty modifier and the target's Spell/Psychic Defense at the table.
 - **Skills** — free-form, 30pt budget, max 15 per skill, specialty flag for exceptional skills, and **Use tracking** — 10 circles per skill (PHB "Impact of Skills"); strike one each time the skill is used in a session. Editable in the Skills step and Play Mode, and printed on the HTML/PDF sheet for hand-tracking.
 - **Story Points** — default 2 per character
+- **Dice rolls** (`dice.js` + `rollActions.js`) — two resolution shapes on a d100:
+  - **Skills & attacks** roll `d100 + a single modifier` and **display the total**; the player reads it aloud and the GM adjudicates against difficulty/defense verbally (like D&D Beyond). The attack modifier is the weapon's **skill _or_ attribute value — non-stacking** (skill wins when present).
+  - **Spells** roll **under** the computed Spell Target (`matrix + magic attribute`, cap 95) and the app resolves pass/fail.
+  - Rolls take an injectable `rng` (defaults to `Math.random`) so they are deterministic in tests.
+  - **In Play Mode** each skill and weapon has a one-tap **Roll / Attack** button and the spell tile has a **Roll** button; results appear in a sticky banner at the top (the total to read aloud for skills/attacks, or Success/Miss for spells). Rolls are ephemeral — not saved. A shared roll log across devices is planned (Phase 1.4).
 
 ---
 

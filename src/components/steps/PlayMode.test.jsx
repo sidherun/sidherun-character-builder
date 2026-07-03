@@ -96,6 +96,45 @@ describe('PlayMode', () => {
   })
 })
 
+describe('PlayMode tap-to-roll wiring', () => {
+  it('shows the weapon bonus as the NON-STACKING modifier (skill wins), not the sum', () => {
+    // attributeBonus 6 + skillBonus 4. The attack modifier is the skill value
+    // alone (+4), never the sum (+10) — regression lock for the fixed :254 bug.
+    // Values chosen to avoid the counters' +1/+3/+5 quick-adjust buttons; powers
+    // are off so no power total collides with +10.
+    const html = render(base({
+      hasPowers: false,
+      weapons: [{ id: 1, name: 'Quarterstaff', attribute: 'strength', attributeBonus: 6, skillBonus: 4, descriptor: '1d6 blunt' }],
+    }))
+    expect(html).toContain('+4')       // skill value alone
+    expect(html).not.toContain('+10')  // never attribute + skill summed
+  })
+
+  it('falls back to the attribute bonus when the weapon has no skill', () => {
+    const html = render(base({
+      hasPowers: false,
+      weapons: [{ id: 1, name: 'Sling', attribute: 'dexterity', attributeBonus: 6, skillBonus: 0, descriptor: '' }],
+    }))
+    expect(html).toContain('+6') // attribute value, since there is no skill
+  })
+
+  it('renders a Roll button on each skill and an Attack button on each weapon', () => {
+    const html = render(base())
+    expect(html).toContain('>Roll<')
+    expect(html).toContain('>Attack<')
+  })
+
+  it('renders a spell Roll button for casters', () => {
+    expect(render(base({ magicAttribute: 'wisdom' }))).toContain('>Roll<')
+  })
+
+  it('does not show a roll-result banner until something is rolled', () => {
+    // The banner only mounts on interaction (lastRoll state); the static tree
+    // must not contain it.
+    expect(render(base())).not.toContain('GM adjudicates')
+  })
+})
+
 // Pure logic mirror of applyArmorHit, locked in so the split rule can't regress.
 function splitHit(dmg, soak, remaining, hpCurrent) {
   const absorbed = Math.min(dmg, soak, remaining)
