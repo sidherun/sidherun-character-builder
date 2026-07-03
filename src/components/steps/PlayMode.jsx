@@ -5,7 +5,7 @@ import { rollSkill, rollAttack, rollSpell, weaponModifier } from '../../utils/ro
 import { formatRoll } from '../../utils/rollFormat.js'
 import { rollToDiceSpec } from '../../utils/diceNotation.js'
 import { rollDice, preloadDice } from '../../utils/diceStage.js'
-import { playRollSound, playSettleSound } from '../../utils/diceSound.js'
+import { playRollSound, playSettleSound, preloadSound } from '../../utils/diceSound.js'
 import { animationsOn, soundOn, setAnimations, setSound } from '../../utils/diceSettings.js'
 import CloudStatus from '../CloudStatus.jsx'
 import DiceOverlay from '../DiceOverlay.jsx'
@@ -32,6 +32,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
   // Warm the dice engine when Play Mode opens so the first roll isn't a dead
   // ~1–2s wait while it lazy-loads.
   useEffect(() => { if (animOn) preloadDice() }, [animOn])
+  useEffect(() => { if (animOn && sndOn) preloadSound() }, [animOn, sndOn])
   const [targetLevel, setTargetLevel] = useState(1)
 
   // Read-only viewers (a player opening a character they don't own/aren't
