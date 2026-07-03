@@ -64,7 +64,7 @@ The app uses the **Codex** design language: editorial-fantasy aesthetic with war
 - `Spectral` — body text, labels, descriptions
 - `JetBrains Mono` — overlines, ALL-CAPS section labels, buttons, stat abbreviations
 
-**Theme tokens** live in `src/tokens.css` as CSS variables on `[data-theme="dark"]` / `[data-theme="light"]`. Components use `var(--token)` — never hardcoded hex values, and never re-declared locally in a component. The ink scale is an *emphasis* ramp: `--ink-900` (strongest text) → `--ink-300` (faintest), monotonic in both themes. Legacy `--inkNNN` names remain as aliases pending a sweep — see `CODEX-MIGRATION.md`. Default theme is dark; persisted to `localStorage`.
+**Theme tokens** live in `src/tokens.css` as CSS variables on `[data-theme="dark"]` / `[data-theme="light"]`. Components use `var(--token)` only — never a hardcoded hex, never a local palette re-declaration (the one exception is `generateCharacterHTML.js`, a self-contained printable export). The ink scale is an *emphasis* ramp: `--ink-900` (strongest text) → `--ink-300` (faintest), monotonic in both themes. Status/resource colors: `--danger`, `--story`, `--bronze`, `--hp`, `--mana`, `--armor`. The legacy `--inkNNN` aliases and `--gold-*/--crimson/--parchment` palette have been fully removed. Default theme is dark; persisted to `localStorage`. See `CODEX-MIGRATION.md` for the historical map.
 
 **Status:** Full app ported — wizard (Steps 1–9), Play Mode, Roster/CharacterCard, and light/dark theme toggle all use Codex tokens. Theme toggle persists to localStorage; default is dark.
 
