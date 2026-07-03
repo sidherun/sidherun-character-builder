@@ -2,7 +2,7 @@
 
 .intro {
   font-family: 'Spectral', serif;
-  color: var(--ink500, #d8ccb4);
+  color: var(--ink-700, #d8ccb4);
   font-style: italic;
   margin-bottom: 16px;
   font-size: 14px;
@@ -12,7 +12,7 @@
 
 .empty {
   font-family: 'Spectral', serif;
-  color: var(--ink500, #d8ccb4);
+  color: var(--ink-700, #d8ccb4);
   font-style: italic;
   font-size: 13.5px;
   padding: 12px 0;
@@ -39,7 +39,7 @@
   flex: 1;
   font-family: 'Newsreader', serif;
   font-size: 16px;
-  color: var(--ink900, #f4ecda);
+  color: var(--ink-900, #f4ecda);
 }
 
 .numRow {
@@ -77,7 +77,7 @@
   font-family: 'Newsreader', serif;
   font-size: 1.1rem;
   font-weight: 500;
-  color: var(--ink700, #e2d8c2);
+  color: var(--ink-800, #e2d8c2);
   background: var(--card2, #1a140e);
   border: 1px solid var(--hair, #2e2619);
   border-radius: 5px;

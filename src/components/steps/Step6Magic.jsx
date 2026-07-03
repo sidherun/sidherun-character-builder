@@ -46,7 +46,7 @@ export default function Step6Magic({ character, onUpdate }) {
     onUpdate({ crafts: crafts.filter(c => c.id !== id) })
   }
 
-  const targetColor = finalTarget === null ? '#8b1a1a' : finalTarget >= 50 ? '#2d5a27' : finalTarget >= 30 ? '#8b6914' : '#8b1a1a'
+  const targetColor = finalTarget === null ? 'var(--danger)' : finalTarget >= 50 ? 'var(--story)' : finalTarget >= 30 ? 'var(--bronze)' : 'var(--danger)'
 
   return (
     <div className={styles.step}>

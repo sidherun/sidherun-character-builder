@@ -105,7 +105,7 @@ export default function Step8Resources({ character, onUpdate }) {
           total={hp.total || calcedHP}
           current={hp.current}
           onCurrentChange={val => updateHP('current', val)}
-          color="#8b1a1a"
+          color="var(--hp)"
           formula={hpFormula}
         />
 
@@ -115,13 +115,13 @@ export default function Step8Resources({ character, onUpdate }) {
             total={mana.total || calcedMana}
             current={mana.current}
             onCurrentChange={val => updateMana('current', val)}
-            color="#1a3a8b"
+            color="var(--mana)"
             formula={`${character.magicAttribute || '—'} total = ${calcedMana}`}
           />
         )}
 
-        <div className={styles.resourceCard} style={{ borderTopColor: '#2d5a27' }}>
-          <div className={styles.resourceTitle} style={{ color: '#2d5a27' }}>Story Points</div>
+        <div className={styles.resourceCard} style={{ borderTopColor: 'var(--story)' }}>
+          <div className={styles.resourceTitle} style={{ color: 'var(--story)' }}>Story Points</div>
           <div className={styles.formula}>GM awards additional points for great play</div>
           <div className={styles.resourceRow}>
             <div className={styles.resourceStat}>
@@ -148,15 +148,15 @@ export default function Step8Resources({ character, onUpdate }) {
             <div className={styles.bar}>
               <div
                 className={styles.barFill}
-                style={{ width: `${Math.min(100, (sp.current / sp.total) * 100)}%`, background: '#2d5a27' }}
+                style={{ width: `${Math.min(100, (sp.current / sp.total) * 100)}%`, background: 'var(--story)' }}
               />
             </div>
           )}
         </div>
 
         {armor.type !== 'none' && (
-          <div className={styles.resourceCard} style={{ borderTopColor: '#5a4a27' }}>
-            <div className={styles.resourceTitle} style={{ color: '#5a4a27' }}>Armor</div>
+          <div className={styles.resourceCard} style={{ borderTopColor: 'var(--armor)' }}>
+            <div className={styles.resourceTitle} style={{ color: 'var(--armor)' }}>Armor</div>
             <div className={styles.formula}>{armor.absorption} absorption per hit</div>
             <div className={styles.resourceRow}>
               <div className={styles.resourceStat}>
@@ -178,7 +178,7 @@ export default function Step8Resources({ character, onUpdate }) {
               <div className={styles.bar}>
                 <div
                   className={styles.barFill}
-                  style={{ width: `${Math.min(100, (armor.remaining / armor.max) * 100)}%`, background: '#5a4a27' }}
+                  style={{ width: `${Math.min(100, (armor.remaining / armor.max) * 100)}%`, background: 'var(--armor)' }}
                 />
               </div>
             )}
@@ -212,7 +212,7 @@ export default function Step8Resources({ character, onUpdate }) {
                 className={styles.barFill}
                 style={{
                   width: `${Math.min(100, (xp.current / xpNeeded) * 100)}%`,
-                  background: 'var(--gold-bright)',
+                  background: 'var(--bronze)',
                 }}
               />
             </div>

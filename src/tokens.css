@@ -1,22 +1,16 @@
 /* ============================================================================
-   Codex design tokens — corrected v1
+   Codex design tokens
    ----------------------------------------------------------------------------
-   Drop-in replacement for src/tokens.css.
+   Color is defined here as CSS variables per theme. Components reference
+   var(--token) only — never a raw hex, never a local re-declaration.
 
-   What changed vs. the shipped file:
-   1. Ink scale renamed to a clean, monotonic EMPHASIS ramp: --ink-900 (highest
-      contrast text) down to --ink-300 (faintest). One token per step, no
-      duplicates. In DARK mode every value is preserved exactly — it is a pure
-      rename. In LIGHT mode two mid-tones (--ink500/--ink600) that were ordered
-      inconsistently swap into place, and the faintest step dedups; no visible
-      regression (both moves nudge contrast the right direction).
-   2. --line-strong is now distinct from --line in dark mode (#4a3d2c vs
-      #3a3025) so "strong" borders actually read stronger.
-   3. Legacy ink aliases (--ink900 … --ink300) are kept at the bottom of each
-      theme so existing components keep working during migration. Delete the
-      alias block once every component references --ink-*.
+   Ink is a monotonic EMPHASIS ramp: --ink-900 (highest-contrast text) down to
+   --ink-300 (faintest). One token per step; in dark, emphasis = lighter, in
+   light, emphasis = darker. --line-strong is distinct from --line so "strong"
+   borders read stronger.
 
-   See CODEX-MIGRATION.md for the old→new map and find/replace commands.
+   The legacy --inkNNN aliases and the raw-hex status colors have been fully
+   migrated (see CODEX-MIGRATION.md for the historical old→new map).
    ========================================================================== */
 
 [data-theme="dark"] {
@@ -59,15 +53,6 @@
   --story:   #5fae7e;
   --armor:   #c9a86a;
 
-  /* --- legacy ink aliases · REMOVE after migrating to --ink-* --- */
-  --ink900: var(--ink-900);
-  --ink700: var(--ink-800);
-  --ink600: var(--ink-600);
-  --ink500: var(--ink-700);
-  --ink450: var(--ink-500);
-  --ink400: var(--ink-400);
-  --ink350: var(--ink-300);
-  --ink300: var(--ink-300);
 }
 
 [data-theme="light"] {
@@ -110,13 +95,4 @@
   --story:  #2d6a3f;
   --armor:  #5a4a27;
 
-  /* --- legacy ink aliases · REMOVE after migrating to --ink-* --- */
-  --ink900: var(--ink-900);
-  --ink700: var(--ink-800);
-  --ink600: var(--ink-600);
-  --ink500: var(--ink-700);
-  --ink450: var(--ink-500);
-  --ink400: var(--ink-400);
-  --ink350: var(--ink-300);
-  --ink300: var(--ink-300);
 }

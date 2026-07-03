@@ -12,7 +12,7 @@
 
 .empty {
   font-family: 'Spectral', serif;
-  color: var(--ink500, #d8ccb4);
+  color: var(--ink-700, #d8ccb4);
   font-style: italic;
   font-size: 13.5px;
   padding: 8px 0;
@@ -60,7 +60,7 @@
 .totalBadge strong {
   font-family: 'Newsreader', serif;
   font-size: 1.4rem;
-  color: var(--ink900, #f4ecda);
+  color: var(--ink-900, #f4ecda);
   font-weight: 500;
 }
 
@@ -88,13 +88,13 @@
   gap: 10px;
   font-size: 14px;
   margin-top: 18px;
-  color: var(--ink700, #e2d8c2);
+  color: var(--ink-800, #e2d8c2);
 }
 
 .hint {
   font-family: 'Spectral', serif;
   font-size: 13px;
-  color: var(--ink400, #8a7a5c);
+  color: var(--ink-400, #8a7a5c);
   font-style: italic;
   margin-bottom: 12px;
 }
@@ -133,18 +133,18 @@
 .defLabel {
   font-family: 'Spectral', serif;
   font-size: 13.5px;
-  color: var(--ink600, #cabfa3);
+  color: var(--ink-600, #cabfa3);
 }
 
 .attrCell {
   font-family: 'Newsreader', serif;
   font-size: 15px;
-  color: var(--ink700, #e2d8c2);
+  color: var(--ink-800, #e2d8c2);
 }
 .attrCell em {
   font-family: 'Spectral', serif;
   font-size: 11px;
-  color: var(--ink400, #8a7a5c);
+  color: var(--ink-400, #8a7a5c);
 }
 
 .defenseRow input {

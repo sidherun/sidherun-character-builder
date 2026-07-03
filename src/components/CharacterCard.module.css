@@ -18,7 +18,7 @@
   font-family: 'Newsreader', serif;
   font-size: 1.1rem;
   font-weight: 500;
-  color: var(--ink900);
+  color: var(--ink-900);
 }
 
 .player {
@@ -32,7 +32,7 @@
 .meta {
   font-family: 'Spectral', serif;
   font-size: 13px;
-  color: var(--ink500);
+  color: var(--ink-700);
   text-transform: capitalize;
 }
 
@@ -47,7 +47,7 @@
 .saved {
   font-family: 'Spectral', serif;
   font-size: 12px;
-  color: var(--ink350);
+  color: var(--ink-300);
   font-style: italic;
 }
 
@@ -69,7 +69,7 @@
   gap: 8px;
   margin-top: 10px;
   font-size: 0.8rem;
-  color: var(--ink500);
+  color: var(--ink-700);
 }
 
 .assign select {

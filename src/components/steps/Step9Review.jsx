@@ -108,27 +108,27 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
         <h3 className={styles.resourcesHead}>Resources<EditBtn step={8} label="Edit resources — HP, Mana, Story Points, XP" onEdit={onEditSection} /></h3>
       )}
       <div className={styles.resourcesRow}>
-        <div className={styles.resourceChip} style={{ borderColor: '#8b1a1a' }}>
+        <div className={styles.resourceChip} style={{ borderColor: 'var(--hp)' }}>
           <span>HP</span>
           <strong>{character.hitPoints?.current ?? calcedHP} / {character.hitPoints?.total || calcedHP}</strong>
         </div>
         {character.hasMagic && (
-          <div className={styles.resourceChip} style={{ borderColor: '#1a3a8b' }}>
+          <div className={styles.resourceChip} style={{ borderColor: 'var(--mana)' }}>
             <span>Mana</span>
             <strong>{character.mana?.current ?? calcedMana} / {character.mana?.total || calcedMana}</strong>
           </div>
         )}
-        <div className={styles.resourceChip} style={{ borderColor: '#2d5a27' }}>
+        <div className={styles.resourceChip} style={{ borderColor: 'var(--story)' }}>
           <span>Story Pts</span>
           <strong>{character.storyPoints?.current} / {character.storyPoints?.total}</strong>
         </div>
         {character.armor?.type !== 'none' && (
-          <div className={styles.resourceChip} style={{ borderColor: '#5a4a27' }}>
+          <div className={styles.resourceChip} style={{ borderColor: 'var(--armor)' }}>
             <span>Armor</span>
             <strong>{character.armor.remaining} / {character.armor.max}</strong>
           </div>
         )}
-        <div className={styles.resourceChip} style={{ borderColor: 'var(--gold-dim)' }}>
+        <div className={styles.resourceChip} style={{ borderColor: 'var(--bronze)' }}>
           <span>XP</span>
           <strong>{(character.xp?.current || 0).toLocaleString()}</strong>
         </div>

@@ -3,7 +3,7 @@
 
 .intro, .empty {
   font-family: 'Spectral', serif;
-  color: var(--ink500, #d8ccb4);
+  color: var(--ink-700, #d8ccb4);
   font-style: italic;
   margin-bottom: 16px;
   font-size: 14px;
@@ -37,7 +37,7 @@
   flex: 1;
   font-family: 'Newsreader', serif;
   font-size: 16px;
-  color: var(--ink900, #f4ecda);
+  color: var(--ink-900, #f4ecda);
 }
 
 .craftRow {
@@ -94,7 +94,7 @@
 .spellNote {
   font-family: 'Spectral', serif;
   font-size: 13.5px;
-  color: var(--ink400, #8a7a5c);
+  color: var(--ink-400, #8a7a5c);
   margin-bottom: 16px;
   font-style: italic;
 }
@@ -125,7 +125,7 @@
   font-family: 'Newsreader', serif;
   font-size: 2.5rem;
   font-weight: 500;
-  color: var(--ink900, #f4ecda);
+  color: var(--ink-900, #f4ecda);
   line-height: 1;
 }
 

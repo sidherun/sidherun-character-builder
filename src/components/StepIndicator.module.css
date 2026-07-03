@@ -34,7 +34,7 @@
   font-size: 11px;
   font-weight: 700;
   border: 1.5px dotted var(--dotted, #4a3d2c);
-  color: var(--ink300, #7a6a4f);
+  color: var(--ink-300, #7a6a4f);
   background: transparent;
   transition: filter 0.15s, box-shadow 0.15s;
   flex-shrink: 0;
@@ -56,17 +56,17 @@
   font-size: 9px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--ink400, #8a7a5c);
+  color: var(--ink-400, #8a7a5c);
   white-space: nowrap;
 }
 
 .current .label {
-  color: var(--ink900, #f4ecda);
+  color: var(--ink-900, #f4ecda);
   font-weight: 700;
 }
 
 .done .label {
-  color: var(--ink450, #b0a488);
+  color: var(--ink-500, #b0a488);
 }
 
 @media (max-width: 520px) {

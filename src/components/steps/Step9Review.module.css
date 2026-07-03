@@ -14,13 +14,13 @@
   font-family: 'Newsreader', serif;
   font-size: 2rem;
   font-weight: 500;
-  color: var(--ink900, #f4ecda);
+  color: var(--ink-900, #f4ecda);
   margin-bottom: 4px;
 }
 
 .subtitle {
   font-family: 'Spectral', serif;
-  color: var(--ink500, #d8ccb4);
+  color: var(--ink-700, #d8ccb4);
   font-style: italic;
   font-size: 14px;
   text-transform: capitalize;
@@ -81,7 +81,7 @@
   font-family: 'Newsreader', serif;
   font-size: 1.1rem;
   font-weight: 500;
-  color: var(--ink900, #f4ecda);
+  color: var(--ink-900, #f4ecda);
 }
 
 .columns {
@@ -130,7 +130,7 @@
   min-height: 40px;
   cursor: pointer;
 }
-.editBtn:hover { border-color: var(--bronze); color: var(--gold-dim, var(--bronze)); }
+.editBtn:hover { border-color: var(--bronze); color: var(--bronze); }
 
 .resourcesHead {
   display: flex;
@@ -141,7 +141,7 @@
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--ink500, #9a8c70);
+  color: var(--ink-700, #9a8c70);
 }
 
 /* Inline inventory editing on the sheet */
@@ -150,7 +150,7 @@
   background: var(--card2, #1c1710);
   border: 1px solid var(--hair, #2e2619);
   border-radius: 6px;
-  color: var(--ink900, #e8dcc4);
+  color: var(--ink-900, #e8dcc4);
   padding: 9px 10px;
   font-family: 'Spectral', serif;
   font-size: 14px;
@@ -165,7 +165,7 @@
   color: var(--danger, #c0392b);
   width: 40px; height: 40px; flex: none; cursor: pointer;
 }
-.invEmpty { color: var(--ink350, #6b5f48); font-style: italic; margin: 4px 0; }
+.invEmpty { color: var(--ink-300, #6b5f48); font-style: italic; margin: 4px 0; }
 
 /* Attributes */
 .attrGrid {
@@ -186,13 +186,13 @@
 .attrName {
   font-family: 'Spectral', serif;
   font-size: 13px;
-  color: var(--ink500, #d8ccb4);
+  color: var(--ink-700, #d8ccb4);
 }
 .attrVal {
   font-family: 'Newsreader', serif;
   font-size: 1rem;
   font-weight: 500;
-  color: var(--ink900, #f4ecda);
+  color: var(--ink-900, #f4ecda);
 }
 
 /* Defense */
@@ -204,7 +204,7 @@
   font-size: 13.5px;
   background: var(--sel, #2a2013);
   border-radius: 3px;
-  color: var(--ink700, #e2d8c2);
+  color: var(--ink-800, #e2d8c2);
 }
 .defRow strong {
   font-family: 'JetBrains Mono', monospace;
@@ -221,10 +221,10 @@
   padding: 4px 0;
   border-bottom: 1px solid var(--hair, #2e2619);
   font-size: 13.5px;
-  color: var(--ink700, #e2d8c2);
+  color: var(--ink-800, #e2d8c2);
 }
-.weaponName { font-weight: 500; color: var(--ink900, #f4ecda); }
-.weaponAttr { color: var(--ink400, #8a7a5c); font-size: 12px; }
+.weaponName { font-weight: 500; color: var(--ink-900, #f4ecda); }
+.weaponAttr { color: var(--ink-400, #8a7a5c); font-size: 12px; }
 .weaponTotal {
   font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
@@ -232,7 +232,7 @@
   color: var(--danger, #cf8a7a);
   text-align: center;
 }
-.weaponDesc { color: var(--ink400, #8a7a5c); font-size: 12px; font-style: italic; }
+.weaponDesc { color: var(--ink-400, #8a7a5c); font-size: 12px; font-style: italic; }
 
 /* Skills */
 .skillRow {
@@ -242,10 +242,10 @@
   padding: 3px 0;
   font-size: 13px;
   border-bottom: 1px solid var(--hair, #2e2619);
-  color: var(--ink700, #e2d8c2);
+  color: var(--ink-800, #e2d8c2);
 }
-.skillName { font-weight: 500; color: var(--ink900, #f4ecda); }
-.skillAttr { color: var(--ink400, #8a7a5c); font-size: 12px; }
+.skillName { font-weight: 500; color: var(--ink-900, #f4ecda); }
+.skillAttr { color: var(--ink-400, #8a7a5c); font-size: 12px; }
 .skillTotal {
   font-family: 'JetBrains Mono', monospace;
   font-weight: 700;
@@ -255,7 +255,7 @@
 .starNote {
   font-family: 'Spectral', serif;
   font-size: 11px;
-  color: var(--ink400, #8a7a5c);
+  color: var(--ink-400, #8a7a5c);
   margin-left: 6px;
   letter-spacing: 0;
   text-transform: none;
@@ -269,16 +269,16 @@
   padding: 3px 0;
   font-size: 13px;
   border-bottom: 1px solid var(--hair, #2e2619);
-  color: var(--ink700, #e2d8c2);
+  color: var(--ink-800, #e2d8c2);
 }
-.powerName { font-weight: 500; color: var(--ink900, #f4ecda); }
+.powerName { font-weight: 500; color: var(--ink-900, #f4ecda); }
 .powerTotal {
   font-family: 'JetBrains Mono', monospace;
   font-weight: 700;
   text-align: right;
   color: var(--bronze, #c69152);
 }
-.powerDesc { grid-column: 1 / -1; color: var(--ink400, #8a7a5c); font-style: italic; font-size: 12px; }
+.powerDesc { grid-column: 1 / -1; color: var(--ink-400, #8a7a5c); font-style: italic; font-size: 12px; }
 
 /* Crafts */
 .craftRow {
@@ -288,17 +288,17 @@
   padding: 3px 0;
   font-size: 13px;
   border-bottom: 1px solid var(--hair, #2e2619);
-  color: var(--ink700, #e2d8c2);
+  color: var(--ink-800, #e2d8c2);
 }
-.craftName { font-weight: 500; color: var(--ink900, #f4ecda); }
-.craftAttr { color: var(--ink400, #8a7a5c); font-size: 12px; }
+.craftName { font-weight: 500; color: var(--ink-900, #f4ecda); }
+.craftAttr { color: var(--ink-400, #8a7a5c); font-size: 12px; }
 .craftTotal {
   font-family: 'JetBrains Mono', monospace;
   font-weight: 700;
   text-align: right;
   color: var(--bronze, #c69152);
 }
-.craftDesc { grid-column: 1 / -1; color: var(--ink400, #8a7a5c); font-style: italic; font-size: 12px; }
+.craftDesc { grid-column: 1 / -1; color: var(--ink-400, #8a7a5c); font-style: italic; font-size: 12px; }
 
 /* Backstory */
 .backstory {
@@ -310,5 +310,5 @@
   font-family: 'Spectral', serif;
   line-height: 1.7;
   font-size: 14px;
-  color: var(--ink500, #d8ccb4);
+  color: var(--ink-700, #d8ccb4);
 }

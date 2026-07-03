@@ -1,22 +1,12 @@
 @import './tokens.css';
 
 :root {
-  /* Legacy vars kept for un-ported components */
-  --gold-bright: #c8a84b;
-  --gold-dim: #8b6914;
-  --gold-pale: #e8d5a0;
-  --crimson: #8b1a1a;
-  --parchment: #f5ead0;
-  --parchment-dark: #e8d9b5;
-  --ink: #1a1208;
-  --ink-light: #3d2b0a;
-  --border-gold: 1px solid var(--gold-dim);
   --border-radius: 6px;
   --step-max-width: 960px;
 
   font-family: 'Spectral', serif;
   font-size: 15px;
-  color: var(--ink700, #e2d8c2);
+  color: var(--ink-800, #e2d8c2);
 }
 
 *, *::before, *::after {
@@ -33,7 +23,7 @@ body {
 }
 
 h1, h2, h3, h4 {
-  color: var(--ink900, #f4ecda);
+  color: var(--ink-900, #f4ecda);
 }
 
 h1 { font-family: 'Newsreader', serif; font-size: 2rem; font-weight: 500; }
@@ -44,7 +34,7 @@ h4 { font-family: 'Newsreader', serif; font-size: 1.15rem; font-weight: 500; }
 input, select, textarea {
   font-family: 'Newsreader', serif;
   font-size: 1rem;
-  color: var(--ink900, #f4ecda);
+  color: var(--ink-900, #f4ecda);
   background: var(--input, #241d14);
   border: 1px solid var(--line, #3a3025);
   border-radius: 6px;
@@ -53,7 +43,7 @@ input, select, textarea {
 }
 
 input::placeholder, textarea::placeholder {
-  color: var(--ink350, #7a6a4f);
+  color: var(--ink-300, #7a6a4f);
 }
 
 input:focus, select:focus, textarea:focus {
@@ -72,7 +62,7 @@ select {
 
 select option {
   background: var(--card2, #1a140e);
-  color: var(--ink900, #f4ecda);
+  color: var(--ink-900, #f4ecda);
 }
 
 button {
@@ -105,7 +95,7 @@ button:disabled {
 
 .btn-secondary {
   background: transparent;
-  color: var(--ink500, #d8ccb4);
+  color: var(--ink-700, #d8ccb4);
   border: 1px solid var(--line-strong, #3a3025);
   padding: 8px 18px;
   font-size: 11px;

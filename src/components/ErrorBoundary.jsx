@@ -14,8 +14,8 @@ export default class ErrorBoundary extends Component {
     if (this.state.hasError) {
       return (
         <div style={{ padding: '2rem', textAlign: 'center', fontFamily: 'Cinzel, serif' }}>
-          <h2 style={{ color: '#8b1a1a', marginBottom: '1rem' }}>Something went wrong</h2>
-          <p style={{ marginBottom: '1rem', color: '#3d2b0a' }}>{this.state.error?.message}</p>
+          <h2 style={{ color: 'var(--danger)', marginBottom: '1rem' }}>Something went wrong</h2>
+          <p style={{ marginBottom: '1rem', color: 'var(--ink-800)' }}>{this.state.error?.message}</p>
           <button className="btn-primary" onClick={() => window.location.reload()}>
             Reload
           </button>

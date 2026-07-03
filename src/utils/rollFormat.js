@@ -10,7 +10,7 @@ export function formatRoll(roll) {
   const oor = isSpell && roll.outOfRange
 
   const color = !isSpell ? 'var(--bronze)'
-    : oor ? 'var(--ink400)'
+    : oor ? 'var(--ink-400)'
     : roll.success ? 'var(--story)' : 'var(--danger)'
 
   const headline = !isSpell ? String(roll.total)
