@@ -81,7 +81,7 @@ separate live tracker. **Identity (name/race/archetype) is read-only on the shee
 - [ ] 0.3 Cloud roster hydrate — wire up unused `list_characters` RPC (cloudSync + GMScreen/Roster)
 - [x] 0.4 GMScreen live-subs re-bind on id-set change, not just count (#147, b66c479)
 - [x] 0.5 Cloud sync status badge — Live/Saving…/Sync error/Offline; stops silent push failures (#145, 53664c1)
-- [~] 0.6 Contain LWW clobber on authed structural saves (#146) — root-caused + full plan on the issue; DEFERRED: needs auth-on verification (magic-link, not headless) before shipping to the live game's write path
+- [~] 0.6 Contain LWW clobber (#146, 184964b) — SHIPPED: optimistic data_rev guard + conflict-adopt, fail-safe, 18 repo tests. Pending: live two-device AUTHED conflict test (needs magic-link login).
 - [ ] 0.7 Two-device real-session smoke test (GM screen ↔ player phone) — do once 0.6 lands
 - [x] 0.1/0.2 (was: provision + enable cloud) — already done in prod; #144 closed as mis-scoped
 
