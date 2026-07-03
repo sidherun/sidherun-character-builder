@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { calcDefense, calcHitPoints, calcMana, attrTotal, calcSkillTotal } from '../../utils/characterDerived.js'
 import { weaponModifier } from '../../utils/rollActions.js'
 import { encodeCharacterToURL } from '../../utils/urlState.js'
@@ -34,8 +35,13 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
 
   // Inline inventory editing on the sheet — inventory has no wizard editor of its
   // own, and "add a potion" is the headline use case. Mirrors Play Mode.
+  // focusIdx marks the row whose Name input should grab focus on the next render,
+  // so clicking "Add item" drops the cursor straight into the new field (#153).
+  const focusIdx = useRef(null)
   function addInventoryItem() {
-    onUpdate?.({ inventory: [...(character.inventory || []), { name: '', quantity: '', notes: '' }] })
+    const inventory = [...(character.inventory || []), { name: '', quantity: '', notes: '' }]
+    focusIdx.current = inventory.length - 1
+    onUpdate?.({ inventory })
   }
   function updateInventoryItem(i, patch) {
     const inventory = (character.inventory || []).map((it, idx) => {
@@ -251,6 +257,7 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
                     return (
                       <div key={i} className={styles.invRow}>
                         <input className={styles.invInput} value={obj.name || ''} placeholder="Item"
+                          ref={el => { if (el && focusIdx.current === i) { el.focus(); focusIdx.current = null } }}
                           onChange={e => updateInventoryItem(i, { name: e.target.value })} aria-label={`Item ${i + 1} name`} />
                         <input className={styles.invQty} value={obj.quantity ?? ''} placeholder="Qty"
                           onChange={e => updateInventoryItem(i, { quantity: e.target.value })} aria-label={`Item ${i + 1} quantity`} />

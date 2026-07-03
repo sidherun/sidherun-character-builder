@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { calcDefense, calcSkillTotal, attrTotal } from '../../utils/characterDerived.js'
 import { getFinalSpellTarget } from '../../utils/spellTarget.js'
 import { rollSkill, rollAttack, rollSpell, weaponModifier } from '../../utils/rollActions.js'
@@ -76,8 +76,13 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
 
   // Inventory editing during play. Items may be legacy strings or objects;
   // normalize to { name, quantity, notes } on edit (the schema accepts both).
+  // focusIdx marks the inventory row whose Name input should grab focus on the
+  // next render, so "Add item" drops the cursor into the new field (#153).
+  const invFocusIdx = useRef(null)
   function addInventoryItem() {
-    mutate({ inventory: [...(character.inventory || []), { name: '', quantity: '', notes: '' }] })
+    const inventory = [...(character.inventory || []), { name: '', quantity: '', notes: '' }]
+    invFocusIdx.current = inventory.length - 1
+    mutate({ inventory })
   }
   function updateInventoryItem(i, patch) {
     const inventory = (character.inventory || []).map((it, idx) => {
@@ -364,6 +369,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
                     className={styles.invInput}
                     value={obj.name || ''}
                     placeholder="Item"
+                    ref={el => { if (el && invFocusIdx.current === i) { el.focus(); invFocusIdx.current = null } }}
                     onChange={e => updateInventoryItem(i, { name: e.target.value })}
                     aria-label={`Item ${i + 1} name`}
                   />
