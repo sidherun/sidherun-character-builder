@@ -1,4 +1,5 @@
 import { calcDefense, attrTotal } from '../../utils/characterDerived.js'
+import { weaponModifier } from '../../utils/rollActions.js'
 import { uuid } from '../../utils/uuid.js'
 import NumberInput from '../NumberInput.jsx'
 import armorTypes from '../../data/armorTypes.json'
@@ -91,7 +92,7 @@ export default function Step4Combat({ character, onUpdate }) {
           <p className={styles.empty}>No weapons added yet.</p>
         )}
         {character.weapons.map(w => {
-          const total = (parseInt(w.attributeBonus) || 0) + (parseInt(w.skillBonus) || 0)
+          const total = weaponModifier(w) // non-stacking: skill OR attribute, matches the attack roll
           const weaponName = w.name || 'unnamed weapon'
           return (
             <div key={w.id} className={styles.weaponRow} role="group" aria-label={`Weapon: ${weaponName}`}>

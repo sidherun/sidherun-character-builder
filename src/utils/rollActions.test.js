@@ -17,6 +17,12 @@ describe('weaponModifier (non-stacking skill-or-attribute)', () => {
     expect(weaponModifier(w)).not.toBe(18 + 5)
   })
 
+  it('coerces the combat editor\'s string inputs and returns a number', () => {
+    expect(weaponModifier({ skillBonus: '8', attributeBonus: '6' })).toBe(8)   // skill wins
+    expect(weaponModifier({ skillBonus: '', attributeBonus: '6' })).toBe(6)    // no skill → attribute
+    expect(weaponModifier({ skillBonus: '0', attributeBonus: '6' })).toBe(6)   // "0" skill → attribute
+  })
+
   it('handles a missing weapon', () => {
     expect(weaponModifier(null)).toBe(0)
     expect(weaponModifier({})).toBe(0)

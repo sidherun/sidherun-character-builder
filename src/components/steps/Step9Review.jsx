@@ -1,4 +1,5 @@
 import { calcDefense, calcHitPoints, calcMana, attrTotal, calcSkillTotal } from '../../utils/characterDerived.js'
+import { weaponModifier } from '../../utils/rollActions.js'
 import { encodeCharacterToURL } from '../../utils/urlState.js'
 import { generateCharacterHTML } from '../../utils/generateCharacterHTML.js'
 import styles from './Step9Review.module.css'
@@ -177,7 +178,7 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
             <section className={styles.section}>
               <h3>Weapons<EditBtn step={4} label="Edit combat — weapons" onEdit={onEditSection} /></h3>
               {character.weapons.map(w => {
-                const total = (w.attributeBonus || 0) + (w.skillBonus || 0)
+                const total = weaponModifier(w) // non-stacking: skill OR attribute, matches the attack roll
                 return (
                   <div key={w.id} className={styles.weaponRow}>
                     <span className={styles.weaponName}>{w.name || '—'}</span>
