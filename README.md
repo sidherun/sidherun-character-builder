@@ -179,9 +179,10 @@ reloads the latest and tells the player, instead of losing an edit.
 - **Security.** The `characters` table is sealed by RLS; all access is via
   token-gated RPCs. The anon/publishable key is public by design. A per-character
   **capability token** lives in the link; a per-GM **key** (localStorage) owns the
-  roster — no accounts. The GM key + cloud map are included in the **Back up all**
-  file, so cloud access survives a browser wipe. **Reset link** rotates a token to
-  revoke a shared link.
+  roster — no accounts. The GM key is minted from `crypto.getRandomValues`
+  (32 bytes / 256 bits of entropy), not a `Math.random`-backed UUID. The GM key +
+  cloud map are included in the **Back up all** file, so cloud access survives a
+  browser wipe. **Reset link** rotates a token to revoke a shared link.
 - **Setup & cutover:** create a project, apply `supabase/migrations/0001_init.sql`,
   set the three `VITE_*` repo Variables; flip `VITE_CLOUD_SYNC=on` to go live.
 
