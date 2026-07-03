@@ -3,7 +3,7 @@ import { createDefaultCharacter } from './utils/defaultCharacter.js'
 import { loadCurrent, saveCharacterToRoster, saveCurrent, loadCharacterFromRoster, loadRoster, getLastSaveStatus } from './utils/rosterStorage.js'
 import { decodeCharacterFromURL, getPlayLinkId, parseCloudLink } from './utils/urlState.js'
 import { registerCloudLink, fetchCloudCharacter, mergeRemote, rosterIdForCloudId, projectLive, dataSignature } from './utils/cloudSync.js'
-import { repoEnabled, createCharacter, saveCharacterData, patchLive, subscribeLive, removeLiveSubscription } from './utils/characterRepo.js'
+import { repoEnabled, createCharacter, getCharacter, saveCharacterData, patchLive, subscribeLive, removeLiveSubscription } from './utils/characterRepo.js'
 import { useAuth, isGmOrAdmin } from './auth/useAuth.js'
 import { safeParseCharacter } from './utils/characterSchema.js'
 import { useAutoSave } from './hooks/useAutoSave.js'
@@ -141,6 +141,11 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   // echo each other into a loop.
   const lastLiveSig = useRef(null)
   const lastDataSig = useRef(null)
+  // The authoritative data_rev for optimistic-concurrency structural saves
+  // (#146). Kept in a ref, not state: dataSignature() doesn't strip it, so
+  // putting it in `character` would loop the structural-autosave effect.
+  const dataRevRef = useRef(null)
+  useEffect(() => { dataRevRef.current = character._dataRev ?? null }, [character._rosterId, character._dataRev])
 
   // RECEIVE: subscribe to this character's live-counter broadcasts so a GM's
   // (or another viewer's) edit shows up here in real time.
@@ -182,9 +187,29 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
     if (lastDataSig.current === null) { lastDataSig.current = sig; return } // initial load
     if (sig === lastDataSig.current) return
     lastDataSig.current = sig
-    const t = setTimeout(() => { trackPush(saveCharacterData(character._rosterId, character)).catch(() => {}) }, 1200)
+    const rosterId = character._rosterId
+    const snapshot = character
+    const t = setTimeout(() => {
+      trackPush(saveCharacterData(rosterId, snapshot, dataRevRef.current))
+        .then(res => {
+          if (res && res.conflict) {
+            // Another device wrote this character between our load and this save.
+            // Adopt the latest instead of silently clobbering it, and say so (#146).
+            getCharacter(rosterId).then(fresh => {
+              if (!fresh) return
+              dataRevRef.current = fresh._dataRev ?? null
+              lastDataSig.current = dataSignature(fresh)
+              setCharacter(prev => (prev._rosterId === rosterId ? fresh : prev))
+              addToast('This character changed on another device — reloaded the latest.', 'info')
+            }).catch(() => {})
+          } else if (res && res._dataRev != null) {
+            dataRevRef.current = res._dataRev // advance so the next save guards on the fresh rev
+          }
+        })
+        .catch(() => {}) // a network error is already reflected by the sync-status badge
+    }, 1200)
     return () => clearTimeout(t)
-  }, [character, user])
+  }, [character, user, addToast])
 
   // Hydrate a cloud link from the server (once on mount). Adopt the cloud copy
   // when it's newer than the local one (or there's no local copy); otherwise

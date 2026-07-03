@@ -11,7 +11,7 @@ vi.mock('./supabaseClient.js', () => {
     const b = {
       select() { return b },
       order() { return b },
-      eq() { return b },
+      eq(col, val) { (h.eqs ||= []).push([col, val]); return b },
       maybeSingle() { return b },
       single() { return b },
       insert(p) { h.op = 'insert'; h.payload = p; return b },
@@ -51,6 +51,7 @@ const row = (over = {}) => ({
 beforeEach(() => {
   h.result = { data: null, error: null }
   h.table = h.op = h.payload = h.rpc = null
+  h.eqs = []
 })
 
 describe('repoEnabled', () => {
@@ -100,6 +101,34 @@ describe('saveCharacterData', () => {
     expect(h.op).toBe('update')
     expect(h.payload.name).toBe('Renamed')   // the `name` column we send
     expect(c.name).toBe('Renamed')           // mapped back from data
+  })
+
+  // Optimistic concurrency (#146)
+  it('with expectedRev: guards on data_rev and bumps it', async () => {
+    h.result = { data: row({ data_rev: 7 }), error: null } // server returns the bumped row
+    const c = await saveCharacterData('c1', { name: 'Hero' }, 6)
+    expect(h.payload.data_rev).toBe(7)                 // bumped expectedRev + 1
+    expect(h.eqs).toContainEqual(['data_rev', 6])      // guarded on the expected rev
+    expect(h.eqs).toContainEqual(['id', 'c1'])
+    expect(c._dataRev).toBe(7)                         // returns the new rev
+  })
+
+  it('with expectedRev: a null result is a CONFLICT, not a silent overwrite', async () => {
+    h.result = { data: null, error: null } // no row matched the expected rev
+    expect(await saveCharacterData('c1', { name: 'Hero' }, 6)).toEqual({ conflict: true })
+  })
+
+  it('without expectedRev: unconditional update (fail-safe, pre-#146 behaviour)', async () => {
+    h.result = { data: row(), error: null }
+    await saveCharacterData('c1', { name: 'Hero' }) // no expectedRev
+    expect(h.payload).not.toHaveProperty('data_rev')            // no rev bump
+    expect(h.eqs).not.toContainEqual(['data_rev', expect.anything()]) // no rev guard
+  })
+
+  it('surfaces _dataRev on the mapped character', async () => {
+    h.result = { data: row({ data_rev: 3 }), error: null }
+    const c = await saveCharacterData('c1', { name: 'Hero' })
+    expect(c._dataRev).toBe(3)
   })
 })
 

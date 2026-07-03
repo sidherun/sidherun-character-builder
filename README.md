@@ -167,6 +167,11 @@ sync is healthy — **Live** / **Saving…** / **Sync error** / **Offline** — 
 failed push is never silent (`utils/cloudStatus.js` + `CloudStatus.jsx`). It
 renders nothing in the localStorage-only build.
 
+**Structural saves use optimistic concurrency** (authenticated plane): each
+full-blob write guards on the row's `data_rev`, so if two devices edit the same
+character at once the second doesn't silently clobber the first — the app
+reloads the latest and tells the player, instead of losing an edit.
+
 - **Off by default.** Enabled only when `VITE_CLOUD_SYNC=on` and the Supabase keys
   are present (see `.env.example` and `supabase/README.md`). With the flag off the
   cloud code is inert and the UI is hidden.

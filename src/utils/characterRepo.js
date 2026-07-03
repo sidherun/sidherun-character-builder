@@ -29,6 +29,7 @@ function rowToCharacter(row) {
     _rosterId:          row.id,
     _ownerUserId:       row.owner_user_id ?? null,
     _assignedPlayerId:  row.assigned_player_id ?? null,
+    _dataRev:           row.data_rev ?? 0,
     _updatedAt:         row.updated_at,
   }
 }
@@ -40,6 +41,7 @@ function toData(character) {
   delete d._rosterId
   delete d._ownerUserId
   delete d._assignedPlayerId
+  delete d._dataRev
   delete d._updatedAt
   return d
 }
@@ -92,16 +94,25 @@ export async function createCharacter(character, { ownerUserId } = {}) {
   return rowToCharacter(data)
 }
 
-// Replace the full character blob (wizard edits). Bumps data_rev server-side.
-export async function saveCharacterData(id, character) {
+// Replace the full character blob (wizard/structural edits). Optimistic
+// concurrency (#146): pass `expectedRev` (the data_rev the caller last saw) to
+// guard the write — the update only lands if the row is still at that rev, and
+// bumps it to expectedRev+1. A null result then means someone else wrote in the
+// meantime, so we return { conflict: true } instead of silently clobbering their
+// change. Omit `expectedRev` (undefined) for an unconditional last-write-wins
+// update — the pre-#146 behaviour, kept as a fail-safe for callers that don't
+// track the rev.
+export async function saveCharacterData(id, character, expectedRev) {
   if (!repoEnabled() || !id) return null
-  const { data, error } = await supabase
+  const patch = { name: character.name || 'Unnamed', data: toData(character) }
+  let q = supabase
     .from('characters')
-    .update({ name: character.name || 'Unnamed', data: toData(character) })
+    .update(expectedRev != null ? { ...patch, data_rev: expectedRev + 1 } : patch)
     .eq('id', id)
-    .select(COLS)
-    .maybeSingle()
+  if (expectedRev != null) q = q.eq('data_rev', expectedRev)
+  const { data, error } = await q.select(COLS).maybeSingle()
   if (error) throw error
+  if (expectedRev != null && !data) return { conflict: true }
   return rowToCharacter(data)
 }
 
