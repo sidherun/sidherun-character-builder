@@ -90,9 +90,9 @@ separate live tracker. **Identity (name/race/archetype) is read-only on the shee
 - [x] 1.1 `src/utils/dice.js` — `rollD100` + `rollTotal` (skills+combat, display total) + `resolveUnder` (spells), injectable rng + test (9 tests)
 - [x] 1.2 `src/utils/rollActions.js` — `rollSkill`/`rollAttack` (roll + display total, non-stacking modifier); `rollSpell` (under) + test (11 tests)
 - [x] 1.3 PlayMode tap-to-roll — one-tap Roll/Attack on skills & weapons (sticky result banner shows total); spell Roll shows pass/fail; FIXED `:254` summed-modifier bug; `formatRoll` extracted + tested (228 tests total). Live browser QA still pending.
-- [ ] 1.4 Shared roll log — `session:` channel broadcast; GMScreen live roll feed
-- [ ] 1.5 Document trust model (act-and-broadcast result; no server-authoritative dice)
-- [ ] 1.6 Tests green + two-device manual verify
+- [x] 1.4 Shared roll log — `session:default` broadcast channel (approach A, single home table; multi-table = backlog #150); GMScreen "Live Rolls" feed. Shipped #148, verified live across two clients.
+- [x] 1.5 Trust model documented — act-and-broadcast, ephemeral (no DB), no server-authoritative dice (rollFeed.js + #148)
+- [x] 1.6 Tests green (250) + two-browser realtime verify ✓
 
 ---
 
