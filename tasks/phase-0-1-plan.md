@@ -38,6 +38,15 @@ Confirmed rules — the dice core must support both, they are not the same:
 
 # PHASE 0 — Unlock the shared table
 
+> **RE-SCOPED 2026-07-03** after the auth/cloud-first stack merged to main (#117, #131, #132, #113, #136). The auth plane (`characterRepo.js` + `AuthProvider` + `0002_auth_roles.sql`) supersedes most of the guest-plane assumptions below. Net: **0.3 is done upstream** (drop), **0.4 downgraded** to a minor dep-array fix, and the real remaining work is now tracked as GitHub issues:
+> - **#144** — provision + migrate (0001+0002) + bootstrap admin + flip `VITE_AUTH=on` (was 0.1/0.2)
+> - **#145** — sync status indicator, stop silent failures (0.5)
+> - **#146** — contain last-write-wins on structural blob saves; *worse* now that `saveCharacterData` has no rev check and autosave fires it continuously (0.6)
+> - **#147** — GMScreen subscription keyed on `chars.length` not the id-set (0.4, latent)
+> - **#148** — Phase 1.4 shared roll log (needs a real `session:<id>` channel; `hash(gmKey)` breaks under auth since players lack the GM key)
+>
+> The per-item detail below is kept for reference but read the issues for the current truth.
+
 ### What "on" actually means today (reality check)
 - The flag is read in exactly one place: `src/utils/supabaseClient.js:14`. `cloudEnabled` requires **all three** of `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and `VITE_CLOUD_SYNC === 'on'`. Flipping the flag alone does nothing without the two secrets in the build.
 - Realtime is **client-side broadcast** (`channel.send` on `char:${cloudId}`), not server-authoritative. That's fine for live counters, and fine for Phase 1 rolls. No server realtime migration is needed now (the `0002` migration is only a TODO comment at `0001_init.sql:15`).
