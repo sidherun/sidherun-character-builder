@@ -81,8 +81,8 @@ separate live tracker. **Identity (name/race/archetype) is read-only on the shee
 - [ ] 0.3 Cloud roster hydrate — wire up unused `list_characters` RPC (cloudSync + GMScreen/Roster)
 - [x] 0.4 GMScreen live-subs re-bind on id-set change, not just count (#147, b66c479)
 - [x] 0.5 Cloud sync status badge — Live/Saving…/Sync error/Offline; stops silent push failures (#145, 53664c1)
-- [~] 0.6 Contain LWW clobber (#146, 184964b) — SHIPPED: optimistic data_rev guard + conflict-adopt, fail-safe, 18 repo tests. Pending: live two-device AUTHED conflict test (needs magic-link login).
-- [ ] 0.7 Two-device real-session smoke test (GM screen ↔ player phone) — do once 0.6 lands
+- [x] 0.6 Contain LWW clobber (#146, 184964b) — optimistic data_rev guard + conflict-adopt; 18 repo tests + live two-tab confirm (edits propagate, no clobber).
+- [x] 0.7 Two-device edit test — confirmed: same character in two tabs, edits propagate on reload (no lost edits).
 - [x] 0.1/0.2 (was: provision + enable cloud) — already done in prod; #144 closed as mis-scoped
 
 ## Phase 1 — Tap-to-roll dice, wired to the engine  → detail in `tasks/phase-0-1-plan.md`
