@@ -95,6 +95,10 @@
    off on the right in portrait). Landscape (>640px) keeps the two columns. */
 @media (max-width: 640px) {
   .columns { grid-template-columns: 1fr; gap: 16px; }
+  /* Grid/flex items default to min-width:auto and won't shrink below their
+     content, so a wide inner grid (e.g. the 2-up Attributes) forced .left past
+     the viewport and clipped text on the right. Let them shrink to the column. */
+  .left, .right, .section, .attrGrid { min-width: 0; }
   .weaponRow > *, .skillRow > *, .powerRow > *, .craftRow > * {
     min-width: 0;
     overflow-wrap: anywhere;
