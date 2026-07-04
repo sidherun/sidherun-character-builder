@@ -1,9 +1,9 @@
 // Our own dice sound layer. The 3D engine's built-in audio is iOS-fragile (hangs
 // init, crashes mid-roll — spike), so we play the sound ourselves.
 //
-// PRIMARY: real roll recordings in `public/sfx/`, alternated per roll so it
-// doesn't sound identical every time (roll.wav = mixed offline from the engine's
-// real dice-hit + felt samples; roll-b.mp3 = a recorded RPG dice roll). Add more
+// PRIMARY: real roll recordings in `public/sfx/`, rotated per roll so it doesn't
+// sound identical every time (roll.wav = mixed offline from the engine's real
+// dice-hit + felt samples; roll-b/roll-c.mp3 = recorded RPG dice rolls). Add more
 // files to `ROLL_SRCS` to widen the rotation — they're picked up automatically.
 //
 // FALLBACK: if the recording can't load, we synthesize a rattle live from the
@@ -12,10 +12,10 @@
 //
 // The first playRollSound() happens inside the roll tap, which unlocks iOS audio.
 
-// Roll recordings, alternated per roll so it doesn't sound identical every time.
-// roll.wav = mixed offline from the engine's real samples; roll-b.mp3 = a
-// recorded RPG dice roll (freesound). Add more paths here to widen the rotation.
-const ROLL_SRCS = ['/sfx/roll.wav', '/sfx/roll-b.mp3']
+// Roll recordings, rotated per roll so it doesn't sound identical every time.
+// roll.wav = mixed offline from the engine's real samples; roll-b.mp3 / roll-c.mp3
+// = recorded RPG dice rolls (freesound). Add more paths here to widen the rotation.
+const ROLL_SRCS = ['/sfx/roll.wav', '/sfx/roll-b.mp3', '/sfx/roll-c.mp3']
 const HITS = [
   'dicehit_plastic8', 'dicehit_plastic9', 'dicehit_plastic11',
   'dicehit_plastic13', 'dicehit_plastic14',
