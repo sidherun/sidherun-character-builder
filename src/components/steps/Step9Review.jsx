@@ -324,7 +324,9 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
                           <input className={styles.invQty} value={obj.quantity ?? ''} placeholder="Qty"
                             onChange={e => updateInventoryItem(i, { quantity: e.target.value })} aria-label={`Item ${i + 1} quantity`} />
                           <input className={styles.invInput} value={obj.notes || ''} placeholder="Notes"
-                            onChange={e => updateInventoryItem(i, { notes: e.target.value })} aria-label={`Item ${i + 1} notes`} />
+                            onChange={e => updateInventoryItem(i, { notes: e.target.value })}
+                            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addInventoryItem() } }}
+                            aria-label={`Item ${i + 1} notes`} />
                           <button type="button" className={styles.invRemove} onClick={() => removeInventoryItem(i)} aria-label={`Remove item ${i + 1}`}>✕</button>
                         </div>
                         <SpellSuggest

@@ -44,3 +44,4 @@ shipped-history log; open/planned work lives in issues, not here.
 | In-Play section editing (weapons/skills/powers/crafts overlay) (#180) | a56378b | 2026-07-04 |
 | Cross-device table names — derive registry from blobs (#176) | b1af04f | 2026-07-04 |
 | Fix: table registry showed raw UUID for pre-#176 members (#188) | 2f258b9 | 2026-07-04 |
+| Enter in inventory notes commits + opens next item focused (#185) | — | 2026-07-04 |
