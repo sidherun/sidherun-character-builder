@@ -170,7 +170,7 @@ export function subscribeCharacter(rosterId, onLivePayload, onData) {
   if (!entry) return null
   const ch = supabase.channel(`char:${entry.id}`, { config: { broadcast: { self: false } } })
   ch.on('broadcast', { event: 'live' }, ({ payload }) => onLivePayload(payload))
-  if (onData) ch.on('broadcast', { event: 'data' }, () => { console.log('[inv-sync] guest recv data nudge', rosterId); onData() }) // TEMP
+  if (onData) ch.on('broadcast', { event: 'data' }, () => onData())
   ch.subscribe()
   channels[rosterId] = ch
   return ch
@@ -233,7 +233,6 @@ export async function syncCharacter(character, { allowCreate = false } = {}) {
     })
     // Nudge other viewers to re-hydrate the fresh structural data (parity with the
     // live broadcast below). Payload-less signal → receivers refetch the row.
-    console.log('[inv-sync] guest send data nudge', character._rosterId, 'channel?', !!channels[character._rosterId]) // TEMP
     channels[character._rosterId]?.send({ type: 'broadcast', event: 'data', payload: {} })
   } else if (channel === 'live') {
     const live = projectLive(character)
