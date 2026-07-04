@@ -1,19 +1,19 @@
 // Our own dice sound layer. The 3D engine's built-in audio is iOS-fragile (hangs
-// init, crashes mid-roll — spike), so we play the clacks ourselves.
+// init, crashes mid-roll — spike), so we play the sound ourselves.
 //
-// The sound is a *continuous rattle synced to the tumble*, not a few discrete
-// clacks: playRollSound() starts a thinning pump on the roll tap (dense clatter
-// as the dice are thrown, thinning as they slow), and playSettleSound() stops it
-// and plays the final clack the instant the dice actually settle (it's called
-// from the roll promise's .finally, i.e. at real settle time).
+// PRIMARY: one pre-rendered roll recording (`/sfx/roll.wav`) played on the roll
+// tap. It's built offline from the engine's own real dice-hit + felt samples
+// arranged into a natural tumble, so the timbre is authentic and the rhythm is
+// fixed (no live-scheduling jitter). To use a different sound, drop a `roll.wav`
+// (or `roll.mp3`) in `public/sfx/` — it's picked up automatically.
 //
-// Web Audio (not plain <audio>) because a rattle needs dense polyphony — iOS
-// caps overlapping HTML5 Audio elements, but a single AudioContext handles many
-// overlapping buffer sources fine once resumed on a gesture. The first
-// playRollSound() happens inside the roll tap, which unlocks iOS audio. If Web
-// Audio is unavailable, we fall back to spaced HTML5 clacks so sound never
-// regresses to silence.
+// FALLBACK: if the recording can't load, we synthesize a rattle live from the
+// individual hit samples (a thinning pump of Web Audio buffer sources, or spaced
+// HTML5 <audio> if Web Audio is unavailable) so sound never drops to silence.
+//
+// The first playRollSound() happens inside the roll tap, which unlocks iOS audio.
 
+const ROLL_SRCS = ['/sfx/roll.wav', '/sfx/roll.mp3']
 const HITS = [
   'dicehit_plastic8', 'dicehit_plastic9', 'dicehit_plastic11',
   'dicehit_plastic13', 'dicehit_plastic14',
@@ -23,6 +23,7 @@ const SRC = (name) => `/dice3d/sounds/dicehit/${name}.mp3`
 
 let ctx = null
 const buffers = new Map() // name -> AudioBuffer
+let rollBuffer = null     // the pre-rendered roll recording, once decoded
 let loading = null
 let pumpTimer = null
 
@@ -46,12 +47,28 @@ async function loadBuffer(c, name) {
   } catch { /* leave unloaded; playHit falls back to HTML5 */ }
 }
 
-// Warm up the context + decode the hit buffers ahead of the first roll. Called
-// on Play Mode mount so the first roll rattles instead of falling back.
+// Try each roll recording URL in order; keep the first that decodes.
+async function loadRoll(c) {
+  for (const url of ROLL_SRCS) {
+    try {
+      const res = await fetch(url)
+      if (!res.ok) continue
+      rollBuffer = await c.decodeAudioData(await res.arrayBuffer())
+      return
+    } catch { /* try the next candidate, else fall back to the synth */ }
+  }
+}
+
+// Warm up the context + decode buffers ahead of the first roll. Called on Play
+// Mode mount so the first roll uses the recording (or the fallback rattle) with
+// no dead first-play latency.
 export function preloadSound() {
   const c = ensureCtx()
   if (!c || loading) return loading
-  loading = Promise.all([...new Set([...HITS, SETTLE])].map((n) => loadBuffer(c, n)))
+  loading = Promise.all([
+    loadRoll(c),
+    ...[...new Set([...HITS, SETTLE])].map((n) => loadBuffer(c, n)),
+  ])
   return loading
 }
 
@@ -100,15 +117,27 @@ function pump(startedAt) {
   pumpTimer = setTimeout(() => pump(startedAt), interval)
 }
 
-// Start the rattle. Call synchronously in the roll tap so it unlocks iOS audio.
+// Play the roll sound. Call synchronously in the roll tap so it unlocks iOS audio.
 export function playRollSound() {
   const c = ensureCtx()
   if (c && c.state === 'suspended') c.resume().catch(() => {})
   preloadSound() // no-op if already warmed; covers a first roll with no mount preload
   stopPump()
+  // Preferred: the pre-rendered recording, one shot.
+  if (ctx && rollBuffer) {
+    try {
+      const src = ctx.createBufferSource()
+      src.buffer = rollBuffer
+      const g = ctx.createGain()
+      g.gain.value = 0.9
+      src.connect(g).connect(ctx.destination)
+      src.start()
+      return
+    } catch { /* fall through to the synth */ }
+  }
+  // Fallback: synthesize a thinning rattle from the hit samples. A single crisp
+  // throw hit (dice leaving the hand), then the pump takes over.
   const now = typeof performance !== 'undefined' ? performance.now() : 0
-  // A single crisp throw hit (the dice leaving the hand), then the pump takes
-  // over. One hit, not a cluster — two stacked samples read as a buzz, not dice.
   playHit(0.5, 0.95 + Math.random() * 0.16)
   pumpTimer = setTimeout(() => pump(now), 110)
 }
@@ -117,8 +146,10 @@ function stopPump() {
   if (pumpTimer) { clearTimeout(pumpTimer); pumpTimer = null }
 }
 
-// Stop the rattle and play the final settle clack — called at real settle time.
+// Called at real settle time. The recording already includes its own settle, so
+// this only does anything in the synth-fallback path (stop the pump + a clack).
 export function playSettleSound() {
+  if (rollBuffer) return
   stopPump()
   playHit(0.7, 0.85)
 }
