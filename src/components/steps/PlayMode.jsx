@@ -11,7 +11,21 @@ import { playRollSound, playSettleSound, preloadSound } from '../../utils/diceSo
 import { animationsOn, soundOn, setAnimations, setSound } from '../../utils/diceSettings.js'
 import CloudStatus from '../CloudStatus.jsx'
 import DiceOverlay from '../DiceOverlay.jsx'
+import Step4Combat from './Step4Combat.jsx'
+import Step5Powers from './Step5Powers.jsx'
+import Step6Magic from './Step6Magic.jsx'
+import Step7Skills from './Step7Skills.jsx'
 import styles from './PlayMode.module.css'
+
+// In-Play section editors (#180): reuse the real wizard editors in an overlay so
+// skills/weapons/powers/crafts can be tweaked mid-session without leaving Play
+// Mode. Keyed by the section the GM opens.
+const PLAY_EDITORS = {
+  combat: { title: 'Weapons & Combat', Comp: Step4Combat },
+  skills: { title: 'Skills',           Comp: Step7Skills },
+  powers: { title: 'Powers',           Comp: Step5Powers },
+  magic:  { title: 'Magic Crafts',     Comp: Step6Magic },
+}
 
 const ATTR_LABELS = {
   strength: 'STR', agility: 'AGI', dexterity: 'DEX', endurance: 'END',
@@ -36,6 +50,8 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
   useEffect(() => { if (animOn) preloadDice() }, [animOn])
   useEffect(() => { if (animOn && sndOn) preloadSound() }, [animOn, sndOn])
   const [targetLevel, setTargetLevel] = useState(1)
+  const [editSection, setEditSection] = useState(null) // #180: in-Play section editor
+  const canEdit = !readOnly
 
   // Read-only viewers (a player opening a character they don't own/aren't
   // assigned, when auth is enabled) can see the sheet but not change counters.
@@ -312,25 +328,26 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
           </section>
 
           {/* Weapons quick-ref */}
-          {character.weapons?.length > 0 && (
+          {(canEdit || character.weapons?.length > 0) && (
             <section className={styles.refSection}>
-              <h3>Weapons</h3>
-              {character.weapons.map(w => (
+              <h3>Weapons{canEdit && <button className={styles.editSection} onClick={() => setEditSection('combat')} aria-label="Edit weapons">✎</button>}</h3>
+              {character.weapons?.length > 0 ? character.weapons.map(w => (
                 <div key={w.id} className={styles.weaponItem}>
                   <span>{w.name}</span>
                   <span className={styles.weaponBonus}>+{weaponModifier(w)}</span>
                   <span className={styles.weaponDesc}>{w.descriptor}</span>
                   <button className={styles.rollBtn} onClick={() => rollWeapon(w)}>Attack</button>
                 </div>
-              ))}
+              )) : <p className={styles.refEmpty}>None yet.</p>}
             </section>
           )}
 
           {/* Skills quick-ref */}
-          {character.skills?.length > 0 && (
+          {(canEdit || character.skills?.length > 0) && (
             <section className={styles.refSection}>
-              <h3>Skills</h3>
-              {character.skills.map(s => (
+              <h3>Skills{canEdit && <button className={styles.editSection} onClick={() => setEditSection('skills')} aria-label="Edit skills">✎</button>}</h3>
+              {character.skills?.length === 0 && <p className={styles.refEmpty}>None yet.</p>}
+              {character.skills?.map(s => (
                 <div key={s.id} className={styles.skillRow}>
                   <div className={styles.skillItem}>
                     <span>{s.isSpecialty ? '★ ' : ''}{s.name}</span>
@@ -356,10 +373,11 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
           )}
 
           {/* Powers quick-ref */}
-          {character.hasPowers && character.powers?.length > 0 && (
+          {character.hasPowers && (canEdit || character.powers?.length > 0) && (
             <section className={styles.refSection}>
-              <h3>Powers</h3>
-              {character.powers.map(p => (
+              <h3>Powers{canEdit && <button className={styles.editSection} onClick={() => setEditSection('powers')} aria-label="Edit powers">✎</button>}</h3>
+              {character.powers?.length === 0 && <p className={styles.refEmpty}>None yet.</p>}
+              {character.powers?.map(p => (
                 <div key={p.id} className={styles.skillItem}>
                   <span>{p.name}{p.description ? ` — ${p.description}` : ''}</span>
                   <strong>+{p.attributeType
@@ -372,10 +390,11 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
           )}
 
           {/* Magic Crafts quick-ref */}
-          {character.hasMagic && character.crafts?.length > 0 && (
+          {character.hasMagic && (canEdit || character.crafts?.length > 0) && (
             <section className={styles.refSection}>
-              <h3>Magic Crafts</h3>
-              {character.crafts.map(c => (
+              <h3>Magic Crafts{canEdit && <button className={styles.editSection} onClick={() => setEditSection('magic')} aria-label="Edit crafts">✎</button>}</h3>
+              {character.crafts?.length === 0 && <p className={styles.refEmpty}>None yet.</p>}
+              {character.crafts?.map(c => (
                 <div key={c.id} className={styles.skillItem}>
                   <span>{c.name}{c.description ? ` — ${c.description}` : ''}</span>
                   <strong>{(c.attributeValue||0)+(c.skillBonus||0)+(c.misc||0)}</strong>
@@ -441,6 +460,21 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
           </section>
         </div>
       </div>
+
+      {editSection && PLAY_EDITORS[editSection] && (() => {
+        const { title, Comp } = PLAY_EDITORS[editSection]
+        return (
+          <div className={styles.editOverlay} role="dialog" aria-modal="true" aria-label={`Edit ${title}`}>
+            <div className={styles.editHeader}>
+              <span className={styles.editTitle}>{title}</span>
+              <button className="btn-primary" onClick={() => setEditSection(null)}>Done</button>
+            </div>
+            <div className={styles.editBody}>
+              <Comp character={character} onUpdate={onUpdate} />
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }
