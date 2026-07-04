@@ -33,6 +33,17 @@
   text-transform: none;
 }
 
+.available {
+  font-family: 'Newsreader', serif;
+  font-size: 1rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--bronze);
+  padding: 2px 10px;
+  border: 1px solid var(--bronze);
+  border-radius: 999px;
+}
+
 .overWarning {
   color: var(--danger, #cf8a7a);
   font-size: 10px;

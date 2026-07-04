@@ -142,6 +142,14 @@ export const characterSchema = z.object({
     mana:        z.number().int().default(0),
     storyPoints: z.number().int().default(2),
   }).default({ hp: 0, mana: 0, storyPoints: 2 }),
+  // Skill-point snapshot taken at each level-up (#134): the level entered and
+  // each skill's dedicated points at that moment, keyed by skill id. Lets the
+  // Skills editor show "N added this level" against the per-level add cap.
+  // null until the character first levels up through the app.
+  _levelBaseline: z.object({
+    level:  z.number().int(),
+    points: z.record(z.string(), z.number()),
+  }).nullable().default(null),
 })
 
 export function safeParseCharacter(data) {

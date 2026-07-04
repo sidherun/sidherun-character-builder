@@ -1,0 +1,77 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.dialog {
+  width: 100%;
+  max-width: 440px;
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  box-shadow: var(--card-shadow);
+  padding: 22px;
+}
+
+.title {
+  font-family: 'Newsreader', serif;
+  font-size: 1.4rem;
+  color: var(--ink-900);
+  margin-bottom: 12px;
+}
+
+.body {
+  color: var(--ink-700);
+  line-height: 1.5;
+}
+
+.levelLine {
+  font-family: 'Newsreader', serif;
+  font-size: 1.25rem;
+  color: var(--ink-800);
+  margin-bottom: 12px;
+}
+.arrow { color: var(--ink-400); margin: 0 6px; }
+.toLevel { color: var(--bronze); }
+
+.changes {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.changes li {
+  position: relative;
+  padding-left: 16px;
+  color: var(--ink-700);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+.changes li::before {
+  content: '·';
+  position: absolute;
+  left: 4px;
+  color: var(--bronze);
+}
+.changes strong { color: var(--ink-900); }
+
+.warn {
+  font-size: 0.82rem;
+  color: var(--danger);
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+}

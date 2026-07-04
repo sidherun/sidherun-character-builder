@@ -36,26 +36,45 @@ export function cumulativeSkillCap(level) {
 // Budget snapshot for a character's skill allocation. Pure — no side effects.
 //   used      total dedicated points across all skills
 //   pool      points available at this level
-//   remaining pool - used (negative when over)
+//   available pool - used (the unspent points; negative when over)
+//   remaining alias of available (kept for existing callers)
 //   cap       per-skill cumulative cap at this level
-//   violations skills whose dedicated points exceed the cap
-//   overBudget used > pool OR any per-skill violation (the GM-visible signal)
+//   maxAdd    per-skill add cap for THIS level
+//   violations       skills whose dedicated points exceed the cumulative cap
+//   perLevelAdds     skills that gained more than maxAdd since the last level-up
+//                    (only when a _levelBaseline for this level exists)
+//   overBudget over pool OR any per-skill / per-level violation (GM-visible)
 export function skillBudget(character) {
   const level = clampLevel(character?.level)
   const skills = Array.isArray(character?.skills) ? character.skills : []
   const used = skills.reduce((n, s) => n + (Number(s?.skillPoints) || 0), 0)
   const pool = poolSize(level)
   const cap = cumulativeSkillCap(level)
+  const maxAdd = maxAddPerSkill(level)
   const violations = skills
     .filter(s => (Number(s?.skillPoints) || 0) > cap)
     .map(s => ({ name: s.name || 'Unnamed', points: Number(s.skillPoints) || 0, cap }))
+
+  // Per-level add check, only meaningful once a baseline for THIS level exists.
+  const baseline = character?._levelBaseline
+  const perLevelAdds = []
+  if (baseline && baseline.level === level && baseline.points) {
+    for (const s of skills) {
+      const added = (Number(s?.skillPoints) || 0) - (Number(baseline.points[s.id]) || 0)
+      if (added > maxAdd) perLevelAdds.push({ name: s.name || 'Unnamed', added, maxAdd })
+    }
+  }
+
   return {
     level,
     used,
     pool,
+    available: pool - used,
     remaining: pool - used,
     cap,
+    maxAdd,
     violations,
-    overBudget: used > pool || violations.length > 0,
+    perLevelAdds,
+    overBudget: used > pool || violations.length > 0 || perLevelAdds.length > 0,
   }
 }

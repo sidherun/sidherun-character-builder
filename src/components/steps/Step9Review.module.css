@@ -136,6 +136,14 @@
 }
 .editBtn:hover { border-color: var(--bronze); color: var(--bronze); }
 
+/* Level-up XP-ready cue (#134) */
+.levelDot {
+  color: var(--story);
+  font-size: 0.7em;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
 /* Skill-point budget indicator + GM-visible over-budget flag (#178) */
 .budget,
 .budgetOver {

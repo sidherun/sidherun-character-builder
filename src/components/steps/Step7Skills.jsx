@@ -67,6 +67,7 @@ export default function Step7Skills({ character, onUpdate }) {
     updateSkill(skillId, { usePips: newPips })
   }
 
+  const available = MAX_BUDGET - budgetUsed
   const budgetColor = overBudget ? 'var(--danger)' : budgetUsed >= MAX_BUDGET * 0.85 ? 'var(--bronze)' : 'var(--story)'
 
   return (
@@ -82,10 +83,11 @@ export default function Step7Skills({ character, onUpdate }) {
         style={{ color: budgetColor }}
         role="status"
         aria-live="polite"
-        aria-label={`Skill points used: ${budgetUsed} of ${MAX_BUDGET} at Level ${character.level}${overBudget ? ' — over budget' : ''}`}
+        aria-label={`Skill points: ${budgetUsed} of ${MAX_BUDGET} used at Level ${character.level}, ${available} available${overBudget ? ' — over budget' : ''}`}
       >
         <span>Skill Points Used:</span>
         <strong>{budgetUsed} / {MAX_BUDGET}</strong>
+        <span className={styles.available}>{available >= 0 ? `${available} available` : `${-available} over`}</span>
         {overBudget && <span className={styles.overWarning}>⚠ Over budget!</span>}
       </div>
 

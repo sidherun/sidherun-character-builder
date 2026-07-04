@@ -1,7 +1,9 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { calcDefense, calcHitPoints, calcMana, attrTotal, calcSkillTotal } from '../../utils/characterDerived.js'
 import { skillBudget } from '../../utils/skillPoints.js'
+import { canLevelUp, applyLevelUp } from '../../utils/leveling.js'
 import { weaponModifier } from '../../utils/rollActions.js'
+import LevelUpDialog from '../LevelUpDialog.jsx'
 import { encodeCharacterToURL } from '../../utils/urlState.js'
 import { generateCharacterHTML } from '../../utils/generateCharacterHTML.js'
 import styles from './Step9Review.module.css'
@@ -37,6 +39,17 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
   // Skills-only point budget (#178). Shown while editing; drives the GM-visible
   // over-budget badge (also surfaced on the roster card + GM screen).
   const budget = editable ? skillBudget(character) : null
+
+  // Level-up flow (#134). The button is always available (GM discretion) but
+  // cues when XP has crossed the threshold. Confirming applies the level bump +
+  // baseline snapshot, then drops into the Skills editor to spend the new points.
+  const [showLevelUp, setShowLevelUp] = useState(false)
+  const levelReady = editable && canLevelUp(character)
+  function confirmLevelUp() {
+    onUpdate?.(applyLevelUp(character))
+    setShowLevelUp(false)
+    onEditSection?.(7)
+  }
 
   // Inline inventory editing on the sheet — inventory has no wizard editor of its
   // own, and "add a potion" is the headline use case. Mirrors Play Mode.
@@ -102,6 +115,15 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
           </p>
         </div>
         <div className={styles.headerActions}>
+          {editable && (
+            <button
+              className="btn-secondary"
+              onClick={() => setShowLevelUp(true)}
+              title={levelReady ? 'XP threshold reached — ready to level up' : 'Level up (GM discretion)'}
+            >
+              ⬆ Level Up{levelReady && <span className={styles.levelDot} aria-label="XP threshold reached">●</span>}
+            </button>
+          )}
           <button className="btn-primary" onClick={() => { onSaveToRoster(); onEnterPlayMode() }}>
             ▶ Enter Play Mode
           </button>
@@ -326,6 +348,10 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
           <h3>Backstory</h3>
           <p>{character.backstory}</p>
         </section>
+      )}
+
+      {showLevelUp && (
+        <LevelUpDialog character={character} onConfirm={confirmLevelUp} onClose={() => setShowLevelUp(false)} />
       )}
     </div>
   )
