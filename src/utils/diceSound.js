@@ -1,11 +1,10 @@
 // Our own dice sound layer. The 3D engine's built-in audio is iOS-fragile (hangs
 // init, crashes mid-roll — spike), so we play the sound ourselves.
 //
-// PRIMARY: one pre-rendered roll recording (`/sfx/roll.wav`) played on the roll
-// tap. It's built offline from the engine's own real dice-hit + felt samples
-// arranged into a natural tumble, so the timbre is authentic and the rhythm is
-// fixed (no live-scheduling jitter). To use a different sound, drop a `roll.wav`
-// (or `roll.mp3`) in `public/sfx/` — it's picked up automatically.
+// PRIMARY: real roll recordings in `public/sfx/`, alternated per roll so it
+// doesn't sound identical every time (roll.wav = mixed offline from the engine's
+// real dice-hit + felt samples; roll-b.mp3 = a recorded RPG dice roll). Add more
+// files to `ROLL_SRCS` to widen the rotation — they're picked up automatically.
 //
 // FALLBACK: if the recording can't load, we synthesize a rattle live from the
 // individual hit samples (a thinning pump of Web Audio buffer sources, or spaced
@@ -13,7 +12,10 @@
 //
 // The first playRollSound() happens inside the roll tap, which unlocks iOS audio.
 
-const ROLL_SRCS = ['/sfx/roll.wav', '/sfx/roll.mp3']
+// Roll recordings, alternated per roll so it doesn't sound identical every time.
+// roll.wav = mixed offline from the engine's real samples; roll-b.mp3 = a
+// recorded RPG dice roll (freesound). Add more paths here to widen the rotation.
+const ROLL_SRCS = ['/sfx/roll.wav', '/sfx/roll-b.mp3']
 const HITS = [
   'dicehit_plastic8', 'dicehit_plastic9', 'dicehit_plastic11',
   'dicehit_plastic13', 'dicehit_plastic14',
@@ -23,7 +25,8 @@ const SRC = (name) => `/dice3d/sounds/dicehit/${name}.mp3`
 
 let ctx = null
 const buffers = new Map() // name -> AudioBuffer
-let rollBuffer = null     // the pre-rendered roll recording, once decoded
+const rollBuffers = []    // the roll recordings, once decoded (alternated per roll)
+let rollIndex = 0         // rotation cursor across rollBuffers
 let loading = null
 let pumpTimer = null
 
@@ -47,16 +50,17 @@ async function loadBuffer(c, name) {
   } catch { /* leave unloaded; playHit falls back to HTML5 */ }
 }
 
-// Try each roll recording URL in order; keep the first that decodes.
-async function loadRoll(c) {
-  for (const url of ROLL_SRCS) {
+// Decode every roll recording that loads; playRollSound alternates through them.
+async function loadRolls(c) {
+  const decoded = await Promise.all(ROLL_SRCS.map(async (url) => {
     try {
       const res = await fetch(url)
-      if (!res.ok) continue
-      rollBuffer = await c.decodeAudioData(await res.arrayBuffer())
-      return
-    } catch { /* try the next candidate, else fall back to the synth */ }
-  }
+      if (!res.ok) return null
+      return await c.decodeAudioData(await res.arrayBuffer())
+    } catch { return null } // missing/undecodable → skip; synth is the fallback
+  }))
+  rollBuffers.length = 0
+  rollBuffers.push(...decoded.filter(Boolean))
 }
 
 // Warm up the context + decode buffers ahead of the first roll. Called on Play
@@ -66,7 +70,7 @@ export function preloadSound() {
   const c = ensureCtx()
   if (!c || loading) return loading
   loading = Promise.all([
-    loadRoll(c),
+    loadRolls(c),
     ...[...new Set([...HITS, SETTLE])].map((n) => loadBuffer(c, n)),
   ])
   return loading
@@ -123,11 +127,12 @@ export function playRollSound() {
   if (c && c.state === 'suspended') c.resume().catch(() => {})
   preloadSound() // no-op if already warmed; covers a first roll with no mount preload
   stopPump()
-  // Preferred: the pre-rendered recording, one shot.
-  if (ctx && rollBuffer) {
+  // Preferred: a roll recording, one shot, alternating through the loaded set.
+  if (ctx && rollBuffers.length) {
     try {
       const src = ctx.createBufferSource()
-      src.buffer = rollBuffer
+      src.buffer = rollBuffers[rollIndex % rollBuffers.length]
+      rollIndex++
       const g = ctx.createGain()
       g.gain.value = 0.9
       src.connect(g).connect(ctx.destination)
@@ -146,10 +151,10 @@ function stopPump() {
   if (pumpTimer) { clearTimeout(pumpTimer); pumpTimer = null }
 }
 
-// Called at real settle time. The recording already includes its own settle, so
-// this only does anything in the synth-fallback path (stop the pump + a clack).
+// Called at real settle time. The recordings already include their own settle,
+// so this only does anything in the synth-fallback path (stop the pump + a clack).
 export function playSettleSound() {
-  if (rollBuffer) return
+  if (rollBuffers.length) return
   stopPump()
   playHit(0.7, 0.85)
 }
