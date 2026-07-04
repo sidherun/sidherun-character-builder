@@ -4,6 +4,7 @@ import { attrTotal } from '../../utils/characterDerived.js'
 import { poolSize, cumulativeSkillCap } from '../../utils/skillPoints.js'
 import { SKILL_DICTIONARY } from '../../utils/spellcheck.js'
 import SpellSuggest from '../SpellSuggest.jsx'
+import { useFocusOnAdd } from '../../hooks/useFocusOnAdd.js'
 import { uuid } from '../../utils/uuid.js'
 import styles from './Step7Skills.module.css'
 
@@ -26,21 +27,25 @@ export default function Step7Skills({ character, onUpdate }) {
   const budgetUsed = calcSkillBudgetUsed(skills)
   const overBudget = budgetUsed > MAX_BUDGET
 
+  // "Add skill" focuses the new row's Name field, and Enter in the temp-mod
+  // field commits + starts the next skill — keyboard-only entry (#189).
+  const skillFocus = useFocusOnAdd()
+
   function getAttrScore(attrName) {
     const key = ATTR_MAP[attrName]
     return key ? attrTotal(attributes[key] || {}) : 0
   }
 
   function addSkill() {
-    onUpdate({
-      skills: [...skills, {
-        id: uuid(),
-        name: '', attributeName: 'Intelligence',
-        attributeScore: getAttrScore('Intelligence'),
-        skillPoints: 0, tempMod: 0,
-        isSpecialty: false, usePips: 0,
-      }]
-    })
+    const next = [...skills, {
+      id: uuid(),
+      name: '', attributeName: 'Intelligence',
+      attributeScore: getAttrScore('Intelligence'),
+      skillPoints: 0, tempMod: 0,
+      isSpecialty: false, usePips: 0,
+    }]
+    skillFocus.markLast(next.length)
+    onUpdate({ skills: next })
   }
 
   function updateSkill(id, patch) {
@@ -122,7 +127,7 @@ export default function Step7Skills({ character, onUpdate }) {
         <span></span>
       </div>
 
-      {skills.map(s => {
+      {skills.map((s, i) => {
         const total = calcSkillTotal(s)
         const skillLabel = s.name || 'unnamed skill'
         return (
@@ -134,6 +139,7 @@ export default function Step7Skills({ character, onUpdate }) {
           >
             <input
               value={s.name}
+              ref={skillFocus.focusRef(i)}
               onChange={e => updateSkill(s.id, { name: e.target.value })}
               placeholder="Skill name…"
               className={styles.nameInput}
@@ -160,6 +166,7 @@ export default function Step7Skills({ character, onUpdate }) {
               type="number"
               value={s.tempMod || ''}
               onChange={e => updateSkill(s.id, { tempMod: parseInt(e.target.value) || 0 })}
+              onKeyDown={skillFocus.enterAdds(addSkill)}
               className={styles.numInput}
               aria-label={`Temporary modifier for ${skillLabel}`}
             />

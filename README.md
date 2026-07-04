@@ -23,6 +23,7 @@ A browser-based character creation tool for the **Sidherun** tabletop RPG. Build
 - **Session Notes** — Slide-in notes panel with per-character CRUD
 - **Import** — Load any exported JSON file to restore a character on any device (validated against the schema on import; invalid files are rejected with a descriptive error)
 - **Inventory** — editable in Play Mode and on the character sheet (add/edit/remove; **+ Add item** drops the cursor straight into the new item's Name field, and pressing **Enter in the notes field** commits the item, opens a fresh row, and focuses its Name field — so several items can be entered keyboard-only, Item → Tab → Notes → Enter → next Item (#185)); also shown in Step 9 Review and the print/HTML export. Supports free-text strings or structured objects (name, quantity, notes)
+- **Keyboard-only repeatable-row entry** — the "**+ Add** focuses the new row's first field, **Enter in the row's last field** commits and opens the next focused row" flow is shared across **Inventory**, **Weapons** (Enter in Damage/notes), and **Skills** (Enter in the temp-mod field), via one hook (`hooks/useFocusOnAdd.js`) so the three sections behave identically (#185, #189)
 - **Custom archetype** — when "Custom (GM Defined)" is selected in Identity, an inline panel lets you name the archetype and toggle Powers/Magic on or off (with magic attribute selection). The custom name shows everywhere: Roster, Play Mode header, Review sheet.
 
 ---

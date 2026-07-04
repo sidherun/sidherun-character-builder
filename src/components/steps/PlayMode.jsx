@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect, Fragment } from 'react'
+import { useState, useEffect, Fragment } from 'react'
+import { useFocusOnAdd } from '../../hooks/useFocusOnAdd.js'
 import { calcDefense, calcSkillTotal, attrTotal } from '../../utils/characterDerived.js'
 import { ITEM_DICTIONARY } from '../../utils/spellcheck.js'
 import SpellSuggest from '../SpellSuggest.jsx'
@@ -105,12 +106,12 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
 
   // Inventory editing during play. Items may be legacy strings or objects;
   // normalize to { name, quantity, notes } on edit (the schema accepts both).
-  // focusIdx marks the inventory row whose Name input should grab focus on the
-  // next render, so "Add item" drops the cursor into the new field (#153).
-  const invFocusIdx = useRef(null)
+  // "Add item" drops the cursor into the new row's Name field, and Enter in the
+  // Notes field commits + starts the next row (#153, #185) — see useFocusOnAdd.
+  const invFocus = useFocusOnAdd()
   function addInventoryItem() {
     const inventory = [...(character.inventory || []), { name: '', quantity: '', notes: '' }]
-    invFocusIdx.current = inventory.length - 1
+    invFocus.markLast(inventory.length)
     mutate({ inventory })
   }
   function updateInventoryItem(i, patch) {
@@ -415,7 +416,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
                     className={styles.invInput}
                     value={obj.name || ''}
                     placeholder="Item"
-                    ref={el => { if (el && invFocusIdx.current === i) { el.focus(); invFocusIdx.current = null } }}
+                    ref={invFocus.focusRef(i)}
                     onChange={e => updateInventoryItem(i, { name: e.target.value })}
                     aria-label={`Item ${i + 1} name`}
                   />
@@ -431,7 +432,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
                     value={obj.notes || ''}
                     placeholder="Notes"
                     onChange={e => updateInventoryItem(i, { notes: e.target.value })}
-                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addInventoryItem() } }}
+                    onKeyDown={invFocus.enterAdds(addInventoryItem)}
                     aria-label={`Item ${i + 1} notes`}
                   />
                   <button
