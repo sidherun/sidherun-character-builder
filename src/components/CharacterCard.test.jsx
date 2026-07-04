@@ -42,4 +42,17 @@ describe('CharacterCard action collapsing (#158)', () => {
     )
     expect(html).toContain('More options for Unnamed')
   })
+
+  it('shows a chip for each table the character belongs to (#175)', () => {
+    const tables = [{ id: 't1', name: 'Thursday Table' }, { id: 't2', name: 'Campaign B' }]
+    const html = renderToStaticMarkup(
+      <CharacterCard
+        entry={{ ...entry(), tableIds: ['t1'] }}
+        tables={tables} onToggleTable={noop}
+        onLoad={noop} onDelete={noop} onGetCharacter={noop}
+      />
+    )
+    expect(html).toContain('Thursday Table')
+    expect(html).not.toContain('Campaign B') // only member tables become chips
+  })
 })

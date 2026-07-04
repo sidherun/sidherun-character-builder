@@ -87,6 +87,66 @@
   color: var(--card);
 }
 
+.menuSection {
+  border-top: 1px solid var(--line);
+  margin-top: 4px;
+  padding: 6px 4px 4px;
+}
+
+.menuHeading {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-400);
+  padding: 2px 6px 4px;
+}
+
+.menuHint {
+  font-size: 0.75rem;
+  color: var(--ink-400);
+  padding: 2px 6px 4px;
+  line-height: 1.35;
+}
+
+.menuCheck {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  font-size: 0.82rem;
+  color: var(--ink-800);
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.menuCheck:hover {
+  background: var(--line);
+}
+
+.menuCheck input {
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--bronze);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  padding: 2px 8px;
+  color: var(--bronze);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+}
+
 .confirm {
   display: flex;
   flex-direction: column;

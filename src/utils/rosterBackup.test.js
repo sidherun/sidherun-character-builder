@@ -27,6 +27,16 @@ describe('cloud state in backup', () => {
     expect(b._cloudMap).toBeUndefined()
     expect(extractCloudState(b)).toEqual({ gmKey: undefined, cloudMap: undefined })
   })
+  it('carries the named-table registry and round-trips it (#175)', () => {
+    const tables = [{ id: 't1', name: 'Thursday Table' }]
+    const b = buildRosterBackup([], 'now', { tables })
+    expect(b._tables).toEqual(tables)
+    expect(extractCloudState(b).tables).toEqual(tables)
+  })
+  it('omits the table registry when empty', () => {
+    const b = buildRosterBackup([], 'now', { tables: [] })
+    expect(b._tables).toBeUndefined()
+  })
 })
 
 describe('extractCharacters', () => {

@@ -69,67 +69,14 @@
   color: var(--ink-400);
 }
 
-.segmented {
-  display: inline-flex;
+.tableSelect {
+  font-size: 0.85rem;
+  padding: 6px 10px;
+  color: var(--ink-900);
+  background: var(--card);
   border: 1px solid var(--line-strong);
   border-radius: 6px;
-  overflow: hidden;
-}
-
-.segmented > button + button {
-  border-left: 1px solid var(--line-strong);
-}
-
-.seg,
-.segActive {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  padding: 6px 14px;
-  border: none;
-  background: transparent;
-  color: var(--ink-700);
   cursor: pointer;
-}
-
-.seg:hover:not(:disabled) {
-  color: var(--ink-900);
-  background: var(--ghost-hover);
-}
-
-.seg:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-.segActive {
-  background: var(--bronze);
-  color: var(--card);
-}
-
-.present {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 4px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-400);
-  cursor: pointer;
-  user-select: none;
-}
-
-.present input {
-  margin: 0;
-  cursor: pointer;
-  accent-color: var(--bronze);
-}
-
-.rowPresent {
-  border-color: var(--bronze);
-  box-shadow: inset 3px 0 0 var(--bronze);
 }
 
 .grid {

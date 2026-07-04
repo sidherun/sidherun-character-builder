@@ -15,13 +15,15 @@ export function buildRosterBackup(characters, now = '', cloud = {}) {
   }
   if (cloud.gmKey) backup._gmKey = cloud.gmKey
   if (cloud.cloudMap && Object.keys(cloud.cloudMap).length) backup._cloudMap = cloud.cloudMap
+  if (cloud.tables && cloud.tables.length) backup._tables = cloud.tables // named-table registry (#175)
   return backup
 }
 
-// Pull cloud state (GM key + map) back out of a restored backup, if present.
+// Pull GM-side state (GM key + cloud map + table registry) back out of a
+// restored backup, if present.
 export function extractCloudState(parsed) {
   if (!parsed || typeof parsed !== 'object') return {}
-  return { gmKey: parsed._gmKey, cloudMap: parsed._cloudMap }
+  return { gmKey: parsed._gmKey, cloudMap: parsed._cloudMap, tables: parsed._tables }
 }
 
 // Normalise any restore input into a flat list of candidate character objects:

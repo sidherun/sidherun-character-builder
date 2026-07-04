@@ -3,11 +3,14 @@ import { loadRoster, deleteCharacterFromRoster, loadCharacterFromRoster, saveCha
 import { generateBatchHTML } from '../utils/generateCharacterHTML.js'
 import { buildRosterBackup, extractCharacters, validateCharacters, extractCloudState } from '../utils/rosterBackup.js'
 import { cloudEnabled } from '../utils/supabaseClient.js'
-import { pushRoster, ensureGmKey, getGmKey, getCloudMap, importCloudState, deleteCloudCharacter } from '../utils/cloudSync.js'
-import { repoEnabled, listCharacters, listPlayers, assignPlayer, deleteCharacter as repoDelete } from '../utils/characterRepo.js'
+import { pushRoster, ensureGmKey, getGmKey, getCloudMap, importCloudState, deleteCloudCharacter, syncCharacter } from '../utils/cloudSync.js'
+import { repoEnabled, listCharacters, listPlayers, assignPlayer, deleteCharacter as repoDelete, saveCharacterData } from '../utils/characterRepo.js'
+import { trackPush } from '../utils/cloudStatus.js'
 import { useAuth, isGmOrAdmin } from '../auth/useAuth.js'
 import { sortRoster, SORT_KEYS } from '../utils/rosterSort.js'
+import { listTables, createTable, renameTable, deleteTable, importTables, toggleMembership, withoutTable } from '../utils/tables.js'
 import CharacterCard from '../components/CharacterCard.jsx'
+import TablesManager from '../components/TablesManager.jsx'
 import styles from './RosterPage.module.css'
 
 // Project a full (repo) character into the lightweight roster-entry shape the
@@ -22,6 +25,7 @@ function toEntry(c) {
     customArchetypeName: c.customArchetypeName || '',
     level: c.level,
     hp: c.hitPoints?.total ?? 0,
+    tableIds: Array.isArray(c.tableIds) ? c.tableIds : [],
     savedAt: c._updatedAt || new Date().toISOString(),
     ownerUserId: c._ownerUserId ?? null,
     assignedPlayerId: c._assignedPlayerId ?? null,
@@ -64,6 +68,53 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
   const [pushing, setPushing] = useState(false)
   const restoreRef = useRef(null)
 
+  // Named tables (#175). Registry lives GM-side (localStorage + backup file);
+  // per-character membership rides the character blob's tableIds.
+  const [tables, setTables] = useState(listTables)
+  const [showTables, setShowTables] = useState(false)
+
+  const tableCounts = {}
+  for (const e of roster) for (const tid of (e.tableIds || [])) tableCounts[tid] = (tableCounts[tid] || 0) + 1
+
+  // Persist a character's changed membership on the active storage plane, and
+  // reflect it in the roster index so chips/checkboxes update immediately.
+  function persistMembership(id, updated, nextIds) {
+    if (useRepo) {
+      setRepoChars(prev => ({ ...prev, [id]: updated }))
+      saveCharacterData(id, updated, updated._dataRev).catch(() => setStatus('Could not save table change to cloud.'))
+    } else {
+      saveCharacterToRoster(updated)
+      if (cloudEnabled && getCloudMap()[id]) trackPush(syncCharacter(updated)).catch(() => {})
+    }
+    setRoster(prev => prev.map(e => (e.id === id ? { ...e, tableIds: nextIds } : e)))
+  }
+
+  function handleToggleTable(id, tableId) {
+    const char = getCharacter(id)
+    if (!char) return
+    const nextIds = toggleMembership(char, tableId)
+    persistMembership(id, { ...char, tableIds: nextIds }, nextIds)
+  }
+
+  // Re-list after each mutation so state is an array regardless of the mutator's
+  // return shape (createTable returns the new table, not the list).
+  function handleCreateTable(name) { createTable(name); setTables(listTables()) }
+  function handleRenameTable(id, name) { renameTable(id, name); setTables(listTables()) }
+
+  // Delete a table: characters are kept, just stripped of this table's id.
+  function handleDeleteTable(id, name) {
+    if (!confirm(`Delete table “${name}”? Characters stay — they’re just removed from this table.`)) return
+    for (const e of roster) {
+      if (!(e.tableIds || []).includes(id)) continue
+      const char = getCharacter(e.id)
+      if (!char) continue
+      const nextIds = withoutTable(char, id)
+      persistMembership(e.id, { ...char, tableIds: nextIds }, nextIds)
+    }
+    deleteTable(id)
+    setTables(listTables())
+  }
+
   // Push the whole local roster to the cloud (idempotent: already-synced
   // characters are updated, not duplicated). Opt-in entry point for cloud sync.
   async function handlePushToCloud() {
@@ -96,7 +147,7 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
   function handleBackup() {
     const chars = roster.map(e => getCharacter(e.id)).filter(Boolean)
     if (chars.length === 0) return
-    const backup = buildRosterBackup(chars, new Date().toISOString(), { gmKey: getGmKey(), cloudMap: getCloudMap() })
+    const backup = buildRosterBackup(chars, new Date().toISOString(), { gmKey: getGmKey(), cloudMap: getCloudMap(), tables })
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
@@ -119,7 +170,9 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
       try {
         const parsed = JSON.parse(await f.text())
         candidates.push(...extractCharacters(parsed))
-        importCloudState(extractCloudState(parsed)) // restore GM key + cloud map if present
+        const cloudState = extractCloudState(parsed)
+        importCloudState(cloudState) // restore GM key + cloud map if present
+        if (cloudState.tables) setTables(importTables(cloudState.tables)) // restore table registry (#175)
       } catch { unreadable++ }
     }
     const { valid, invalid } = validateCharacters(candidates)
@@ -211,6 +264,11 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
               GM Screen
             </button>
           )}
+          {roster.length > 0 && (!useRepo || isGmOrAdmin(role)) && (
+            <button className="btn-secondary" aria-expanded={showTables} onClick={() => setShowTables(s => !s)}>
+              Tables ({tables.length})
+            </button>
+          )}
           {roster.length > 0 && (
             <button className="btn-secondary" onClick={handlePrintAll}>
               Print all ({roster.length})
@@ -260,6 +318,15 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
       )}
 
       <main className={styles.main}>
+        {showTables && roster.length > 0 && (!useRepo || isGmOrAdmin(role)) && (
+          <TablesManager
+            tables={tables}
+            counts={tableCounts}
+            onCreate={handleCreateTable}
+            onRename={handleRenameTable}
+            onDelete={handleDeleteTable}
+          />
+        )}
         {roster.length === 0 ? (
           <div className={styles.empty}>
             <p>No saved characters yet.</p>
@@ -285,6 +352,8 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
               canReassign={useRepo && isGmOrAdmin(role)}
               players={players}
               onReassign={handleReassign}
+              tables={tables}
+              onToggleTable={handleToggleTable}
             />
           )
           return (

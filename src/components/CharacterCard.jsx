@@ -19,6 +19,8 @@ export default function CharacterCard({
   // Authenticated-plane role gating (epic #109). Defaults preserve the legacy
   // single-user behavior: everything manageable, no reassign control.
   canManage = true, canReassign = false, players = [], onReassign,
+  // Named tables (#175): the GM's table registry + a toggle for membership.
+  tables = [], onToggleTable,
 }) {
   const [linkState, setLinkState] = useState('idle') // idle | loading | copied | error
   const [cloudState, setCloudState] = useState('idle') // idle | copied | error
@@ -88,6 +90,8 @@ export default function CharacterCard({
   const cloudLabel = { idle: 'Copy live link', copied: 'Copied!', error: 'Copy failed' }
 
   const name = entry.name || 'Unnamed'
+  const memberIds = Array.isArray(entry.tableIds) ? entry.tableIds : []
+  const memberTables = tables.filter(t => memberIds.includes(t.id))
 
   return (
     <div className={styles.card}>
@@ -128,6 +132,25 @@ export default function CharacterCard({
                     Reset link
                   </button>
                 )}
+                {canManage && onToggleTable && (
+                  <div className={styles.menuSection} role="group" aria-label="Tables">
+                    <div className={styles.menuHeading}>Tables</div>
+                    {tables.length === 0 ? (
+                      <div className={styles.menuHint}>No tables yet — create one on the roster.</div>
+                    ) : (
+                      tables.map(t => (
+                        <label key={t.id} className={styles.menuCheck}>
+                          <input
+                            type="checkbox"
+                            checked={memberIds.includes(t.id)}
+                            onChange={() => onToggleTable(entry.id, t.id)}
+                          />
+                          <span>{t.name}</span>
+                        </label>
+                      ))
+                    )}
+                  </div>
+                )}
                 {canManage && (
                   <button
                     role="menuitem"
@@ -156,6 +179,11 @@ export default function CharacterCard({
         {entry.race} · {entry.archetype === 'custom' ? (entry.customArchetypeName || 'Custom') : entry.archetype} · Level {entry.level}
       </div>
       <div className={styles.hp}>HP: {entry.hp}</div>
+      {memberTables.length > 0 && (
+        <div className={styles.chips}>
+          {memberTables.map(t => <span key={t.id} className={styles.chip}>{t.name}</span>)}
+        </div>
+      )}
       <div className={styles.saved}>
         Saved {new Date(entry.savedAt).toLocaleDateString()}
       </div>

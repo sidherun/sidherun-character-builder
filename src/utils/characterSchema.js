@@ -80,6 +80,10 @@ const noteSchema = z.object({
 export const characterSchema = z.object({
   wizardStep:  z.number().int().min(1).max(9).default(1),
   _rosterId:   z.string().nullable().default(null),
+  // Table membership (#175): ids of the GM's named tables this character belongs
+  // to (many-to-many). Lives in the synced blob so it follows a signed-in GM
+  // across devices; the id→name registry lives GM-side (see utils/tables.js).
+  tableIds:    z.array(z.string()).default([]),
 
   name:           z.string().default(''),
   playerName:     z.string().default(''),

@@ -67,6 +67,7 @@ export function saveCharacterToRoster(character) {
     customArchetypeName: char.customArchetypeName || '',
     level:               char.level,
     hp:        char.hitPoints?.total ?? 0,
+    tableIds:  Array.isArray(char.tableIds) ? char.tableIds : [],
     savedAt:   new Date().toISOString(),
   }
   if (idx >= 0) roster[idx] = entry
