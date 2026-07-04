@@ -10,6 +10,10 @@ import { useAuth, isGmOrAdmin } from '../auth/useAuth.js'
 import { applyAdjust } from '../utils/gmAdjust.js'
 import { subscribeRollFeed } from '../utils/rollFeed.js'
 import { formatRoll } from '../utils/rollFormat.js'
+import {
+  loadPresent, savePresent, loadSessionOnly, saveSessionOnly,
+  presentMatchCount, visibleChars, visibleRolls,
+} from '../utils/gmSession.js'
 import { trackPush } from '../utils/cloudStatus.js'
 import CloudStatus from '../components/CloudStatus.jsx'
 import styles from './GMScreen.module.css'
@@ -26,6 +30,25 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
   const [rollFeed, setRollFeed] = useState([])
   const charsRef = useRef(chars)
   charsRef.current = chars
+
+  // "In session" filter (#154): a GM-chosen subset for tonight's game, persisted
+  // so it survives a reload. presentIds is a Set of _rosterId marked present.
+  const [presentIds, setPresentIds] = useState(() => new Set(loadPresent()))
+  const [sessionOnly, setSessionOnly] = useState(loadSessionOnly)
+
+  function togglePresent(id) {
+    setPresentIds(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      savePresent(next)
+      return next
+    })
+  }
+
+  function setFilter(on) {
+    setSessionOnly(on)
+    saveSessionOnly(on)
+  }
 
   // Live dice-roll feed from the whole table (#148). One shared channel; every
   // player's roll lands here. Ephemeral — keep the last 20 in view only.
@@ -109,6 +132,15 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
     ? chars.length
     : (cloudEnabled ? chars.filter(c => getCloudMap()[c._rosterId]).length : 0)
 
+  // Present-filter derivations. `filtering` guards against a stale/empty
+  // selection blanking the grid: it's only true when the filter is on AND at
+  // least one present id still matches a current character.
+  const presentCount = presentMatchCount(chars, presentIds)
+  const filtering = sessionOnly && presentCount > 0
+  const visible = visibleChars(chars, presentIds, filtering)
+  const presentNames = chars.filter(c => presentIds.has(c._rosterId)).map(c => c.name || 'Unnamed')
+  const feedToShow = visibleRolls(rollFeed, presentNames, filtering)
+
   function adjust(c, kind, delta) {
     const next = applyAdjust(c, kind, delta)
     setChars(prev => prev.map(x => x._rosterId === next._rosterId ? next : x))
@@ -185,9 +217,9 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
       <main className={styles.main}>
         {cloudEnabled && rollFeed.length > 0 && (
           <section className={styles.rollFeed} aria-label="Live roll feed" aria-live="polite">
-            <h2 className={styles.feedTitle}>Live Rolls</h2>
+            <h2 className={styles.feedTitle}>Live Rolls{filtering ? ' · in session' : ''}</h2>
             <ul className={styles.feedList}>
-              {rollFeed.map(r => {
+              {feedToShow.map(r => {
                 const f = formatRoll(r)
                 return (
                   <li key={r._key} className={styles.feedItem}>
@@ -204,10 +236,41 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
         {chars.length === 0 ? (
           <p className={styles.empty}>No saved characters. Add characters from the Roster first.</p>
         ) : (
-          <div className={styles.grid}>
-            {chars.map(c => (
-              <div key={c._rosterId} className={styles.row}>
+          <>
+            <div className={styles.sessionBar}>
+              <span className={styles.sessionLabel}>Show</span>
+              <div className={styles.segmented} role="group" aria-label="Filter characters">
+                <button
+                  className={!filtering ? styles.segActive : styles.seg}
+                  aria-pressed={!filtering}
+                  onClick={() => setFilter(false)}
+                >
+                  All ({chars.length})
+                </button>
+                <button
+                  className={filtering ? styles.segActive : styles.seg}
+                  aria-pressed={filtering}
+                  disabled={presentCount === 0}
+                  title={presentCount === 0 ? 'Mark characters “In session” first' : undefined}
+                  onClick={() => setFilter(true)}
+                >
+                  In session ({presentCount})
+                </button>
+              </div>
+            </div>
+            <div className={styles.grid}>
+            {visible.map(c => (
+              <div key={c._rosterId} className={`${styles.row} ${presentIds.has(c._rosterId) ? styles.rowPresent : ''}`}>
                 <div className={styles.who}>
+                  <label className={styles.present}>
+                    <input
+                      type="checkbox"
+                      checked={presentIds.has(c._rosterId)}
+                      onChange={() => togglePresent(c._rosterId)}
+                      aria-label={`Mark ${c.name || 'Unnamed'} as in session`}
+                    />
+                    In session
+                  </label>
                   <div className={styles.name}>{c.name || 'Unnamed'}</div>
                   {c.playerName && <div className={styles.player}>{c.playerName}</div>}
                   <div className={styles.meta}>
@@ -235,7 +298,8 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
                 <button className="btn-secondary" onClick={() => openPlay(c)}>Open</button>
               </div>
             ))}
-          </div>
+            </div>
+          </>
         )}
       </main>
     </div>

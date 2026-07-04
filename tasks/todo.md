@@ -36,3 +36,4 @@ shipped-history log; open/planned work lives in issues, not here.
 | 3D dice-roll animation + sound in Play Mode (#156) | — | 2026-07-03 |
 | Roll-banner readability + player-facing tag, no "exploded" jargon (#155) | — | 2026-07-03 |
 | Roster ⋯ menu + named confirm-before-delete (#158) | — | 2026-07-04 |
+| GM Screen: "In session" filter + roll-feed scope (#154) | — | 2026-07-04 |
