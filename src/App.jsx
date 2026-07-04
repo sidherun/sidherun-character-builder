@@ -139,6 +139,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
     const rid = character._rosterId
     if (!rid) return
     hydrateCharacter(rid).then(fresh => {
+      console.log('[inv-sync] app guest refetch', rid, 'items:', fresh?.inventory?.length) // TEMP
       if (!fresh) return
       setCharacter(prev => (prev._rosterId === rid ? { ...prev, ...fresh } : prev))
     }).catch(() => {})
@@ -174,6 +175,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
       // Structural edit elsewhere → adopt the fresh row (same as conflict-adopt),
       // marking the sigs known so the autosave effects don't echo it back.
       getCharacter(rid).then(fresh => {
+        console.log('[inv-sync] app repo refetch', rid, 'items:', fresh?.inventory?.length) // TEMP
         if (!fresh) return
         dataRevRef.current = fresh._dataRev ?? null
         lastDataSig.current = dataSignature(fresh)
@@ -209,6 +211,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
     lastDataSig.current = sig
     const rosterId = character._rosterId
     const snapshot = character
+    console.log('[inv-sync] app structural change detected → scheduling push', rosterId) // TEMP
     const t = setTimeout(() => {
       trackPush(saveCharacterData(rosterId, snapshot, dataRevRef.current))
         .then(res => {

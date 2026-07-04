@@ -116,6 +116,7 @@ export async function saveCharacterData(id, character, expectedRev) {
   // Nudge other viewers to re-hydrate the fresh structural data. Like patchLive's
   // live broadcast, this is a plain pub/sub signal (no payload) — receivers refetch
   // the authoritative row, so it can't clobber a concurrent live/data change.
+  console.log('[inv-sync] repo send data nudge', id, 'channel?', !!repoChannels[id]) // TEMP
   repoChannels[id]?.send({ type: 'broadcast', event: 'data', payload: {} })
   return rowToCharacter(data)
 }
@@ -183,7 +184,7 @@ export function subscribeLive(id, onLive, onData) {
   if (!repoEnabled() || !id || repoChannels[id]) return repoChannels[id] || null
   const ch = supabase.channel(`char:${id}`, { config: { broadcast: { self: false } } })
   ch.on('broadcast', { event: 'live' }, ({ payload }) => onLive(payload))
-  if (onData) ch.on('broadcast', { event: 'data' }, () => onData())
+  if (onData) ch.on('broadcast', { event: 'data' }, () => { console.log('[inv-sync] repo recv data nudge', id); onData() }) // TEMP
   ch.subscribe()
   repoChannels[id] = ch
   return ch
