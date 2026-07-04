@@ -38,7 +38,7 @@ export default function Step4Combat({ character, onUpdate }) {
       weapons: [...character.weapons, {
         id: uuid(),
         name: '', attribute: 'Agility',
-        attributeBonus: attrTotalByName('Agility'), skillBonus: 0, descriptor: '',
+        attributeBonus: attrTotalByName('Agility'), skillBonus: 0, usesSkill: false, descriptor: '',
       }]
     })
   }
@@ -125,6 +125,15 @@ export default function Step4Combat({ character, onUpdate }) {
                   onChange={n => updateWeapon(w.id, { skillBonus: n })}
                   aria-label={`Skill bonus for ${weaponName}`}
                 />
+              </label>
+              <label className={styles.usesSkillLabel}>
+                <input
+                  type="checkbox"
+                  checked={!!w.usesSkill}
+                  onChange={e => updateWeapon(w.id, { usesSkill: e.target.checked })}
+                  aria-label={`Use skill bonus for ${weaponName} attack (otherwise attribute)`}
+                />
+                <span>Uses skill</span>
               </label>
               <div className={styles.totalBadge}>
                 <span>Total</span>

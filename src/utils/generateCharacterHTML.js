@@ -1,6 +1,7 @@
 import qrcode from 'qrcode-generator'
 import { calcDefense, calcHitPoints, calcMana, attrTotal, calcSkillTotal, calcPowerTotal } from './characterDerived.js'
 import { qrLinkFor } from './cloudSync.js'
+import { weaponModifier } from './rollActions.js'
 
 const ATTR_LABELS = {
   strength: 'STR', agility: 'AGI', dexterity: 'DEX', endurance: 'END',
@@ -46,7 +47,7 @@ function sheetBody(character) {
   ).join('')
 
   const weapons = (character.weapons || []).map(w =>
-    `<tr><td>${esc(w.name) || '—'}</td><td>${esc(w.attribute)}</td><td>+${(w.attributeBonus||0)+(w.skillBonus||0)}</td><td>${esc(w.descriptor)}</td></tr>`
+    `<tr><td>${esc(w.name) || '—'}</td><td>${esc(w.attribute)}</td><td>+${weaponModifier(w)}</td><td>${esc(w.descriptor)}</td></tr>`
   ).join('')
 
   // "Use" tracking: 5 circles per skill, filled to the recorded count, the
