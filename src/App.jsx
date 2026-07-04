@@ -179,7 +179,11 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
         if (!fresh) return
         dataRevRef.current = fresh._dataRev ?? null
         lastDataSig.current = dataSignature(fresh)
-        setCharacter(prev => (prev._rosterId === rid ? fresh : prev))
+        setCharacter(prev => {
+          const applied = prev._rosterId === rid // TEMP
+          console.log('[inv-sync] app repo setCharacter applied?', applied, 'prevRid', prev._rosterId, 'rid', rid, 'freshItems', fresh?.inventory?.length) // TEMP
+          return applied ? fresh : prev
+        })
       }).catch(() => {})
     })
     return () => removeLiveSubscription(rid)
@@ -399,6 +403,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   // Manage mode: an existing character. Show the character sheet (read view +
   // per-section ✎ edit), or one section's editor in a focused shell. No step bar.
   if (mode === 'manage') {
+    console.log('[inv-sync] app render manage', 'items', character?.inventory?.length, 'editSection', editSection) // TEMP
     const SectionComp = editSection != null ? STEP_COMPONENTS[editSection] : null
     return (
       <ErrorBoundary>
