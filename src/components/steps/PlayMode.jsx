@@ -431,6 +431,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
                     value={obj.notes || ''}
                     placeholder="Notes"
                     onChange={e => updateInventoryItem(i, { notes: e.target.value })}
+                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addInventoryItem() } }}
                     aria-label={`Item ${i + 1} notes`}
                   />
                   <button

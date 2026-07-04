@@ -1,4 +1,4 @@
-# Session handoff — start here (updated 2026-07-04, PM)
+# Session handoff — start here (updated 2026-07-04, late PM)
 
 Read this first, then `tasks/todo.md` (shipped log) and `gh issue list` (live tracker).
 
@@ -6,6 +6,12 @@ Read this first, then `tasks/todo.md` (shipped log) and `gh issue list` (live tr
 
 On `main`, everything deployed and green (**221 tests**, lint zero-warning, build clean).
 Production: https://character-builder.sidherun.com (GitHub Pages auto-deploys on push to `main`).
+
+**Open, not yet merged:** **PR #191** (branch `worktree-fix-185-inventory-enter`) —
+**#185** Enter in inventory notes commits + opens the next item focused. Draft, browser-verified,
+221 tests still pass. **Merge it to land**, then delete the branch. Follow-ups filed: **#189**
+(extend Enter-to-next to skills/weapons + factor a shared row-editor hook — `PlayMode.jsx` and
+`Step9Review.jsx` still duplicate the inventory add/edit/focus logic verbatim), **#190** (session note).
 
 **Shipped this session (all closed, all browser-verified):**
 - **#158** Roster ⋯ menu + named confirm-before-delete.
@@ -27,10 +33,11 @@ On the live authed roster, the existing table shows as **"Untitled table"** (its
 3. Stop hook: any code edit requires updating `README.md` + filing follow-up issues before the turn ends. Budget for it.
 
 ## Recommended next work
-1. **#185 — Play mode: Enter in inventory notes should commit + open a new item** (bug, quick, live-play ergonomics). Pairs with the existing add-item focus behavior.
-2. **#183 — spell-check scope + shared dictionary** (extend to name/notes; campaign-shared dict so homebrew is known across characters — could ride the same GM-side store as tables/#176).
-3. **#179 — Admin UI to manage user roles** (Ed explicitly wants this; today it's a manual SQL `update profiles.role`). Ed already created the issue for it.
-4. **#169** — exploding rolls animate one die per throw + list each value (dice code is warm). Delight.
+*(#185 done — see PR #191 above; merge it first.)*
+1. **#183 — spell-check scope + shared dictionary** (extend to name/notes; campaign-shared dict so homebrew is known across characters — could ride the same GM-side store as tables/#176).
+2. **#179 — Admin UI to manage user roles** (Ed explicitly wants this; today it's a manual SQL `update profiles.role`). Ed already created the issue for it.
+3. **#169** — exploding rolls animate one die per throw + list each value (dice code is warm). Delight.
+4. **#189** — extend the #185 Enter-to-next-item flow to skills/weapons for consistency; good moment to factor the duplicated inventory row logic into a shared hook.
 
 Security/dedup workstream (separate): **#162 / #164 / #166 / #127 / #142**. Infra: **#161** (dev-dep advisories, needs breaking bump), **#125** (GoTrue 500). Bigger: **#43** (Squarespace embed).
 
