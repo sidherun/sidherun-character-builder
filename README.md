@@ -135,7 +135,7 @@ supabase/
 
 ## Importing a Character
 
-On the Welcome screen, click **Import JSON** and choose a previously exported character `.json` file. The data is validated against the Zod schema on import (and on share-link load) — malformed or wrong-shape files are rejected with an error toast rather than silently loading defaults.
+On the Welcome screen, click **Import JSON** and choose a previously exported character `.json` file. The data is validated against the Zod schema on import (and on share-link load) — malformed or wrong-shape files are rejected with an error toast rather than silently loading defaults. Older files are also forward-migrated during validation; e.g. weapons exported before the `usesSkill` flag existed have it inferred from a nonzero skill bonus, so their attack modifier is unchanged.
 
 ### GM workflow: Excel → JSON
 
