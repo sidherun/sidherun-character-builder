@@ -1,5 +1,7 @@
 # Tasks
 
+**▶ New session? Read `tasks/handoff.md` first.**
+
 **Live tracker = GitHub issues** (`gh issue list`). This file is now just the
 shipped-history log; open/planned work lives in issues, not here.
 
