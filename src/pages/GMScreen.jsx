@@ -10,7 +10,7 @@ import { useAuth, isGmOrAdmin } from '../auth/useAuth.js'
 import { applyAdjust } from '../utils/gmAdjust.js'
 import { subscribeRollFeed } from '../utils/rollFeed.js'
 import { formatRoll } from '../utils/rollFormat.js'
-import { listTables, visibleForTable, tableMemberCount, visibleRollsForTable } from '../utils/tables.js'
+import { listTables, visibleForTable, tableMemberCount, visibleRollsForTable, deriveRegistry, mergeRegistry } from '../utils/tables.js'
 import { skillBudget } from '../utils/skillPoints.js'
 import { trackPush } from '../utils/cloudStatus.js'
 import CloudStatus from '../components/CloudStatus.jsx'
@@ -30,8 +30,10 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
   charsRef.current = chars
 
   // Table filter (#175): show only a chosen named table's characters. The
-  // selection persists so it survives a reload mid-session. '' = show all.
-  const tables = listTables()
+  // selection persists so it survives a reload mid-session. '' = show all. The
+  // registry merges localStorage with names derived from the loaded characters,
+  // so the filter works on a fresh device where localStorage is empty (#176).
+  const tables = mergeRegistry(listTables(), deriveRegistry(chars))
   const [selectedTable, setSelectedTable] = useState(() => {
     try { return localStorage.getItem('sidherun_gm_table') || '' } catch { return '' }
   })

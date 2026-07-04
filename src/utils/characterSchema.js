@@ -84,6 +84,10 @@ export const characterSchema = z.object({
   // to (many-to-many). Lives in the synced blob so it follows a signed-in GM
   // across devices; the id→name registry lives GM-side (see utils/tables.js).
   tableIds:    z.array(z.string()).default([]),
+  // Denormalized id→name for this character's tables (#176), so the registry can
+  // be reconstructed from synced characters on a fresh device (the localStorage
+  // registry doesn't sync). Empty for legacy characters until re-saved.
+  _tableNames: z.record(z.string(), z.string()).default({}),
 
   name:           z.string().default(''),
   playerName:     z.string().default(''),

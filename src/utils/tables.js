@@ -52,6 +52,38 @@ export function importTables(tables) {
   return persist([...byId.values()])
 }
 
+// ── cross-device registry reconstruction (#176) ──────────────────────────────
+
+// Read a character/roster-entry's denormalized table names (id→name). Accepts
+// full characters (`_tableNames`) and lightweight roster entries (`tableNames`).
+function namesOf(c) {
+  return c?._tableNames || c?.tableNames || {}
+}
+
+// Reconstruct the id→name registry from characters' synced membership, so a
+// fresh device (empty localStorage registry) still knows table names. A later
+// name (any character carrying one) wins over a bare id.
+export function deriveRegistry(characters) {
+  const map = new Map()
+  for (const c of characters || []) {
+    const names = namesOf(c)
+    for (const id of c?.tableIds || []) {
+      const name = names[id]
+      if (!map.has(id) || name) map.set(id, name || map.get(id) || id)
+    }
+  }
+  return [...map.entries()].map(([id, name]) => ({ id, name }))
+}
+
+// Merge the local (localStorage) registry with one derived from characters.
+// Local wins on name (it's the GM's latest rename / holds empty tables); derived
+// fills in tables local doesn't know about yet (the fresh-device case).
+export function mergeRegistry(local, derived) {
+  const byId = new Map((derived || []).map(t => [t.id, t]))
+  for (const t of local || []) byId.set(t.id, t)
+  return [...byId.values()]
+}
+
 // ── membership (pure — operate on the character blob) ────────────────────────
 
 export function inTable(character, tableId) {

@@ -9,7 +9,7 @@ import { trackPush } from '../utils/cloudStatus.js'
 import { useAuth, isGmOrAdmin } from '../auth/useAuth.js'
 import { sortRoster, SORT_KEYS } from '../utils/rosterSort.js'
 import { skillBudget } from '../utils/skillPoints.js'
-import { listTables, createTable, renameTable, deleteTable, importTables, toggleMembership, withoutTable } from '../utils/tables.js'
+import { listTables, createTable, renameTable, deleteTable, importTables, toggleMembership, withoutTable, deriveRegistry, mergeRegistry } from '../utils/tables.js'
 import CharacterCard from '../components/CharacterCard.jsx'
 import TablesManager from '../components/TablesManager.jsx'
 import styles from './RosterPage.module.css'
@@ -27,6 +27,7 @@ function toEntry(c) {
     level: c.level,
     hp: c.hitPoints?.total ?? 0,
     tableIds: Array.isArray(c.tableIds) ? c.tableIds : [],
+    tableNames: c._tableNames || {},
     overBudget: skillBudget(c).overBudget,
     savedAt: c._updatedAt || new Date().toISOString(),
     ownerUserId: c._ownerUserId ?? null,
@@ -70,17 +71,20 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
   const [pushing, setPushing] = useState(false)
   const restoreRef = useRef(null)
 
-  // Named tables (#175). Registry lives GM-side (localStorage + backup file);
-  // per-character membership rides the character blob's tableIds.
-  const [tables, setTables] = useState(listTables)
+  // Named tables (#175). The localStorage registry is the GM's source of truth
+  // for names + empty tables; the display registry merges in names derived from
+  // characters' synced membership so a fresh device recovers them (#176).
+  const [localTables, setLocalTables] = useState(listTables)
   const [showTables, setShowTables] = useState(false)
+  const tables = mergeRegistry(localTables, deriveRegistry(roster))
 
   const tableCounts = {}
   for (const e of roster) for (const tid of (e.tableIds || [])) tableCounts[tid] = (tableCounts[tid] || 0) + 1
 
   // Persist a character's changed membership on the active storage plane, and
-  // reflect it in the roster index so chips/checkboxes update immediately.
-  function persistMembership(id, updated, nextIds) {
+  // reflect tableIds + names in the roster index so chips/checkboxes/registry
+  // update immediately.
+  function persistMembership(id, updated) {
     if (useRepo) {
       setRepoChars(prev => ({ ...prev, [id]: updated }))
       saveCharacterData(id, updated, updated._dataRev).catch(() => setStatus('Could not save table change to cloud.'))
@@ -88,22 +92,36 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
       saveCharacterToRoster(updated)
       if (cloudEnabled && getCloudMap()[id]) trackPush(syncCharacter(updated)).catch(() => {})
     }
-    setRoster(prev => prev.map(e => (e.id === id ? { ...e, tableIds: nextIds } : e)))
+    setRoster(prev => prev.map(e => (e.id === id
+      ? { ...e, tableIds: updated.tableIds, tableNames: updated._tableNames || {} } : e)))
   }
 
   function handleToggleTable(id, tableId) {
     const char = getCharacter(id)
     if (!char) return
     const nextIds = toggleMembership(char, tableId)
-    persistMembership(id, { ...char, tableIds: nextIds }, nextIds)
+    const names = { ...(char._tableNames || {}) }
+    if (nextIds.includes(tableId)) names[tableId] = tables.find(t => t.id === tableId)?.name || tableId
+    else delete names[tableId]
+    persistMembership(id, { ...char, tableIds: nextIds, _tableNames: names })
   }
 
-  // Re-list after each mutation so state is an array regardless of the mutator's
-  // return shape (createTable returns the new table, not the list).
-  function handleCreateTable(name) { createTable(name); setTables(listTables()) }
-  function handleRenameTable(id, name) { renameTable(id, name); setTables(listTables()) }
+  function handleCreateTable(name) { createTable(name); setLocalTables(listTables()) }
 
-  // Delete a table: characters are kept, just stripped of this table's id.
+  // Rename: update the local registry AND propagate the new name onto every
+  // member's blob (`_tableNames`) so the rename follows the GM across devices.
+  function handleRenameTable(id, name) {
+    renameTable(id, name)
+    setLocalTables(listTables())
+    for (const e of roster) {
+      if (!(e.tableIds || []).includes(id)) continue
+      const char = getCharacter(e.id)
+      if (!char) continue
+      persistMembership(e.id, { ...char, _tableNames: { ...(char._tableNames || {}), [id]: name } })
+    }
+  }
+
+  // Delete a table: characters are kept, just stripped of this table's id + name.
   function handleDeleteTable(id, name) {
     if (!confirm(`Delete table “${name}”? Characters stay — they’re just removed from this table.`)) return
     for (const e of roster) {
@@ -111,10 +129,12 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
       const char = getCharacter(e.id)
       if (!char) continue
       const nextIds = withoutTable(char, id)
-      persistMembership(e.id, { ...char, tableIds: nextIds }, nextIds)
+      const names = { ...(char._tableNames || {}) }
+      delete names[id]
+      persistMembership(e.id, { ...char, tableIds: nextIds, _tableNames: names })
     }
     deleteTable(id)
-    setTables(listTables())
+    setLocalTables(listTables())
   }
 
   // Push the whole local roster to the cloud (idempotent: already-synced
@@ -174,7 +194,7 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
         candidates.push(...extractCharacters(parsed))
         const cloudState = extractCloudState(parsed)
         importCloudState(cloudState) // restore GM key + cloud map if present
-        if (cloudState.tables) setTables(importTables(cloudState.tables)) // restore table registry (#175)
+        if (cloudState.tables) setLocalTables(importTables(cloudState.tables)) // restore table registry (#175)
       } catch { unreadable++ }
     }
     const { valid, invalid } = validateCharacters(candidates)

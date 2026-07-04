@@ -69,6 +69,7 @@ export function saveCharacterToRoster(character) {
     level:               char.level,
     hp:        char.hitPoints?.total ?? 0,
     tableIds:  Array.isArray(char.tableIds) ? char.tableIds : [],
+    tableNames: char._tableNames || {}, // denormalized names for cross-device registry (#176)
     overBudget: skillBudget(char).overBudget, // GM-visible skill-point flag (#178)
     savedAt:   new Date().toISOString(),
   }

@@ -3,6 +3,7 @@ import {
   listTables, createTable, renameTable, deleteTable, importTables,
   inTable, toggleMembership, tableNamesFor, withoutTable,
   visibleForTable, tableMemberCount, visibleRollsForTable,
+  deriveRegistry, mergeRegistry,
 } from './tables.js'
 
 // Minimal in-memory localStorage so the registry helpers are testable.
@@ -67,6 +68,33 @@ describe('membership helpers (pure)', () => {
     expect(withoutTable(char, 't1')).toEqual(['t2'])
     const ids = char.tableIds
     expect(withoutTable({ tableIds: ids }, 'tX')).toBe(ids) // no-op keeps ref (skip needless save)
+  })
+})
+
+describe('cross-device registry (#176)', () => {
+  it('derives id→name from characters\' denormalized _tableNames', () => {
+    const chars = [
+      { _rosterId: 'a', tableIds: ['t1', 't2'], _tableNames: { t1: 'Thursday', t2: 'Campaign B' } },
+      { _rosterId: 'b', tableIds: ['t1'], _tableNames: { t1: 'Thursday' } },
+    ]
+    expect(deriveRegistry(chars)).toEqual([
+      { id: 't1', name: 'Thursday' },
+      { id: 't2', name: 'Campaign B' },
+    ])
+  })
+  it('also reads lightweight roster entries (tableNames)', () => {
+    const entries = [{ tableIds: ['t9'], tableNames: { t9: 'Night Owls' } }]
+    expect(deriveRegistry(entries)).toEqual([{ id: 't9', name: 'Night Owls' }])
+  })
+  it('falls back to the bare id when no name is carried yet', () => {
+    expect(deriveRegistry([{ tableIds: ['t1'], _tableNames: {} }])).toEqual([{ id: 't1', name: 't1' }])
+  })
+  it('mergeRegistry lets the local (localStorage) name win over derived', () => {
+    const derived = [{ id: 't1', name: 'old' }, { id: 't2', name: 'Campaign B' }]
+    const local = [{ id: 't1', name: 'Thursday (renamed)' }]
+    const merged = mergeRegistry(local, derived)
+    expect(merged.find(t => t.id === 't1').name).toBe('Thursday (renamed)')
+    expect(merged.find(t => t.id === 't2').name).toBe('Campaign B') // derived-only kept
   })
 })
 

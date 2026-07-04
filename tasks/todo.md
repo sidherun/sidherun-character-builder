@@ -42,3 +42,4 @@ shipped-history log; open/planned work lives in issues, not here.
 | Leveling engine — Level Up flow + per-level baseline guardrail (#134) | — | 2026-07-04 |
 | Spell-check "did you mean" for skill/item names (#157) | — | 2026-07-04 |
 | In-Play section editing (weapons/skills/powers/crafts overlay) (#180) | — | 2026-07-04 |
+| Cross-device table names — derive registry from blobs (#176) | — | 2026-07-04 |
