@@ -162,14 +162,32 @@ async function rpc(fn, params) {
 // is the DB patch; this is just the instant nudge to other connected viewers.
 const channels = {} // rosterId -> supabase RealtimeChannel
 
-export function subscribeCharacter(rosterId, onLivePayload) {
+// `onData` (optional) fires on a structural-change nudge; the caller should
+// refetch via hydrateCharacter(rosterId) and adopt the fresh character.
+export function subscribeCharacter(rosterId, onLivePayload, onData) {
   if (!supabase || !rosterId || channels[rosterId]) return channels[rosterId] || null
   const entry = getCloudMap()[rosterId]
   if (!entry) return null
   const ch = supabase.channel(`char:${entry.id}`, { config: { broadcast: { self: false } } })
-  ch.on('broadcast', { event: 'live' }, ({ payload }) => onLivePayload(payload)).subscribe()
+  ch.on('broadcast', { event: 'live' }, ({ payload }) => onLivePayload(payload))
+  if (onData) ch.on('broadcast', { event: 'data' }, () => onData())
+  ch.subscribe()
   channels[rosterId] = ch
   return ch
+}
+
+// Refetch the authoritative cloud character for a mapped roster id and adopt it
+// as our last-pushed snapshot (so the subsequent autosave sees no change and
+// doesn't echo the remote edit back). Returns the fresh character tagged with
+// its _rosterId, or null. Used by the structural-change (`onData`) path.
+export async function hydrateCharacter(rosterId) {
+  const entry = getCloudMap()[rosterId]
+  if (!supabase || !entry) return null
+  const res = await fetchCloudCharacter(entry.token)
+  if (!res?.character) return null
+  const fresh = { ...res.character, _rosterId: rosterId }
+  lastSnapshot[rosterId] = fresh // adopt → next syncCharacter diff is 'none', no echo push
+  return fresh
 }
 
 export function unsubscribeCharacter(rosterId) {
@@ -213,6 +231,9 @@ export async function syncCharacter(character, { allowCreate = false } = {}) {
       p_token: entry.token, p_name: character.name || 'Unnamed',
       p_data: character, p_expected_rev: -1,
     })
+    // Nudge other viewers to re-hydrate the fresh structural data (parity with the
+    // live broadcast below). Payload-less signal → receivers refetch the row.
+    channels[character._rosterId]?.send({ type: 'broadcast', event: 'data', payload: {} })
   } else if (channel === 'live') {
     const live = projectLive(character)
     await rpc('patch_live', { p_token: entry.token, p_patch: live })

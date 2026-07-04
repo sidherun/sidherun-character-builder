@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { loadRoster, loadCharacterFromRoster, saveCharacterToRoster, saveCurrent } from '../utils/rosterStorage.js'
 import { cloudEnabled } from '../utils/supabaseClient.js'
-import { getCloudMap, subscribeCharacter, unsubscribeCharacter, syncCharacter, mergeRemote } from '../utils/cloudSync.js'
+import { getCloudMap, subscribeCharacter, unsubscribeCharacter, syncCharacter, mergeRemote, hydrateCharacter } from '../utils/cloudSync.js'
 import {
   repoEnabled, listCharacters, listPlayers, assignPlayer, patchLive,
-  subscribeLive, removeLiveSubscription,
+  subscribeLive, removeLiveSubscription, getCharacter,
 } from '../utils/characterRepo.js'
 import { useAuth, isGmOrAdmin } from '../auth/useAuth.js'
 import { applyAdjust } from '../utils/gmAdjust.js'
@@ -60,10 +60,17 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
       const ids = []
       for (const c of charsRef.current) {
         if (!c._rosterId) continue
-        subscribeLive(c._rosterId, ({ live }) => {
-          setChars(prev => prev.map(x => x._rosterId === c._rosterId ? mergeRemote(x, { live }) : x))
+        const rid = c._rosterId
+        subscribeLive(rid, ({ live }) => {
+          setChars(prev => prev.map(x => x._rosterId === rid ? mergeRemote(x, { live }) : x))
+        }, () => {
+          // Structural edit (inventory/skills/name) → adopt the fresh row.
+          getCharacter(rid).then(fresh => {
+            if (!fresh) return
+            setChars(prev => prev.map(x => x._rosterId === rid ? fresh : x))
+          }).catch(() => {})
         })
-        ids.push(c._rosterId)
+        ids.push(rid)
       }
       return () => ids.forEach(removeLiveSubscription)
     }
@@ -72,15 +79,27 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
     const subscribed = []
     for (const c of charsRef.current) {
       if (c._rosterId && map[c._rosterId]) {
-        subscribeCharacter(c._rosterId, payload => {
+        const rid = c._rosterId
+        subscribeCharacter(rid, payload => {
           setChars(prev => prev.map(x => {
-            if (x._rosterId !== c._rosterId) return x
+            if (x._rosterId !== rid) return x
             const merged = mergeRemote(x, payload)
             saveCharacterToRoster(merged) // persist the remote change locally; don't re-push (echo)
             return merged
           }))
+        }, () => {
+          // Structural edit → adopt the fresh character's data fields.
+          hydrateCharacter(rid).then(fresh => {
+            if (!fresh) return
+            setChars(prev => prev.map(x => {
+              if (x._rosterId !== rid) return x
+              const merged = { ...x, ...fresh }
+              saveCharacterToRoster(merged)
+              return merged
+            }))
+          }).catch(() => {})
         })
-        subscribed.push(c._rosterId)
+        subscribed.push(rid)
       }
     }
     return () => subscribed.forEach(unsubscribeCharacter)

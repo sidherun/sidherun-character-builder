@@ -113,6 +113,10 @@ export async function saveCharacterData(id, character, expectedRev) {
   const { data, error } = await q.select(COLS).maybeSingle()
   if (error) throw error
   if (expectedRev != null && !data) return { conflict: true }
+  // Nudge other viewers to re-hydrate the fresh structural data. Like patchLive's
+  // live broadcast, this is a plain pub/sub signal (no payload) — receivers refetch
+  // the authoritative row, so it can't clobber a concurrent live/data change.
+  repoChannels[id]?.send({ type: 'broadcast', event: 'data', payload: {} })
   return rowToCharacter(data)
 }
 
@@ -173,10 +177,14 @@ export async function listPlayers() {
 // this shares the channel name with the guest plane so the two interoperate.
 const repoChannels = {} // id -> RealtimeChannel
 
-export function subscribeLive(id, onLive) {
+// `onData` (optional) fires on a structural-change nudge; the caller should
+// refetch via getCharacter(id) and adopt the fresh row.
+export function subscribeLive(id, onLive, onData) {
   if (!repoEnabled() || !id || repoChannels[id]) return repoChannels[id] || null
   const ch = supabase.channel(`char:${id}`, { config: { broadcast: { self: false } } })
-  ch.on('broadcast', { event: 'live' }, ({ payload }) => onLive(payload)).subscribe()
+  ch.on('broadcast', { event: 'live' }, ({ payload }) => onLive(payload))
+  if (onData) ch.on('broadcast', { event: 'data' }, () => onData())
+  ch.subscribe()
   repoChannels[id] = ch
   return ch
 }

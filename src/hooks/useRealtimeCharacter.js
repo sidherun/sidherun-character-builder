@@ -7,14 +7,20 @@ import { getCloudMap, subscribeCharacter, unsubscribeCharacter } from '../utils/
 // character is in the cloud map. The callback is kept in a ref so a new closure
 // each render doesn't churn the subscription — we only re-subscribe when the
 // rosterId changes.
-export function useRealtimeCharacter(rosterId, onLive) {
+export function useRealtimeCharacter(rosterId, onLive, onData) {
   const cb = useRef(onLive)
   cb.current = onLive
+  const dataCb = useRef(onData)
+  dataCb.current = onData
 
   useEffect(() => {
     if (!cloudEnabled || !rosterId) return
     if (!getCloudMap()[rosterId]) return
-    subscribeCharacter(rosterId, payload => cb.current(payload))
+    subscribeCharacter(
+      rosterId,
+      payload => cb.current(payload),
+      () => dataCb.current?.(),
+    )
     return () => unsubscribeCharacter(rosterId)
   }, [rosterId])
 }

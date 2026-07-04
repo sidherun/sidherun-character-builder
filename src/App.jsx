@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import { createDefaultCharacter } from './utils/defaultCharacter.js'
 import { loadCurrent, saveCharacterToRoster, saveCurrent, loadCharacterFromRoster, loadRoster, getLastSaveStatus } from './utils/rosterStorage.js'
 import { decodeCharacterFromURL, getPlayLinkId, parseCloudLink } from './utils/urlState.js'
-import { registerCloudLink, fetchCloudCharacter, mergeRemote, rosterIdForCloudId, projectLive, dataSignature } from './utils/cloudSync.js'
+import { registerCloudLink, fetchCloudCharacter, mergeRemote, rosterIdForCloudId, projectLive, dataSignature, hydrateCharacter } from './utils/cloudSync.js'
 import { repoEnabled, createCharacter, getCharacter, saveCharacterData, patchLive, subscribeLive, removeLiveSubscription } from './utils/characterRepo.js'
 import { useAuth, isGmOrAdmin } from './auth/useAuth.js'
 import { safeParseCharacter } from './utils/characterSchema.js'
@@ -133,7 +133,17 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   const applyRemoteLive = useCallback((payload) => {
     setCharacter(prev => mergeRemote(prev, payload))
   }, [])
-  useRealtimeCharacter(character._rosterId, applyRemoteLive)
+  // A structural edit elsewhere (inventory/skills/name) → refetch the fresh
+  // character and adopt its data fields, so it shows up here in real time too.
+  const applyRemoteData = useCallback(() => {
+    const rid = character._rosterId
+    if (!rid) return
+    hydrateCharacter(rid).then(fresh => {
+      if (!fresh) return
+      setCharacter(prev => (prev._rosterId === rid ? { ...prev, ...fresh } : prev))
+    }).catch(() => {})
+  }, [character._rosterId])
+  useRealtimeCharacter(character._rosterId, applyRemoteLive, applyRemoteData)
 
   // Authenticated cloud sync. The guest broadcast above only covers #c=/#play=
   // links; signed-in play uses the cloud row as source of truth. We track the
@@ -153,14 +163,24 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
     if (!repoEnabled() || !user || !character._rosterId) return
     lastLiveSig.current = null // reset for the newly-opened character
     lastDataSig.current = null
-    subscribeLive(character._rosterId, ({ live }) => {
+    const rid = character._rosterId
+    subscribeLive(rid, ({ live }) => {
       setCharacter(prev => {
         const next = mergeRemote(prev, { live })
         lastLiveSig.current = JSON.stringify(projectLive(next)) // mark known → don't re-push
         return next
       })
+    }, () => {
+      // Structural edit elsewhere → adopt the fresh row (same as conflict-adopt),
+      // marking the sigs known so the autosave effects don't echo it back.
+      getCharacter(rid).then(fresh => {
+        if (!fresh) return
+        dataRevRef.current = fresh._dataRev ?? null
+        lastDataSig.current = dataSignature(fresh)
+        setCharacter(prev => (prev._rosterId === rid ? fresh : prev))
+      }).catch(() => {})
     })
-    return () => removeLiveSubscription(character._rosterId)
+    return () => removeLiveSubscription(rid)
   }, [user, character._rosterId])
 
   // SEND: push local live-counter changes (HP/Mana/Story/armor/use-pips) to the

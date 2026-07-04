@@ -27,6 +27,11 @@ vi.mock('./supabaseClient.js', () => {
       from(t) { h.table = t; return builder() },
       rpc(fn, args) { h.rpc = { fn, args }; return Promise.resolve(h.result) },
       auth: { getUser: async () => ({ data: { user: { id: 'u1' } } }) },
+      channel() {
+        const ch = { on() { return ch }, subscribe() { return ch }, send(p) { (h.sends ||= []).push(p); return ch } }
+        return ch
+      },
+      removeChannel() {},
     },
   }
 })
@@ -34,6 +39,7 @@ vi.mock('./supabaseClient.js', () => {
 import {
   repoEnabled, listCharacters, getCharacter, createCharacter, saveCharacterData,
   patchLive, assignPlayer, deleteCharacter, listPlayers, reconcile,
+  subscribeLive, removeLiveSubscription,
 } from './characterRepo.js'
 
 const row = (over = {}) => ({
@@ -52,6 +58,7 @@ beforeEach(() => {
   h.result = { data: null, error: null }
   h.table = h.op = h.payload = h.rpc = null
   h.eqs = []
+  h.sends = []
 })
 
 describe('repoEnabled', () => {
@@ -192,5 +199,28 @@ describe('reconcile (newer updated_at wins)', () => {
   it('handles missing sides', () => {
     expect(reconcile(null, at('x')).name).toBe('x')
     expect(reconcile(at('y'), null).name).toBe('y')
+  })
+})
+
+describe('saveCharacterData broadcasts a structural-change nudge (inventory→GM sync)', () => {
+  it('sends a `data` broadcast on the character channel so connected viewers re-hydrate', async () => {
+    // A connected viewer/editor is subscribed, so the per-character channel exists.
+    subscribeLive('c1', () => {}, () => {})
+    h.result = { data: row(), error: null }
+    // A structural save (e.g. player added an inventory item) …
+    await saveCharacterData('c1', row().data, 1)
+    // … must nudge other viewers with a payload-less `data` broadcast. Without
+    // this, structural edits persist but never reach a connected GM (the bug).
+    expect(h.sends.some(s => s.type === 'broadcast' && s.event === 'data')).toBe(true)
+    removeLiveSubscription('c1')
+  })
+
+  it('does not broadcast when the update conflicts (no row returned)', async () => {
+    subscribeLive('c2', () => {}, () => {})
+    h.result = { data: null, error: null } // expectedRev guard failed → conflict
+    const res = await saveCharacterData('c2', row().data, 5)
+    expect(res).toEqual({ conflict: true })
+    expect(h.sends.some(s => s.event === 'data')).toBe(false)
+    removeLiveSubscription('c2')
   })
 })
