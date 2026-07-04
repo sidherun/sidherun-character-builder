@@ -35,3 +35,27 @@ HEAD on `fix/142`; a commit meant for `main` landed there. Recovered by cherry-p
 don't assume you're still on `main`. Stage explicit paths (never `git add -A`) so a
 concurrent job's uncommitted files aren't swept into your commit. Per-job worktrees would
 remove the hazard entirely (flagged in issue #168).
+
+## Static-render tests don't catch interaction/state bugs — drive the real app (2026-07-04)
+
+**Context:** Two shipped bugs this session were invisible to the test suite: (1) `createTable`
+returned the new table object, not the list, so `setTables(createTable(...))` crashed
+`TablesManager` with `tables.map is not a function`; (2) #176's `deriveRegistry` showed the
+raw table UUID as the name for legacy members. All component tests use
+`renderToStaticMarkup` (no interaction), so both passed CI and only surfaced when I drove the
+app with `/browse`.
+
+**Lesson:** For any stateful/interactive change (menus, dialogs, editors, derived registries),
+browser-verify the actual flow before shipping — tests + lint + build passing is necessary but
+not sufficient. Also: seed the exact edge state (e.g. legacy data missing a new field) and the
+"fresh device" case (wipe the relevant localStorage), not just the happy path.
+
+## Simulated DOM events don't reliably trigger React handlers (2026-07-04)
+
+**Context:** Setting an input's `.value` + `dispatchEvent(new Event('blur'))` did NOT fire a
+React `onBlur` rename handler (the registry stayed empty), so a rename looked broken when it
+wasn't.
+
+**Lesson:** For controlled/uncontrolled inputs and on-blur handlers, use the browse tool's
+`fill` (fires React's synthetic onChange) + `press Tab` to blur — not raw `dispatchEvent`.
+Confirm the persisted state (localStorage / blob), not just the DOM value.

@@ -35,11 +35,12 @@ shipped-history log; open/planned work lives in issues, not here.
 | Mobile sheet overflow fix (#138) | — | — |
 | 3D dice-roll animation + sound in Play Mode (#156) | — | 2026-07-03 |
 | Roll-banner readability + player-facing tag, no "exploded" jargon (#155) | — | 2026-07-03 |
-| Roster ⋯ menu + named confirm-before-delete (#158) | — | 2026-07-04 |
-| GM Screen: "In session" filter + roll-feed scope (#154) | — | 2026-07-04 |
-| Named tables — group + filter roster/GM (#175, supersedes #154) | — | 2026-07-04 |
-| Editable sheet from empty + skill-points guardrail/badges (#178) | — | 2026-07-04 |
-| Leveling engine — Level Up flow + per-level baseline guardrail (#134) | — | 2026-07-04 |
-| Spell-check "did you mean" for skill/item names (#157) | — | 2026-07-04 |
-| In-Play section editing (weapons/skills/powers/crafts overlay) (#180) | — | 2026-07-04 |
-| Cross-device table names — derive registry from blobs (#176) | — | 2026-07-04 |
+| Roster ⋯ menu + named confirm-before-delete (#158) | d2512dd | 2026-07-04 |
+| GM Screen: "In session" filter + roll-feed scope (#154) | 0fefe99 | 2026-07-04 |
+| Named tables — group + filter roster/GM (#175, supersedes #154) | 10e3652 | 2026-07-04 |
+| Editable sheet from empty + skill-points guardrail/badges (#178) | 3b11ad9 | 2026-07-04 |
+| Leveling engine — Level Up flow + per-level baseline guardrail (#134) | 9a0b4bb | 2026-07-04 |
+| Spell-check "did you mean" for skill/item names (#157) | cdbd855 | 2026-07-04 |
+| In-Play section editing (weapons/skills/powers/crafts overlay) (#180) | a56378b | 2026-07-04 |
+| Cross-device table names — derive registry from blobs (#176) | b1af04f | 2026-07-04 |
+| Fix: table registry showed raw UUID for pre-#176 members (#188) | 2f258b9 | 2026-07-04 |
