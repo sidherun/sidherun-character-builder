@@ -1,9 +1,11 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, Fragment } from 'react'
 import { calcDefense, calcHitPoints, calcMana, attrTotal, calcSkillTotal } from '../../utils/characterDerived.js'
 import { skillBudget } from '../../utils/skillPoints.js'
 import { canLevelUp, applyLevelUp } from '../../utils/leveling.js'
+import { ITEM_DICTIONARY } from '../../utils/spellcheck.js'
 import { weaponModifier } from '../../utils/rollActions.js'
 import LevelUpDialog from '../LevelUpDialog.jsx'
+import SpellSuggest from '../SpellSuggest.jsx'
 import { encodeCharacterToURL } from '../../utils/urlState.js'
 import { generateCharacterHTML } from '../../utils/generateCharacterHTML.js'
 import styles from './Step9Review.module.css'
@@ -71,6 +73,12 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
   }
   function removeInventoryItem(i) {
     onUpdate?.({ inventory: (character.inventory || []).filter((_, idx) => idx !== i) })
+  }
+
+  // Record a homebrew item name so the spell check stops flagging it (#157).
+  function keepTerm(term) {
+    const dict = character._dictionary || []
+    if (term && !dict.includes(term)) onUpdate?.({ _dictionary: [...dict, term] })
   }
 
   function exportJSON() {
@@ -308,16 +316,25 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
                   {(character.inventory || []).map((item, i) => {
                     const obj = typeof item === 'string' ? { name: item, quantity: '', notes: '' } : item
                     return (
-                      <div key={i} className={styles.invRow}>
-                        <input className={styles.invInput} value={obj.name || ''} placeholder="Item"
-                          ref={el => { if (el && focusIdx.current === i) { el.focus(); focusIdx.current = null } }}
-                          onChange={e => updateInventoryItem(i, { name: e.target.value })} aria-label={`Item ${i + 1} name`} />
-                        <input className={styles.invQty} value={obj.quantity ?? ''} placeholder="Qty"
-                          onChange={e => updateInventoryItem(i, { quantity: e.target.value })} aria-label={`Item ${i + 1} quantity`} />
-                        <input className={styles.invInput} value={obj.notes || ''} placeholder="Notes"
-                          onChange={e => updateInventoryItem(i, { notes: e.target.value })} aria-label={`Item ${i + 1} notes`} />
-                        <button type="button" className={styles.invRemove} onClick={() => removeInventoryItem(i)} aria-label={`Remove item ${i + 1}`}>✕</button>
-                      </div>
+                      <Fragment key={i}>
+                        <div className={styles.invRow}>
+                          <input className={styles.invInput} value={obj.name || ''} placeholder="Item"
+                            ref={el => { if (el && focusIdx.current === i) { el.focus(); focusIdx.current = null } }}
+                            onChange={e => updateInventoryItem(i, { name: e.target.value })} aria-label={`Item ${i + 1} name`} />
+                          <input className={styles.invQty} value={obj.quantity ?? ''} placeholder="Qty"
+                            onChange={e => updateInventoryItem(i, { quantity: e.target.value })} aria-label={`Item ${i + 1} quantity`} />
+                          <input className={styles.invInput} value={obj.notes || ''} placeholder="Notes"
+                            onChange={e => updateInventoryItem(i, { notes: e.target.value })} aria-label={`Item ${i + 1} notes`} />
+                          <button type="button" className={styles.invRemove} onClick={() => removeInventoryItem(i)} aria-label={`Remove item ${i + 1}`}>✕</button>
+                        </div>
+                        <SpellSuggest
+                          value={obj.name || ''}
+                          dictionary={ITEM_DICTIONARY}
+                          custom={character._dictionary || []}
+                          onAccept={name => updateInventoryItem(i, { name })}
+                          onKeep={keepTerm}
+                        />
+                      </Fragment>
                     )
                   })}
                   {(character.inventory || []).length === 0 && <p className={styles.invEmpty}>No items yet.</p>}

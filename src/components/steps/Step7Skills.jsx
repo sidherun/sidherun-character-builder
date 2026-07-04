@@ -1,6 +1,9 @@
+import { Fragment } from 'react'
 import { calcSkillTotal, calcSkillBudgetUsed } from '../../utils/characterDerived.js'
 import { attrTotal } from '../../utils/characterDerived.js'
 import { poolSize, cumulativeSkillCap } from '../../utils/skillPoints.js'
+import { SKILL_DICTIONARY } from '../../utils/spellcheck.js'
+import SpellSuggest from '../SpellSuggest.jsx'
 import { uuid } from '../../utils/uuid.js'
 import styles from './Step7Skills.module.css'
 
@@ -60,6 +63,12 @@ export default function Step7Skills({ character, onUpdate }) {
     onUpdate({ skills: skills.filter(s => s.id !== id) })
   }
 
+  // Record a homebrew term so the spell check stops suggesting a correction (#157).
+  function keepTerm(term) {
+    const dict = character._dictionary || []
+    if (term && !dict.includes(term)) onUpdate({ _dictionary: [...dict, term] })
+  }
+
   function togglePip(skillId, pipIdx) {
     const skill = skills.find(s => s.id === skillId)
     if (!skill) return
@@ -117,8 +126,8 @@ export default function Step7Skills({ character, onUpdate }) {
         const total = calcSkillTotal(s)
         const skillLabel = s.name || 'unnamed skill'
         return (
+          <Fragment key={s.id}>
           <div
-            key={s.id}
             className={`${styles.skillRow} ${s.isSpecialty ? styles.specialty : ''}`}
             role="group"
             aria-label={`Skill: ${skillLabel}`}
@@ -186,6 +195,14 @@ export default function Step7Skills({ character, onUpdate }) {
               ✕
             </button>
           </div>
+          <SpellSuggest
+            value={s.name}
+            dictionary={SKILL_DICTIONARY}
+            custom={character._dictionary || []}
+            onAccept={name => updateSkill(s.id, { name })}
+            onKeep={keepTerm}
+          />
+          </Fragment>
         )
       })}
     </div>

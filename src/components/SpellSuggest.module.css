@@ -1,0 +1,41 @@
+.hint {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 3px;
+  font-family: 'Spectral', serif;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--ink-400);
+}
+
+.accept {
+  font-family: 'JetBrains Mono', monospace;
+  font-style: normal;
+  font-size: 11px;
+  color: var(--bronze);
+  background: none;
+  border: none;
+  padding: 0 2px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.keep {
+  font-family: 'JetBrains Mono', monospace;
+  font-style: normal;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--ink-400);
+  background: none;
+  border: 1px solid var(--line, #3a3025);
+  border-radius: 999px;
+  padding: 1px 8px;
+  margin-left: 4px;
+  cursor: pointer;
+}
+.keep:hover {
+  color: var(--ink-800);
+  border-color: var(--ink-400);
+}

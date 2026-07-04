@@ -1,5 +1,7 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, Fragment } from 'react'
 import { calcDefense, calcSkillTotal, attrTotal } from '../../utils/characterDerived.js'
+import { ITEM_DICTIONARY } from '../../utils/spellcheck.js'
+import SpellSuggest from '../SpellSuggest.jsx'
 import { getFinalSpellTarget } from '../../utils/spellTarget.js'
 import { rollSkill, rollAttack, rollSpell, weaponModifier } from '../../utils/rollActions.js'
 import { formatRoll } from '../../utils/rollFormat.js'
@@ -388,7 +390,8 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
             {(character.inventory || []).map((item, i) => {
               const obj = typeof item === 'string' ? { name: item, quantity: '', notes: '' } : item
               return (
-                <div key={i} className={styles.invRow}>
+                <Fragment key={i}>
+                <div className={styles.invRow}>
                   <input
                     className={styles.invInput}
                     value={obj.name || ''}
@@ -417,6 +420,16 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
                     aria-label={`Remove item ${i + 1}`}
                   >✕</button>
                 </div>
+                {!readOnly && (
+                  <SpellSuggest
+                    value={obj.name || ''}
+                    dictionary={ITEM_DICTIONARY}
+                    custom={character._dictionary || []}
+                    onAccept={name => updateInventoryItem(i, { name })}
+                    onKeep={term => { const d = character._dictionary || []; if (term && !d.includes(term)) mutate({ _dictionary: [...d, term] }) }}
+                  />
+                )}
+                </Fragment>
               )
             })}
             {(character.inventory || []).length === 0 && (

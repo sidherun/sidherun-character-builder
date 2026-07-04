@@ -150,6 +150,9 @@ export const characterSchema = z.object({
     level:  z.number().int(),
     points: z.record(z.string(), z.number()),
   }).nullable().default(null),
+  // Player-kept custom terms (#157): homebrew skill / item names the player chose
+  // to keep, so the "did you mean" spell check stops suggesting corrections.
+  _dictionary: z.array(z.string()).default([]),
 })
 
 export function safeParseCharacter(data) {
