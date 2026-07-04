@@ -136,6 +136,44 @@
 }
 .editBtn:hover { border-color: var(--bronze); color: var(--bronze); }
 
+/* Skill-point budget indicator + GM-visible over-budget flag (#178) */
+.budget,
+.budgetOver {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.budget {
+  color: var(--ink-400);
+  border: 1px solid var(--line, #3a3025);
+}
+.budgetOver {
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+
+/* Empty-section prompt + inline add link */
+.emptyHint {
+  color: var(--ink-400);
+  font-style: italic;
+  font-size: 0.85rem;
+  margin: 4px 0;
+}
+.addLink {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  font-style: normal;
+  color: var(--bronze);
+  background: none;
+  border: none;
+  padding: 0 2px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 .resourcesHead {
   display: flex;
   align-items: center;

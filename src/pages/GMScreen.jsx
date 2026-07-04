@@ -11,6 +11,7 @@ import { applyAdjust } from '../utils/gmAdjust.js'
 import { subscribeRollFeed } from '../utils/rollFeed.js'
 import { formatRoll } from '../utils/rollFormat.js'
 import { listTables, visibleForTable, tableMemberCount, visibleRollsForTable } from '../utils/tables.js'
+import { skillBudget } from '../utils/skillPoints.js'
 import { trackPush } from '../utils/cloudStatus.js'
 import CloudStatus from '../components/CloudStatus.jsx'
 import styles from './GMScreen.module.css'
@@ -245,7 +246,10 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
             {visible.map(c => (
               <div key={c._rosterId} className={styles.row}>
                 <div className={styles.who}>
-                  <div className={styles.name}>{c.name || 'Unnamed'}</div>
+                  <div className={styles.name}>
+                    {c.name || 'Unnamed'}
+                    {skillBudget(c).overBudget && <span className={styles.overBudget} title="Skill points over the level budget">⚠</span>}
+                  </div>
                   {c.playerName && <div className={styles.player}>{c.playerName}</div>}
                   <div className={styles.meta}>
                     {c.race} · {c.archetype === 'custom' ? (c.customArchetypeName || 'Custom') : c.archetype} · L{c.level}

@@ -107,6 +107,13 @@
   text-overflow: ellipsis;
 }
 
+.overBudget {
+  margin-left: 6px;
+  color: var(--danger);
+  font-size: 0.9rem;
+  cursor: help;
+}
+
 .player {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;

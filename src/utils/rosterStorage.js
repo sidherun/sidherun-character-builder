@@ -1,4 +1,5 @@
 import { uuid } from './uuid.js'
+import { skillBudget } from './skillPoints.js'
 
 const KEY_CURRENT   = 'sidherun_character'
 const KEY_ROSTER    = 'sidherun_roster'
@@ -68,6 +69,7 @@ export function saveCharacterToRoster(character) {
     level:               char.level,
     hp:        char.hitPoints?.total ?? 0,
     tableIds:  Array.isArray(char.tableIds) ? char.tableIds : [],
+    overBudget: skillBudget(char).overBudget, // GM-visible skill-point flag (#178)
     savedAt:   new Date().toISOString(),
   }
   if (idx >= 0) roster[idx] = entry

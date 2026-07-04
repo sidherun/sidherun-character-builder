@@ -1,4 +1,5 @@
 import { calcSkillBudgetUsed } from './characterDerived.js'
+import { poolSize } from './skillPoints.js'
 
 export function validateStep(character, step) {
   const errors = []
@@ -18,7 +19,8 @@ export function validateStep(character, step) {
   }
   if (step === 7) {
     const used = calcSkillBudgetUsed(character.skills || [])
-    if (used > 30) errors.push('Skill point budget exceeded (max 30).')
+    const pool = poolSize(character.level)
+    if (used > pool) errors.push(`Skill point budget exceeded (max ${pool} at level ${character.level}).`)
   }
   return errors
 }

@@ -38,3 +38,4 @@ shipped-history log; open/planned work lives in issues, not here.
 | Roster ⋯ menu + named confirm-before-delete (#158) | — | 2026-07-04 |
 | GM Screen: "In session" filter + roll-feed scope (#154) | — | 2026-07-04 |
 | Named tables — group + filter roster/GM (#175, supersedes #154) | — | 2026-07-04 |
+| Editable sheet from empty + skill-points guardrail/badges (#178) | — | 2026-07-04 |

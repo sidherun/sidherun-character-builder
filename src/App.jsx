@@ -45,10 +45,10 @@ const STEP_COMPONENTS = {
 }
 
 // Step number behind each editable section on the character sheet (manage mode).
-// Identity is intentionally absent — name/race/archetype are set in the builder
-// only, not editable from the sheet.
+// Identity (step 2) is editable from the sheet so race/archetype/level and the
+// powers/magic capability flags can be changed after creation (#178, leveling).
 const SECTION_LABELS = {
-  3: 'Attributes', 4: 'Combat', 5: 'Powers', 6: 'Magic', 7: 'Skills', 8: 'Resources',
+  2: 'Identity', 3: 'Attributes', 4: 'Combat', 5: 'Powers', 6: 'Magic', 7: 'Skills', 8: 'Resources',
 }
 
 // Returns which wizard steps are visible given hasPowers/hasMagic

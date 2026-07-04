@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import { calcDefense, calcHitPoints, calcMana, attrTotal, calcSkillTotal } from '../../utils/characterDerived.js'
+import { skillBudget } from '../../utils/skillPoints.js'
 import { weaponModifier } from '../../utils/rollActions.js'
 import { encodeCharacterToURL } from '../../utils/urlState.js'
 import { generateCharacterHTML } from '../../utils/generateCharacterHTML.js'
@@ -32,6 +33,10 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
   // inventory). When absent (the wizard's Review step), this stays a read-only
   // summary, exactly as before.
   const editable = Boolean(onEditSection)
+
+  // Skills-only point budget (#178). Shown while editing; drives the GM-visible
+  // over-budget badge (also surfaced on the roster card + GM screen).
+  const budget = editable ? skillBudget(character) : null
 
   // Inline inventory editing on the sheet — inventory has no wizard editor of its
   // own, and "add a potion" is the headline use case. Mirrors Play Mode.
@@ -93,6 +98,7 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
           <p className={styles.subtitle}>
             {character.race} · {character.archetype === 'custom' ? (character.customArchetypeName || 'Custom') : character.archetype} · Level {character.level}
             {character.playerName ? ` · played by ${character.playerName}` : ''}
+            <EditBtn step={2} label="Edit identity — race, archetype, level, powers/magic" onEdit={onEditSection} />
           </p>
         </div>
         <div className={styles.headerActions}>
@@ -179,71 +185,96 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
 
         {/* Right column */}
         <div className={styles.right}>
-          {/* Weapons */}
-          {character.weapons?.length > 0 && (
+          {/* Weapons — always shown when editing so an empty section isn't a dead-end */}
+          {(editable || character.weapons?.length > 0) && (
             <section className={styles.section}>
               <h3>Weapons<EditBtn step={4} label="Edit combat — weapons" onEdit={onEditSection} /></h3>
-              {character.weapons.map(w => {
-                const total = weaponModifier(w) // non-stacking: skill OR attribute, matches the attack roll
-                return (
-                  <div key={w.id} className={styles.weaponRow}>
-                    <span className={styles.weaponName}>{w.name || '—'}</span>
-                    <span className={styles.weaponAttr}>{w.attribute}</span>
-                    <span className={styles.weaponTotal}>+{total}</span>
-                    <span className={styles.weaponDesc}>{w.descriptor}</span>
-                  </div>
-                )
-              })}
+              {character.weapons?.length > 0 ? (
+                character.weapons.map(w => {
+                  const total = weaponModifier(w) // non-stacking: skill OR attribute, matches the attack roll
+                  return (
+                    <div key={w.id} className={styles.weaponRow}>
+                      <span className={styles.weaponName}>{w.name || '—'}</span>
+                      <span className={styles.weaponAttr}>{w.attribute}</span>
+                      <span className={styles.weaponTotal}>+{total}</span>
+                      <span className={styles.weaponDesc}>{w.descriptor}</span>
+                    </div>
+                  )
+                })
+              ) : (
+                <p className={styles.emptyHint}>No weapons yet. <button type="button" className={styles.addLink} onClick={() => onEditSection(4)}>+ Add a weapon</button></p>
+              )}
             </section>
           )}
 
-          {/* Skills */}
-          {character.skills?.length > 0 && (
+          {/* Skills — with the point-budget indicator + GM-visible over-budget flag */}
+          {(editable || character.skills?.length > 0) && (
             <section className={styles.section}>
-              <h3>Skills {character.skills.some(s => s.isSpecialty) && <span className={styles.starNote}>★ = Specialty</span>}<EditBtn step={7} label="Edit skills" onEdit={onEditSection} /></h3>
-              {character.skills.map(s => (
-                <div key={s.id} className={styles.skillRow}>
-                  <span className={styles.skillName}>
-                    {s.isSpecialty && '★ '}{s.name || '—'}
+              <h3>
+                Skills
+                {character.skills?.some(s => s.isSpecialty) && <span className={styles.starNote}>★ = Specialty</span>}
+                {editable && budget && (
+                  <span className={budget.overBudget ? styles.budgetOver : styles.budget}>
+                    {budget.used}/{budget.pool} pts{budget.overBudget ? ' ⚠ over budget' : ''}
                   </span>
-                  <span className={styles.skillAttr}>{s.attributeName}</span>
-                  <span className={styles.skillTotal}>{calcSkillTotal(s)}</span>
-                </div>
-              ))}
+                )}
+                <EditBtn step={7} label="Edit skills" onEdit={onEditSection} />
+              </h3>
+              {character.skills?.length > 0 ? (
+                character.skills.map(s => (
+                  <div key={s.id} className={styles.skillRow}>
+                    <span className={styles.skillName}>
+                      {s.isSpecialty && '★ '}{s.name || '—'}
+                    </span>
+                    <span className={styles.skillAttr}>{s.attributeName}</span>
+                    <span className={styles.skillTotal}>{calcSkillTotal(s)}</span>
+                  </div>
+                ))
+              ) : (
+                <p className={styles.emptyHint}>No skills yet. <button type="button" className={styles.addLink} onClick={() => onEditSection(7)}>+ Add a skill</button></p>
+              )}
             </section>
           )}
 
-          {/* Powers */}
-          {character.hasPowers && character.powers?.length > 0 && (
+          {/* Powers — gated by the hasPowers capability (toggled in Identity) */}
+          {character.hasPowers && (editable || character.powers?.length > 0) && (
             <section className={styles.section}>
               <h3>Powers<EditBtn step={5} label="Edit powers" onEdit={onEditSection} /></h3>
-              {character.powers.map(p => {
-                const total = p.attributeType
-                  ? attrTotal(character.attributes[p.attributeType] || {}) + (p.powerBonus || 0)
-                  : (p.base||0) + (p.attributeBonus||0) + (p.skillBonus||0) + (p.misc||0)
-                return (
-                  <div key={p.id} className={styles.powerRow}>
-                    <span className={styles.powerName}>{p.name || '—'}</span>
-                    <span className={styles.powerTotal}>+{total}</span>
-                    {p.description && <span className={styles.powerDesc}>{p.description}</span>}
-                  </div>
-                )
-              })}
+              {character.powers?.length > 0 ? (
+                character.powers.map(p => {
+                  const total = p.attributeType
+                    ? attrTotal(character.attributes[p.attributeType] || {}) + (p.powerBonus || 0)
+                    : (p.base||0) + (p.attributeBonus||0) + (p.skillBonus||0) + (p.misc||0)
+                  return (
+                    <div key={p.id} className={styles.powerRow}>
+                      <span className={styles.powerName}>{p.name || '—'}</span>
+                      <span className={styles.powerTotal}>+{total}</span>
+                      {p.description && <span className={styles.powerDesc}>{p.description}</span>}
+                    </div>
+                  )
+                })
+              ) : (
+                <p className={styles.emptyHint}>No powers yet. <button type="button" className={styles.addLink} onClick={() => onEditSection(5)}>+ Add a power</button></p>
+              )}
             </section>
           )}
 
-          {/* Crafts */}
-          {character.hasMagic && character.crafts?.length > 0 && (
+          {/* Crafts — gated by the hasMagic capability (toggled in Identity) */}
+          {character.hasMagic && (editable || character.crafts?.length > 0) && (
             <section className={styles.section}>
               <h3>Magic Crafts<EditBtn step={6} label="Edit magic" onEdit={onEditSection} /></h3>
-              {character.crafts.map(c => (
-                <div key={c.id} className={styles.craftRow}>
-                  <span className={styles.craftName}>{c.name || '—'}</span>
-                  <span className={styles.craftAttr}>{c.attributeName}</span>
-                  <span className={styles.craftTotal}>{(c.attributeValue||0) + (c.skillBonus||0) + (c.misc||0)}</span>
-                  {c.description && <span className={styles.craftDesc}>{c.description}</span>}
-                </div>
-              ))}
+              {character.crafts?.length > 0 ? (
+                character.crafts.map(c => (
+                  <div key={c.id} className={styles.craftRow}>
+                    <span className={styles.craftName}>{c.name || '—'}</span>
+                    <span className={styles.craftAttr}>{c.attributeName}</span>
+                    <span className={styles.craftTotal}>{(c.attributeValue||0) + (c.skillBonus||0) + (c.misc||0)}</span>
+                    {c.description && <span className={styles.craftDesc}>{c.description}</span>}
+                  </div>
+                ))
+              ) : (
+                <p className={styles.emptyHint}>No crafts yet. <button type="button" className={styles.addLink} onClick={() => onEditSection(6)}>+ Add a craft</button></p>
+              )}
             </section>
           )}
           {/* Inventory — inline-editable on the sheet; read-only in the wizard review */}

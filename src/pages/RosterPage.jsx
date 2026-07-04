@@ -8,6 +8,7 @@ import { repoEnabled, listCharacters, listPlayers, assignPlayer, deleteCharacter
 import { trackPush } from '../utils/cloudStatus.js'
 import { useAuth, isGmOrAdmin } from '../auth/useAuth.js'
 import { sortRoster, SORT_KEYS } from '../utils/rosterSort.js'
+import { skillBudget } from '../utils/skillPoints.js'
 import { listTables, createTable, renameTable, deleteTable, importTables, toggleMembership, withoutTable } from '../utils/tables.js'
 import CharacterCard from '../components/CharacterCard.jsx'
 import TablesManager from '../components/TablesManager.jsx'
@@ -26,6 +27,7 @@ function toEntry(c) {
     level: c.level,
     hp: c.hitPoints?.total ?? 0,
     tableIds: Array.isArray(c.tableIds) ? c.tableIds : [],
+    overBudget: skillBudget(c).overBudget,
     savedAt: c._updatedAt || new Date().toISOString(),
     ownerUserId: c._ownerUserId ?? null,
     assignedPlayerId: c._assignedPlayerId ?? null,

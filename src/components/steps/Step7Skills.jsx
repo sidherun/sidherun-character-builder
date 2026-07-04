@@ -1,5 +1,6 @@
 import { calcSkillTotal, calcSkillBudgetUsed } from '../../utils/characterDerived.js'
 import { attrTotal } from '../../utils/characterDerived.js'
+import { poolSize, cumulativeSkillCap } from '../../utils/skillPoints.js'
 import { uuid } from '../../utils/uuid.js'
 import styles from './Step7Skills.module.css'
 
@@ -14,28 +15,11 @@ const ATTR_MAP = {
   'Wisdom': 'wisdom', 'Thaumaturgy': 'thaumaturgy', 'Enlightenment': 'enlightenment', 'Charisma': 'charisma',
 }
 
-const SKILL_BUDGET_TABLE = [
-  { pool: 30,  max: 15  }, // level 1
-  { pool: 50,  max: 30  }, // level 2
-  { pool: 70,  max: 40  }, // level 3
-  { pool: 80,  max: 50  }, // level 4
-  { pool: 80,  max: 60  }, // level 5
-  { pool: 100, max: 70  }, // level 6
-  { pool: 110, max: 80  }, // level 7
-  { pool: 120, max: 90  }, // level 8
-  { pool: 125, max: 95  }, // level 9
-  { pool: 130, max: 100 }, // level 10
-]
-
-function skillBudgetForLevel(level) {
-  const lvl = Math.max(1, Math.min(20, level || 1))
-  if (lvl <= 10) return SKILL_BUDGET_TABLE[lvl - 1]
-  return { pool: 130 + 5 * (lvl - 10), max: 100 }
-}
-
 export default function Step7Skills({ character, onUpdate }) {
   const { skills, attributes } = character
-  const { pool: MAX_BUDGET, max: MAX_PER_SKILL } = skillBudgetForLevel(character.level)
+  // Single source of truth for the budget tables (PHB pp.14-15): utils/skillPoints.js.
+  const MAX_BUDGET = poolSize(character.level)
+  const MAX_PER_SKILL = cumulativeSkillCap(character.level)
   const budgetUsed = calcSkillBudgetUsed(skills)
   const overBudget = budgetUsed > MAX_BUDGET
 
@@ -64,8 +48,9 @@ export default function Step7Skills({ character, onUpdate }) {
       if (patch.attributeName) {
         updated.attributeScore = getAttrScore(patch.attributeName)
       }
-      // Clamp skill points
-      if (updated.skillPoints > MAX_PER_SKILL) updated.skillPoints = MAX_PER_SKILL
+      // Warn, don't block (#178): a skill may exceed the per-level cap so the GM
+      // can override; the input flags it red and the over-budget badge surfaces
+      // it on the sheet / roster / GM screen. Only guard against negatives.
       if (updated.skillPoints < 0) updated.skillPoints = 0
       return updated
     })})

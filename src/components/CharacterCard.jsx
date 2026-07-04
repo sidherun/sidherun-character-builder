@@ -173,7 +173,10 @@ export default function CharacterCard({
           </div>
         )}
       </div>
-      <div className={styles.name}>{name}</div>
+      <div className={styles.name}>
+        {name}
+        {entry.overBudget && <span className={styles.overBudget} title="Skill points over the level budget">⚠ over budget</span>}
+      </div>
       {entry.playerName && <div className={styles.player}>Player: {entry.playerName}</div>}
       <div className={styles.meta}>
         {entry.race} · {entry.archetype === 'custom' ? (entry.customArchetypeName || 'Custom') : entry.archetype} · Level {entry.level}
