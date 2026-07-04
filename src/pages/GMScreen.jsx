@@ -126,11 +126,24 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
     assignPlayer(c._rosterId, playerUserId).catch(() => {})
   }
 
-  function openPlay(c) {
+  async function openPlay(c) {
+    // Pull the freshest cloud copy first so a player's just-made structural edit
+    // (inventory/skills) is there the moment the GM opens the character — the live
+    // broadcast is a bonus, this makes "Open" authoritative without a page refresh.
+    let fresh = c
+    try {
+      if (useRepo) {
+        const r = await getCharacter(c._rosterId)
+        if (r) fresh = r
+      } else if (cloudEnabled && getCloudMap()[c._rosterId]) {
+        const r = await hydrateCharacter(c._rosterId)
+        if (r) fresh = { ...c, ...r }
+      }
+    } catch { /* offline / fetch failed → fall back to the in-memory copy */ }
     // Open the existing roster character in Play Mode directly (bare #play loads
     // the current slot). Cloud sync + realtime still work via its own _rosterId,
     // and we avoid routing through #c= which would create a duplicate entry.
-    saveCurrent({ ...c, wizardStep: 9 })
+    saveCurrent({ ...fresh, wizardStep: 9 })
     onNavigate('play')
   }
 
