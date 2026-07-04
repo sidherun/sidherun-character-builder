@@ -86,8 +86,16 @@ describe('cross-device registry (#176)', () => {
     const entries = [{ tableIds: ['t9'], tableNames: { t9: 'Night Owls' } }]
     expect(deriveRegistry(entries)).toEqual([{ id: 't9', name: 'Night Owls' }])
   })
-  it('falls back to the bare id when no name is carried yet', () => {
-    expect(deriveRegistry([{ tableIds: ['t1'], _tableNames: {} }])).toEqual([{ id: 't1', name: 't1' }])
+  it('uses a readable placeholder (never the raw id) when no name is carried yet', () => {
+    // #175 members assigned before _tableNames existed: show a placeholder, not the uuid.
+    expect(deriveRegistry([{ tableIds: ['t1'], _tableNames: {} }])).toEqual([{ id: 't1', name: 'Untitled table' }])
+  })
+  it('a real name on any member still wins over the placeholder', () => {
+    const chars = [
+      { tableIds: ['t1'], _tableNames: {} },
+      { tableIds: ['t1'], _tableNames: { t1: 'Thursday' } },
+    ]
+    expect(deriveRegistry(chars)).toEqual([{ id: 't1', name: 'Thursday' }])
   })
   it('mergeRegistry lets the local (localStorage) name win over derived', () => {
     const derived = [{ id: 't1', name: 'old' }, { id: 't2', name: 'Campaign B' }]

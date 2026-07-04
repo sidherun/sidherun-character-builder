@@ -61,18 +61,23 @@ function namesOf(c) {
 }
 
 // Reconstruct the id→name registry from characters' synced membership, so a
-// fresh device (empty localStorage registry) still knows table names. A later
-// name (any character carrying one) wins over a bare id.
+// fresh device (empty localStorage registry) still knows table names. Any real
+// name a character carries wins. When no name is known yet — e.g. members
+// assigned before _tableNames existed (#175 characters) — the table is still
+// listed under a readable placeholder (NEVER the raw id) so the GM can see and
+// rename it; renaming propagates the name onto every member's blob.
+const UNTITLED = 'Untitled table'
 export function deriveRegistry(characters) {
   const map = new Map()
   for (const c of characters || []) {
     const names = namesOf(c)
     for (const id of c?.tableIds || []) {
       const name = names[id]
-      if (!map.has(id) || name) map.set(id, name || map.get(id) || id)
+      if (name) map.set(id, name)            // a real name always wins
+      else if (!map.has(id)) map.set(id, '')  // record the id; name still unknown
     }
   }
-  return [...map.entries()].map(([id, name]) => ({ id, name }))
+  return [...map.entries()].map(([id, name]) => ({ id, name: name || UNTITLED }))
 }
 
 // Merge the local (localStorage) registry with one derived from characters.
