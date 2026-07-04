@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { encodeCharacterToPlayURL } from '../utils/urlState.js'
 import { cloudEnabled } from '../utils/supabaseClient.js'
 import { getCloudLink, rotateCloudLink } from '../utils/cloudSync.js'
@@ -23,6 +23,24 @@ export default function CharacterCard({
   const [linkState, setLinkState] = useState('idle') // idle | loading | copied | error
   const [cloudState, setCloudState] = useState('idle') // idle | copied | error
   const [cloudLink, setCloudLink] = useState(cloudEnabled ? getCloudLink(entry.id) : null)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const menuRef = useRef(null)
+
+  function closeMenu() { setMenuOpen(false); setConfirmDelete(false) }
+
+  // Close the menu on an outside click or Escape. Only wired while open.
+  useEffect(() => {
+    if (!menuOpen) return
+    function onDown(e) { if (menuRef.current && !menuRef.current.contains(e.target)) closeMenu() }
+    function onKey(e) { if (e.key === 'Escape') closeMenu() }
+    document.addEventListener('mousedown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [menuOpen])
 
   // Cloud links are short (id + token), so no URL shortener needed — copy directly.
   async function handleCopyCloudLink() {
@@ -69,9 +87,70 @@ export default function CharacterCard({
   const btnLabel = { idle: 'Copy play link', loading: 'Shortening…', copied: 'Copied!', error: 'Copied (long)' }
   const cloudLabel = { idle: 'Copy live link', copied: 'Copied!', error: 'Copy failed' }
 
+  const name = entry.name || 'Unnamed'
+
   return (
     <div className={styles.card}>
-      <div className={styles.name}>{entry.name || 'Unnamed'}</div>
+      <div className={styles.menuWrap} ref={menuRef}>
+        <button
+          className={styles.menuBtn}
+          aria-haspopup="menu"
+          aria-expanded={menuOpen}
+          aria-label={`More options for ${name}`}
+          onClick={() => (menuOpen ? closeMenu() : setMenuOpen(true))}
+        >
+          ⋯
+        </button>
+        {menuOpen && (
+          <div className={styles.menu} role="menu">
+            {!confirmDelete ? (
+              <>
+                <button
+                  role="menuitem"
+                  className={styles.menuItem}
+                  onClick={handleCopyPlayLink}
+                  disabled={linkState === 'loading'}
+                >
+                  {btnLabel[linkState]}
+                </button>
+                {cloudLink && (
+                  <button role="menuitem" className={styles.menuItem} onClick={handleCopyCloudLink}>
+                    {cloudLabel[cloudState]}
+                  </button>
+                )}
+                {cloudLink && (
+                  <button
+                    role="menuitem"
+                    className={styles.menuItem}
+                    onClick={handleResetLink}
+                    title="Revoke the shared link and generate a new one"
+                  >
+                    Reset link
+                  </button>
+                )}
+                {canManage && (
+                  <button
+                    role="menuitem"
+                    className={`${styles.menuItem} ${styles.danger}`}
+                    onClick={() => setConfirmDelete(true)}
+                  >
+                    Delete…
+                  </button>
+                )}
+              </>
+            ) : (
+              <div className={styles.confirm}>
+                <span className={styles.confirmText}>Delete <strong>{name}</strong>? This can’t be undone.</span>
+                <div className={styles.confirmRow}>
+                  <button className="btn-secondary" onClick={() => setConfirmDelete(false)}>Cancel</button>
+                  <button className="btn-danger" onClick={() => { closeMenu(); onDelete(entry.id) }}>Delete</button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+      <div className={styles.name}>{name}</div>
       {entry.playerName && <div className={styles.player}>Player: {entry.playerName}</div>}
       <div className={styles.meta}>
         {entry.race} · {entry.archetype === 'custom' ? (entry.customArchetypeName || 'Custom') : entry.archetype} · Level {entry.level}
@@ -82,26 +161,6 @@ export default function CharacterCard({
       </div>
       <div className={styles.actions}>
         <button className="btn-primary" onClick={() => onLoad(entry.id)}>Load</button>
-        <button
-          className="btn-secondary"
-          onClick={handleCopyPlayLink}
-          disabled={linkState === 'loading'}
-        >
-          {btnLabel[linkState]}
-        </button>
-        {cloudLink && (
-          <button className="btn-secondary" onClick={handleCopyCloudLink}>
-            {cloudLabel[cloudState]}
-          </button>
-        )}
-        {cloudLink && (
-          <button className="btn-secondary" onClick={handleResetLink} title="Revoke the shared link and generate a new one">
-            Reset link
-          </button>
-        )}
-        {canManage && (
-          <button className="btn-danger" onClick={() => onDelete(entry.id)}>Delete</button>
-        )}
       </div>
       {canReassign && (
         <label className={styles.assign}>

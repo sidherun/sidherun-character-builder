@@ -166,7 +166,7 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
   }
 
   async function handleDelete(id) {
-    if (!confirm('Delete this character? This cannot be undone.')) return
+    // Confirmation (naming the character) is handled in CharacterCard's menu.
     if (useRepo) {
       try { await repoDelete(id) } catch { setStatus('Could not delete from cloud.'); return }
       await refreshRepo()
