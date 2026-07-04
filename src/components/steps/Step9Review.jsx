@@ -1,4 +1,5 @@
-import { useRef, useState, Fragment } from 'react'
+import { useState, Fragment } from 'react'
+import { useFocusOnAdd } from '../../hooks/useFocusOnAdd.js'
 import { calcDefense, calcHitPoints, calcMana, attrTotal, calcSkillTotal } from '../../utils/characterDerived.js'
 import { skillBudget } from '../../utils/skillPoints.js'
 import { canLevelUp, applyLevelUp } from '../../utils/leveling.js'
@@ -54,13 +55,12 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
   }
 
   // Inline inventory editing on the sheet — inventory has no wizard editor of its
-  // own, and "add a potion" is the headline use case. Mirrors Play Mode.
-  // focusIdx marks the row whose Name input should grab focus on the next render,
-  // so clicking "Add item" drops the cursor straight into the new field (#153).
-  const focusIdx = useRef(null)
+  // own, and "add a potion" is the headline use case. Mirrors Play Mode: "Add
+  // item" focuses the new Name field, Enter in Notes commits + adds (#153, #185).
+  const invFocus = useFocusOnAdd()
   function addInventoryItem() {
     const inventory = [...(character.inventory || []), { name: '', quantity: '', notes: '' }]
-    focusIdx.current = inventory.length - 1
+    invFocus.markLast(inventory.length)
     onUpdate?.({ inventory })
   }
   function updateInventoryItem(i, patch) {
@@ -319,13 +319,13 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
                       <Fragment key={i}>
                         <div className={styles.invRow}>
                           <input className={styles.invInput} value={obj.name || ''} placeholder="Item"
-                            ref={el => { if (el && focusIdx.current === i) { el.focus(); focusIdx.current = null } }}
+                            ref={invFocus.focusRef(i)}
                             onChange={e => updateInventoryItem(i, { name: e.target.value })} aria-label={`Item ${i + 1} name`} />
                           <input className={styles.invQty} value={obj.quantity ?? ''} placeholder="Qty"
                             onChange={e => updateInventoryItem(i, { quantity: e.target.value })} aria-label={`Item ${i + 1} quantity`} />
                           <input className={styles.invInput} value={obj.notes || ''} placeholder="Notes"
                             onChange={e => updateInventoryItem(i, { notes: e.target.value })}
-                            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addInventoryItem() } }}
+                            onKeyDown={invFocus.enterAdds(addInventoryItem)}
                             aria-label={`Item ${i + 1} notes`} />
                           <button type="button" className={styles.invRemove} onClick={() => removeInventoryItem(i)} aria-label={`Remove item ${i + 1}`}>✕</button>
                         </div>

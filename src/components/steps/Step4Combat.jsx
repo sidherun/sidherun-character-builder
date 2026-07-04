@@ -1,5 +1,6 @@
 import { calcDefense, attrTotal } from '../../utils/characterDerived.js'
 import { weaponModifier } from '../../utils/rollActions.js'
+import { useFocusOnAdd } from '../../hooks/useFocusOnAdd.js'
 import { uuid } from '../../utils/uuid.js'
 import NumberInput from '../NumberInput.jsx'
 import armorTypes from '../../data/armorTypes.json'
@@ -27,6 +28,10 @@ const ATTR_ABBREV = {
 export default function Step4Combat({ character, onUpdate }) {
   const derived = calcDefense(character)
 
+  // "Add weapon" focuses the new row's Name field, and Enter in the Damage/notes
+  // field commits + starts the next weapon — keyboard-only entry (#189).
+  const weaponFocus = useFocusOnAdd()
+
   // Total of an attribute given its display name (e.g. "Dexterity").
   function attrTotalByName(name) {
     const key = (name || '').toLowerCase()
@@ -34,13 +39,13 @@ export default function Step4Combat({ character, onUpdate }) {
   }
 
   function addWeapon() {
-    onUpdate({
-      weapons: [...character.weapons, {
-        id: uuid(),
-        name: '', attribute: 'Agility',
-        attributeBonus: attrTotalByName('Agility'), skillBonus: 0, descriptor: '',
-      }]
-    })
+    const weapons = [...character.weapons, {
+      id: uuid(),
+      name: '', attribute: 'Agility',
+      attributeBonus: attrTotalByName('Agility'), skillBonus: 0, descriptor: '',
+    }]
+    weaponFocus.markLast(weapons.length)
+    onUpdate({ weapons })
   }
 
   function updateWeapon(id, patch) {
@@ -91,7 +96,7 @@ export default function Step4Combat({ character, onUpdate }) {
         {character.weapons.length === 0 && (
           <p className={styles.empty}>No weapons added yet.</p>
         )}
-        {character.weapons.map(w => {
+        {character.weapons.map((w, i) => {
           const total = weaponModifier(w) // non-stacking: skill OR attribute, matches the attack roll
           const weaponName = w.name || 'unnamed weapon'
           return (
@@ -99,6 +104,7 @@ export default function Step4Combat({ character, onUpdate }) {
               <input
                 className={styles.wName}
                 value={w.name}
+                ref={weaponFocus.focusRef(i)}
                 onChange={e => updateWeapon(w.id, { name: e.target.value })}
                 placeholder="Weapon name…"
                 aria-label="Weapon name"
@@ -134,6 +140,7 @@ export default function Step4Combat({ character, onUpdate }) {
                 className={styles.wDesc}
                 value={w.descriptor}
                 onChange={e => updateWeapon(w.id, { descriptor: e.target.value })}
+                onKeyDown={weaponFocus.enterAdds(addWeapon)}
                 placeholder="Damage / notes…"
                 aria-label={`Damage and notes for ${weaponName}`}
               />
