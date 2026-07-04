@@ -5,9 +5,17 @@
   pointer-events: none; /* dice are a flourish — never block the UI underneath */
 }
 
+/* A bounded tray low on the screen. The engine sizes its physics bounds to this
+   container, so the dice tumble and settle here instead of scattering over the
+   sheet. No visible frame — the tray is empty between rolls, so only the dice
+   should show. */
 .stage {
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  left: 50%;
+  bottom: clamp(12px, 3vh, 32px);
+  transform: translateX(-50%);
+  width: min(640px, 94vw);
+  height: min(38vh, 380px);
 }
 
 .stage canvas {
