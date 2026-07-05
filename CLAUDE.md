@@ -2,12 +2,17 @@
 
 ## Context
 
-Ed has a 13-person Sidherun RPG game in 6 days. Players have played these characters before;
-their sheets are coming in as phone photos. Goal: extract each character into a valid import
-JSON, load all 13 into the app, and produce printouts for game day.
+The kickoff event — **"Grandanto's Folly"**, a 14-player Sidherun RPG session — ran over
+Father's Day weekend 2026, and the app carried it (all characters imported from phone-photo
+sheets, run live from the GM Screen). That deadline has **passed**; this is now an **ongoing,
+multi-session campaign** and the app is being improved for the **next session** going forward.
 
-Ed is the GM and first-class citizen. The app must support GM workflows (manage all characters,
-quick edits during play) not just individual player character creation.
+The next session will be run by **Ed and/or Max Chartier** (co-DMs), so the app must support
+**GM workflows for either of them** — manage all characters, quick edits during play, live
+tracking — not just individual player character creation. The same ~14 returning PCs (all
+level 3 at kickoff) will **level up** and keep playing, so leveling, correctness of the core
+dice/combat math, and the live-table infra (GM Screen, cloud sync, roll feed) are the durable,
+reused core. Optimize for **quality and correctness across future sessions, not race-to-a-date**.
 
 ## Workflow
 
