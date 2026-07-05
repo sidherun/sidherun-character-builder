@@ -221,6 +221,10 @@ working unchanged, so game-day QR / printout scans still need no login.
   Two `useRef` signatures (`lastLiveSig`/`lastDataSig` in `App.jsx`) gate each
   plane and reset per opened character. A brand-new character is still first
   created on the explicit **Complete** (it has no cloud row to update yet).
+  Each debounced push is also held in a ref (`liveFlushRef`/`dataFlushRef`) and
+  **flushed when the tab is backgrounded, closed, or unmounts** (`visibilitychange`
+  → hidden / `pagehide`), so the last HP/Mana/Story tick before you leave a screen
+  isn't dropped with the pending timer (#196). Flushes are idempotent.
 - **Realtime (bidirectional).** Signed-in play syncs live counters through the
   cloud row (durable) plus a **Broadcast** nudge for instant delivery. Both the
   GM Screen and the player's Play Mode subscribe to the per-character channel
