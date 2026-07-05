@@ -1,4 +1,4 @@
-import { useState, useEffect, Fragment } from 'react'
+import { useState, useEffect, useRef, Fragment } from 'react'
 import { useFocusOnAdd } from '../../hooks/useFocusOnAdd.js'
 import { calcDefense, calcSkillTotal, attrTotal } from '../../utils/characterDerived.js'
 import { ITEM_DICTIONARY } from '../../utils/spellcheck.js'
@@ -47,6 +47,11 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
   const [lastRoll, setLastRoll] = useState(null)
   const [animOn, setAnimOn] = useState(animationsOn)
   const [sndOn, setSndOn] = useState(soundOn)
+  // Guard against a second roll fired while one is still tumbling — that would
+  // broadcast a duplicate to the shared feed and corrupt the session record
+  // (#218). Ref for the race-safe gate; state to disable the roll buttons.
+  const [rolling, setRolling] = useState(false)
+  const rollingRef = useRef(false)
   // Warm the dice engine when Play Mode opens so the first roll isn't a dead
   // ~1–2s wait while it lazy-loads.
   useEffect(() => { if (animOn) preloadDice() }, [animOn])
@@ -154,13 +159,28 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
   // animation/sound are a flourish — the banner + feed are the source of truth,
   // so a failed or blocked animation still shows the result.
   const emitRoll = (entry) => {
-    onRoll?.({ ...entry, actor: character.name || character.playerName || 'Someone' })
+    if (rollingRef.current) return // a roll is already tumbling — ignore the repeat (#218)
     const spec = animOn ? rollToDiceSpec(entry) : null
-    if (!spec) { setLastRoll(entry); return }
+    // Instant (no-animation) path: reveal + broadcast immediately, nothing to guard.
+    if (!spec) {
+      onRoll?.({ ...entry, actor: character.name || character.playerName || 'Someone' })
+      setLastRoll(entry)
+      return
+    }
+    // Animated path: hold the gate from first click until the dice settle, so a
+    // second click during the tumble can't fire or broadcast a duplicate roll.
+    rollingRef.current = true
+    setRolling(true)
+    onRoll?.({ ...entry, actor: character.name || character.playerName || 'Someone' })
     if (sndOn) playRollSound()
     rollDice(spec.notation)
       .catch(() => {}) // engine failure → still reveal the result below
-      .finally(() => { if (sndOn) playSettleSound(); setLastRoll(entry) })
+      .finally(() => {
+        if (sndOn) playSettleSound()
+        setLastRoll(entry)
+        rollingRef.current = false
+        setRolling(false)
+      })
   }
   function rollSkillCheck(skill) {
     emitRoll({ kind: 'total', label: skill.name, ...rollSkill(character, skill) })
@@ -235,7 +255,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
                 </label>
                 <div className={styles.spellResult}>
                   <span className={styles.spellNum} style={{ color: spellColor }}>{spellTarget ?? '—'}%</span>
-                  <button className={styles.rollBtn} onClick={rollSpellCheck} disabled={spellTarget == null}>Roll</button>
+                  <button className={styles.rollBtn} onClick={rollSpellCheck} disabled={rolling || spellTarget == null}>Roll</button>
                 </div>
               </div>
             </div>
@@ -339,7 +359,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
                   <span>{w.name}</span>
                   <span className={styles.weaponBonus}>+{weaponModifier(w)}</span>
                   <span className={styles.weaponDesc}>{w.descriptor}</span>
-                  <button className={styles.rollBtn} onClick={() => rollWeapon(w)}>Attack</button>
+                  <button className={styles.rollBtn} onClick={() => rollWeapon(w)} disabled={rolling}>Attack</button>
                 </div>
               )) : <p className={styles.refEmpty}>None yet.</p>}
             </section>
@@ -356,7 +376,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
                     <span>{s.isSpecialty ? '★ ' : ''}{s.name}</span>
                     <span className={styles.skillRight}>
                       <strong>{calcSkillTotal(s)}</strong>
-                      <button className={styles.rollBtn} onClick={() => rollSkillCheck(s)}>Roll</button>
+                      <button className={styles.rollBtn} onClick={() => rollSkillCheck(s)} disabled={rolling}>Roll</button>
                     </span>
                   </div>
                   <div className={styles.usePips} role="group" aria-label={`Use tracking for ${s.name}`}>
