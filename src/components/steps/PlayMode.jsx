@@ -208,6 +208,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
             color="var(--hp)"
             onAdjust={adjustHP}
             readOnly={readOnly}
+            zeroLabel="Down"
           />
           {character.hasMagic && (
             <Counter
@@ -483,11 +484,18 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
   )
 }
 
-function Counter({ label, current, total, color, onAdjust, readOnly = false }) {
+function Counter({ label, current, total, color, onAdjust, readOnly = false, zeroLabel }) {
   const pct = total > 0 ? Math.min(100, (current / total) * 100) : 0
+  // A dropped resource (0 HP) otherwise looks identical to a healthy one — flag
+  // it so the GM/player can't miss a downed character (#218). role=status so a
+  // screen reader announces it too.
+  const atZero = zeroLabel && current <= 0
   return (
-    <div className={styles.counter}>
-      <div className={styles.counterLabel} style={{ color }}>{label}</div>
+    <div className={`${styles.counter}${atZero ? ` ${styles.counterDown}` : ''}`}>
+      <div className={styles.counterLabel} style={{ color }}>
+        {label}
+        {atZero && <span className={styles.downedBadge} role="status"> · {zeroLabel}</span>}
+      </div>
       <div className={styles.counterDisplay}>
         <button className={styles.adjBtn} onClick={() => onAdjust(-1)} disabled={readOnly}>−</button>
         <span className={styles.counterValue} style={{ color }}>
