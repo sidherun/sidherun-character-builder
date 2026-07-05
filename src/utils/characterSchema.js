@@ -6,14 +6,25 @@ const attrSchema = z.object({
   tempMod:   z.number().int().default(0),
 })
 
-const weaponSchema = z.object({
+const weaponSchema = z.preprocess((w) => {
+  // Migrate legacy weapons saved before the explicit `usesSkill` flag existed:
+  // infer it from the old "nonzero skillBonus means the skill applies" heuristic
+  // so their attack modifier is unchanged. New/blank weapons keep default false.
+  if (w && typeof w === 'object' && w.usesSkill === undefined) {
+    return { ...w, usesSkill: (Number(w.skillBonus) || 0) > 0 }
+  }
+  return w
+}, z.object({
   id:           z.string(),
   name:         z.string(),
   attribute:    z.string(),
   attributeBonus: z.number().int().default(0),
   skillBonus:   z.number().int().default(0),
+  // Whether the weapon's skill value (not the governing attribute) is the
+  // non-stacking attack modifier. Explicit so a legitimate skill of 0 can win.
+  usesSkill:    z.boolean().default(false),
   descriptor:   z.string().default(''),
-})
+}))
 
 const armorSchema = z.object({
   type:       z.string().default('none'),

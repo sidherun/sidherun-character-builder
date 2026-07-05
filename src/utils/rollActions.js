@@ -8,16 +8,19 @@ import { rollTotal, resolveUnder } from './dice.js'
 
 // Attack bonus is NON-STACKING: the weapon's skill value applies when the
 // character has the relevant skill, otherwise the governing attribute value —
-// never both (PHB: "they do not stack"). We treat a nonzero skillBonus as
-// "skill applies". Values are coerced with Number() so this works for both the
-// schema's ints and the combat editor's string inputs; always returns a number.
-// If a legitimate skill value of 0 ever needs to win over the attribute, add an
-// explicit weapon.usesSkill flag.
+// never both (PHB: "they do not stack"). The explicit `weapon.usesSkill` flag
+// decides which one applies, so a legitimate skill value of 0 can still win over
+// the attribute. Legacy weapons saved before the flag existed fall back to the
+// old "nonzero skillBonus means skilled" heuristic (the schema migrates stored
+// data; this fallback covers any un-parsed object). Values are coerced with
+// Number() so this works for both the schema's ints and the combat editor's
+// string inputs; always returns a number.
 export function weaponModifier(weapon) {
   if (!weapon) return 0
   const skill = Number(weapon.skillBonus) || 0
   const attr = Number(weapon.attributeBonus) || 0
-  return skill > 0 ? skill : attr
+  const usesSkill = weapon.usesSkill ?? skill > 0
+  return usesSkill ? skill : attr
 }
 
 // Skill check: d100 + skill total, display the total. No target.

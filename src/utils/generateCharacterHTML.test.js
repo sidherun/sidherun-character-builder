@@ -100,6 +100,26 @@ describe('generateCharacterHTML', () => {
     expect(html).not.toContain('Wild Shape</td><td>+0</td>')
   })
 
+  it('shows the non-stacking weapon modifier, never attribute + skill summed (#142)', () => {
+    // usesSkill=true → skill only (was previously summed to +20)
+    const skilled = generateCharacterHTML(mk('Skilled', {
+      weapons: [{ id: 1, name: 'Saber', attribute: 'agility', attributeBonus: 12, skillBonus: 8, usesSkill: true, descriptor: '' }],
+    }))
+    expect(skilled).toContain('<td>Saber</td><td>agility</td><td>+8</td>')
+    expect(skilled).not.toContain('+20')
+    // usesSkill=false → attribute only
+    const unskilled = generateCharacterHTML(mk('Unskilled', {
+      weapons: [{ id: 1, name: 'Club', attribute: 'strength', attributeBonus: 10, skillBonus: 4, usesSkill: false, descriptor: '' }],
+    }))
+    expect(unskilled).toContain('<td>Club</td><td>strength</td><td>+10</td>')
+    // legacy weapon (no flag): nonzero skill falls back to skill, not the sum
+    const legacy = generateCharacterHTML(mk('Legacy', {
+      weapons: [{ id: 1, name: 'Spear', attribute: 'strength', attributeBonus: 17, skillBonus: 2, descriptor: '' }],
+    }))
+    expect(legacy).toContain('<td>Spear</td><td>strength</td><td>+2</td>')
+    expect(legacy).not.toContain('+19')
+  })
+
   it('hides mana/crafts for non-casters', () => {
     const html = generateCharacterHTML(mk('Aerin', { hasMagic: false }))
     expect(html).not.toContain('<h2>Magic Crafts</h2>')

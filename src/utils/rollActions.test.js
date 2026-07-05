@@ -4,23 +4,44 @@ import { weaponModifier, rollSkill, rollAttack, rollSpell } from './rollActions.
 const fixed = (v) => () => v // Math.floor(v * 100) + 1 = the d100 roll
 
 describe('weaponModifier (non-stacking skill-or-attribute)', () => {
-  it('uses the skill value when the weapon has one', () => {
-    expect(weaponModifier({ skillBonus: 18, attributeBonus: 5 })).toBe(18)
+  it('uses the skill value when usesSkill is set', () => {
+    expect(weaponModifier({ usesSkill: true, skillBonus: 18, attributeBonus: 5 })).toBe(18)
   })
 
-  it('falls back to the attribute when there is no skill', () => {
-    expect(weaponModifier({ skillBonus: 0, attributeBonus: 12 })).toBe(12)
+  it('uses the attribute when usesSkill is false', () => {
+    expect(weaponModifier({ usesSkill: false, skillBonus: 0, attributeBonus: 12 })).toBe(12)
+  })
+
+  it('honours a legitimate skill value of 0 over the attribute when usesSkill is set', () => {
+    // The whole point of the explicit flag: a skilled weapon whose skill total
+    // happens to be 0 still uses the skill (0), not the attribute — the old
+    // nonzero-skillBonus heuristic got this wrong.
+    expect(weaponModifier({ usesSkill: true, skillBonus: 0, attributeBonus: 12 })).toBe(0)
+  })
+
+  it('uses the attribute when usesSkill is false even if a skill bonus exists', () => {
+    // Inverse misfire the flag fixes: a nonzero skill that does NOT apply to
+    // this weapon must not be picked up.
+    expect(weaponModifier({ usesSkill: false, skillBonus: 18, attributeBonus: 5 })).toBe(5)
   })
 
   it('never stacks skill + attribute', () => {
-    const w = { skillBonus: 18, attributeBonus: 5 }
+    const w = { usesSkill: true, skillBonus: 18, attributeBonus: 5 }
     expect(weaponModifier(w)).not.toBe(18 + 5)
   })
 
   it('coerces the combat editor\'s string inputs and returns a number', () => {
-    expect(weaponModifier({ skillBonus: '8', attributeBonus: '6' })).toBe(8)   // skill wins
-    expect(weaponModifier({ skillBonus: '', attributeBonus: '6' })).toBe(6)    // no skill → attribute
-    expect(weaponModifier({ skillBonus: '0', attributeBonus: '6' })).toBe(6)   // "0" skill → attribute
+    expect(weaponModifier({ usesSkill: true, skillBonus: '8', attributeBonus: '6' })).toBe(8)  // skill wins
+    expect(weaponModifier({ usesSkill: false, skillBonus: '', attributeBonus: '6' })).toBe(6)  // attribute
+  })
+
+  it('falls back to the nonzero-skill heuristic for legacy weapons with no usesSkill flag', () => {
+    // Legacy data saved before the flag existed: the schema migrates stored
+    // characters, but weaponModifier keeps the old inference as a safety net for
+    // any un-parsed object so their attack math is unchanged.
+    expect(weaponModifier({ skillBonus: 18, attributeBonus: 5 })).toBe(18)  // nonzero skill → skill
+    expect(weaponModifier({ skillBonus: 0, attributeBonus: 12 })).toBe(12)  // no skill → attribute
+    expect(weaponModifier({ skillBonus: '0', attributeBonus: '6' })).toBe(6)
   })
 
   it('handles a missing weapon', () => {

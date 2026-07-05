@@ -45,6 +45,20 @@
 }
 .numLabel input { width: 72px; text-align: center; }
 
+.usesSkillLabel {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--bronze, #c69152);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.usesSkillLabel input { cursor: pointer; }
+
 .totalBadge {
   display: flex;
   flex-direction: column;
