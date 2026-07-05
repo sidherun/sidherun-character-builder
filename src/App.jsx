@@ -355,6 +355,12 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   }, [character.wizardStep])
 
   function nextStep() {
+    // A character needs a name — don't let it advance past Identity nameless and
+    // silently save as "Unnamed Character" on Complete (#218).
+    if (character.wizardStep === 2 && !character.name?.trim()) {
+      addToast('Give your character a name to continue.', 'error')
+      return
+    }
     const nextIdx = currentStepIdx + 1
     if (nextIdx < steps.length) update({ wizardStep: steps[nextIdx] })
   }
@@ -400,6 +406,12 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   }
 
   function completeCharacter() {
+    // Backstop the name gate: never save a nameless character as "Unnamed" (#218).
+    if (!character.name?.trim()) {
+      addToast('Give your character a name first (Identity step).', 'error')
+      goToStep(2)
+      return
+    }
     const saved = saveCharacterToRoster(character)
     setCharacter(saved)
     setEditSection(null)
