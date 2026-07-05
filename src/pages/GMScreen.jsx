@@ -14,6 +14,7 @@ import { listTables, visibleForTable, tableMemberCount, visibleRollsForTable, de
 import { skillBudget } from '../utils/skillPoints.js'
 import { trackPush } from '../utils/cloudStatus.js'
 import CloudStatus from '../components/CloudStatus.jsx'
+import SyncBanner from '../components/SyncBanner.jsx'
 import styles from './GMScreen.module.css'
 
 const loadAll = () => loadRoster().map(e => loadCharacterFromRoster(e.id)).filter(Boolean)
@@ -204,6 +205,7 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
 
   return (
     <div className={styles.page}>
+      <SyncBanner />
       <header className={styles.header}>
         <button className={styles.brand} onClick={() => onNavigate('roster')} aria-label="Back to roster">
           <h1>Sidherun</h1>

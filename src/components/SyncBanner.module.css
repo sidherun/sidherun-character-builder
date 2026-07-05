@@ -1,0 +1,16 @@
+/* Bottom-fixed alert bar. --danger and --bg are light/dark opposites, so this
+   stays high-contrast in both themes without a raw color (see CLAUDE.md). */
+.banner {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  padding: 10px 16px;
+  background: var(--danger);
+  color: var(--bg);
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}

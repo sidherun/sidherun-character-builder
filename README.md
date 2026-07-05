@@ -170,7 +170,13 @@ store; the cloud syncs in the background and the app keeps working offline.
 A small **sync status badge** (Play Mode + GM Screen headers) shows whether cloud
 sync is healthy — **Live** / **Saving…** / **Sync error** / **Offline** — so a
 failed push is never silent (`utils/cloudStatus.js` + `CloudStatus.jsx`). It
-renders nothing in the localStorage-only build.
+renders nothing in the localStorage-only build. On top of the badge, a
+**prominent sync banner** (`SyncBanner.jsx`, bottom-fixed) appears on Play Mode
+and the GM Screen whenever sync is **failing or offline**, and clears when it
+recovers (#200) — so at the table a silent failure can't masquerade as "the
+numbers are fine"; the GM knows to fix the connection or fall back to paper on
+purpose. (`--danger`/`--bg` are light/dark inverses, so the bar stays legible in
+both themes token-only.)
 
 **Structural saves use optimistic concurrency** (authenticated plane): each
 full-blob write guards on the row's `data_rev`, so if two devices edit the same
