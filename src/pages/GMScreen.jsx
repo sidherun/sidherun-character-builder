@@ -19,6 +19,24 @@ import styles from './GMScreen.module.css'
 
 const loadAll = () => loadRoster().map(e => loadCharacterFromRoster(e.id)).filter(Boolean)
 
+// One HP/Mana/Story stepper. Defined at MODULE scope, not inside GMScreen: a
+// component declared inside the render is a new type every render, so React
+// remounted this whole node on every +/- (via setChars) — dropping focus and
+// silently eating rapid clicks mid-combat (13 fast clicks once landed as −1).
+// Hoisting it keeps the node stable so every click and keypress registers (#218).
+function Stat({ c, kind, label, cur, total, color, onAdjust }) {
+  return (
+    <div className={styles.stat}>
+      <span className={styles.statLabel} style={{ color }}>{label}</span>
+      <div className={styles.statControls}>
+        <button className={styles.adj} onClick={() => onAdjust(c, kind, -1)} aria-label={`${label} minus for ${c.name || 'Unnamed'}`}>−</button>
+        <span className={styles.statVal} style={{ color }}>{cur}<span className={styles.statTotal}>/{total}</span></span>
+        <button className={styles.adj} onClick={() => onAdjust(c, kind, +1)} aria-label={`${label} plus for ${c.name || 'Unnamed'}`}>+</button>
+      </div>
+    </div>
+  )
+}
+
 export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
   const { role, signOut } = useAuth()
   const useRepo = repoEnabled()
@@ -190,17 +208,6 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
     onNavigate('play')
   }
 
-  const Stat = ({ c, kind, label, cur, total, color }) => (
-    <div className={styles.stat}>
-      <span className={styles.statLabel} style={{ color }}>{label}</span>
-      <div className={styles.statControls}>
-        <button className={styles.adj} onClick={() => adjust(c, kind, -1)} aria-label={`${label} minus for ${c.name || 'Unnamed'}`}>−</button>
-        <span className={styles.statVal} style={{ color }}>{cur}<span className={styles.statTotal}>/{total}</span></span>
-        <button className={styles.adj} onClick={() => adjust(c, kind, +1)} aria-label={`${label} plus for ${c.name || 'Unnamed'}`}>+</button>
-      </div>
-    </div>
-  )
-
   const canAssign = useRepo && isGmOrAdmin(role)
 
   return (
@@ -291,11 +298,11 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
                     </select>
                   )}
                 </div>
-                <Stat c={c} kind="hp" label="HP" cur={c.hitPoints?.current || 0} total={c.hitPoints?.total || 0} color="var(--hp)" />
+                <Stat c={c} kind="hp" label="HP" cur={c.hitPoints?.current || 0} total={c.hitPoints?.total || 0} color="var(--hp)" onAdjust={adjust} />
                 {c.hasMagic
-                  ? <Stat c={c} kind="mana" label="Mana" cur={c.mana?.current || 0} total={c.mana?.total || 0} color="var(--mana)" />
+                  ? <Stat c={c} kind="mana" label="Mana" cur={c.mana?.current || 0} total={c.mana?.total || 0} color="var(--mana)" onAdjust={adjust} />
                   : <div className={styles.stat}><span className={styles.statLabel}>Mana</span><span className={styles.dash}>—</span></div>}
-                <Stat c={c} kind="sp" label="Story" cur={c.storyPoints?.current || 0} total={c.storyPoints?.total || 0} color="var(--story)" />
+                <Stat c={c} kind="sp" label="Story" cur={c.storyPoints?.current || 0} total={c.storyPoints?.total || 0} color="var(--story)" onAdjust={adjust} />
                 <button className="btn-secondary" onClick={() => openPlay(c)}>Open</button>
               </div>
             ))}
