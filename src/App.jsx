@@ -157,6 +157,10 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   // leave a screen never reaches the cloud (#196). Cleared when the timer fires.
   const liveFlushRef = useRef(null)
   const dataFlushRef = useRef(null)
+  // Latest character, for the focus/visibility reconcile listener below whose
+  // effect doesn't re-bind on every character change.
+  const charRef = useRef(character)
+  charRef.current = character
   // The authoritative data_rev for optimistic-concurrency structural saves
   // (#146). Kept in a ref, not state: dataSignature() doesn't strip it, so
   // putting it in `character` would loop the structural-autosave effect.
@@ -259,6 +263,39 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
       flush()
     }
   }, [])
+
+  // RECONCILE: a live Broadcast can be dropped (weak wifi, rate cap, a peer that
+  // was backgrounded), leaving this screen showing a stale number until the
+  // character is reopened. When the tab regains focus / becomes visible, re-read
+  // the cloud row and self-heal (#196/#200). Guarded to never clobber a local
+  // edit: skip if a push is still pending (the live/data signature differs from
+  // what was last synced), and only adopt a strictly newer cloud row.
+  useEffect(() => {
+    if (!repoEnabled() || !user) return
+    const reconcile = () => {
+      if (document.visibilityState !== 'visible') return
+      const c = charRef.current
+      const rid = c._rosterId
+      if (!rid) return
+      if (JSON.stringify(projectLive(c)) !== lastLiveSig.current) return // live edit pending
+      if (dataSignature(c) !== lastDataSig.current) return               // structural edit pending
+      getCharacter(rid).then(fresh => {
+        if (!fresh || fresh._rosterId !== rid) return
+        if (c._updatedAt && fresh._updatedAt &&
+            Date.parse(fresh._updatedAt) <= Date.parse(c._updatedAt)) return // not newer → nothing missed
+        dataRevRef.current = fresh._dataRev ?? null
+        lastLiveSig.current = JSON.stringify(projectLive(fresh))
+        lastDataSig.current = dataSignature(fresh)
+        setCharacter(prev => (prev._rosterId === rid ? fresh : prev))
+      }).catch(() => {})
+    }
+    document.addEventListener('visibilitychange', reconcile)
+    window.addEventListener('focus', reconcile)
+    return () => {
+      document.removeEventListener('visibilitychange', reconcile)
+      window.removeEventListener('focus', reconcile)
+    }
+  }, [user])
 
   // Hydrate a cloud link from the server (once on mount). Adopt the cloud copy
   // when it's newer than the local one (or there's no local copy); otherwise

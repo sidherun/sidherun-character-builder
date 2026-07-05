@@ -236,6 +236,14 @@ working unchanged, so game-day QR / printout scans still need no login.
   works — and it shares the channel name with the guest plane, so guest and
   authed viewers of the same character interoperate. App.jsx tracks a last-live
   signature so the push/receive effects don't echo into a loop.
+  Because Broadcast is best-effort (a nudge can drop on weak wifi, the 5 ev/s
+  cap, or a backgrounded peer), both Play Mode and the GM Screen also **reconcile
+  on focus** (`visibilitychange`→visible / window `focus`): they re-read the
+  authoritative cloud row(s) and self-heal a missed update (#196/#200). Play Mode
+  guards this — it skips while a local edit is still pending (signature differs
+  from last-synced) and only adopts a strictly newer row (`updated_at`), so it
+  never clobbers an un-pushed local change; the GM Screen is a viewer and just
+  re-fetches.
 - **Off by default.** Enabled only when `VITE_AUTH=on` (which implies cloud) and
   the Supabase keys are present. With it off the app is the legacy single-user /
   guest build, byte-for-byte.

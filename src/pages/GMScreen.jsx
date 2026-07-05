@@ -61,6 +61,25 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
     return () => { alive = false }
   }, [useRepo, role])
 
+  // RECONCILE: a dropped live Broadcast can leave a character's counters stale on
+  // the dashboard until it's reopened. The GM Screen is a viewer (the GM's own
+  // adjusts push immediately), so when the tab regains focus / becomes visible,
+  // re-read the authoritative rows and self-heal any missed update (#196/#200) —
+  // the same fetch the mount load and Open action already trust.
+  useEffect(() => {
+    if (!useRepo) return
+    const reconcile = () => {
+      if (document.visibilityState !== 'visible') return
+      listCharacters().then(rows => setChars(rows)).catch(() => {})
+    }
+    document.addEventListener('visibilitychange', reconcile)
+    window.addEventListener('focus', reconcile)
+    return () => {
+      document.removeEventListener('visibilitychange', reconcile)
+      window.removeEventListener('focus', reconcile)
+    }
+  }, [useRepo])
+
   // Stable key of the subscribable character ids (not the count) so the live
   // subscriptions re-bind whenever the SET changes — including a swap that keeps
   // the roster length the same, which a `.length` dep would miss.
