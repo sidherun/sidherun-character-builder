@@ -52,7 +52,15 @@ export function AuthProvider({ children }) {
     if (!supabase) return { error: new Error('Auth is not enabled') }
     return supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: window.location.origin + window.location.pathname },
+      options: {
+        // Invite-only: never create a new account from the app. An unknown email
+        // is refused (LoginPage shows an invite-only message) rather than silently
+        // registering a stranger. Existing players sign in unchanged. The matching
+        // server-side gate is Supabase's "disable new sign-ups" setting — see
+        // README (auth section); this is the app-side half of that lockdown (#209).
+        shouldCreateUser: false,
+        emailRedirectTo: window.location.origin + window.location.pathname,
+      },
     })
   }, [])
 

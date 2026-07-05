@@ -203,6 +203,17 @@ cloud — not localStorage — is the **source of truth** for character data
 (localStorage is demoted to an offline cache). The original guest links keep
 working unchanged, so game-day QR / printout scans still need no login.
 
+- **Invite-only sign-in (#209).** The sign-in call passes `shouldCreateUser: false`
+  (`AuthProvider.js`), so the app **never creates a new account** — an unknown
+  email is refused with an invite-only message (`friendlyAuthError`) instead of
+  silently registering a stranger; existing players sign in unchanged. **Enforce
+  it at the source in Supabase:** Authentication → Sign In / Providers → **turn
+  off "Allow new users to sign up"** (with it on, someone hitting the API directly
+  could still self-register). **To add a new player** once sign-ups are off: an
+  admin invites them via Supabase → Authentication → **Users → Add user / Invite**,
+  they sign in once (creating their `profiles` row), then the admin sets their role
+  in **Manage Roles** (#179).
+
 - **Roles.** `player` reads/edits the characters they own or are assigned and
   ticks counters during play; `gm` views and administers **every** character in
   the campaign (HP/Mana/Story, plus assigning players); `admin` can change any
