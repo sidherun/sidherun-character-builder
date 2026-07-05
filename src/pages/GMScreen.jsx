@@ -45,6 +45,10 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
   const [chars, setChars] = useState(useRepo ? [] : loadAll)
   const [players, setPlayers] = useState([])
   const [rollFeed, setRollFeed] = useState([])
+  // Distinguish "still loading" and "load failed" from a genuinely empty
+  // campaign — a swallowed fetch error used to render "No saved characters",
+  // making a broken app look empty mid-session (#218).
+  const [loadState, setLoadState] = useState(useRepo ? 'loading' : 'ready')
   const charsRef = useRef(chars)
   charsRef.current = chars
 
@@ -75,10 +79,21 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
   useEffect(() => {
     if (!useRepo) return
     let alive = true
-    listCharacters().then(rows => { if (alive) setChars(rows) }).catch(() => {})
+    setLoadState('loading')
+    listCharacters()
+      .then(rows => { if (alive) { setChars(rows); setLoadState('ready') } })
+      .catch(() => { if (alive) setLoadState('error') })
     if (isGmOrAdmin(role)) listPlayers().then(p => { if (alive) setPlayers(p) }).catch(() => {})
     return () => { alive = false }
   }, [useRepo, role])
+
+  // Retry a failed load (surfaced by the error state below).
+  function reloadRoster() {
+    setLoadState('loading')
+    listCharacters()
+      .then(rows => { setChars(rows); setLoadState('ready') })
+      .catch(() => setLoadState('error'))
+  }
 
   // RECONCILE: a dropped live Broadcast can leave a character's counters stale on
   // the dashboard until it's reopened. The GM Screen is a viewer (the GM's own
@@ -252,7 +267,14 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
             </ul>
           </section>
         )}
-        {chars.length === 0 ? (
+        {loadState === 'loading' && chars.length === 0 ? (
+          <p className={styles.empty} role="status" aria-live="polite">Loading the roster…</p>
+        ) : loadState === 'error' ? (
+          <p className={styles.empty} role="alert">
+            Couldn’t load the roster — check your connection.{' '}
+            <button className="btn-secondary" onClick={reloadRoster}>Retry</button>
+          </p>
+        ) : chars.length === 0 ? (
           <p className={styles.empty}>No saved characters. Add characters from the Roster first.</p>
         ) : (
           <>
