@@ -199,9 +199,12 @@
   background: transparent;
   border: 1px solid var(--line);
   color: var(--ink-700);
-  padding: 3px 8px;
+  /* Bigger tap target + legible label for the ±5/3/1 combat chips hit
+     constantly at the table (#217: were ~31×21px, 10px text). */
+  padding: 8px 11px;
+  min-height: 36px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.06em;
   border-radius: 3px;
   cursor: pointer;
@@ -623,7 +626,10 @@
     gap: 16px;
   }
 
-  .header { padding: 10px 14px; }
+  /* Let the title and the action buttons stack instead of forcing horizontal
+     page overflow at phone widths (#217 — was 452px wide at 375px). */
+  .header { padding: 10px 14px; flex-wrap: wrap; }
+  .headerActions { flex-wrap: wrap; justify-content: flex-end; }
   .charInfo h1 { font-size: 1.1rem; }
   .attrGrid { grid-template-columns: repeat(4, 1fr); }
   .counterValue { font-size: 2rem; }
