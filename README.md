@@ -207,6 +207,16 @@ working unchanged, so game-day QR / printout scans still need no login.
   ticks counters during play; `gm` views and administers **every** character in
   the campaign (HP/Mana/Story, plus assigning players); `admin` can change any
   data and any user's role.
+- **Manage Roles (admin-only UI, #179).** An admin opens **Manage Roles** from the
+  Roster (`#admin`, `pages/AdminRoles.jsx`) to see everyone who has signed in
+  (`listPlayers()` → all `profiles`) and change a role via a dropdown — no SQL
+  editor. The write is a direct `profiles.role` update (`setUserRole()`); the
+  `profiles_admin_all` RLS policy + `guard_role_change` trigger permit it only for
+  an admin, so a non-admin's call is rejected and surfaced inline. Guardrails:
+  the route + entry link are admin-gated, demoting your own admin asks for
+  confirmation, only signed-in users appear (profile created on first login), and
+  a change takes effect on the target user's next reload. No migration required —
+  the policies from `0002_auth_roles.sql` already allow it.
 - **Two planes coexist.** Signed-in users get direct table access scoped by RLS
   policies on `auth.uid()` + role; anonymous guests still reach a character only
   through the sealed capability-token RPCs (`#c=`/`#play=`/`#share=`). Both

@@ -6,7 +6,7 @@ import { cloudEnabled } from '../utils/supabaseClient.js'
 import { pushRoster, ensureGmKey, getGmKey, getCloudMap, importCloudState, deleteCloudCharacter, syncCharacter } from '../utils/cloudSync.js'
 import { repoEnabled, listCharacters, listPlayers, assignPlayer, deleteCharacter as repoDelete, saveCharacterData } from '../utils/characterRepo.js'
 import { trackPush } from '../utils/cloudStatus.js'
-import { useAuth, isGmOrAdmin } from '../auth/useAuth.js'
+import { useAuth, isGmOrAdmin, isAdmin } from '../auth/useAuth.js'
 import { sortRoster, SORT_KEYS } from '../utils/rosterSort.js'
 import { skillBudget } from '../utils/skillPoints.js'
 import { listTables, createTable, renameTable, deleteTable, importTables, toggleMembership, withoutTable, deriveRegistry, mergeRegistry } from '../utils/tables.js'
@@ -284,6 +284,11 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
           {roster.length > 0 && (!useRepo || isGmOrAdmin(role)) && (
             <button className="btn-secondary" onClick={() => onNavigate('gm')}>
               GM Screen
+            </button>
+          )}
+          {useRepo && isAdmin(role) && (
+            <button className="btn-secondary" onClick={() => onNavigate('admin')}>
+              Manage Roles
             </button>
           )}
           {roster.length > 0 && (!useRepo || isGmOrAdmin(role)) && (
