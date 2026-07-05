@@ -151,6 +151,16 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   // echo each other into a loop.
   const lastLiveSig = useRef(null)
   const lastDataSig = useRef(null)
+  // Pending debounced cloud pushes, held so they can be flushed on unmount
+  // (navigating away / switching character mid-debounce) instead of being
+  // dropped with the timer — otherwise the last HP/Mana/Story tick before you
+  // leave a screen never reaches the cloud (#196). Cleared when the timer fires.
+  const liveFlushRef = useRef(null)
+  const dataFlushRef = useRef(null)
+  // Latest character, for the focus/visibility reconcile listener below whose
+  // effect doesn't re-bind on every character change.
+  const charRef = useRef(character)
+  charRef.current = character
   // The authoritative data_rev for optimistic-concurrency structural saves
   // (#146). Kept in a ref, not state: dataSignature() doesn't strip it, so
   // putting it in `character` would loop the structural-autosave effect.
@@ -193,7 +203,11 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
     if (lastLiveSig.current === null) { lastLiveSig.current = sig; return }
     if (sig === lastLiveSig.current) return
     lastLiveSig.current = sig
-    const t = setTimeout(() => { trackPush(patchLive(character._rosterId, character)).catch(() => {}) }, 800)
+    const rid = character._rosterId
+    const snapshot = character
+    const push = () => trackPush(patchLive(rid, snapshot)).catch(() => {})
+    liveFlushRef.current = push
+    const t = setTimeout(() => { liveFlushRef.current = null; push() }, 800)
     return () => clearTimeout(t)
   }, [character, user])
 
@@ -209,27 +223,79 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
     lastDataSig.current = sig
     const rosterId = character._rosterId
     const snapshot = character
-    const t = setTimeout(() => {
-      trackPush(saveCharacterData(rosterId, snapshot, dataRevRef.current))
-        .then(res => {
-          if (res && res.conflict) {
-            // Another device wrote this character between our load and this save.
-            // Adopt the latest instead of silently clobbering it, and say so (#146).
-            getCharacter(rosterId).then(fresh => {
-              if (!fresh) return
-              dataRevRef.current = fresh._dataRev ?? null
-              lastDataSig.current = dataSignature(fresh)
-              setCharacter(prev => (prev._rosterId === rosterId ? fresh : prev))
-              addToast('This character changed on another device — reloaded the latest.', 'info')
-            }).catch(() => {})
-          } else if (res && res._dataRev != null) {
-            dataRevRef.current = res._dataRev // advance so the next save guards on the fresh rev
-          }
-        })
-        .catch(() => {}) // a network error is already reflected by the sync-status badge
-    }, 1200)
+    const push = () => trackPush(saveCharacterData(rosterId, snapshot, dataRevRef.current))
+      .then(res => {
+        if (res && res.conflict) {
+          // Another device wrote this character between our load and this save.
+          // Adopt the latest instead of silently clobbering it, and say so (#146).
+          getCharacter(rosterId).then(fresh => {
+            if (!fresh) return
+            dataRevRef.current = fresh._dataRev ?? null
+            lastDataSig.current = dataSignature(fresh)
+            setCharacter(prev => (prev._rosterId === rosterId ? fresh : prev))
+            addToast('This character changed on another device — reloaded the latest.', 'info')
+          }).catch(() => {})
+        } else if (res && res._dataRev != null) {
+          dataRevRef.current = res._dataRev // advance so the next save guards on the fresh rev
+        }
+      })
+      .catch(() => {}) // a network error is already reflected by the sync-status badge
+    dataFlushRef.current = push
+    const t = setTimeout(() => { dataFlushRef.current = null; push() }, 1200)
     return () => clearTimeout(t)
   }, [character, user, addToast])
+
+  // Flush any pending debounced cloud push before the app goes away, so the last
+  // HP/Mana/Story (or structural) change isn't dropped with the timer (#196).
+  // App is the root component and rarely unmounts mid-session, so the signals
+  // that matter are the tab backgrounding (mobile) and closing/refreshing —
+  // fire the pending pushes then, plus on a true unmount. Pushes are idempotent
+  // (patchLive/saveCharacterData set fields to the snapshot), so a redundant
+  // flush is harmless.
+  useEffect(() => {
+    const flush = () => { liveFlushRef.current?.(); dataFlushRef.current?.() }
+    const onVisibility = () => { if (document.visibilityState === 'hidden') flush() }
+    document.addEventListener('visibilitychange', onVisibility)
+    window.addEventListener('pagehide', flush)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility)
+      window.removeEventListener('pagehide', flush)
+      flush()
+    }
+  }, [])
+
+  // RECONCILE: a live Broadcast can be dropped (weak wifi, rate cap, a peer that
+  // was backgrounded), leaving this screen showing a stale number until the
+  // character is reopened. When the tab regains focus / becomes visible, re-read
+  // the cloud row and self-heal (#196/#200). Guarded to never clobber a local
+  // edit: skip if a push is still pending (the live/data signature differs from
+  // what was last synced), and only adopt a strictly newer cloud row.
+  useEffect(() => {
+    if (!repoEnabled() || !user) return
+    const reconcile = () => {
+      if (document.visibilityState !== 'visible') return
+      const c = charRef.current
+      const rid = c._rosterId
+      if (!rid) return
+      if (JSON.stringify(projectLive(c)) !== lastLiveSig.current) return // live edit pending
+      if (dataSignature(c) !== lastDataSig.current) return               // structural edit pending
+      getCharacter(rid).then(fresh => {
+        if (!fresh || fresh._rosterId !== rid) return
+        if (c._updatedAt && fresh._updatedAt &&
+            Date.parse(fresh._updatedAt) <= Date.parse(c._updatedAt)) return // not newer → nothing missed
+        dataRevRef.current = fresh._dataRev ?? null
+        lastLiveSig.current = JSON.stringify(projectLive(fresh))
+        lastDataSig.current = dataSignature(fresh)
+        setCharacter(prev => (prev._rosterId === rid ? fresh : prev))
+      }).catch(() => {})
+    }
+    document.addEventListener('visibilitychange', reconcile)
+    window.addEventListener('focus', reconcile)
+    return () => {
+      document.removeEventListener('visibilitychange', reconcile)
+      window.removeEventListener('focus', reconcile)
+    }
+  }, [user])
 
   // Hydrate a cloud link from the server (once on mount). Adopt the cloud copy
   // when it's newer than the local one (or there's no local copy); otherwise

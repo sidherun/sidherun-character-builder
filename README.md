@@ -170,7 +170,13 @@ store; the cloud syncs in the background and the app keeps working offline.
 A small **sync status badge** (Play Mode + GM Screen headers) shows whether cloud
 sync is healthy — **Live** / **Saving…** / **Sync error** / **Offline** — so a
 failed push is never silent (`utils/cloudStatus.js` + `CloudStatus.jsx`). It
-renders nothing in the localStorage-only build.
+renders nothing in the localStorage-only build. On top of the badge, a
+**prominent sync banner** (`SyncBanner.jsx`, bottom-fixed) appears on Play Mode
+and the GM Screen whenever sync is **failing or offline**, and clears when it
+recovers (#200) — so at the table a silent failure can't masquerade as "the
+numbers are fine"; the GM knows to fix the connection or fall back to paper on
+purpose. (`--danger`/`--bg` are light/dark inverses, so the bar stays legible in
+both themes token-only.)
 
 **Structural saves use optimistic concurrency** (authenticated plane): each
 full-blob write guards on the row's `data_rev`, so if two devices edit the same
@@ -221,6 +227,10 @@ working unchanged, so game-day QR / printout scans still need no login.
   Two `useRef` signatures (`lastLiveSig`/`lastDataSig` in `App.jsx`) gate each
   plane and reset per opened character. A brand-new character is still first
   created on the explicit **Complete** (it has no cloud row to update yet).
+  Each debounced push is also held in a ref (`liveFlushRef`/`dataFlushRef`) and
+  **flushed when the tab is backgrounded, closed, or unmounts** (`visibilitychange`
+  → hidden / `pagehide`), so the last HP/Mana/Story tick before you leave a screen
+  isn't dropped with the pending timer (#196). Flushes are idempotent.
 - **Realtime (bidirectional).** Signed-in play syncs live counters through the
   cloud row (durable) plus a **Broadcast** nudge for instant delivery. Both the
   GM Screen and the player's Play Mode subscribe to the per-character channel
@@ -232,6 +242,14 @@ working unchanged, so game-day QR / printout scans still need no login.
   works — and it shares the channel name with the guest plane, so guest and
   authed viewers of the same character interoperate. App.jsx tracks a last-live
   signature so the push/receive effects don't echo into a loop.
+  Because Broadcast is best-effort (a nudge can drop on weak wifi, the 5 ev/s
+  cap, or a backgrounded peer), both Play Mode and the GM Screen also **reconcile
+  on focus** (`visibilitychange`→visible / window `focus`): they re-read the
+  authoritative cloud row(s) and self-heal a missed update (#196/#200). Play Mode
+  guards this — it skips while a local edit is still pending (signature differs
+  from last-synced) and only adopts a strictly newer row (`updated_at`), so it
+  never clobbers an un-pushed local change; the GM Screen is a viewer and just
+  re-fetches.
 - **Off by default.** Enabled only when `VITE_AUTH=on` (which implies cloud) and
   the Supabase keys are present. With it off the app is the legacy single-user /
   guest build, byte-for-byte.

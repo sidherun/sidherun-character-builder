@@ -11,6 +11,7 @@ import { rollDice, preloadDice } from '../../utils/diceStage.js'
 import { playRollSound, playSettleSound, preloadSound } from '../../utils/diceSound.js'
 import { animationsOn, soundOn, setAnimations, setSound } from '../../utils/diceSettings.js'
 import CloudStatus from '../CloudStatus.jsx'
+import SyncBanner from '../SyncBanner.jsx'
 import DiceOverlay from '../DiceOverlay.jsx'
 import Step4Combat from './Step4Combat.jsx'
 import Step5Powers from './Step5Powers.jsx'
@@ -173,6 +174,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
 
   return (
     <div className={styles.playMode}>
+      <SyncBanner />
       {animOn && <DiceOverlay />}
       <header className={styles.header}>
         <div className={styles.charInfo}>
