@@ -33,7 +33,7 @@ export default function NotesPanel({ notes, onChange, onClose }) {
   }
 
   return (
-    <div className={styles.overlay} aria-hidden="true" onClick={onClose}>
+    <div className={styles.overlay} onClick={onClose}>
       <div
         className={styles.panel}
         role="dialog"
@@ -67,7 +67,7 @@ export default function NotesPanel({ notes, onChange, onClose }) {
             />
             <div className={styles.editorActions}>
               <button className="btn-secondary" onClick={() => setEditing(null)}>Cancel</button>
-              <button className="btn-primary" onClick={save}>Save</button>
+              <button className="btn-primary" onClick={save} disabled={!draft.title.trim()}>Save</button>
             </div>
           </div>
         ) : (
