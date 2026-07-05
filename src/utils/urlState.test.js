@@ -73,6 +73,17 @@ describe('play URL compact codec', () => {
     expect(playLen).toBeLessThan(shareLen * 0.6)
   })
 
+  it('carries the weapon usesSkill flag through the play URL (skilled weapon with a 0 skill)', () => {
+    const c = character()
+    // The exact case the flag exists for: skilled but skill total is 0. A
+    // skill-inferring codec would decode this as attribute-based (wrong).
+    c.weapons = [{ id: 'w-s', name: 'Trained Fist', attribute: 'agility', attributeBonus: 12, skillBonus: 0, usesSkill: true, descriptor: '' }]
+    const url = encodeCharacterToPlayURL(c)
+    window.location.hash = url.slice(url.indexOf('#'))
+    const d = decodeCharacterFromURL()
+    expect(d.weapons[0]).toMatchObject({ name: 'Trained Fist', usesSkill: true })
+  })
+
   it('round-trips in-app (attributeType/powerBonus) power fields', () => {
     const c = character()
     c.powers = [{ id: 'p-new', name: 'Wild Shape', attributeType: 'wisdom', powerBonus: 5, description: 'become a beast' }]

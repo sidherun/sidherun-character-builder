@@ -14,7 +14,7 @@ const ATTR_KEYS = [
 // shape (ids, defaults) so safeParse still validates on decode.
 function toCompact(c) {
   const at  = ATTR_KEYS.map(k => c.attributes?.[k]?.base || 0)
-  const w   = (c.weapons || []).map(x => [x.name, x.attribute, x.attributeBonus || 0, x.skillBonus || 0, x.descriptor || ''])
+  const w   = (c.weapons || []).map(x => [x.name, x.attribute, x.attributeBonus || 0, x.skillBonus || 0, x.descriptor || '', x.usesSkill ? 1 : 0])
   const sk  = (c.skills  || []).map(x => [x.name, x.attributeName, x.attributeScore || 0, x.skillPoints || 0, x.tempMod || 0, x.isSpecialty ? 1 : 0, x.usePips || 0])
   const pw  = (c.powers  || []).map(x => [x.name, x.base || 0, x.attributeBonus || 0, x.skillBonus || 0, x.misc || 0, x.description || '', x.attributeType || '', x.powerBonus || 0])
   const cr  = (c.crafts  || []).map(x => [x.name, x.attributeName, x.attributeValue || 0, x.skillBonus || 0, x.misc || 0, x.description || ''])
@@ -45,7 +45,9 @@ function fromCompact(a) {
     archetype: archetype || 'worldly', hasPowers: !!(flags & 1), hasMagic: !!(flags & 2),
     magicAttribute: magicAttribute || null, level: level || 1, ageCategory: 'adult', backstory: '',
     attributes,
-    weapons: (w || []).map((x, i) => ({ id: 'w' + i, name: x[0] || '', attribute: x[1] || '', attributeBonus: x[2] || 0, skillBonus: x[3] || 0, descriptor: x[4] || '' })),
+    // usesSkill (x[5]) is only present on links minted after the flag shipped;
+    // omit it for older links so the schema migrates them from the skill bonus.
+    weapons: (w || []).map((x, i) => ({ id: 'w' + i, name: x[0] || '', attribute: x[1] || '', attributeBonus: x[2] || 0, skillBonus: x[3] || 0, descriptor: x[4] || '', ...(x.length > 5 ? { usesSkill: !!x[5] } : {}) })),
     armor: { type: (arm && arm[0]) || 'none', absorption: (arm && arm[1]) || 0, remaining: (arm && arm[2]) || 0, max: (arm && arm[3]) || 0 },
     shield: shield || 'none',
     defense: {

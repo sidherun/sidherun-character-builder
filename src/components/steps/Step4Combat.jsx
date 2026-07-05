@@ -42,7 +42,7 @@ export default function Step4Combat({ character, onUpdate }) {
     const weapons = [...character.weapons, {
       id: uuid(),
       name: '', attribute: 'Agility',
-      attributeBonus: attrTotalByName('Agility'), skillBonus: 0, descriptor: '',
+      attributeBonus: attrTotalByName('Agility'), skillBonus: 0, usesSkill: false, descriptor: '',
     }]
     weaponFocus.markLast(weapons.length)
     onUpdate({ weapons })
@@ -128,9 +128,30 @@ export default function Step4Combat({ character, onUpdate }) {
                 <span>Skill Bonus</span>
                 <NumberInput
                   value={w.skillBonus}
-                  onChange={n => updateWeapon(w.id, { skillBonus: n })}
+                  onChange={n => {
+                    // Auto-hint: first time a positive skill bonus is entered,
+                    // flip usesSkill on so the non-stacking modifier reflects it
+                    // without the toggle being missed (#166). An explicit uncheck
+                    // afterwards sticks (this only fires on the 0→positive edge).
+                    const patch = { skillBonus: n }
+                    if (Number(n) > 0 && !w.usesSkill && !(Number(w.skillBonus) > 0)) patch.usesSkill = true
+                    updateWeapon(w.id, patch)
+                  }}
                   aria-label={`Skill bonus for ${weaponName}`}
                 />
+              </label>
+              <label className={styles.usesSkillLabel}>
+                <input
+                  type="checkbox"
+                  // Mirror weaponModifier's effective value: a legacy weapon with
+                  // no explicit flag (e.g. a pre-flag imported roster that skipped
+                  // the schema migration) still rolls off its skill when the skill
+                  // is nonzero, so the checkbox must show that, not a bare false.
+                  checked={w.usesSkill ?? (Number(w.skillBonus) || 0) > 0}
+                  onChange={e => updateWeapon(w.id, { usesSkill: e.target.checked })}
+                  aria-label={`Use skill bonus for ${weaponName} attack (otherwise attribute)`}
+                />
+                <span>Uses skill</span>
               </label>
               <div className={styles.totalBadge}>
                 <span>Total</span>
