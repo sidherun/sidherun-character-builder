@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../auth/useAuth.js'
+import { friendlyAuthError } from '../auth/authErrors.js'
 import styles from './LoginPage.module.css'
 
 // Passwordless magic-link sign-in (epic #109). The player enters their email,
@@ -19,7 +20,7 @@ export default function LoginPage() {
     const { error: err } = await signIn(addr)
     if (err) {
       setState('error')
-      setError(err.message || 'Could not send the sign-in link. Try again.')
+      setError(friendlyAuthError(err))
     } else {
       setState('sent')
     }
