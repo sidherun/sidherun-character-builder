@@ -148,6 +148,24 @@ export async function assignPlayer(id, playerUserId) {
   return rowToCharacter(data)
 }
 
+// Change a user's role (player | gm | admin) — the admin-only role management
+// path (#179). A direct client update works for an admin: the `profiles_admin_all`
+// RLS policy (`caller_role() = 'admin'`) lets an admin write any profile row, and
+// the `guard_role_change` trigger permits the change only for an admin. A
+// non-admin's call is rejected by RLS/the trigger and throws, which the caller
+// surfaces. No SQL editor needed. Takes effect on the target user's next reload.
+export async function setUserRole(userId, role) {
+  if (!repoEnabled() || !userId) return null
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({ role })
+    .eq('id', userId)
+    .select('id, display_name, email, role')
+    .maybeSingle()
+  if (error) throw error
+  return data
+}
+
 // Delete a character (RLS: owner or gm/admin only).
 export async function deleteCharacter(id) {
   if (!repoEnabled() || !id) return false

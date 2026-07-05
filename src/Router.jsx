@@ -2,15 +2,17 @@ import { useState, useEffect } from 'react'
 import App from './App.jsx'
 import RosterPage from './pages/RosterPage.jsx'
 import GMScreen from './pages/GMScreen.jsx'
+import AdminRoles from './pages/AdminRoles.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import { useTheme } from './hooks/useTheme.js'
-import { useAuth, isGmOrAdmin } from './auth/useAuth.js'
+import { useAuth, isGmOrAdmin, isAdmin } from './auth/useAuth.js'
 import { authEnabled } from './utils/supabaseClient.js'
 
 function getRoute(hash = window.location.hash) {
   if (hash.startsWith('#login'))  return 'login'
   if (hash.startsWith('#roster')) return 'roster'
   if (hash.startsWith('#gm'))     return 'gm'
+  if (hash.startsWith('#admin'))  return 'admin'
   if (hash.startsWith('#share=')) return 'share'
   if (hash.startsWith('#play'))   return 'play' // #play= (embedded) or bare #play (open current)
   if (hash.startsWith('#c='))     return 'play' // cloud link → Play Mode
@@ -45,11 +47,14 @@ export default function Router() {
     if (user && route === 'login') { navigate('app'); return null }
     // GM Screen is GM/admin only; players are redirected to their roster.
     if (route === 'gm' && !isGmOrAdmin(role)) { navigate('roster'); return null }
+    // Manage Roles is admin-only.
+    if (route === 'admin' && !isAdmin(role)) { navigate('roster'); return null }
   }
 
   if (route === 'login') return <LoginPage />
   if (route === 'roster') return <RosterPage onNavigate={navigate} theme={theme} onToggleTheme={toggleTheme} />
   if (route === 'gm') return <GMScreen onNavigate={navigate} theme={theme} onToggleTheme={toggleTheme} />
+  if (route === 'admin') return <AdminRoles onNavigate={navigate} theme={theme} onToggleTheme={toggleTheme} />
   return (
     <App
       // Key by the hash so navigating into a #play=/#c= link (an in-session

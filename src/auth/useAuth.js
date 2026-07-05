@@ -8,3 +8,4 @@ export function useAuth() {
 }
 
 export const isGmOrAdmin = (role) => role === 'gm' || role === 'admin'
+export const isAdmin = (role) => role === 'admin'
