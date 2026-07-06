@@ -148,8 +148,9 @@
 .statControls { display: flex; align-items: center; gap: 8px; }
 
 .adj {
-  width: 28px;
-  height: 28px;
+  /* Bigger tap target for the +/- a GM hits constantly during combat (#217). */
+  width: 40px;
+  height: 40px;
   background: transparent;
   border: 1px solid var(--line-strong);
   color: var(--ink-800);
