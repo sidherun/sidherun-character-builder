@@ -36,6 +36,17 @@ export default function Router() {
 
   const route = getRoute(hash)
 
+  // Give each screen its own document title — every route used to read the same
+  // "Sidherun Character Builder", so tabs, history, and screen readers couldn't
+  // tell them apart (#216).
+  useEffect(() => {
+    const names = {
+      login: 'Sign in', roster: 'Roster', gm: 'GM Screen', admin: 'Manage Roles',
+      play: 'Play Mode', share: 'Shared Character', app: 'Character Builder',
+    }
+    document.title = `${names[route] || 'Character Builder'} · Sidherun`
+  }, [route])
+
   function navigate(to) {
     window.location.hash = (to === 'app' || to === 'home') ? '' : to
   }
