@@ -45,4 +45,18 @@ shipped-history log; open/planned work lives in issues, not here.
 | Cross-device table names — derive registry from blobs (#176) | b1af04f | 2026-07-04 |
 | Fix: table registry showed raw UUID for pre-#176 members (#188) | 2f258b9 | 2026-07-04 |
 | Enter in inventory notes commits + opens next item focused (#185) | 01452fc | 2026-07-04 |
-| Enter-to-next-row extended to weapons + skills; shared useFocusOnAdd hook (#189) | — | 2026-07-04 |
+| Enter-to-next-row extended to weapons + skills; shared useFocusOnAdd hook (#189) | 095bdf4 | 2026-07-04 |
+| Authed sync hardening — flush + reconcile-on-focus + SyncBanner (#196) | ba6680f | 2026-07-04 |
+| Explicit weapon.usesSkill flag + non-stacking printout fix (#142/#166) | 21c0edc | 2026-07-04 |
+| Admin-only Manage Roles UI — no SQL (#179) | 58a8988 | 2026-07-04 |
+| Invite-only sign-in — stop open sign-ups (#209) | 42816e7 | 2026-07-04 |
+| Verified mid-play GM editing at a real table (#197) | — | 2026-07-04 |
+| GM stat remount that ate rapid combat clicks (#218) | bb97de6 | 2026-07-05 |
+| Play-mode 375px overflow + bigger tap targets (#217) | f237021, b4bf179 | 2026-07-05 |
+| Wizard name gate — no "Unnamed" saves (#218) | 44a290b | 2026-07-05 |
+| 0-HP "Down" indicator (#218) | b0e3c11 | 2026-07-05 |
+| GM loading/error vs empty state (#218) | ece544e | 2026-07-05 |
+| NotesPanel a11y — unhide dialog + Save needs title (#211/#218) | c425a5e | 2026-07-05 |
+| Double-roll guard (verified via interactive test) (#218/#222) | cbcf659 | 2026-07-05 |
+| Per-route titles + reduced-motion guard (#216) | d808d68 | 2026-07-05 |
+| LoginPage raw-hex → token (#213) | f73fd88 | 2026-07-05 |
