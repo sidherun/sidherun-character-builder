@@ -1,0 +1,33 @@
+{
+ "source": "Sidherun PHB 2_8_2026.docx -- prose lists in 'Defender Considerations' and 'Other Situational Modifiers' (Combat in Sidherun chapter)",
+ "base_defense_by_size": {
+  "Small": 75,
+  "Medium": 50,
+  "Large": 35,
+  "Jumbo": 10,
+  "Enormous": 5
+ },
+ "shield_bonus": {
+  "Buckler": 5,
+  "Small": 10,
+  "Medium": 15,
+  "Large": 20
+ },
+ "range_modifier": {
+  "Point Blank": 0,
+  "Short": 10,
+  "Medium": 20,
+  "Long": 30,
+  "Extreme": "50++++ (GM discretion)"
+ },
+ "notes": [
+  "The blank 'Defender' worksheet table (HTML, inline in the doc) uses row labels Typical/Prone/Magic/Psychic/Other. A separate embedded worksheet image found elsewhere in the source (media/image7.png) uses row labels Typical/Prone/Psychic/Spell/Other, in a different order and with 'Magic' renamed to 'Spell'. Both are blank templates (no filled-in values in the source) -- the row-label mismatch is preserved and flagged, not reconciled. See FIDELITY-NOTES.md."
+ ],
+ "cover_modifier": {
+  "Line of sight cover (soft)": 10,
+  "Up to 50% cover": 25,
+  "Up to 75% cover": 50,
+  "More than 75% cover": "50++++ (GM discretion)"
+ },
+ "misc_modifier": "Spell deflection, special circumstances (GM discretion)"
+}

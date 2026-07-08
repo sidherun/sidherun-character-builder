@@ -117,6 +117,8 @@ supabase/
 
 ## Game System Notes (Sidherun PHB 2.8.2026)
 
+> **Canonical rules now live in [`rules/`](rules/README.md)** ("golden pages") — the full PHB 2.8 as Markdown chapters plus machine-readable tables in `rules/data/*.json` (spell matrix, XP, movement, armor, difficulty ladder). The Word doc is now a generated artifact; rule changes go through PRs against `rules/`. Known source contradictions are logged in `rules/FIDELITY-NOTES.md` — including one that affects the Spell Target note below: the matrix source sheet says **red-zone cells do not add the caster's attribute**, which conflicts with "the attribute is always added" (and with the current engine assumption). Unresolved pending Ed's ruling — see FIDELITY-NOTES §1.2.
+
 - **HP** = `BASE(raceType × size × age) + round((STR + END) / 2) + CON`
 - **Mana** = primary magic attribute total (Thaumaturgy, Enlightenment, or Wisdom depending on archetype)
 - **Defense** = base (50 typical / 0 others) + attribute + shield + skill bonus + misc

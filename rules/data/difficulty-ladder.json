@@ -1,0 +1,17 @@
+{
+  "source": "Sidherun PHB 2_8_2026.docx -- two prose tables: 'Example Roll Difficulties' (Dice Rolling chapter) and 'Difficulty Targets' (Difficulty & Resolution Heuristics, inside the Skills chapter)",
+  "notes": [
+    "The document contains two versions of this table. The first ('Example Roll Difficulties', Dice Rolling chapter) has only Difficulty and Target columns. The second ('Difficulty Targets', under 'Difficulty & Resolution Heuristics') repeats the same Difficulty/Target pairs and adds a 'Narrative Meaning' column. The second table is not listed in the document's own Table of Contents. Both are preserved in the prose chapters verbatim; this JSON merges them since the numbers are identical in both.",
+    "Effortless has no numeric target in either table ('No Roll (GM Discretion)' / 'No roll required')."
+  ],
+  "ladder": [
+    { "difficulty": "Effortless",      "target": null, "narrative_meaning": "No roll required (GM Discretion)" },
+    { "difficulty": "Simple",          "target": 50,   "narrative_meaning": "Routine for trained individuals" },
+    { "difficulty": "Straightforward", "target": 75,   "narrative_meaning": "Requires attention or care" },
+    { "difficulty": "Challenging",     "target": 100,  "narrative_meaning": "Meaningful risk, requires competence" },
+    { "difficulty": "Demanding",       "target": 125,  "narrative_meaning": "Heroic effort or favorable conditions" },
+    { "difficulty": "Intense",         "target": 150,  "narrative_meaning": "Exceptional feat" },
+    { "difficulty": "Rigorous",        "target": 175,  "narrative_meaning": "Near the edge of mortal capability" },
+    { "difficulty": "Vexing",          "target": "200+", "narrative_meaning": "Legendary or nearly impossible" }
+  ]
+}

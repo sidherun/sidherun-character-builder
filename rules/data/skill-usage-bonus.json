@@ -1,0 +1,20 @@
+{
+  "source": "Sidherun PHB 2_8_2026.docx -- embedded image (media/image4.png), 'Skill Usage Tracking', referenced under 'Additional Skill Points Available'",
+  "notes": [
+    "'Usage Target' is how many times a skill must be used (tracked via the 'Use' circles on the Example Skill Tracker) within a level to earn the bonus. 'Bonus Points at Lvl Up' is the reward for hitting that usage target.",
+    "Level 11+ Bonus Points is given as a rate ('15 per Level') rather than an absolute value in the source -- preserved as a string."
+  ],
+  "levels": [
+    { "level": 1,    "usage_target": 3, "bonus_points_at_level_up": 5 },
+    { "level": 2,    "usage_target": 4, "bonus_points_at_level_up": 5 },
+    { "level": 3,    "usage_target": 5, "bonus_points_at_level_up": 5 },
+    { "level": 4,    "usage_target": 6, "bonus_points_at_level_up": 7 },
+    { "level": 5,    "usage_target": 7, "bonus_points_at_level_up": 7 },
+    { "level": 6,    "usage_target": 8, "bonus_points_at_level_up": 7 },
+    { "level": 7,    "usage_target": 9, "bonus_points_at_level_up": 10 },
+    { "level": 8,    "usage_target": 9, "bonus_points_at_level_up": 10 },
+    { "level": 9,    "usage_target": 9, "bonus_points_at_level_up": 10 },
+    { "level": 10,   "usage_target": 9, "bonus_points_at_level_up": 15 },
+    { "level": "11+", "usage_target": 9, "bonus_points_at_level_up": "15 per Level" }
+  ]
+}

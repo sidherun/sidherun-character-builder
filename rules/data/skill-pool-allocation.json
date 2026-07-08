@@ -1,0 +1,20 @@
+{
+  "source": "Sidherun PHB 2_8_2026.docx -- embedded image (media/image3.png), 'Leveling bonuses - Skills', referenced under 'SKILLS Point Allocations'",
+  "notes": [
+    "'Pool Size' is the total skill points available for allocation at that level. 'Max Points added Per Skill' is the per-skill cap for points added at that level.",
+    "Level 11+ Pool Size is given as a rate ('5 per lvl') rather than an absolute value in the source -- preserved as a string."
+  ],
+  "levels": [
+    { "level": 1,    "pool_size": 30,          "max_points_per_skill": 15 },
+    { "level": 2,    "pool_size": 50,          "max_points_per_skill": 15 },
+    { "level": 3,    "pool_size": 70,          "max_points_per_skill": 10 },
+    { "level": 4,    "pool_size": 80,          "max_points_per_skill": 10 },
+    { "level": 5,    "pool_size": 90,          "max_points_per_skill": 10 },
+    { "level": 6,    "pool_size": 100,         "max_points_per_skill": 10 },
+    { "level": 7,    "pool_size": 110,         "max_points_per_skill": 10 },
+    { "level": 8,    "pool_size": 120,         "max_points_per_skill": 10 },
+    { "level": 9,    "pool_size": 125,         "max_points_per_skill": 5 },
+    { "level": 10,   "pool_size": 130,         "max_points_per_skill": 5 },
+    { "level": "11+", "pool_size": "5 per lvl", "max_points_per_skill": 5 }
+  ]
+}

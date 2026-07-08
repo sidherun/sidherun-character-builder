@@ -1,0 +1,19 @@
+{
+  "source": "Sidherun PHB 2_8_2026.docx -- embedded image (media/image5.png), 'Specialty' table, referenced under 'Specialties'",
+  "notes": [
+    "'Pool Adjustment' and 'Max Points in addition to skill max' govern how Specialty points stack on top of the normal Skill pool/cap (see rules/data/skill-pool-allocation.json)."
+  ],
+  "levels": [
+    { "level": 1,    "pool_adjustment": 15, "max_points_addition_to_skill_max": 10 },
+    { "level": 2,    "pool_adjustment": 15, "max_points_addition_to_skill_max": 10 },
+    { "level": 3,    "pool_adjustment": 15, "max_points_addition_to_skill_max": 10 },
+    { "level": 4,    "pool_adjustment": 10, "max_points_addition_to_skill_max": 10 },
+    { "level": 5,    "pool_adjustment": 10, "max_points_addition_to_skill_max": 10 },
+    { "level": 6,    "pool_adjustment": 10, "max_points_addition_to_skill_max": 10 },
+    { "level": 7,    "pool_adjustment": 10, "max_points_addition_to_skill_max": 10 },
+    { "level": 8,    "pool_adjustment": 5,  "max_points_addition_to_skill_max": 5 },
+    { "level": 9,    "pool_adjustment": 5,  "max_points_addition_to_skill_max": 5 },
+    { "level": 10,   "pool_adjustment": 5,  "max_points_addition_to_skill_max": 5 },
+    { "level": "11+", "pool_adjustment": 5,  "max_points_addition_to_skill_max": 5 }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "source": "Sidherun PHB 2_8_2026.docx -- embedded image (media/image6.png), located in the 'Movement and Time - General Rules' chapter, immediately after the paragraph beginning 'The higher your AGI, the further you can move in a round...'",
+  "notes": [
+    "Cells marked null were literally '?' in the source image (CELESTIAL column, all three movement rows). The source leaves these values undefined rather than blank -- preserved as null with this note rather than guessed at.",
+    "Flight/Special Move values of the form '*N Above' are literal footnote-style references in the source image meaning 'see the Flight/Special Move Notes section, multiplier tier N', not numeric values -- reproduced as strings, not resolved to numbers here. See rules/09-movement.md 'Flight/Special Move Notes' for the actual multipliers (e.g. HEROIC = fly at 2x, NOBLE = 3x, ENHANCED = 4x, AUGMENTED = 5x)."
+  ],
+  "descriptors": ["POOR", "FAIR", "TYPICAL", "CAPABLE", "STRONG", "HEROIC", "NOBLE", "ENHANCED", "AUGMENTED", "CELESTIAL"],
+  "agility_score_range": {
+    "POOR": "0-4", "FAIR": "5-8", "TYPICAL": "9-12", "CAPABLE": "13-15",
+    "STRONG": "16-18", "HEROIC": "19-20", "NOBLE": "21-23", "ENHANCED": "24-26",
+    "AUGMENTED": "27-29", "CELESTIAL": "30+"
+  },
+  "full_sprint_feet": {
+    "POOR": "<10", "FAIR": 25, "TYPICAL": 60, "CAPABLE": 65,
+    "STRONG": 70, "HEROIC": 90, "NOBLE": 100, "ENHANCED": 130,
+    "AUGMENTED": 150, "CELESTIAL": null
+  },
+  "walk_normal_move_feet": {
+    "POOR": 5, "FAIR": 15, "TYPICAL": 30, "CAPABLE": 30,
+    "STRONG": 35, "HEROIC": 45, "NOBLE": 50, "ENHANCED": 65,
+    "AUGMENTED": 75, "CELESTIAL": null
+  },
+  "flight_special_move": {
+    "POOR": 0, "FAIR": 0, "TYPICAL": 0, "CAPABLE": 0,
+    "STRONG": "*1 Above", "HEROIC": "*2 Above", "NOBLE": "*3 Above", "ENHANCED": "*4 Above",
+    "AUGMENTED": "*5 Above", "CELESTIAL": null
+  }
+}

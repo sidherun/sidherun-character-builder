@@ -1,0 +1,18 @@
+{
+  "source": "Sidherun PHB 2_8_2026.docx -- embedded image (media/image1.png), 'Constitution Modification Table', referenced in the Hit Points chapter ('Table below (Constitution Modification Table) is also here')",
+  "notes": [
+    "CELESTIAL cell is literally '?' in the source image (undefined) -- preserved as null.",
+    "TYPICAL and CAPABLE bands show '-' (no adjustment) in the source -- encoded as 0."
+  ],
+  "descriptors": ["POOR", "FAIR", "TYPICAL", "CAPABLE", "STRONG", "HEROIC", "NOBLE", "ENHANCED", "AUGMENTED", "CELESTIAL"],
+  "constitution_score_range": {
+    "POOR": "0-4", "FAIR": "5-8", "TYPICAL": "9-12", "CAPABLE": "13-15",
+    "STRONG": "16-18", "HEROIC": "19-20", "NOBLE": "21-23", "ENHANCED": "24-26",
+    "AUGMENTED": "27-29", "CELESTIAL": "30+"
+  },
+  "hit_point_adjustment_pct": {
+    "POOR": -50, "FAIR": -25, "TYPICAL": 0, "CAPABLE": 0,
+    "STRONG": 10, "HEROIC": 25, "NOBLE": 30, "ENHANCED": 40,
+    "AUGMENTED": "50 (and up)", "CELESTIAL": null
+  }
+}

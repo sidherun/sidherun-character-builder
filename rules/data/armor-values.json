@@ -1,0 +1,30 @@
+{
+  "source": "Sidherun PHB 2_8_2026.docx -- 'Armor values:' prose list and 'Typical armor total values:' HTML table (Armor as an Absorption Factor chapter)",
+  "notes": [
+    "Format for a fielded armor is 'absorption/current-durability(max-durability)', e.g. '8/96(180)' = absorbs 8 points per blow, has 96 durability points left, 180 max durability.",
+    "The 'Typical armor total values' table below (max durability by absorption rating) gives 160 as the typical max for rating 8, but the worked example in the same chapter (Oleg's chain mail) uses 180 as the max durability for a rating-8 armor ('8/96(180)'). This is an unresolved internal contradiction (160 vs 180) -- preserved as-is. See FIDELITY-NOTES.md.",
+    "This exact 3-column table ('For armor rated:' / 'Typical total value is:' / 'Shift Movement Left') also appears verbatim, with identical numbers, earlier in the document under 'Notes on Armor's impact on Movement' (Movement chapter). It is reproduced in both chapters of the source and both are preserved here as one shared data file used by both prose chapters.",
+    "Shields do not provide absorption; per the source, shield degradation is handled narratively / via critical-strike storylines, not via a numeric durability track."
+  ],
+  "absorption_by_type": [
+    { "absorption": 4,  "armor_type": "Padded armor" },
+    { "absorption": 6,  "armor_type": "Leather armor, Bark skin spell" },
+    { "absorption": 8,  "armor_type": "Chain and/or scale armor" },
+    { "absorption": 10, "armor_type": "Heavy scale or 1/2 plate armor" },
+    { "absorption": 12, "armor_type": "Full steel armor" },
+    { "absorption": 15, "armor_type": "Blue steel full plate armor" }
+  ],
+  "typical_totals": [
+    { "armor_rating": 4,  "typical_total_durability": 80,  "shift_movement_left": 0 },
+    { "armor_rating": 6,  "typical_total_durability": 120, "shift_movement_left": 1 },
+    { "armor_rating": 8,  "typical_total_durability": 160, "shift_movement_left": 2 },
+    { "armor_rating": 10, "typical_total_durability": 200, "shift_movement_left": 3 },
+    { "armor_rating": 12, "typical_total_durability": 240, "shift_movement_left": 4 },
+    { "armor_rating": 15, "typical_total_durability": 300, "shift_movement_left": 5 }
+  ],
+  "worked_example_contradiction": {
+    "example": "Oleg's chain mail, armor rating 8, given as '8/96(180)' in the source worked example",
+    "table_says_max_for_rating_8": 160,
+    "example_says_max_for_rating_8": 180
+  }
+}
