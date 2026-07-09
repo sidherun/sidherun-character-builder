@@ -1,0 +1,133 @@
+{
+ "source": "Sidherun PHB 2_8_2026.docx -- 'Character Leveling' chapter, HTML table (Level/Starting/Ending/Bonus)",
+ "notes": [
+  "RULING (Ed, 2026-07-09): Level 15 starting corrected from the source's literal 15001 to 150001 (missing-digit typo; contiguity restored). Resolved — see FIDELITY-NOTES §1.6.",
+  "Level 20's source row reads Ending = 'beyond' and Bonus = '?' (both literal text, not numbers) -- encoded here as null with the literal string preserved in 'raw_ending'/'raw_bonus'.",
+  "COMPARISON WITH src/data/xpTable.json (existing app data, not modified by this migration): the app's file already 'corrects' Level 15 xpStart to 150001 (vs. the docx's literal 15001), and encodes Level 20's xpEnd/bonus as null (vs. the docx's literal 'beyond'/'?'). Field names also differ (xpStart/xpEnd/bonus vs. level/starting/ending/bonus here). No other numeric discrepancies found between the two sources across levels 1-20. See FIDELITY-NOTES.md for the full comparison."
+ ],
+ "levels": [
+  {
+   "level": 1,
+   "starting": 0,
+   "ending": 1000,
+   "bonus": 100
+  },
+  {
+   "level": 2,
+   "starting": 1001,
+   "ending": 3000,
+   "bonus": 200
+  },
+  {
+   "level": 3,
+   "starting": 3001,
+   "ending": 6000,
+   "bonus": 300
+  },
+  {
+   "level": 4,
+   "starting": 6001,
+   "ending": 10000,
+   "bonus": 400
+  },
+  {
+   "level": 5,
+   "starting": 10001,
+   "ending": 16000,
+   "bonus": 600
+  },
+  {
+   "level": 6,
+   "starting": 16001,
+   "ending": 24000,
+   "bonus": 800
+  },
+  {
+   "level": 7,
+   "starting": 24001,
+   "ending": 34000,
+   "bonus": 1000
+  },
+  {
+   "level": 8,
+   "starting": 34001,
+   "ending": 46000,
+   "bonus": 1200
+  },
+  {
+   "level": 9,
+   "starting": 46001,
+   "ending": 60000,
+   "bonus": 1400
+  },
+  {
+   "level": 10,
+   "starting": 60001,
+   "ending": 76000,
+   "bonus": 1600
+  },
+  {
+   "level": 11,
+   "starting": 76001,
+   "ending": 94000,
+   "bonus": 1800
+  },
+  {
+   "level": 12,
+   "starting": 94001,
+   "ending": 114000,
+   "bonus": 2000
+  },
+  {
+   "level": 13,
+   "starting": 114001,
+   "ending": 136000,
+   "bonus": 2200
+  },
+  {
+   "level": 14,
+   "starting": 136001,
+   "ending": 150000,
+   "bonus": 2400
+  },
+  {
+   "level": 15,
+   "starting": 150001,
+   "ending": 176000,
+   "bonus": 2600,
+   "ruling": "Ed 2026-07-09: source's 15001 ruled a typo; corrected to 150001"
+  },
+  {
+   "level": 16,
+   "starting": 176001,
+   "ending": 204000,
+   "bonus": 2800
+  },
+  {
+   "level": 17,
+   "starting": 204001,
+   "ending": 234000,
+   "bonus": 3000
+  },
+  {
+   "level": 18,
+   "starting": 234001,
+   "ending": 266000,
+   "bonus": 3200
+  },
+  {
+   "level": 19,
+   "starting": 266001,
+   "ending": 300000,
+   "bonus": 3400
+  },
+  {
+   "level": 20,
+   "starting": 300001,
+   "ending": null,
+   "bonus": null,
+   "raw_ending": "beyond",
+   "raw_bonus": "?"
+  }
+ ]
+}
