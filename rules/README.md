@@ -63,3 +63,14 @@ These JSON files are meant to be consumed by two things:
 | `20-world-southern-shores.md` | Southern Shores setting lore |
 
 See `FIDELITY-NOTES.md` for the full source-section-to-chapter-file coverage map, and `VERSION` for the current rules version.
+
+## Generating the print handout (PDF)
+
+Deliberately deferred (2026-07-09) while rules changes are still landing — regenerate on demand after any material `rules/` merge. Recipe:
+
+1. **Assemble the book:** concatenate the chapter files in numeric order (`00-overview.md` → `20-world-southern-shores.md`; skip `flavor/` or append it as a closing section). Prepend a cover block: title, `rules/VERSION`, "rulings as of" date (last `FIDELITY-NOTES.md` ruling), and a generated table of contents.
+2. **Render the data appendix:** the prose chapters intentionally do NOT inline the big grids. Generate appendix pages from `rules/data/`: the full 20×20 spell matrix **with color zones** (from `spell-matrix.json` — red cells are rules-bearing: no attribute added, per the 2026-07-09 ruling), plus the XP, movement, armor, and difficulty-ladder tables.
+3. **Produce the PDF** from the assembled Markdown (e.g. the `/make-pdf` skill or pandoc/typst). One character sheet of a page-break discipline: each chapter starts on a new page.
+4. **Retire the source docx** the first time this ships: rename `~/Code/Sidherun/Sidherun PHB 2_8_2026.docx` → `SUPERSEDED-...` (or move to an archive folder) so the dead copy can't be edited by accident.
+
+If regeneration becomes frequent, promote steps 1–3 into `scripts/build-rules-pdf` and wire it to CI on `rules/` changes.
