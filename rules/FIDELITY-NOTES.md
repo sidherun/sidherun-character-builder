@@ -197,3 +197,9 @@ An independent fidelity audit (full 22-chapter read, 1,200-cell matrix verificat
 1. Chapter 16: the five rules-notes from the stat-0 spell-matrix sheet added verbatim to prose (previously JSON-only), incl. the red-zone rule and the preserved-contradiction pointer.
 2. `data/spell-matrix.json` notes[3]/[4]: relabeled/reworded entries replaced with truly verbatim source text.
 3. `data/combat-defense-modifiers.json`: added the Cover modifier table (Line of sight +10 / ≤50% +25 / ≤75% +50 / >75% 50++++) and the Misc row, verified against source prose (present in both prose chapters all along).
+
+## §7 Rulings applied (Ed, 2026-07-09)
+- §1.1 **RESOLVED** — Crit definition: **natural 96-00 only**; modified totals never crit. Story-Points example clause superseded (original text preserved in the ruling note, ch10).
+- §1.3 **RESOLVED** — Rating-8 armor max durability: **160** (table canonical); ch14 worked-example 180s corrected.
+- §1.6 **RESOLVED** — XP Level 15 starting: **150001** (source's 15001 ruled a missing-digit typo); now matches src/data/xpTable.json.
+- §1.2 (spell-matrix red-zone attribute rule) — **OPEN, under test**: a math evaluation across all levels/zones at stat 15 is in progress before ruling.

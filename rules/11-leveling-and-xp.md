@@ -21,14 +21,14 @@ Machine-readable version: rules/data/xp-table.json (see FIDELITY-NOTES.md for a 
 | Level 12 | 94001 | 114000 | 2000 |
 | Level 13 | 114001 | 136000 | 2200 |
 | Level 14 | 136001 | 150000 | 2400 |
-| Level 15 | 15001 | 176000 | 2600 |
+| Level 15 | 150001 | 176000 | 2600 |
 | Level 16 | 176001 | 204000 | 2800 |
 | Level 17 | 204001 | 234000 | 3000 |
 | Level 18 | 234001 | 266000 | 3200 |
 | Level 19 | 266001 | 300000 | 3400 |
 | Level 20 | 300001 | beyond | ? |
 
-<!-- NOTE: Level 15 "Starting" value of 15001 is reproduced verbatim from the source. It is very likely a typo/missing-digit (contiguity with Level 14's Ending of 150000 would suggest 150001), but this has NOT been corrected here per the faithful-copy directive. Flagged for the fidelity log. Level 20's Ending="beyond" and Bonus="?" are also reproduced literally as they appear in the source. -->
+<!-- RULING (Ed, 2026-07-09): source printed 15001; ruled a missing-digit typo, corrected to 150001 (contiguous with Level 14's Ending of 150000). Matches src/data/xpTable.json. Level 20's Ending="beyond" and Bonus="?" remain reproduced literally. See FIDELITY-NOTES §1.6 (resolved). -->
 
 Characters gain XP per gaming session. The GM decides how to distribute XP based on player and character actions. As the story moves along, the XP awarded will increase in importance, thus the gradient can be easily overcome by the players advancing the story as it becomes more difficult/suspenseful. A good night at level 1 may yield 250 XP, while a good night at level 5 may yield 4000.
 

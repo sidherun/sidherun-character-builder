@@ -20,7 +20,8 @@ Sometimes a party of player characters does everything right. They have practice
       - Ex: Browga has attempted to swing his mighty maul at the small Quickling for several combat rounds and has not been able to connect with anything. The player announces they will use a *Story Point to add an additional roll to the first:*
         - Browga's first roll 56
         - Browga's second roll (received by using a *Story Point) *71
-          - New total = 127, which allows him to roll again (as any roll total over a 95 is a crit) - see RESOLVING COMBAT for more information
+          - New total = 127 - see RESOLVING COMBAT for more information
+          - > **Ruling (Ed, 2026-07-09):** critical rolls trigger only on a **natural 96-00** on a die, never on a modified total. The source example originally read "which allows him to roll again (as any roll total over a 95 is a crit)" — that clause is superseded by this ruling. See FIDELITY-NOTES §1.1 (resolved).
   - You can use **two ** story points to:
     - Obtain an automatic 100 on a roll, allowing the player to roll again – see CRITICAL and FUMBLE ROLLS for more information in critical rolls
       - For this use, you must declare you are using your two-Story *Points * **PRIOR to rolling**
