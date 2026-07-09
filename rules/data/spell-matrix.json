@@ -1349,6 +1349,6 @@
   "Verbatim source image example: 'If you attempt to target a foe who's spell target is colored red, you do not add your attribute to the target. Ex: In the example above, if the same caster attempted to cast at a level 3, their spell target would be 30, with no modifier.'",
   "Verbatim source image note: 'The fragility of the mortal attempting to manipulate the weave always leaves some room for mistakes. The highest your target can be is 95%.'",
   "Derivation assumption: base value is a function of (target's level - your level) only -- confirmed by cross-referencing every visible cell in both source images; the docx's displayed_at_stat_15 grid equals min(base + 15, 95) for all 400 cells without exception.",
-  "MATRIX CONTRADICTION (see FIDELITY-NOTES.md): the stat-0 image's own notes state that RED-zone cells do not receive the attribute bonus at all (you use the base value as-is, e.g. base 30 stays 30). But the docx's stat-15 screenshot (image8, displayed_at_stat_15 here) shows the attribute bonus applied uniformly to EVERY cell, including red-zone ones (e.g. base 30 [row1,col3, red] is shown as 45 = 30+15 in image8, not 30). This is an unresolved rules conflict preserved as-is per the fidelity mandate -- do not silently pick a side."
+  "RULING (Ed, 2026-07-09): red-zone cells do NOT receive the attribute bonus — Spell Target = raw base value in red; min(base + attribute, 95) elsewhere. The displayed_at_stat_15 grid is the superseded 'always add' render, kept for provenance only. Resolved — see FIDELITY-NOTES §1.2."
  ]
 }

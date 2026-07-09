@@ -56,7 +56,7 @@ The majority of spell casting in Sidherun is done using the 'Basic Spellcasting'
 > - "If you attempt to target a foe who's spell target is colored red, you do not add your attribute to the target. Ex: In the example above, if the same caster attempted to cast at a level 3, their spell target would be 30, with no modifier"
 > - "The fragility of the mortal attempting to manipulate the weave always leaves some room for mistakes. The highest your target can be is 95%"
 >
-> ⚠ **Preserved contradiction** (see `FIDELITY-NOTES.md` §1.2): the docx's stat-15 screenshot applies the +15 attribute uniformly to every cell **including red ones**, which conflicts with the red-zone rule above. Both sources are preserved unreconciled pending a ruling.
+> ✅ **Ruling (Ed, 2026-07-09):** the red-zone rule above is **canonical** — when the target cell is red, the caster does **not** add their attribute; the raw base value is the Spell Target. The docx's stat-15 screenshot (which applied the attribute uniformly, including red cells) is superseded on this point. Verified by exhaustive computation over all 400 cells at stat 15: the rule affects exactly the 171 red cells, ordering stays monotone, and the red boundary forms a deliberate 25-point difficulty cliff. See FIDELITY-NOTES §1.2 (resolved).
 
 - A character describes to the GM what they wish to do
 - The GM lets the player who wishes their character to cast a spell know what, if any, modifications (difficulty) is assigned to the spell (see general rules below the Spell Matrix table
