@@ -245,7 +245,8 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
                 {character.skills?.some(s => s.isSpecialty) && <span className={styles.starNote}>★ = Specialty</span>}
                 {editable && budget && (
                   <span className={budget.overBudget ? styles.budgetOver : styles.budget}>
-                    {budget.used}/{budget.pool} pts{budget.overBudget ? ' ⚠ over budget' : ''}
+                    {budget.used}/{budget.pool} pts
+                    {budget.overBudget ? ' ⚠ over budget' : budget.available > 0 ? ` · +${budget.available} unspent` : ''}
                   </span>
                 )}
                 <EditBtn step={7} label="Edit skills" onEdit={onEditSection} />
