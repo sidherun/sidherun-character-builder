@@ -63,3 +63,4 @@ shipped-history log; open/planned work lives in issues, not here.
 | Data rulings applied to live roster (#203/#249): usesSkill×4, Uri/Marin duplicate skill rows, Dante/Tarben/Kell combat-plane moves | — (data via token RPCs + backup JSON) | 2026-07-10/11 |
 | Sheet skills badge '+N unspent' informational cue | #250 | 2026-07-10 |
 | Migration 0003 — updated_at trigger on characters (authed saves bumped; fixes stale Saved dates + newer-wins hazard) (#253) | #254 | 2026-07-11 |
+| Spell-Target engine red-zone alignment — imports rules/data/spell-matrix.json, zone-aware UI, full-grid test (#245) | — | 2026-07-11 |

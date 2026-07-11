@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { attrTotal } from '../../utils/characterDerived.js'
 import { uuid } from '../../utils/uuid.js'
-import { getFinalSpellTarget } from '../../utils/spellTarget.js'
+import { getFinalSpellTarget, getSpellZone } from '../../utils/spellTarget.js'
 import styles from './Step6Magic.module.css'
 
 const ATTR_OPTIONS = [
@@ -15,6 +15,7 @@ export default function Step6Magic({ character, onUpdate }) {
 
   const magicAttrVal = magicAttribute ? attrTotal(attributes[magicAttribute] || {}) : 0
   const finalTarget  = getFinalSpellTarget(level, targetLevel, magicAttrVal)
+  const targetZone   = getSpellZone(level, targetLevel)
 
   // Total of an attribute given its display name (e.g. "Thaumaturgy").
   function attrTotalByName(name) {
@@ -46,7 +47,8 @@ export default function Step6Magic({ character, onUpdate }) {
     onUpdate({ crafts: crafts.filter(c => c.id !== id) })
   }
 
-  const targetColor = finalTarget === null ? 'var(--danger)' : finalTarget >= 50 ? 'var(--story)' : finalTarget >= 30 ? 'var(--bronze)' : 'var(--danger)'
+  // Zone color is rules-bearing (#245): red = the attribute is NOT added.
+  const targetColor = targetZone === 'green' ? 'var(--story)' : targetZone === 'yellow' ? 'var(--bronze)' : 'var(--danger)'
 
   return (
     <div className={styles.step}>
@@ -121,7 +123,9 @@ export default function Step6Magic({ character, onUpdate }) {
         <h3>Spell Target Calculator</h3>
         <p className={styles.spellNote}>
           Roll below this target (%) to cast successfully. Based on your level ({level}) vs target&#39;s level.
-          Your magical attribute ({magicAttribute || '—'}: {magicAttrVal}) is added to the base target (capped at 95%).
+          Your magical attribute ({magicAttribute || '—'}: {magicAttrVal}) is added to the base target (capped
+          at 95%) — except in <strong>red-zone</strong> matchups, where the raw base value is the target and the
+          attribute is not added.
         </p>
         <div className={styles.spellCalc}>
           <label className={styles.selectField}>
@@ -135,8 +139,8 @@ export default function Step6Magic({ character, onUpdate }) {
           <div className={styles.targetResult} style={{ color: targetColor }}>
             <span className={styles.targetLabel}>Spell Target</span>
             <span className={styles.targetNum}>{finalTarget ?? '—'}%</span>
-            {finalTarget !== null && finalTarget < 25 && (
-              <span className={styles.redNote}>Very outmatched — low odds</span>
+            {targetZone === 'red' && (
+              <span className={styles.redNote}>Red zone — attribute not added</span>
             )}
           </div>
         </div>
