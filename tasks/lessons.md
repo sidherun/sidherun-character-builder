@@ -59,3 +59,42 @@ wasn't.
 **Lesson:** For controlled/uncontrolled inputs and on-blur handlers, use the browse tool's
 `fill` (fires React's synthetic onChange) + `press Tab` to blur — not raw `dispatchEvent`.
 Confirm the persisted state (localStorage / blob), not just the DOM value.
+
+## Two cloud planes need different sync advice — check which one the user is on (2026-07-11)
+
+**Context:** Told Ed to use "Push to cloud" + a localStorage console edit to resync Dante —
+wrong for his situation: he was **signed in**, where the roster IS the Supabase `characters`
+table (via `characterRepo`), every sheet edit saves directly, and the guest-plane push
+button doesn't even render (`cloudEnabled && !useRepo`). The correct answer was "nothing —
+it's automatic".
+
+**Lesson:** Before giving cloud-sync/data-repair instructions, determine the plane. A
+screenshot showing **Sign Out / Manage Roles / Player dropdowns** = authed plane (RLS table
+writes, GM role can edit ANY character — including rows a guest token can't reach). Guest
+plane = localStorage + token RPCs + Push to cloud. Fixes and their failure modes differ
+completely between the two.
+
+## Roster data surgery via backup tokens works — but check row ownership first (2026-07-11)
+
+**Context:** Applied GM data rulings (#203/#249) directly to live cloud rows using the
+capability tokens + GM key inside `sidherun-roster-2026-06-28.json`, with fetch→assert→
+patch→re-fetch verification. Worked for 13/14 characters; Dante failed silently-ish — his
+rosterId is `cloud-<id>` (imported from another owner's link), his token was rotated, and
+`list_characters(gm_key)` proved the row belongs to someone else's key.
+
+**Lesson:** The roster backup's `_gmKey`/`_cloudMap` is a legitimate data-repair path
+(same RPCs the app uses). Before relying on it: `list_characters(p_gm_key)` to confirm
+ownership; `cloud-<id>` roster ids mean someone else's row. Always fetch the CURRENT row and
+patch it (never push the stale backup blob), assert expected values before writing, re-fetch
+to verify, and mirror every fix into the backup JSON — otherwise a future Restore re-derives
+the old state (e.g. the `usesSkill` legacy migration) and silently reverts the ruling.
+
+## Long session: re-fetch before branching off origin/main (2026-07-11)
+
+**Context:** Created two branches from a stale local `origin/main` ref (last fetched hours
+earlier, before intervening PR merges). The README edits in the second PR were made against
+a pre-#250 README; git's three-way merge happened to save it, and the third branch needed a
+`fetch` + `reset --hard origin/main` before use.
+
+**Lesson:** `git fetch origin main` immediately before every `git checkout -b X origin/main`
+in a session where PRs merge along the way — a remote-tracking ref is a snapshot, not live.

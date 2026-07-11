@@ -60,3 +60,6 @@ shipped-history log; open/planned work lives in issues, not here.
 | Double-roll guard (verified via interactive test) (#218/#222) | cbcf659 | 2026-07-05 |
 | Per-route titles + reduced-motion guard (#216) | d808d68 | 2026-07-05 |
 | LoginPage raw-hex → token (#213) | f73fd88 | 2026-07-05 |
+| Data rulings applied to live roster (#203/#249): usesSkill×4, Uri/Marin duplicate skill rows, Dante/Tarben/Kell combat-plane moves | — (data via token RPCs + backup JSON) | 2026-07-10/11 |
+| Sheet skills badge '+N unspent' informational cue | #250 | 2026-07-10 |
+| Migration 0003 — updated_at trigger on characters (authed saves bumped; fixes stale Saved dates + newer-wins hazard) (#253) | #254 | 2026-07-11 |
