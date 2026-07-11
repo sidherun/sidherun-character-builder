@@ -110,6 +110,8 @@ src/
     races.json, archetypes.json, armorTypes.json, xpTable.json, spellTarget.json
 supabase/
     migrations/0001_init.sql   # sealed characters table + capability-token RPCs
+    migrations/0002_auth_roles.sql        # authenticated plane: roles + RLS
+    migrations/0003_updated_at_trigger.sql # updated_at bump on every write (#253)
     README.md                  # setup, keys, smoke test, security model
 ```
 
@@ -279,7 +281,11 @@ working unchanged, so game-day QR / printout scans still need no login.
 - **Setup:** apply `supabase/migrations/0002_auth_roles.sql` after `0001`, set
   `VITE_AUTH=on`, then sign in once and run the one-time seed/backfill SQL noted
   at the bottom of the migration (make yourself `admin`; adopt existing
-  characters). See `supabase/README.md`.
+  characters). See `supabase/README.md`. Then apply
+  `0003_updated_at_trigger.sql` — a `moddatetime` trigger so **authed-plane
+  writes bump `updated_at`** like the guest RPCs already do; without it, roster
+  "Saved" dates go stale and newer-wins reconciliation can prefer an older
+  cached copy over a fresh authed save (#253).
 - **First-admin bootstrap:** a `guard_role_change()` trigger stops a signed-in
   non-admin from self-promoting. It is scoped to authenticated users
   (`auth.uid() is not null`), so the very first admin is seeded from a backend

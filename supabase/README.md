@@ -67,6 +67,12 @@ want player/GM/admin accounts with cloud-as-source-of-truth.
    of `0002_auth_roles.sql` (commented): make your email `admin`, and set
    `owner_user_id` on the pre-existing token-plane rows to your account. Reassign
    each to its player from the GM Screen.
+5. **Apply `migrations/0003_updated_at_trigger.sql`** (after `0002`): a
+   `moddatetime` trigger that bumps `characters.updated_at` on every UPDATE.
+   Without it, authed-plane table writes (unlike the guest RPCs) leave
+   `updated_at` stale — wrong roster "Saved" dates and a newer-wins
+   reconciliation that can prefer an older cached copy (#253). Verify: edit a
+   character while signed in → its roster card's Saved date becomes today.
 
 ### RLS smoke test (two planes)
 - As **anon** from the app JS: `supabase.from('characters').select('*')` still
