@@ -3,7 +3,7 @@ import { useFocusOnAdd } from '../../hooks/useFocusOnAdd.js'
 import { calcDefense, calcSkillTotal, attrTotal } from '../../utils/characterDerived.js'
 import { ITEM_DICTIONARY } from '../../utils/spellcheck.js'
 import SpellSuggest from '../SpellSuggest.jsx'
-import { getFinalSpellTarget } from '../../utils/spellTarget.js'
+import { getFinalSpellTarget, getSpellZone } from '../../utils/spellTarget.js'
 import { rollSkill, rollAttack, rollSpell, weaponModifier } from '../../utils/rollActions.js'
 import { formatRoll } from '../../utils/rollFormat.js'
 import { rollToDiceSpec } from '../../utils/diceNotation.js'
@@ -66,14 +66,16 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
   const mutate = (patch) => { if (readOnly) return; onUpdate(patch) }
 
   // Spell Target reference (casters only): roll under base(caster vs target) +
-  // magic attribute, capped 95. Same calc as the wizard's Step 6.
+  // magic attribute, capped 95 — except red matrix cells, where the attribute
+  // is not added (#245 ruling). Same calc as the wizard's Step 6. The zone
+  // color is rules-bearing, not decoration: red = no attribute.
   const magicAttrVal = character.magicAttribute
     ? attrTotal(character.attributes?.[character.magicAttribute] || {})
     : 0
   const spellTarget = getFinalSpellTarget(character.level, targetLevel, magicAttrVal)
-  const spellColor = spellTarget == null ? 'var(--danger)'
-    : spellTarget >= 50 ? 'var(--story)'
-    : spellTarget >= 30 ? 'var(--bronze)'
+  const spellZone = getSpellZone(character.level, targetLevel)
+  const spellColor = spellZone === 'green' ? 'var(--story)'
+    : spellZone === 'yellow' ? 'var(--bronze)'
     : 'var(--danger)'
 
   // Apply an incoming hit: armor absorbs up to its soak value (capped by the
@@ -259,6 +261,9 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
                   <button className={styles.rollBtn} onClick={rollSpellCheck} disabled={rolling || spellTarget == null}>Roll</button>
                 </div>
               </div>
+              {spellZone === 'red' && (
+                <div className={styles.spellZoneNote}>Red zone — {ATTR_LABELS[character.magicAttribute] || 'attribute'} not added</div>
+              )}
             </div>
           )}
           <Counter

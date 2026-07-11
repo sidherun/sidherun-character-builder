@@ -107,7 +107,8 @@ src/
     supabaseClient.js     # Supabase client + cloudEnabled flag
     validation.js         # per-step validation rules
   data/
-    races.json, archetypes.json, armorTypes.json, xpTable.json, spellTarget.json
+    races.json, archetypes.json, armorTypes.json, xpTable.json
+    (spell matrix: the engine imports rules/data/spell-matrix.json directly — #245)
 supabase/
     migrations/0001_init.sql   # sealed characters table + capability-token RPCs
     migrations/0002_auth_roles.sql        # authenticated plane: roles + RLS
@@ -126,7 +127,7 @@ supabase/
 - **Defense** = base (50 typical / 0 others) + attribute + shield + skill bonus + misc
 - **Magic Defense** = casting attribute (Thaumaturgy, Enlightenment, or Wisdom depending on archetype) + bonuses; non-magic characters fall back to `(THA + EN) / 2`
 - **Psychic Defense** = INT + bonuses
-- **Spell Target** = 20×20 Spell Matrix lookup (caster level vs target level) + the caster's relevant magic attribute, capped at 95% — **except red-zone cells** (target 2+ levels above caster at low levels; see `rules/data/spell-matrix.json` color zones), where the attribute is **not** added and the raw base value is the target (ruled 2026-07-09, `rules/FIDELITY-NOTES.md` §1.2). The GM applies any difficulty modifier and the target's Spell/Psychic Defense at the table. ⚠ The current engine may still add the attribute uniformly — see the engine-alignment issue.
+- **Spell Target** = 20×20 Spell Matrix lookup (caster level vs target level) + the caster's relevant magic attribute, capped at 95% — **except red-zone cells** (target 2+ levels above caster at low levels; see `rules/data/spell-matrix.json` color zones), where the attribute is **not** added and the raw base value is the target (ruled 2026-07-09, `rules/FIDELITY-NOTES.md` §1.2). The GM applies any difficulty modifier and the target's Spell/Psychic Defense at the table. The engine implements this ruling (#245): `utils/spellTarget.js` imports `rules/data/spell-matrix.json` (base grid + color zones) directly, so the app and the book can't drift; the sheet calculator and Play-Mode lookup tile color by zone and label red-zone results "attribute not added", and a full-grid test walks all 400 cells.
 - **Skills** — free-form, with a **level-aware point budget** (PHB pp.14-15, single source of truth in `utils/skillPoints.js`): cumulative pool 30/50/70/80/90/100/110/120/125/130 for levels 1–10 (+5/level after), per-skill cumulative cap 15/15/10…→ **40 by level 3**. The Skills editor shows "**X / Y points used**"; the budget is **warn-not-block** (a GM can override a cap), and an **over-budget flag surfaces to the GM** on the character sheet, the roster card, and the GM-screen row (`skillBudget()`), so an over-allocated character is visible without opening the sheet. The manage sheet's Skills-header badge also cues **under**-spend — `50/70 pts · +20 unspent` — as a quiet informational nudge (same muted style, no warning); Play Mode stays clean of budget chrome. Combat is pooled with skills in the rulebook but excluded from this v1 pool (weapons stored separately). Level-up grows the pool (see **Leveling**); the PHB usage-bonus isn't auto-computed — the use-circles are a **justification aid** for allocating points, not a mechanical bonus. Specialty flag for exceptional skills, and **Use tracking** — 5 circles per skill (`usePips`); strike one each time the skill is used in a session. Editable in the Skills step and Play Mode, and printed on the HTML/PDF sheet for hand-tracking.
 - **Story Points** — default 2 per character
 - **Dice rolls** (`dice.js` + `rollActions.js`) — two resolution shapes on a d100:

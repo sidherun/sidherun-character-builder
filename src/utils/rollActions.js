@@ -35,7 +35,8 @@ export function rollAttack(character, weapon, rng = Math.random) {
 }
 
 // Spell: roll under ( spell matrix[casterLevel][targetLevel] + magic attribute ),
-// capped at 95 — exactly what getFinalSpellTarget already computes. Self-resolves.
+// capped at 95 — except red-zone cells, where the attribute is not added (#245).
+// Exactly what getFinalSpellTarget already computes. Self-resolves.
 export function rollSpell(character, targetLevel, rng = Math.random) {
   const attr = character.magicAttribute && character.attributes?.[character.magicAttribute]
   const magicAttrValue = attr ? attrTotal(attr) : 0

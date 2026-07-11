@@ -631,6 +631,14 @@
   line-height: 1;
 }
 
+.spellZoneNote {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--danger);
+}
+
 @media (max-width: 640px) {
   .content {
     grid-template-columns: 1fr;
