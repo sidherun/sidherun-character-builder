@@ -322,3 +322,13 @@ optional. Unset `VITE_AUTH` (and redeploy) to fall back to the guest-only build.
 GitHub Pages must be set to source **GitHub Actions** in repo Settings → Pages.
 
 The site is served from the custom domain **character-builder.sidherun.com** (root path), so `vite.config.js` uses `base: '/'`. `public/CNAME` pins the domain so each Actions deploy preserves it. After the TLS cert provisions, enable **Enforce HTTPS** in Settings → Pages. ID generation degrades gracefully on a non-secure context (`src/utils/uuid.js` falls back from `crypto.randomUUID()` to `getRandomValues`), but the **Copy play link / Copy share URL** buttons use the Clipboard API, which still requires HTTPS — so HTTPS is the supported configuration.
+
+## License & copyright
+
+This repository contains two distinct works under two different terms:
+
+- **Application source code** — MIT, see [`LICENSE`](LICENSE).
+- **Sidherun game content** (the `rules/` Player's Handbook text, game data and
+  descriptions under `src/data/`, the Sidherun name, and the Southern Shores
+  setting) — **all rights reserved**, with permission for personal at-table use;
+  see [`COPYRIGHT.md`](COPYRIGHT.md).

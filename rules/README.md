@@ -1,5 +1,10 @@
 # Sidherun Rules — Golden Pages
 
+> Everything in this directory is Sidherun game content: **Copyright © 2026 Ed
+> Chartier, all rights reserved**, with permission for personal at-table use —
+> see [`../COPYRIGHT.md`](../COPYRIGHT.md). It is *not* covered by the repo's MIT
+> code license.
+
 This directory is the **source of truth** for the Sidherun Player's Handbook (PHB) rules text. It replaces the Word document (`Sidherun PHB 2_8_2026.docx`) as the canonical, version-controlled copy of the rules.
 
 ## What "golden pages" means here
