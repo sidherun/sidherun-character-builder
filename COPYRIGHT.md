@@ -1,6 +1,6 @@
 # Sidherun — Copyright Notice
 
-**Copyright © 2026 Ed Chartier. All rights reserved.**
+**Copyright © 2026 Ed Martin. All rights reserved.**
 
 This notice covers the **Sidherun game content** in this repository — the original
 creative work of the game's designer, as distinct from the application source code

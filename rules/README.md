@@ -1,7 +1,7 @@
 # Sidherun Rules — Golden Pages
 
 > Everything in this directory is Sidherun game content: **Copyright © 2026 Ed
-> Chartier, all rights reserved**, with permission for personal at-table use —
+> Martin, all rights reserved**, with permission for personal at-table use —
 > see [`../COPYRIGHT.md`](../COPYRIGHT.md). It is *not* covered by the repo's MIT
 > code license.
 
