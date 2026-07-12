@@ -66,3 +66,4 @@ shipped-history log; open/planned work lives in issues, not here.
 | Spell-Target engine red-zone alignment — imports rules/data/spell-matrix.json, zone-aware UI, full-grid test (#245) | — | 2026-07-11 |
 | Play Mode spell casting flow — per-craft Cast (zone-aware, craft's own value), interim mana cost, banner+feed (#237) | — | 2026-07-11 |
 | Sidherun favicon — Cinzel S monogram, vector SVG + ico/png set + manifest (#198) | — | 2026-07-11 |
+| First-character guide — rules-grounded per-step onboarding cards + 💡 toggle (built by sonnet agent, rules-audited) | — | 2026-07-11 |

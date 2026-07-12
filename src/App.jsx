@@ -6,6 +6,7 @@ import { registerCloudLink, fetchCloudCharacter, mergeRemote, rosterIdForCloudId
 import { repoEnabled, createCharacter, getCharacter, saveCharacterData, patchLive, subscribeLive, removeLiveSubscription } from './utils/characterRepo.js'
 import { useAuth, isGmOrAdmin } from './auth/useAuth.js'
 import { safeParseCharacter } from './utils/characterSchema.js'
+import { guideEnabled, setGuide } from './utils/onboarding.js'
 import { useAutoSave } from './hooks/useAutoSave.js'
 import { useCloudSync } from './hooks/useCloudSync.js'
 import { useRealtimeCharacter } from './hooks/useRealtimeCharacter.js'
@@ -16,6 +17,7 @@ import { useCharacterManagement } from './hooks/useCharacterManagement.js'
 import StepIndicator from './components/StepIndicator.jsx'
 import WizardNav from './components/WizardNav.jsx'
 import Toast from './components/Toast.jsx'
+import OnboardingTip from './components/OnboardingTip.jsx'
 import NotesPanel from './components/NotesPanel.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import Step1Welcome from './components/steps/Step1Welcome.jsx'
@@ -124,6 +126,23 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   // so saving mid-wizard doesn't yank a half-built character into manage mode.
   const [mode, setMode] = useState(() => (character._rosterId ? 'manage' : 'create'))
   const [editSection, setEditSection] = useState(null)
+
+  // First-character guide (#onboarding): explicit setting wins; unset defaults
+  // to on for a first-time visitor (empty roster). Computed once at mount —
+  // toggling later is explicit via the 💡 Guide button, not re-derived from the
+  // roster (which changes the moment this character is saved).
+  const [guideOn, setGuideOn] = useState(() => guideEnabled(loadRoster().length === 0))
+  const toggleGuide = useCallback(() => {
+    setGuideOn(prev => {
+      const next = !prev
+      setGuide(next)
+      return next
+    })
+  }, [])
+  const dismissGuide = useCallback(() => {
+    setGuide(false)
+    setGuideOn(false)
+  }, [])
 
   const saveStatus = useAutoSave(character)
   useCloudSync(character)
@@ -566,6 +585,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
             tabIndex={-1}
             aria-label="Character creation step"
           >
+            {guideOn && <OnboardingTip step={character.wizardStep} onDismiss={dismissGuide} />}
             <StepComponent
               character={character}
               onUpdate={update}
@@ -595,6 +615,13 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
                   {(saveStatus === 'saving' || saveStatus === 'saved') && (
                     <span className={styles.saveStatus}>{saveStatus === 'saving' ? 'Saving…' : 'Saved ✓'}</span>
                   )}
+                  <button
+                    className={styles.headerBtn}
+                    onClick={toggleGuide}
+                    aria-pressed={guideOn}
+                  >
+                    💡 Guide
+                  </button>
                   <button className={styles.headerBtn} onClick={onToggleTheme}>{theme === 'dark' ? 'Light' : 'Dark'}</button>
                   <button className={styles.headerBtn} onClick={() => onNavigate('roster')}>Roster</button>
                   <button className={styles.headerBtn} onClick={toggleNotes}>Notes</button>
@@ -621,6 +648,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
                 tabIndex={-1}
                 aria-label="Character creation step"
               >
+                {guideOn && <OnboardingTip step={character.wizardStep} onDismiss={dismissGuide} />}
                 <StepComponent
                   character={character}
                   onUpdate={update}

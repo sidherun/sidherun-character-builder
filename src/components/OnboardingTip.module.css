@@ -1,0 +1,69 @@
+/* First-character guide card (#onboarding) — bronze left-border callout above
+   the active wizard step, explaining what the step means in plain language. */
+.card {
+  position: relative;
+  border-left: 3px solid var(--bronze);
+  background: var(--card2);
+  border-radius: 6px;
+  padding: 14px 52px 14px 18px;
+  margin-bottom: 20px;
+}
+
+.label {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bronze);
+  margin-bottom: 4px;
+}
+
+.title {
+  font-family: 'Spectral', serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink-900);
+  margin: 0 0 6px;
+}
+
+.body {
+  font-family: 'Spectral', serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-800);
+  margin: 0;
+}
+
+.dismiss {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--ink-400);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.dismiss:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .card { padding: 12px 44px 12px 14px; }
+}
+
+.source {
+  display: block;
+  margin-top: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-400);
+}
