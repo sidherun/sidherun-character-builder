@@ -400,6 +400,55 @@
   gap: 10px;
 }
 
+/* Cast-flow meta row (#237): shared target-level hint + interim mana cost */
+.castMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--ink-400);
+}
+
+.castCost {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--ink-800);
+}
+
+.castCost select {
+  padding: 3px 6px;
+  background: var(--card2);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: var(--ink-900);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+}
+
+.castCost input {
+  width: 52px;
+  padding: 3px 6px;
+  background: var(--card2);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: var(--ink-900);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+}
+
+.castInterim {
+  color: var(--bronze);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 1px 7px;
+  text-transform: uppercase;
+  font-size: 8px;
+}
+
 /* Tap-to-roll: per-row Roll / Attack buttons (skills, weapons, spell tile) */
 .rollBtn {
   background: transparent;

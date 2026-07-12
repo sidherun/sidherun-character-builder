@@ -35,7 +35,10 @@ export function formatRoll(roll) {
   const detail = oor
     ? 'Target level out of range'
     : `d100 ${roll.roll} ${roll.roll <= roll.target ? '≤' : '>'} ${roll.target}` +
-      (roll.margin >= 0 ? ` · +${roll.margin}` : '')
+      (roll.margin >= 0 ? ` · +${roll.margin}` : '') +
+      // Interim mana pricing (#237): cost is hand-entered per cast until the
+      // mana ruling lands, so the banner records what was deducted.
+      (roll.manaCost > 0 ? ` · −${roll.manaCost} mana` : '')
 
   return { color, headline, detail }
 }

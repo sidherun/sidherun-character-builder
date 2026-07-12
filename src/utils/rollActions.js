@@ -43,3 +43,23 @@ export function rollSpell(character, targetLevel, rng = Math.random) {
   const target = getFinalSpellTarget(character.level, targetLevel, magicAttrValue)
   return resolveUnder({ target, rng })
 }
+
+// A craft's casting value: its governing attribute + skill + misc — the number
+// the sheet displays next to the craft. The PHB matrix note says to add "your
+// relevant attribute … whichever governs your casting"; the craft row is where
+// that governing attribute (and any tradition-specific bonuses) lives.
+export function craftTotal(craft) {
+  return (Number(craft?.attributeValue) || 0)
+       + (Number(craft?.skillBonus) || 0)
+       + (Number(craft?.misc) || 0)
+}
+
+// Cast through a specific magic craft (#237): same zone-aware spell target as
+// rollSpell, but the added value is the CRAFT's total (e.g. Evie casts Arcane
+// with INT 14 and Awakened Arcane with THA 20), not the single sheet-level
+// magic attribute. Red-zone suppression and the 95 cap come from
+// getFinalSpellTarget. Self-resolves.
+export function rollCast(character, craft, targetLevel, rng = Math.random) {
+  const target = getFinalSpellTarget(character.level, targetLevel, craftTotal(craft))
+  return resolveUnder({ target, rng })
+}

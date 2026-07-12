@@ -71,3 +71,45 @@ describe('PlayMode spell-target tile is zone-aware (#245)', () => {
     expect(container.textContent).toContain('not added')
   })
 })
+
+describe('PlayMode per-craft Cast flow (#237)', () => {
+  const withCraft = () => ({
+    ...caster(),
+    crafts: [{ id: 'c1', name: 'Arcane', attributeName: 'Intelligence', attributeValue: 15, skillBonus: 0, misc: 0, description: '' }],
+  })
+  const castButton = () =>
+    [...container.querySelectorAll('button')].find(b => b.textContent.trim() === 'Cast')
+
+  it('renders a Cast button per craft and deducts the interim mana cost', async () => {
+    const updates = []
+    await act(() => root.render(
+      <PlayMode character={{ ...withCraft(), mana: { total: 18, current: 10 } }}
+        onUpdate={(p) => updates.push(p)} onExit={() => {}} />,
+    ))
+    expect(castButton()).toBeTruthy()
+    // Enter an interim mana cost of 3, then cast.
+    const costInput = container.querySelector('input[aria-label*="Mana cost"]')
+    await act(() => {
+      const set = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set
+      set.call(costInput, '3')
+      costInput.dispatchEvent(new Event('input', { bubbles: true }))
+    })
+    await act(() => { castButton().click() })
+    // Banner resolves pass/fail and records the deduction; mana drops 10 → 7.
+    expect(container.textContent).toMatch(/Success|Miss/)
+    expect(container.textContent).toContain('−3 mana')
+    const manaUpdate = updates.find(p => p.mana)
+    expect(manaUpdate.mana.current).toBe(7)
+  })
+
+  it('casts without deduction when no cost is entered', async () => {
+    const updates = []
+    await act(() => root.render(
+      <PlayMode character={{ ...withCraft(), mana: { total: 18, current: 10 } }}
+        onUpdate={(p) => updates.push(p)} onExit={() => {}} />,
+    ))
+    await act(() => { castButton().click() })
+    expect(container.textContent).toMatch(/Success|Miss/)
+    expect(updates.find(p => p.mana)).toBeUndefined()
+  })
+})

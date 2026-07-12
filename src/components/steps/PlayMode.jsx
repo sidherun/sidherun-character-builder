@@ -4,7 +4,7 @@ import { calcDefense, calcSkillTotal, attrTotal } from '../../utils/characterDer
 import { ITEM_DICTIONARY } from '../../utils/spellcheck.js'
 import SpellSuggest from '../SpellSuggest.jsx'
 import { getFinalSpellTarget, getSpellZone } from '../../utils/spellTarget.js'
-import { rollSkill, rollAttack, rollSpell, weaponModifier } from '../../utils/rollActions.js'
+import { rollSkill, rollAttack, rollSpell, rollCast, craftTotal, weaponModifier } from '../../utils/rollActions.js'
 import { formatRoll } from '../../utils/rollFormat.js'
 import { rollToDiceSpec } from '../../utils/diceNotation.js'
 import { rollDice, preloadDice } from '../../utils/diceStage.js'
@@ -57,6 +57,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
   useEffect(() => { if (animOn) preloadDice() }, [animOn])
   useEffect(() => { if (animOn && sndOn) preloadSound() }, [animOn, sndOn])
   const [targetLevel, setTargetLevel] = useState(1)
+  const [castManaCost, setCastManaCost] = useState('') // interim per-cast mana entry (#237)
   const [editSection, setEditSection] = useState(null) // #180: in-Play section editor
   const canEdit = !readOnly
 
@@ -192,6 +193,21 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
   }
   function rollSpellCheck() {
     emitRoll({ kind: 'spell', label: `Spell vs Lvl ${targetLevel}`, ...rollSpell(character, targetLevel) })
+  }
+  // Cast through a specific craft (#237): zone-aware roll-under using the
+  // craft's own casting value, vs the level picked in the Spell Target tile.
+  // Mana pricing is INTERIM until Ed's ruling: the hand-entered cost is
+  // deducted on every cast (success or fail — also unruled; the Mana stepper
+  // refunds if the table rules otherwise).
+  function castCraft(craft) {
+    const cost = readOnly ? 0 : Math.max(0, Number(castManaCost) || 0)
+    emitRoll({
+      kind: 'spell',
+      label: `${craft.name || 'Cast'} vs Lvl ${targetLevel}`,
+      manaCost: cost,
+      ...rollCast(character, craft, targetLevel),
+    })
+    if (cost > 0) adjustMana(-cost)
   }
 
   return (
@@ -426,9 +442,42 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
               {character.crafts?.map(c => (
                 <div key={c.id} className={styles.skillItem}>
                   <span>{c.name}{c.description ? ` — ${c.description}` : ''}</span>
-                  <strong>{(c.attributeValue||0)+(c.skillBonus||0)+(c.misc||0)}</strong>
+                  <span className={styles.skillRight}>
+                    <strong>{craftTotal(c)}</strong>
+                    <button
+                      className={styles.rollBtn}
+                      onClick={() => castCraft(c)}
+                      disabled={rolling || getSpellZone(character.level, targetLevel) == null}
+                      title={`Cast ${c.name || ''} vs Lvl ${targetLevel}`}
+                    >Cast</button>
+                  </span>
                 </div>
               ))}
+              {character.crafts?.length > 0 && (
+                <div className={styles.castMeta}>
+                  {/* Same targetLevel state as the lookup tile above, so the two
+                      stay in sync — and casting still works for a character
+                      whose crafts carry the attribute but who has no
+                      sheet-level magicAttribute (tile hidden). */}
+                  <label className={styles.castCost}>
+                    vs Lvl
+                    <select value={targetLevel} onChange={e => setTargetLevel(parseInt(e.target.value))} aria-label="Cast target level">
+                      {Array.from({ length: 20 }, (_, i) => i + 1).map(l => <option key={l} value={l}>{l}</option>)}
+                    </select>
+                  </label>
+                  <label className={styles.castCost}>
+                    Mana cost
+                    <input
+                      type="number" min="0" inputMode="numeric" placeholder="0"
+                      value={castManaCost}
+                      onChange={e => setCastManaCost(e.target.value)}
+                      aria-label="Mana cost per cast (interim until the mana ruling)"
+                      disabled={readOnly}
+                    />
+                  </label>
+                  <span className={styles.castInterim}>interim pricing</span>
+                </div>
+              )}
             </section>
           )}
 

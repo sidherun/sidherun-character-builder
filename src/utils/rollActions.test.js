@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { weaponModifier, rollSkill, rollAttack, rollSpell } from './rollActions.js'
+import { weaponModifier, rollSkill, rollAttack, rollSpell, rollCast, craftTotal } from './rollActions.js'
 
 const fixed = (v) => () => v // Math.floor(v * 100) + 1 = the d100 roll
 
@@ -92,5 +92,28 @@ describe('rollSpell (roll under spell matrix + magic attribute, capped 95)', () 
 
   it('flags an out-of-range target level', () => {
     expect(rollSpell(caster, 21, fixed(0.5))).toMatchObject({ target: null, outOfRange: true })
+  })
+})
+
+describe('rollCast (per-craft casting, zone-aware — #237)', () => {
+  // L1 caster; two crafts with different governing values (Evie's shape).
+  const caster = { level: 1, magicAttribute: 'thaumaturgy', attributes: { thaumaturgy: { base: 20 } } }
+  const arcane = { name: 'Arcane', attributeValue: 15, skillBonus: 0, misc: 0 }
+
+  it('adds the CRAFT total, not the sheet magic attribute (L1 vs L2: 40 + 15 = 55)', () => {
+    expect(rollCast(caster, arcane, 2, fixed(0.5))).toMatchObject({ roll: 51, target: 55, success: true })
+  })
+
+  it('red-zone cast uses the raw base — craft value not added (L1 vs L3 → 30)', () => {
+    expect(rollCast(caster, arcane, 3, fixed(0.5))).toMatchObject({ target: 30, success: false })
+  })
+
+  it('craftTotal folds attribute + skill + misc, coercing strings', () => {
+    expect(craftTotal({ attributeValue: '14', skillBonus: '3', misc: 1 })).toBe(18)
+    expect(craftTotal({})).toBe(0)
+  })
+
+  it('flags an out-of-range target level', () => {
+    expect(rollCast(caster, arcane, 21, fixed(0.5))).toMatchObject({ target: null, outOfRange: true })
   })
 })

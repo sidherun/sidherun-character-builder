@@ -46,3 +46,15 @@ describe('formatRoll — spells (app resolves pass/fail)', () => {
     expect(out.detail).toBe('Target level out of range')
   })
 })
+
+describe('formatRoll — interim mana cost on casts (#237)', () => {
+  it('appends the deducted mana to the spell detail', () => {
+    const out = formatRoll({ kind: 'spell', roll: 20, target: 55, success: true, margin: 35, manaCost: 3 })
+    expect(out.detail).toContain('−3 mana')
+  })
+
+  it('omits the mana note when no cost was entered', () => {
+    const out = formatRoll({ kind: 'spell', roll: 20, target: 55, success: true, margin: 35, manaCost: 0 })
+    expect(out.detail).not.toContain('mana')
+  })
+})
