@@ -71,6 +71,12 @@ Do not delete entries here when a contradiction is eventually resolved by a rule
 - The "Simple examples" a few lines later in each copy give a *different* breakdown by margin-over-target (e.g., one copy says roll 70-85 = normal, 86-115 = 1.5x, 116+ = 2x for a target of 70; the other copy of the same passage says 70-90 = normal, 91-115 = 1.5x, 116+ = 2x for the same target of 70). The two "Simple examples" blocks in the two combat chapters do not even agree with each other on the exact breakpoint (85 vs. 90).
 - **Status:** Unresolved, preserved verbatim in both `rules/07-combat-basics.md` and `rules/07-combat-essentials.md` exactly as each appeared in its source location (the document contains near-duplicate combat-math passages in two places).
 
+### 1.13 Attack bonus: do the key attribute and the weapon skill stack?
+- The Martinuk worked example (`rules/07-combat-essentials.md`) **sums** them: "attack bonus of 78 → 18(AGI)+30(Dual Wield Skill)+20(fighting from above)+10(affinity for orcs)", and both combat chapters' Attacker worksheets list *Ability bonus* and *Skill/Trait/Power bonus* as separate additive columns.
+- The app (and the campaign as played since the Grandanto's Folly kickoff) treats them as **non-stacking**: a weapon rolls its weapon-skill value when the character is skilled, otherwise the governing attribute — never both (`weaponModifier()`, app #152; per-weapon GM data rulings, app #203).
+- Discovered 2026-07-11 by a rules audit (app #264) — the "they do not stack" sentence the app cites does not appear in the migrated text.
+- **Status:** RESOLVED — see §7 (Ed, 2026-07-11): **non-stacking is canonical**.
+
 ---
 
 ## 2. Image classification
@@ -204,3 +210,4 @@ An independent fidelity audit (full 22-chapter read, 1,200-cell matrix verificat
 - §1.6 **RESOLVED** — XP Level 15 starting: **150001** (source's 15001 ruled a missing-digit typo); now matches src/data/xpTable.json.
 - §1.2 (spell-matrix red-zone attribute rule) — **OPEN, under test**: a math evaluation across all levels/zones at stat 15 is in progress before ruling.
 - §1.2 **RESOLVED** (Ed, 2026-07-09) — **Red-zone cells add no attribute**: Spell Target = raw base in red; min(base+attribute, 95) in green/yellow. Ruled after an exhaustive two-agent independent computation at stat 15 (171 affected cells, delta exactly 15 each, monotone under both readings, 25-pt boundary cliff). The docx stat-15 render is superseded on this point. Side-note for a future amendment: the 2-Story-Point "automatic 100" benefit is meaningless for roll-under spellcasting (100 auto-fails) — flagged, not ruled.
+- §1.13 **RESOLVED** (Ed, 2026-07-11) — **Attack bonus is non-stacking**: a weapon attack uses the weapon-skill value when the character is skilled with the weapon, otherwise the governing attribute — never both. Situational and misc bonuses (positioning, affinities, buffs, items) still add on top. The Martinuk example's "18(AGI)+30(Dual Wield Skill)" summing is superseded on that point (under this ruling his bonus is 30+20+10 = 60); the Attacker worksheets' *Ability bonus* and *Skill/Trait/Power bonus* columns are alternatives for the weapon roll, not addends. Matches the app (#152) and the per-weapon data rulings (#203); the campaign has been played non-stacking since kickoff. App tracker: #264.

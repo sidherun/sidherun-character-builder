@@ -41,6 +41,8 @@ Misc. Bonus: Any bonus that may affect your attack: Buff/Aura/Item/etc.
 
 Total Bonus: The sum of all other bonus attack values
 
+> ✅ **Ruling (Ed, 2026-07-11):** for the weapon roll itself, *Ability bonus* and *Skill/Trait/Power bonus* are **alternatives, not addends** — use the weapon-skill value when skilled with the weapon, otherwise the key ability, never both. Misc/situational bonuses still add. See FIDELITY-NOTES §1.13 (resolved).
+
 **Defense** of the target is determined by the following:
 
 Key ability: Ability linked to defense: For example, AGI for physical attacks, INT for mental attacks, etc.
