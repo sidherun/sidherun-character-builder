@@ -121,7 +121,7 @@ supabase/
 
 ## Game System Notes (Sidherun PHB 2.8.2026)
 
-> **Canonical rules now live in [`rules/`](rules/README.md)** ("golden pages") — the full PHB 2.8 as Markdown chapters plus machine-readable tables in `rules/data/*.json` (spell matrix, XP, movement, armor, difficulty ladder). The Word doc is now a generated artifact; rule changes go through PRs against `rules/`. Known source contradictions are logged in `rules/FIDELITY-NOTES.md` — All four originally-preserved contradictions have since been **resolved by ruling** (2026-07-09): crit = natural 96-00 only; rating-8 armor max durability 160; XP L15 = 150001; red-zone matrix cells add no attribute. See FIDELITY-NOTES §7.
+> **Canonical rules now live in [`rules/`](rules/README.md)** ("golden pages") — the full PHB 2.8 as Markdown chapters plus machine-readable tables in `rules/data/*.json` (spell matrix, XP, movement, armor, difficulty ladder). The Word doc is now a generated artifact; rule changes go through PRs against `rules/`. Known source contradictions are logged in `rules/FIDELITY-NOTES.md` — five have been **resolved by ruling**: crit = natural 96-00 only; rating-8 armor max durability 160; XP L15 = 150001; red-zone matrix cells add no attribute (all 2026-07-09); and **attack bonus is non-stacking** — weapon skill OR governing attribute, never both, misc bonuses still add (§1.13, 2026-07-11, found by the onboarding rules audit). See FIDELITY-NOTES §7.
 
 - **HP** = `BASE(raceType × size × age) + round((STR + END) / 2) + CON`
 - **Mana** = primary magic attribute total (Thaumaturgy, Enlightenment, or Wisdom depending on archetype)
