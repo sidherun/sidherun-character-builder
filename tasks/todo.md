@@ -64,3 +64,4 @@ shipped-history log; open/planned work lives in issues, not here.
 | Sheet skills badge '+N unspent' informational cue | #250 | 2026-07-10 |
 | Migration 0003 — updated_at trigger on characters (authed saves bumped; fixes stale Saved dates + newer-wins hazard) (#253) | #254 | 2026-07-11 |
 | Spell-Target engine red-zone alignment — imports rules/data/spell-matrix.json, zone-aware UI, full-grid test (#245) | — | 2026-07-11 |
+| Play Mode spell casting flow — per-craft Cast (zone-aware, craft's own value), interim mana cost, banner+feed (#237) | — | 2026-07-11 |
