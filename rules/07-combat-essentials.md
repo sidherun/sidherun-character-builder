@@ -118,12 +118,12 @@ Example(s):
 Martinuk, fighting with a short sword and a fighting knife leapt at the orc, striking at his chest.
 
 - Jay, Martinuk's player is trying to strike an orc he's with two weapons.
-  - Martinuk has an attack bonus of 78 –> 18(AGI)+30(Dual Wield Skill) +20(fighting from above) +10(Martinuk has an affinity for fighting orcs) = 78
+  - Martinuk has an attack bonus of 60 –> 30(Dual Wield Skill; he is skilled, so his 18 AGI does not also add) +20(fighting from above) +10(Martinuk has an affinity for fighting orcs) = 60
   - The orc has a defense of 70 -> 50(Base)+15(AGI)+5(Small Buckler)
-  - Martinuk rolls 90+78 (attack)=168 (SUCCESS)
-  - 168-70 = 98, which means that Martinuk does double the normal damage of his dual attacks!
+  - Martinuk rolls 90+60 (attack)=150 (SUCCESS)
+  - 150-70 = 80, which means that Martinuk does double the normal damage of his dual attacks!
 
-> ✅ **Ruling (Ed, 2026-07-11):** the attribute and the weapon skill do **not** stack on an attack roll — a skilled character uses the weapon-skill value, an unskilled one uses the governing attribute, never both. Situational and misc bonuses (fighting from above, affinities, buffs, items) still add on top. This example's "18(AGI)+30(Dual Wield Skill)" summing is superseded on that point: under the ruling, Martinuk's attack bonus is 30(Dual Wield) + 20 + 10 = **60**. See FIDELITY-NOTES §1.13 (resolved).
+> ✅ **Ruling (Ed, 2026-07-11):** the attribute and the weapon skill do **not** stack on an attack roll — a skilled character uses the weapon-skill value, an unskilled one uses the governing attribute, never both. Situational and misc bonuses (fighting from above, affinities, buffs, items) still add on top. The example above has been corrected to the ruled math; the source originally read *"attack bonus of 78 –> 18(AGI)+30(Dual Wield Skill) +20(fighting from above) +10(Martinuk has an affinity for fighting orcs) = 78 … rolls 90+78 (attack)=168 … 168-70 = 98"* — same narrative outcome (double damage) either way. The orc's defense line is untouched: defense genuinely sums base + attribute + skill + shield. See FIDELITY-NOTES §1.13 (resolved).
 
 - Simple examples:
   - If you needed to roll a 70 as a target. The following results would alter the amount of damage dealt:
