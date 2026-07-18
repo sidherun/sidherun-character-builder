@@ -13,7 +13,13 @@ Each language doc carries the primitives needed for go-forward naming: attested 
 
 | File | Language | People |
 |---|---|---|
-| [`quindel.md`](quindel.md) | Quin'lae ("grove-song") | The Sidhe'dhel (elvenkind) — Quin'dhel (high) and Gla'mdroi (wild) kindreds |
+| [`quindel.md`](quindel.md) | Quin'lae ("grove-song") — names + full sentence grammar (VSO, v2.0) | The Sidhe'dhel (elvenkind) — Quin'dhel (high) and Gla'mdroi (wild) kindreds |
+
+## Texts
+
+| File | Text |
+|---|---|
+| [`texts/tem-wen.md`](texts/tem-wen.md) | **Tem'wen** — "The Equinox of Breath" told in Quin'lae, 21 stanzas with interlinear gloss |
 
 ## Candidates not yet documented
 

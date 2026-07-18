@@ -6,6 +6,8 @@
 
 **Canon decisions (v1.4, 2026-07-18):** the §7 glosses are adopted as canon (including Sidherun = "the Spirits' Road"); elvenkind collectively are the **Sidhe'dhel**; Qaal'el is the Quin'lae name for Selinthræ; Nol'Hradadra is reassigned to the Hul (§9, §10).
 
+**v2.0 (2026-07-18).** Sentence grammar added (§11–§12) after stress-testing the primitives against the World Story "The Equinox of Breath": **VSO word order confirmed**, pronouns/tenses/particles defined, ~45 roots added, and the first full Quin'lae text lives at [`texts/tem-wen.md`](texts/tem-wen.md). **Ver'ama** (Vælloria) and **Mor'el** (Morvathun) are canon Quin'lae divine names.
+
 Reference for generating Elven names in Sidherun. Derived from every attested elven-styled name in the Notion wiki (World Map, Southern Shores, session rosters) and the PHB. This is the go-forward standard: new elven names for places, people, artifacts, and festivals should be built from the tables below.
 
 **Canon change (v1.1, 2026-07-18):** the elf kindreds are renamed. High elves are **Quin'dhel** (retiring *Eledhel*); wild elves are **Gla'mdroi** (retiring *Glamredhel*). Both retired names were Raymond E. Feist coinages; the replacements are native formations, and the rename gives the language a second productive pattern (see §6, demonyms). The rename shipped to app data and the rules chapters in #270.
@@ -119,6 +121,13 @@ Adopted as canon 2026-07-18:
 | Qaal'el | The Merciful Light | The Quin'lae name for Selinthræ (goddess of peace, mercy, reconciliation) |
 | Sidherun | The Spirits' Road | The old elven name for the continent, from sidhe + run |
 | Sidhe'dhel | Spirit-kin | Elvenkind as a whole — the formal collective for both kindreds (new coinage, v1.4) |
+| Ver'ama | Life-Mother | The Quin'lae name for Vælloria (canonized 2026-07-18) |
+| Mor'el | The Still Light | The Quin'lae name for Morvathun (canonized 2026-07-18) |
+| Tem'wen | Breath-Balance | The Equinox of Breath |
+| Ith'quin | Deep Grove | The Shadowgrove |
+| El'sae | Lightwells | The Lumen Wells |
+| Ver'laeor | Life-Singer | Pulse-Singer (Order of the Verdant Pulse rank) |
+| El'halor | Light-Keeper | Lumen-Keeper (Order of the Verdant Pulse rank) |
 
 ## 8. Generation recipe
 
@@ -157,3 +166,44 @@ The Hul borrow the elven apostrophe to claim antiquity — a Hul name can wear e
 - **Nol'Hradadra: resolved (2026-07-18).** Reassigned to the Hul — a newer human culture (provisional name, after their Hul- settlements) that borrows the elven apostrophe to claim antiquity. Not a Quin'lae name. Open follow-up: give the Hul a real name and their own doc in `languages/`.
 - **Qaal'el: resolved (2026-07-18).** The Quin'lae name for Selinthræ; "trust Qaal'el's mercy" is an elven invocation of her. The qaal root keeps its "mercy, grace" gloss.
 - **Quin''tiel typo: fixed (2026-07-18)** on the Southern Shores Notion page (the Climate field now reads Quin'Tiel).
+- **Grammar gaps (open, found in the Tem'wen test):** numerals above three, comparatives, object pronoun forms (the double-pronoun "velir sa sa" is clumsy), and complex subordinate clauses are undesigned.
+
+## 11. Sentence grammar (v2.0)
+
+Added after translating "The Equinox of Breath" into Quin'lae (`texts/tem-wen.md`) — the test that forced the language past name-generation.
+
+**Word order: Verb–Subject–Object (VSO).** The verb comes first in every sentence: *Elir Caelindra soril* ("Lit Caelindra the-candle"). Adjectives and participles follow their noun (*thalin veren* = living trees) — the reverse of lexical compounds, where the modifier comes first (*Ver'laeor*). The crib for improvising at the table: say the action first.
+
+**Pronouns:** ni (I), thu (you), sa (he/she/it — no gender). Plurals take the noun plural suffix: nin (we), thun (you all), sain (they). Possession binds with the apostrophe, same as compounds: *sa'quin* = her grove, *ni'ama* = my elder.
+
+**Verbs:** root + tense vowel. No articles; no gender.
+
+| Form | Suffix | Example (el- "to light") |
+|---|---|---|
+| Present | -a | ela — lights |
+| Past | -ir | elir — lit |
+| Future | -uin | eluin — will light |
+| Participle | -en | elen — lit/lighting |
+| Imperative | bare root | el! — light! |
+
+**Negation:** the particle **nu** before the verb (*nu tolir sa* — she did not come); **nu** alone is "no", **na** is "yes". The prefix **nu-** derives antonym verbs: *ela* light → *nuela* extinguish; *vera* bloom → *nuvera* fade.
+
+**Particles:** o (of), an (to/for), os (from), im (in/at/on), ter (through), veth (with), ar (and), ya (that/which), sul (as/like), enu (before), ono (after), anu (again), aia (always/each), a (vocative).
+
+**Derivation suffixes:** agent **-or** (laeor singer, sylor weaver, halor keeper); diminutive **-il** (soril candle "little flame", veril flower "little growth", tielil window "little gate"); plural **-in** after a consonant, **-n** after a vowel — applies to nouns and pronouns alike.
+
+**Numbers (started):** min 1, dath 2, nel 3. The rest are undesigned (§10).
+
+## 12. Extended lexicon from the Tem'wen test
+
+All coinages follow §3 phonotactics; most derive from existing roots.
+
+**Nouns:** din day · dineth morning ("day-first") · sor sun, flame · sorun year ("the sun's road") · virun autumn ("the turning road") · seth silence, stillness · mor death, ending · ver life (gloss extended from "leaf/growth") · lath scent · duth shadow · ven mouth · sen seed · don place, ground · meth rest · methen last ("resting") · thren fear · vor word, saying · tar load, burden · len name · dael gratitude · tem balance · daven gift, offering · elan god, divine one (pl. elanin)
+
+**Adjectives:** maen many · hael far · tan certain · laden open · veren young, living · moren dead · nuveren fading (the elven word for "ill")
+
+**Verbs:** tol- come · run- walk, journey · vel- see, look · thir- feel · vor- say · quer- ask · meor- know, remember (one verb — for the Sidhe'dhel, knowledge is memory) · hal- hold, keep · tar- carry · don- set down, place · el- light, shine · vir- turn, change · sen- plant · seth- grow still (the elven verb for dying) · meth- rest · nar- need · ea (is/are), eir (was/were)
+
+## 13. Texts
+
+Full Quin'lae texts live in [`texts/`](texts/), with interlinear gloss and English. First entry: [`texts/tem-wen.md`](texts/tem-wen.md) — **Tem'wen**, "The Equinox of Breath" told in Quin'lae (21 stanzas covering the full story).
