@@ -13,10 +13,10 @@ Each language doc carries the primitives needed for go-forward naming: attested 
 
 | File | Language | People |
 |---|---|---|
-| [`quindel.md`](quindel.md) | Quin'lae ("grove-song") | The elves — Quin'dhel (high) and Gla'mdroi (wild) kindreds |
+| [`quindel.md`](quindel.md) | Quin'lae ("grove-song") | The Sidhe'dhel (elvenkind) — Quin'dhel (high) and Gla'mdroi (wild) kindreds |
 
 ## Candidates not yet documented
 
 - **Dûrakhar** (dwarven) — corpus exists (Karak Vohn, Bryndak, Khelvar, Halvra, û-circumflex convention) but no primitives doc yet
-- **Hul- family** (HulFadar, HulDramar) — unassigned naming family; candidate for a trader/frontier culture
+- **The Hul** (provisional name) — newer human culture (HulFadar, HulDramar, Nol'Hradadra); borrows the elven apostrophe to claim antiquity; needs a real name and a primitives doc
 - **Divine register** — deity-name conventions (Vælloria, Kaelorun, æ-ligature); documented in contrast tables only

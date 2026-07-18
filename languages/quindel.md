@@ -2,7 +2,9 @@
 
 <!-- source: derived from the Sidherun Notion (World Map, Southern Shores — An Overview, Grandanto's Folly session rosters) and the PHB; authored 2026-07-18 -->
 
-**v1.3 (2026-07-18).** This file (`languages/quindel.md`) is the canonical copy of the Quin'dhel language reference; it moved here from `rules/21-quindel-language.md` when the `languages/` directory was created. The Notion page "Quin'dhel Language Primitives" is a derived mirror, and edits happen here first, via PR like any other canon change.
+**v1.4 (2026-07-18).** This file (`languages/quindel.md`) is the canonical copy of the Quin'dhel language reference; it moved here from `rules/21-quindel-language.md` when the `languages/` directory was created. The Notion page "Quin'dhel Language Primitives" is a derived mirror, and edits happen here first, via PR like any other canon change.
+
+**Canon decisions (v1.4, 2026-07-18):** the §7 glosses are adopted as canon (including Sidherun = "the Spirits' Road"); elvenkind collectively are the **Sidhe'dhel**; Qaal'el is the Quin'lae name for Selinthræ; Nol'Hradadra is reassigned to the Hul (§9, §10).
 
 Reference for generating Elven names in Sidherun. Derived from every attested elven-styled name in the Notion wiki (World Map, Southern Shores, session rosters) and the PHB. This is the go-forward standard: new elven names for places, people, artifacts, and festivals should be built from the tables below.
 
@@ -26,7 +28,7 @@ Every elven or elven-styled name in canon, including the two retired forms (kept
 | Gla'mDroia | World Map | Settlement, western foothills of the Kaelorun Range — now canonically the Gla'mdroi seat |
 | Al'l-AmaDroia | World Map | Settlement, eastern foothills of the Kaelorun Range |
 | Qaal'el | PHB ("trust Qaal'el's mercy") | A deity, invoked in an example; not in the Deities DB |
-| Nol'Hradadra | World Map | Settlement, southern desert edge — flagged, see §9 |
+| Nol'Hradadra | World Map | Settlement, southern desert edge — a Hul name imitating elven orthography, not Quin'lae (see §9) |
 | *Eledhel* (retired) | PHB & races.json until #270 | Former high-elf name; survives as evidence for the roots el + dhel |
 | *Glamredhel* (retired) | PHB & races.json until #270 | Former wild-elf name; survives as evidence for glam + dhel |
 
@@ -48,7 +50,7 @@ Status column: **A** = attested directly, **I** = inferred from attested names, 
 | ama | mother, elder | I | Al'l-AmaDroia |
 | al | high, ancient | I | Al'l-AmaDroia |
 | qaal | mercy, grace | I | "trust Qaal'el's mercy" |
-| sidhe | spirit, the otherworld | I | Sidherun, sidhedroia |
+| sidhe | spirit, the otherworld | I | Sidherun, sidhedroia, Sidhe'dhel |
 | run | road, way | I | Sidherun (optional gloss: "the spirits' road" — see §7) |
 
 **The two kindred names now describe how each kindred sees itself.** Quin'dhel = "kin of the Grove" — a blood-line term; the high elves define themselves by lineage. Gla'mdroi = "folk of the Wild-Hold" — a dwelling term; the wild elves define themselves by where they live. The map encodes both homelands: Qu'Droia (the Sylvan Wood) is the Quin'dhel heartwood, Gla'mDroia in the Kaelorun foothills is the Gla'mdroi seat.
@@ -97,11 +99,13 @@ The language's own name: **Quin'lae** ("grove-song"), the speech shared by both 
 - **X'dhel** — "kin of X", a blood-line/lineage term, lowercase head: Quin'dhel.
 - **X'droi** — "folk of X'Droia", a demonym formed by dropping the final -a of a hold name: Gla'mDroia → Gla'mdroi. Any settlement ending in Droia yields a demonym this way (dwellers of Al'l-AmaDroia = the Al'l-Amadroi).
 
+**Collective:** both kindreds together are the **Sidhe'dhel** ("spirit-kin"), the formal umbrella term. Humans say "elves" or use Quin'dhel loosely.
+
 **Personal names:** given name = root + suffix. Suffixes (all gender-neutral): **-iel, -ael, -is, -eth, -ai, -wen, -orin**. Formal style adds origin: *Thaleth of Qu'Droia*. Elves of mixed descent keep a human surname (Bella D'Antonia).
 
-## 7. Proposed glosses for existing canon
+## 7. Canonical glosses
 
-These are proposals to adopt, offered because they make the map cohere:
+Adopted as canon 2026-07-18:
 
 | Name | Gloss | Note |
 |---|---|---|
@@ -112,10 +116,9 @@ These are proposals to adopt, offered because they make the map cohere:
 | Quin'meori | Grove-Memory | A remembering-place; hook: what is remembered there? |
 | Gla'mDroia | Wild-Hold | Seat of the Gla'mdroi — explains its frontier position in the foothills |
 | Al'l-AmaDroia | Hold of the High Mothers | Suggests a matriarchal elder-seat; its people would be the Al'l-Amadroi |
-| Qaal'el | The Merciful Light | Either an elven-only deity or the Quin'lae name for an existing one (Selinthræ fits the domain) |
-| Sidherun | The Spirits' Road | Optional deep-lore: the old elven name for the continent, from sidhe + run |
-
-**Collective term:** with Eledhel retired, "Quin'dhel" no longer needs to serve as an umbrella. Proposal: elvenkind as a whole are **the Dhel** (both kindreds, one blood); humans say "elves" or use Quin'dhel loosely. Alternatively both kindreds under **Sidhe'dhel** ("spirit-kin"). Ed to pick.
+| Qaal'el | The Merciful Light | The Quin'lae name for Selinthræ (goddess of peace, mercy, reconciliation) |
+| Sidherun | The Spirits' Road | The old elven name for the continent, from sidhe + run |
+| Sidhe'dhel | Spirit-kin | Elvenkind as a whole — the formal collective for both kindreds (new coinage, v1.4) |
 
 ## 8. Generation recipe
 
@@ -142,13 +145,15 @@ Ready-made examples:
 | Dûrakhar (dwarven) | k, kh, v, r clusters, û, blunt stems (Karak, Vosk, Bryndak) | apostrophes, diphthong chains |
 | Rohnar (human) | plain common-tongue compounds (King's Town, Starquay) | invented morphemes |
 | Divine register | long flowing polysyllables, æ, endings -a/-on/-is (Vælloria, Kaelorun) | apostrophes |
-| Hul- family | Hul + stem (HulFadar, HulDramar) — unassigned; candidate for a trader/frontier culture | — |
+| The Hul (provisional name) | newer human culture: Hul + stem (HulFadar, HulDramar); Nol'Hradadra is also theirs | true Quin'lae morphemes |
+
+The Hul borrow the elven apostrophe to claim antiquity — a Hul name can wear elven orthography without following the elision rule (Nol'Hradadra). Genuine Quin'lae names still obey §3 phonotactics, which is how to tell them apart.
 
 ## 10. Open items
 
 - **Provenance: resolved.** With Eledhel and Glamredhel retired, no load-bearing Feist coinage remains in elven canon. #270 also renamed Stardock → Starquay and Spine of the World → **Kaelorun Range** (formal name; "the Spine" survives as the colloquial). Rillanon survives only as a blank legacy PC page.
 - **Rename touch-points: shipped in #270.** `races.json` ids are `quindhel` / `glamdroi`, a `normalizeLegacyRace` transform migrates stored and imported characters (with regression tests), and rules chapters 05/16/18/20 carry the new names, including **the Quin'dhel Deep**. The PHB docx is deprecated (all PHB copies outside these golden pages are dead as of 2026-07-18); any future print handout renders from `rules/` and picks up the renames automatically.
 - Bella D'Antonia's roster line reads Human/Quin'dhel — as of v1.1 that means half *high* elf specifically.
-- **Nol'Hradadra** breaks elven phonotactics (hr- onset, stacked heavy syllables, desert location). Options: reassign it to another culture, or canonize it as a Quin'lae adaptation of a foreign name. Undecided.
-- **Qaal'el** appears once, in a PHB example. Decide whether it stands alone or aliases an existing deity.
-- **The double-apostrophe "Quin''tiel"** on the Southern Shores Notion page is worth a one-time cleanup pass.
+- **Nol'Hradadra: resolved (2026-07-18).** Reassigned to the Hul — a newer human culture (provisional name, after their Hul- settlements) that borrows the elven apostrophe to claim antiquity. Not a Quin'lae name. Open follow-up: give the Hul a real name and their own doc in `languages/`.
+- **Qaal'el: resolved (2026-07-18).** The Quin'lae name for Selinthræ; "trust Qaal'el's mercy" is an elven invocation of her. The qaal root keeps its "mercy, grace" gloss.
+- **Quin''tiel typo: fixed (2026-07-18)** on the Southern Shores Notion page (the Climate field now reads Quin'Tiel).
