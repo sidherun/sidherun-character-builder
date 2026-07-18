@@ -14,6 +14,8 @@ deployed application:
 - The rules text of the Sidherun Player's Handbook — everything under [`rules/`](rules/),
   including the chapter files, `rules/flavor/` fiction, `rules/data/*.json` tables,
   and `rules/FIDELITY-NOTES.md` (all migrated from *Sidherun PHB 2_8_2026.docx*).
+- The constructed-language references under [`languages/`](languages/) (Quin'dhel/Elven
+  naming primitives and any future language docs).
 - Game data files under `src/data/` whose contents express the game — archetype,
   race, and armor names and descriptions, XP and rules tables
   (`archetypes.json`, `races.json`, `armorTypes.json`, `xpTable.json`), and the

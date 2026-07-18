@@ -329,7 +329,7 @@ The site is served from the custom domain **character-builder.sidherun.com** (ro
 This repository contains two distinct works under two different terms:
 
 - **Application source code** — MIT, see [`LICENSE`](LICENSE).
-- **Sidherun game content** (the `rules/` Player's Handbook text, game data and
-  descriptions under `src/data/`, the Sidherun name, and the Southern Shores
-  setting) — **all rights reserved**, with permission for personal at-table use;
-  see [`COPYRIGHT.md`](COPYRIGHT.md).
+- **Sidherun game content** (the `rules/` Player's Handbook text, the `languages/`
+  constructed-language references, game data and descriptions under `src/data/`,
+  the Sidherun name, and the Southern Shores setting) — **all rights reserved**,
+  with permission for personal at-table use; see [`COPYRIGHT.md`](COPYRIGHT.md).
