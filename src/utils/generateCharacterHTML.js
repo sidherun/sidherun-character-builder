@@ -13,6 +13,7 @@ const ATTR_LABELS = {
 function esc(v) {
   return String(v ?? '')
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;')
 }
 
 // QR code generated at export time as an inline SVG so the printed sheet stays

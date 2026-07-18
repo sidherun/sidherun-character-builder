@@ -12,7 +12,6 @@
 
 import { supabase } from './supabaseClient.js'
 import { encodeCloudLink, encodeCharacterToPlayURL } from './urlState.js'
-import { uuid } from './uuid.js'
 
 const KEY_GM   = 'sidherun_gm_key'
 const KEY_MAP  = 'sidherun_cloud_map' // { [_rosterId]: { id, token } }
@@ -23,7 +22,15 @@ export function getGmKey() {
 }
 export function ensureGmKey() {
   let k = getGmKey()
-  if (!k) { k = `gm_${uuid()}${uuid()}`; try { localStorage.setItem(KEY_GM, k) } catch { /* ignore */ } }
+  if (!k) {
+    // Mint the GM master key from a CSPRNG (32 bytes → 64 hex chars). uuid()'s
+    // Math.random() fallback would make the key guessable, so use crypto directly.
+    const array = new Uint8Array(32)
+    crypto.getRandomValues(array)
+    const gmKey = Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('')
+    k = `gm_${gmKey}`
+    try { localStorage.setItem(KEY_GM, k) } catch { /* ignore */ }
+  }
   return k
 }
 export function getCloudMap() {
