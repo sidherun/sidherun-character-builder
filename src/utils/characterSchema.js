@@ -81,6 +81,15 @@ const inventoryItemSchema = z.union([
   }),
 ])
 
+// Migrate race values saved before the 2026-07 race renames (Eledhel → Quin'dhel,
+// Glamredhel → Gla'mdroi): exact ids from races.json plus free-text hybrids like
+// "Human / Eledhel" from imported rosters.
+const LEGACY_RACE_IDS = { eledhel: 'quindhel', glamredhel: 'glamdroi' }
+function normalizeLegacyRace(race) {
+  if (LEGACY_RACE_IDS[race]) return LEGACY_RACE_IDS[race]
+  return race.replace(/glamredhel/gi, "Gla'mdroi").replace(/eledhel/gi, "Quin'dhel")
+}
+
 const noteSchema = z.object({
   id:          z.string(),
   title:       z.string().default(''),
@@ -102,7 +111,7 @@ export const characterSchema = z.object({
 
   name:           z.string().default(''),
   playerName:     z.string().default(''),
-  race:           z.string().default('human'),
+  race:           z.string().default('human').transform(normalizeLegacyRace),
   raceType:       z.string().default('healthy'),
   raceValue:      z.number().int().default(20),
   raceSize:       z.string().default('medium'),

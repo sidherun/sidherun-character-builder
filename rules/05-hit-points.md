@@ -36,9 +36,9 @@ The source document states "Table below (Constitution Modification Table) is als
 - Frail = 10
   - Examples: Fae creatures, small familiars
 - Slight = 15
-  - Examples: Eledhel, Vale Dwarf, Avian = 15
+  - Examples: Quin'dhel, Vale Dwarf, Avian = 15
 - Healthy = 20
-  - Examples: Human, Aerian, Glamredhel
+  - Examples: Human, Aerian, Gla'mdroi
 - Stout = 30
   - Examples: Mountain Dwarf, Orc, Ogre
 

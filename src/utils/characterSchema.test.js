@@ -45,3 +45,35 @@ describe('weapon usesSkill migration', () => {
     expect(w.usesSkill).toBe(false)
   })
 })
+
+describe('legacy race name migration', () => {
+  const parseRace = (race) => {
+    const result = safeParseCharacter({ ...base([]), race })
+    expect(result.success).toBe(true)
+    return result.data.race
+  }
+
+  it('maps the old eledhel id to quindhel', () => {
+    expect(parseRace('eledhel')).toBe('quindhel')
+  })
+
+  it('maps the old glamredhel id to glamdroi', () => {
+    expect(parseRace('glamredhel')).toBe('glamdroi')
+  })
+
+  it('rewrites free-text hybrid race strings from imported rosters', () => {
+    expect(parseRace('Human / Eledhel')).toBe("Human / Quin'dhel")
+    expect(parseRace('Half-Glamredhel')).toBe("Half-Gla'mdroi")
+  })
+
+  it('leaves current race values alone', () => {
+    expect(parseRace('human')).toBe('human')
+    expect(parseRace('quindhel')).toBe('quindhel')
+  })
+
+  it('defaults to human when race is absent', () => {
+    const result = safeParseCharacter(base([]))
+    expect(result.success).toBe(true)
+    expect(result.data.race).toBe('human')
+  })
+})
