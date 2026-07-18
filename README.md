@@ -1,6 +1,6 @@
 # Sidherun Character Builder
 
-A browser-based character creation tool for the **Sidherun** tabletop RPG. Build, track, and play your characters — local-first and account-free, with an optional cloud-sync layer for shared, live play.
+A browser-based companion for the **Sidherun** tabletop RPG — build characters in a guided wizard, run them live in Play Mode, and coordinate the table from the GM Screen. Supports per-player and per-table account permissions to enable players and GMs to enjoy Sidherun.
 
 **Live:** https://character-builder.sidherun.com/
 
@@ -20,7 +20,7 @@ A browser-based character creation tool for the **Sidherun** tabletop RPG. Build
 - **Tables** — the GM can group characters into named, reusable **tables** (e.g. "Thursday Table", "Campaign A") and filter the GM Screen to one. A **Tables** button on the roster opens a panel to create / rename / delete tables (with member counts); each roster card's **⋯ menu** has a checkbox per table for many-to-many membership, and member tables show as chips on the card. Both membership (`tableIds`) **and the table names** (`_tableNames`) ride each character's synced blob, so a signed-in GM's tables follow them **across devices** — on a fresh device the registry is reconstructed by `deriveRegistry()` from the loaded characters (renames propagate onto every member's blob), and the GM-side localStorage registry (also carried in the **Back up / Restore** file) is merged on top for names + empty tables (#176). A table whose members were all assigned before `_tableNames` existed shows as **"Untitled table"** (never a raw id) until renamed — renaming stamps the name onto every member so it's recovered everywhere. Deleting a table keeps the characters, just removing them (and the name) from it.
 - **Player play links** — Opening a `#play=` link loads the character directly into Play Mode and auto-saves it to the player's local roster under a stable id derived from the link, so their HP/Mana/notes persist across refreshes (a refresh resumes the tracked copy rather than re-importing the link, so no duplicate roster entries are created). Full wizard access is available if they exit play mode.
 - **Export** — JSON backup, self-contained HTML (print/PDF) with a **scan-to-play QR**, shareable URL (LZString-compressed; ~3,000 chars for a typical character). The QR uses the origin the sheet was exported from; for a cloud-synced character it encodes the short, live `#c=` link (always scannable, opens the live character), otherwise the self-contained embedded `#play=` link.
-- **Back up / Restore all** — the Roster page can export the **entire roster** as one JSON file and restore it on any device or origin. **Restore** accepts multiple files at once and handles the roster-backup wrapper, a bare array, or individual character files — so it also bulk-imports separate `*-import.json` files in one action. Because `localStorage` is per-origin/per-browser, this is the portable cross-device backup (a server-backed store is a planned follow-up).
+- **Back up / Restore all** — the Roster page can export the **entire roster** as one JSON file and restore it on any device or origin. **Restore** accepts multiple files at once and handles the roster-backup wrapper, a bare array, or individual character files — so it also bulk-imports separate `*-import.json` files in one action. Because `localStorage` is per-origin/per-browser, this is the portable cross-device backup for guest-mode data (signed-in characters live in the cloud store shipped by epic #109).
 - **Session Notes** — Slide-in notes panel with per-character CRUD (a note requires a title to save; the panel is exposed to screen readers as a modal dialog)
 - **Import** — Load any exported JSON file to restore a character on any device (validated against the schema on import; invalid files are rejected with a descriptive error)
 - **Inventory** — editable in Play Mode and on the character sheet (add/edit/remove; **+ Add item** drops the cursor straight into the new item's Name field, and pressing **Enter in the notes field** commits the item, opens a fresh row, and focuses its Name field — so several items can be entered keyboard-only, Item → Tab → Notes → Enter → next Item (#185)); also shown in Step 9 Review and the print/HTML export. Supports free-text strings or structured objects (name, quantity, notes)
@@ -39,10 +39,14 @@ npm run dev
 Opens at `http://localhost:5173/` (Vite picks the next free port if 5173 is taken).
 
 ```bash
-npm run build   # production build → dist/
-npm test        # Vitest unit tests
-npm run lint    # ESLint (flat config, zero-warning gate)
+npm run build       # production build → dist/
+npm run preview     # serve the production build locally
+npm test            # Vitest unit tests
+npm run test:watch  # Vitest in watch mode
+npm run lint        # ESLint (flat config, zero-warning gate)
 ```
+
+`dev` and `build` first copy the 3D dice engine's assets into `public/` (`predev`/`prebuild` → `scripts/copy-dice-assets.mjs`) — automatic, no setup needed.
 
 ---
 
@@ -50,10 +54,10 @@ npm run lint    # ESLint (flat config, zero-warning gate)
 
 | Layer | Choice |
 |---|---|
-| Framework | React 19 + Vite 7 |
+| Framework | React 19 + Vite 6 |
 | Styling | CSS Modules (no Tailwind) |
 | Validation | Zod 3 |
-| Persistence | localStorage (local-first); optional Supabase cloud sync (Postgres + Realtime) |
+| Persistence | Supabase (Postgres + Realtime + magic-link auth) — cloud-first source of truth when signed in; localStorage as offline cache and standalone guest store |
 | Tests | Vitest 2 (jsdom env) |
 | Linting | ESLint 9 (flat config) |
 | Deploy | GitHub Pages via GitHub Actions |
@@ -79,49 +83,67 @@ The app uses the **Codex** design language: editorial-fantasy aesthetic with war
 
 ```
 src/
+  Router.jsx          # hash routes + auth/role gating (login, roster, gm, admin, play, share)
+  App.jsx             # wizard / sheet / Play Mode orchestration (mode + editSection)
+  auth/
+    AuthProvider.jsx, useAuth.js, authErrors.js   # magic-link session + roles (epic #109)
   components/
     steps/          # Step1Welcome … Step9Review, PlayMode
-    CharacterCard, StepIndicator, WizardNav, NotesPanel, Toast, ErrorBoundary, NumberInput
+    CharacterCard, StepIndicator, WizardNav, NotesPanel, Toast, ErrorBoundary, NumberInput,
+    CloudStatus, SyncBanner, DiceOverlay, LevelUpDialog, OnboardingTip, SpellSuggest, TablesManager
   pages/
-    RosterPage, GMScreen
+    RosterPage, GMScreen, LoginPage, AdminRoles
   hooks/
     useAutoSave, useCharacterManagement, usePlayMode, useNotesPanel, useToast, useTheme,
-    useCloudSync, useRealtimeCharacter
+    useCloudSync, useRealtimeCharacter, useCloudStatus, useFocusOnAdd
   utils/
-    characterSchema.js    # Zod schema + safeParseCharacter
+    characterSchema.js    # Zod schema + safeParseCharacter (incl. legacy migrations)
     characterDerived.js   # HP, Mana, Defense, XP, power totals
     defaultCharacter.js   # createDefaultCharacter()
+    characterRepo.js      # authed cloud-first repository (Supabase = source of truth)
     rosterStorage.js      # localStorage CRUD + version history
     rosterBackup.js       # whole-roster export / restore
     rosterSort.js         # roster sort + no-player partition
     urlState.js           # LZString #share=/#play= + #c= cloud links
     spellTarget.js        # Spell Matrix lookup (caster vs target)
     dice.js               # d100 core: rollTotal (skills/attacks) + resolveUnder (spells)
+    diceNotation.js, diceStage.js, diceSettings.js, diceSound.js  # 3D dice: landing values, tray bounds, prefs, sfx
     rollActions.js        # binds dice to the engine: rollSkill / rollAttack / rollSpell
     rollFormat.js         # pure roll-result banner formatting
     rollFeed.js           # shared live roll feed (broadcast + subscribe)
+    leveling.js           # level-up flow math + per-level skill-point baseline
+    skillPoints.js        # skill pool / cap tables (PHB pp.14-15)
+    spellcheck.js         # "Did you mean…?" skill & item name suggestions
+    tables.js             # GM tables registry (deriveRegistry, membership)
+    onboarding.js         # first-character guide state
+    cloudStatus.js        # sync-health state machine behind the badge/banner
     gmAdjust.js           # GM Screen counter clamps
     uuid.js               # secure-context-safe id generation
     numberInput.js        # numeric input coercion
     generateCharacterHTML.js  # standalone HTML export (with scan-to-play QR)
-    cloudSync.js          # Supabase push / hydrate / realtime + cloud links
-    supabaseClient.js     # Supabase client + cloudEnabled flag
+    cloudSync.js          # guest-plane Supabase push / hydrate / realtime + cloud links
+    supabaseClient.js     # Supabase client + cloudEnabled/authEnabled flags
     validation.js         # per-step validation rules
   data/
-    races.json, archetypes.json, armorTypes.json, xpTable.json
+    races.json, archetypes.json, armorTypes.json, xpTable.json, onboardingTips.jsx
     (spell matrix: the engine imports rules/data/spell-matrix.json directly — #245)
+rules/                # golden pages: PHB 2.8 chapters 00–20 + rules/data/*.json + FIDELITY-NOTES.md
+languages/            # constructed-language references (quindel.md — Quin'dhel naming primitives)
+scripts/
+  copy-dice-assets.mjs  # predev/prebuild: copies the 3D dice engine's assets into public/
 supabase/
-    migrations/0001_init.sql   # sealed characters table + capability-token RPCs
-    migrations/0002_auth_roles.sql        # authenticated plane: roles + RLS
-    migrations/0003_updated_at_trigger.sql # updated_at bump on every write (#253)
-    README.md                  # setup, keys, smoke test, security model
+  migrations/0001_init.sql   # sealed characters table + capability-token RPCs
+  migrations/0002_auth_roles.sql        # authenticated plane: roles + RLS
+  migrations/0003_updated_at_trigger.sql # updated_at bump on every write (#253)
+  README.md                  # setup, keys, smoke test, security model
+public/               # favicons + webmanifest, CNAME (custom domain), sfx/ (dice sounds)
 ```
 
 ---
 
 ## Game System Notes (Sidherun PHB 2.8.2026)
 
-> **Canonical rules now live in [`rules/`](rules/README.md)** ("golden pages") — the full PHB 2.8 as Markdown chapters plus machine-readable tables in `rules/data/*.json` (spell matrix, XP, movement, armor, difficulty ladder). The Word doc is now a generated artifact; rule changes go through PRs against `rules/`. Known source contradictions are logged in `rules/FIDELITY-NOTES.md` — five have been **resolved by ruling**: crit = natural 96-00 only; rating-8 armor max durability 160; XP L15 = 150001; red-zone matrix cells add no attribute (all 2026-07-09); and **attack bonus is non-stacking** — weapon skill OR governing attribute, never both, misc bonuses still add (§1.13, 2026-07-11, found by the onboarding rules audit). See FIDELITY-NOTES §7.
+> **Canonical rules now live in [`rules/`](rules/README.md)** ("golden pages") — the full PHB 2.8 as Markdown chapters plus machine-readable tables in `rules/data/*.json` (spell matrix, XP, movement, armor, difficulty ladder, combat-defense modifiers, constitution modification, skill pool allocation, skill usage bonus, specialty pool). Constructed-language references live in [`languages/`](languages/README.md) — `quindel.md` is the Quin'dhel naming primitives (#273/#274). The Word doc is retired — all PHB copies outside this repo are deprecated; rule changes go through PRs against `rules/`. Known source contradictions are logged in `rules/FIDELITY-NOTES.md` — five have been **resolved by ruling**: crit = natural 96-00 only; rating-8 armor max durability 160; XP L15 = 150001; red-zone matrix cells add no attribute (all 2026-07-09); and **attack bonus is non-stacking** — weapon skill OR governing attribute, never both, misc bonuses still add (§1.13, 2026-07-11, found by the onboarding rules audit). See FIDELITY-NOTES §7.
 
 - **Races** — the playable race list lives in `src/data/races.json`. 2026-07-18: **Eledhel → Quin'dhel** (`quindhel`) and **Glamredhel → Gla'mdroi** (`glamdroi`), part of the setting-wide removal of names borrowed from published fantasy IP; the Southern Shores rules chapter now uses **Starquay** (was Stardock) and the world's mountain range is formally **the Kaelorun Range** (was Spine of the World, which survives in narrative text as local parlance). The Zod schema migrates stored/imported characters on load — exact legacy ids plus free-text hybrids like `"Human / Eledhel"` — so existing rosters, play links, and cloud saves resolve unchanged.
 - **HP** = `BASE(raceType × size × age) + round((STR + END) / 2) + CON`
@@ -200,7 +222,8 @@ reloads the latest and tells the player, instead of losing an edit.
   file, so cloud access survives a browser wipe. **Reset link** rotates a token to
   revoke a shared link.
 - **Setup & cutover:** create a project, apply `supabase/migrations/0001_init.sql`,
-  set the three `VITE_*` repo Variables; flip `VITE_CLOUD_SYNC=on` to go live.
+  set `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and `VITE_CLOUD_SYNC=on` in the
+  repo Variables to go live.
 
 ## Multi-user accounts & roles (optional)
 
