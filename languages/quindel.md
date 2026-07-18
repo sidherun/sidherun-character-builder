@@ -230,6 +230,11 @@ All coinages follow §3 phonotactics; most derive from existing roots.
 
 **Verbs:** tol- come · run- walk, journey · vel- see, look · thir- feel · vor- say · quer- ask · meor- know, remember (one verb — for the Sidhe'dhel, knowledge is memory) · hal- hold, keep · tar- carry · don- set down, place · el- light, shine · vir- turn, change · sen- plant · seth- grow still (the elven verb for dying) · meth- rest · nar- need · ea (is/are), eir (was/were)
 
+**Phrasebook coinages (v2.2, 2026-07-18):** dar- halt, stay · haeldhel stranger ("far-kin") · quaen how many, how much (que + maen) · dhel promoted to a freestanding noun: kinsman, kin-friend (in Din'vor, simply a friend) · tem extended: balance; also peace, truce. First used in [`texts/phrasebook.md`](texts/phrasebook.md).
+
 ## 13. Texts
 
-Full Quin'lae texts live in [`texts/`](texts/), with interlinear gloss and English. First entry: [`texts/tem-wen.md`](texts/tem-wen.md) — **Tem'wen**, "The Equinox of Breath" told in Quin'lae (21 stanzas covering the full story).
+Full Quin'lae texts live in [`texts/`](texts/), with interlinear gloss and English.
+
+- [`texts/tem-wen.md`](texts/tem-wen.md) — **Tem'wen**, "The Equinox of Breath" told in Quin'lae (21 stanzas covering the full story).
+- [`texts/phrasebook.md`](texts/phrasebook.md) — the table phrasebook: 25 stock utterances for GM use, in both registers, with Gla'mdroi liaison variants.

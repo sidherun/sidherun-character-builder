@@ -20,6 +20,7 @@ Each language doc carries the primitives needed for go-forward naming: attested 
 | File | Text |
 |---|---|
 | [`texts/tem-wen.md`](texts/tem-wen.md) | **Tem'wen** — "The Equinox of Breath" told in Quin'lae, 21 stanzas with interlinear gloss |
+| [`texts/phrasebook.md`](texts/phrasebook.md) | **Table phrasebook** — 25 stock Quin'lae utterances for GM use, both registers, with Gla'mdroi variants |
 
 ## Candidates not yet documented
 
