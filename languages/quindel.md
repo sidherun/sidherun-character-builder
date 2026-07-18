@@ -10,6 +10,8 @@
 
 **v2.1 (2026-07-18).** The four grammar gaps from the Tem'wen test are closed: base-12 numerals (a dozen is a *sil*, "a moon"), object pronouns (fused an- forms), comparatives (-ar / eth' / ol), and subordinate clauses plus the qu- question set. Tem'wen stanzas 7 and 20 updated to use the new object forms.
 
+**v2.2 (2026-07-18).** Register ruling (Ed): Quin'lae has two registers — **Eth'vor** ("first-speech", the formal voice of Tem'wen) and **Din'vor** ("day-speech", everyday talk) — and the kindreds diverge in Din'vor: Quin'dhel speech stays near the formal register, Gla'mdroi speech clips particles and runs words together at the seams. Details at the end of §11. In ceremony the Sidhe'dhel remain one voice.
+
 Reference for generating Elven names in Sidherun. Derived from every attested elven-styled name in the Notion wiki (World Map, Southern Shores, session rosters) and the PHB. This is the go-forward standard: new elven names for places, people, artifacts, and festivals should be built from the tables below.
 
 **Canon change (v1.1, 2026-07-18):** the elf kindreds are renamed. High elves are **Quin'dhel** (retiring *Eledhel*); wild elves are **Gla'mdroi** (retiring *Glamredhel*). Both retired names were Raymond E. Feist coinages; the replacements are native formations, and the rename gives the language a second productive pattern (see §6, demonyms). The rename shipped to app data and the rules chapters in #270.
@@ -168,7 +170,8 @@ The Hul borrow the elven apostrophe to claim antiquity — a Hul name can wear e
 - **Nol'Hradadra: resolved (2026-07-18).** Reassigned to the Hul — a newer human culture (provisional name, after their Hul- settlements) that borrows the elven apostrophe to claim antiquity. Not a Quin'lae name. Open follow-up: give the Hul a real name and their own doc in `languages/`.
 - **Qaal'el: resolved (2026-07-18).** The Quin'lae name for Selinthræ; "trust Qaal'el's mercy" is an elven invocation of her. The qaal root keeps its "mercy, grace" gloss.
 - **Quin''tiel typo: fixed (2026-07-18)** on the Southern Shores Notion page (the Climate field now reads Quin'Tiel).
-- **Grammar gaps: closed (v2.1, 2026-07-18).** Numerals, object pronouns, comparatives, and subordinate clauses are now in §11. The one remaining style question: is there a plainer everyday register beneath the liturgical voice of the Tem'wen telling, and do the two kindreds speak differently? Undecided.
+- **Grammar gaps: closed (v2.1, 2026-07-18).** Numerals, object pronouns, comparatives, and subordinate clauses are now in §11.
+- **Register question: resolved (v2.2, 2026-07-18).** Ed's ruling: two registers (Eth'vor / Din'vor) with the kindred split carried by Din'vor — Quin'dhel conservative, Gla'mdroi clipped with liaison. See the end of §11.
 
 ## 11. Sentence grammar (v2.0)
 
@@ -206,7 +209,16 @@ Compounds: 13 = *sil ar min* (a moon and one), 24 = *dath silin* (two moons), 30
 
 **Comparatives (v2.1):** comparative suffix **-ar** (*hael* far → *haelar* farther, *maen* many → *maenar* more); superlative with the prefix **eth'** ("first-": *eth'hael* = farthest); "than" is the particle **ol**: *haelar ol quin* = farther than the grove.
 
-**Subordinate clauses (v2.1):** **quen** (if), **tas** (then), **osya** (because, "from-that"), **imya** (when, "in-that"), with **ya** continuing as the relative (who/which/that). *Quen tola sa, tas ela ni soril* = if she comes, then I light the candle. Questions: the particle **que** opens a yes/no question (*Que tolir sa?* = did she come?); the qu- interrogatives are **quath** (what), **quon** (who), **quor** (where), **quan** (when), **quosya** (why).
+**Subordinate clauses (v2.1):** **quen** (if), **tas** (then), **osya** (because, "from-that"), **imya** (when, "in-that"), with **ya** continuing as the relative (who/which/that). *Quen tola sa, tas ela ni soril* = if she comes, then I light the candle. Questions: the particle **que** opens a yes/no question (*Que tolir sa?* = did she come?); the qu- interrogatives are **quath** (what), **quon** (who), **quor** (where), **quan** (when), **quosya** (why). A qu- word stands first in its sentence and the verb follows it directly: *Quor runir sa?* = where did she walk?
+
+**Registers (v2.2):** Quin'lae has two registers. **Eth'vor** ("first-speech") is the formal voice — liturgy, oaths, diplomacy, and any telling of a story; all of Tem'wen is Eth'vor, and everything in §11 above describes it. **Din'vor** ("day-speech") is everyday talk, marked by four habits:
+
+1. **Topic fronting.** The subject may precede the verb (*Sa tolir* beside *Tolir sa*). Commands, questions, and blessings keep the verb first even in Din'vor.
+2. **Copula drop.** *ea/eir* vanishes when nothing is lost: *Thu hael os thu'quin* — "you're far from your grove" (Eth'vor: *Ea thu hael os thu'quin*).
+3. **o-elision.** The particle *o* "of" collapses into the apostrophe, the same seam as compounds: *ven'quin* for *ven o quin*, "the grove's edge". This is live syntax, so it does not create new canonical names (§4 still governs those).
+4. **Clipped particles.** *osya* → *sya* (because), *imya* → *mya* (when), and *que* drops entirely — a Din'vor yes/no question is bare rising speech: *Tolir sa?*
+
+**Kindred speech (v2.2):** both kindreds share Eth'vor unchanged; in ceremony the Sidhe'dhel are one voice. Din'vor is where they part. Quin'dhel day-speech is conservative — it drops the copula and little else, and humans who learn "Elvish" from Quin'dhel teachers come away sounding formal. Gla'mdroi day-speech clips hardest and adds **liaison**: words run together at the seams, written with the apostrophe — *ve'thu* for *veth thu* ("with you"), *A'thaleth* for *a Thaleth* (the fused vocative). The archaic liaison spellings on the map (Gla'mDroia, Qu'Droia, Al'l-AmaDroia) are this habit fossilized in old names — which is why those names cluster around Gla'mdroi country. Transcribed Gla'mdroi dialogue may coin liaisons freely; canonical place names still may not (§4, rule 3).
 
 ## 12. Extended lexicon from the Tem'wen test
 
