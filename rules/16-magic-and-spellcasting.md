@@ -11,7 +11,7 @@ Magic in Sidherun is controlled (as much as Magic is ever controlled) by the 'Aw
 
 The cost to use this type of energy differs by the character, based on their story. Some casters use books and magic gleaned from years of study in dusty old libraries, others have a trust in their god such they know they will have what they need, when they need it (as long as they remain faithful). For each type of caster, there are specific rules that define how they do what they do. As the magic 'system' in Sidherun is based on an attunement to a greater energy, with varied ways to attune, the GM and player defined the rules for that particular character, based on the story told at the beginning.
 
-There are many examples we will walk through, based on diverse types of practitioners that have lived their lives in the Druidshome, Southern Shores, Obilish, Spine of the World, and many of the other places around Sidherun.
+There are many examples we will walk through, based on diverse types of practitioners that have lived their lives in the Druidshome, Southern Shores, Obilish, the Kaelorun Range, and many of the other places around Sidherun.
 
 From a base 'system' perspective, see the section(s) 'Spell System' and 'Powers' for more information and details. Remember, though, there are more ways to manipulate the knit of the universe than are currently (or have ever been) known, and it's up to each character to move towards discovery via curiosity, creativity, and wonder.
 

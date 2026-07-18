@@ -8,8 +8,8 @@
     "description": "Versatile and adaptable, Humans form the backbone of the Southern Shores. Capable across all disciplines."
   },
   {
-    "id": "glamredhel",
-    "name": "Glamredhel",
+    "id": "glamdroi",
+    "name": "Gla'mdroi",
     "raceType": "healthy",
     "raceValue": 20,
     "defaultSize": "medium",
@@ -24,8 +24,8 @@
     "description": "A proud and ancient people with ties to the sky and open plains."
   },
   {
-    "id": "eledhel",
-    "name": "Eledhel",
+    "id": "quindhel",
+    "name": "Quin'dhel",
     "raceType": "slight",
     "raceValue": 15,
     "defaultSize": "medium",
