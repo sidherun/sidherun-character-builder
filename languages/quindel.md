@@ -8,6 +8,8 @@
 
 **v2.0 (2026-07-18).** Sentence grammar added (§11–§12) after stress-testing the primitives against the World Story "The Equinox of Breath": **VSO word order confirmed**, pronouns/tenses/particles defined, ~45 roots added, and the first full Quin'lae text lives at [`texts/tem-wen.md`](texts/tem-wen.md). **Ver'ama** (Vælloria) and **Mor'el** (Morvathun) are canon Quin'lae divine names.
 
+**v2.1 (2026-07-18).** The four grammar gaps from the Tem'wen test are closed: base-12 numerals (a dozen is a *sil*, "a moon"), object pronouns (fused an- forms), comparatives (-ar / eth' / ol), and subordinate clauses plus the qu- question set. Tem'wen stanzas 7 and 20 updated to use the new object forms.
+
 Reference for generating Elven names in Sidherun. Derived from every attested elven-styled name in the Notion wiki (World Map, Southern Shores, session rosters) and the PHB. This is the go-forward standard: new elven names for places, people, artifacts, and festivals should be built from the tables below.
 
 **Canon change (v1.1, 2026-07-18):** the elf kindreds are renamed. High elves are **Quin'dhel** (retiring *Eledhel*); wild elves are **Gla'mdroi** (retiring *Glamredhel*). Both retired names were Raymond E. Feist coinages; the replacements are native formations, and the rename gives the language a second productive pattern (see §6, demonyms). The rename shipped to app data and the rules chapters in #270.
@@ -166,7 +168,7 @@ The Hul borrow the elven apostrophe to claim antiquity — a Hul name can wear e
 - **Nol'Hradadra: resolved (2026-07-18).** Reassigned to the Hul — a newer human culture (provisional name, after their Hul- settlements) that borrows the elven apostrophe to claim antiquity. Not a Quin'lae name. Open follow-up: give the Hul a real name and their own doc in `languages/`.
 - **Qaal'el: resolved (2026-07-18).** The Quin'lae name for Selinthræ; "trust Qaal'el's mercy" is an elven invocation of her. The qaal root keeps its "mercy, grace" gloss.
 - **Quin''tiel typo: fixed (2026-07-18)** on the Southern Shores Notion page (the Climate field now reads Quin'Tiel).
-- **Grammar gaps (open, found in the Tem'wen test):** numerals above three, comparatives, object pronoun forms (the double-pronoun "velir sa sa" is clumsy), and complex subordinate clauses are undesigned.
+- **Grammar gaps: closed (v2.1, 2026-07-18).** Numerals, object pronouns, comparatives, and subordinate clauses are now in §11. The one remaining style question: is there a plainer everyday register beneath the liturgical voice of the Tem'wen telling, and do the two kindreds speak differently? Undecided.
 
 ## 11. Sentence grammar (v2.0)
 
@@ -175,6 +177,8 @@ Added after translating "The Equinox of Breath" into Quin'lae (`texts/tem-wen.md
 **Word order: Verb–Subject–Object (VSO).** The verb comes first in every sentence: *Elir Caelindra soril* ("Lit Caelindra the-candle"). Adjectives and participles follow their noun (*thalin veren* = living trees) — the reverse of lexical compounds, where the modifier comes first (*Ver'laeor*). The crib for improvising at the table: say the action first.
 
 **Pronouns:** ni (I), thu (you), sa (he/she/it — no gender). Plurals take the noun plural suffix: nin (we), thun (you all), sain (they). Possession binds with the apostrophe, same as compounds: *sa'quin* = her grove, *ni'ama* = my elder.
+
+**Object pronouns (v2.1):** fuse the particle an- onto the pronoun — anni (me), anthu (you), ansa (him/her/it); plurals annin, anthun, ansain. *Velir sa ansa* = she saw her (fixing the old double-pronoun "velir sa sa"). Nouns need no object marking — VSO position carries it.
 
 **Verbs:** root + tense vowel. No articles; no gender.
 
@@ -192,7 +196,17 @@ Added after translating "The Equinox of Breath" into Quin'lae (`texts/tem-wen.md
 
 **Derivation suffixes:** agent **-or** (laeor singer, sylor weaver, halor keeper); diminutive **-il** (soril candle "little flame", veril flower "little growth", tielil window "little gate"); plural **-in** after a consonant, **-n** after a vowel — applies to nouns and pronouns alike.
 
-**Numbers (started):** min 1, dath 2, nel 3. The rest are undesigned (§10).
+**Numbers (v2.1 — base-12):** the elves count in twelves; a dozen is a **sil**, "a moon", because a year (*sorun*) holds twelve moons. A month is likewise a *sil*.
+
+| 1 min | 2 dath | 3 nel | 4 sar | 5 lem | 6 wes |
+|---|---|---|---|---|---|
+| **7 oth** | **8 dol** | **9 yan** | **10 maeth** | **11 mael** | **12 sil** |
+
+Compounds: 13 = *sil ar min* (a moon and one), 24 = *dath silin* (two moons), 30 = *dath silin ar wes*, 144 = **silsil** ("a moon of moons"). Ordinals take -eth: *eth* first (irregular, from the root), *datheth* second, *neleth* third.
+
+**Comparatives (v2.1):** comparative suffix **-ar** (*hael* far → *haelar* farther, *maen* many → *maenar* more); superlative with the prefix **eth'** ("first-": *eth'hael* = farthest); "than" is the particle **ol**: *haelar ol quin* = farther than the grove.
+
+**Subordinate clauses (v2.1):** **quen** (if), **tas** (then), **osya** (because, "from-that"), **imya** (when, "in-that"), with **ya** continuing as the relative (who/which/that). *Quen tola sa, tas ela ni soril* = if she comes, then I light the candle. Questions: the particle **que** opens a yes/no question (*Que tolir sa?* = did she come?); the qu- interrogatives are **quath** (what), **quon** (who), **quor** (where), **quan** (when), **quosya** (why).
 
 ## 12. Extended lexicon from the Tem'wen test
 

@@ -2,7 +2,7 @@
 
 <!-- source: translated from the World Story "The Equinox of Breath" (Sidherun Notion, World Stories); first Quin'lae text, 2026-07-18 -->
 
-The first full text in Quin'lae, translated from the World Story "The Equinox of Breath" as a compressed elven telling — every story beat, not every English sentence. Grammar and lexicon per [`../quindel.md`](../quindel.md) §11–§12 (VSO word order, v2.0).
+The first full text in Quin'lae, translated from the World Story "The Equinox of Breath" as a compressed elven telling — every story beat, not every English sentence. Grammar and lexicon per [`../quindel.md`](../quindel.md) §11–§12 (VSO word order; stanzas 7 and 20 use the v2.1 object pronouns).
 
 Format per stanza: Quin'lae, then word-by-word gloss, then plain English.
 
@@ -32,8 +32,8 @@ Format per stanza: Quin'lae, then word-by-word gloss, then plain English.
    lit she little-flame(candle) · turned the-flame, and not was wind
    She lit the candle. The flame wavered, though there was no wind.
 
-7. **Thirir sa Ver'ama enu velir sa sa: lath o don ar laen, ar verilin nim ya verir, nuverir, ar verir anu.**
-   felt she Life-Mother before saw she her: scent of earth and water, and flowers white that bloomed, faded, and bloomed again
+7. **Thirir sa Ver'ama enu velir sa ansa: lath o don ar laen, ar verilin nim ya verir, nuverir, ar verir anu.**
+   felt she Life-Mother before saw she her(obj) · scent of earth and water, and flowers white that bloomed, faded, and bloomed again
    She felt Vælloria before she saw her: the scent of soil and rain, and white flowers that bloomed, faded, and bloomed again.
 
 8. **Nu tolir elan; verir sa, sylen os ver o quin.**
@@ -84,8 +84,8 @@ Format per stanza: Quin'lae, then word-by-word gloss, then plain English.
     grew-still Light-Keeper after three days, on morning of Breath-Balance, with little-gate(window) open and scent of grove
     The Lumen-Keeper died three days later, on the morning of the Equinox, her window open to the scent of the grove.
 
-20. **Verir verilin nim im sa'don. Verir, nuverir, ar verir anu. Nu senir min sain.**
-    bloomed flowers white at her-place · bloomed, faded, and bloomed again · not planted anyone them
+20. **Verir verilin nim im sa'don. Verir, nuverir, ar verir anu. Nu senir min ansain.**
+    bloomed flowers white at her-place · bloomed, faded, and bloomed again · not planted anyone them(obj)
     White flowers bloomed at her bedside. They bloomed, faded, and bloomed again. No one had planted them.
 
 21. **Im virun aia, dona laeorin o elanin dath davenin im tielin: sen im don o mor. Hala sain seth.**
