@@ -2,7 +2,7 @@
 
 <!-- source: derived from the Sidherun Notion (World Map, Southern Shores — An Overview, Grandanto's Folly session rosters) and the PHB; authored 2026-07-18 -->
 
-**v1.2 (2026-07-18).** This golden page is the canonical copy of the Quin'dhel language reference. The Notion page "Quin'dhel Language Primitives" is a derived mirror, and edits happen here first, via PR like any other rules change.
+**v1.3 (2026-07-18).** This file (`languages/quindel.md`) is the canonical copy of the Quin'dhel language reference; it moved here from `rules/21-quindel-language.md` when the `languages/` directory was created. The Notion page "Quin'dhel Language Primitives" is a derived mirror, and edits happen here first, via PR like any other canon change.
 
 Reference for generating Elven names in Sidherun. Derived from every attested elven-styled name in the Notion wiki (World Map, Southern Shores, session rosters) and the PHB. This is the go-forward standard: new elven names for places, people, artifacts, and festivals should be built from the tables below.
 
