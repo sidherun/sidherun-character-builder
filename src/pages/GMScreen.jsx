@@ -192,7 +192,9 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
       trackPush(patchLive(next._rosterId, next)).catch(() => {})
     } else {
       saveCharacterToRoster(next)
-      if (cloudEnabled) trackPush(syncCharacter(next)).catch(() => {})
+      if (cloudEnabled && getCloudMap()[next._rosterId]) {
+        trackPush(syncCharacter(next)).catch(() => {})
+      }
     }
   }
 
