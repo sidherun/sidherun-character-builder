@@ -17,7 +17,14 @@ vi.mock('./supabaseClient.js', () => {
       insert(p) { h.op = 'insert'; h.payload = p; return b },
       update(p) { h.op = 'update'; h.payload = p; return b },
       delete() { h.op = 'delete'; return b },
-      then(res, rej) { return Promise.resolve(h.result).then(res, rej) },
+      // Per-query results: when h.results is a non-empty queue, each awaited
+      // query consumes the next entry (so a create-or-update flow can return a
+      // different row for its lookup vs. its write); otherwise fall back to the
+      // single shared h.result.
+      then(res, rej) {
+        const next = (h.results && h.results.length) ? h.results.shift() : h.result
+        return Promise.resolve(next).then(res, rej)
+      },
     }
     return b
   }
@@ -38,7 +45,7 @@ vi.mock('./supabaseClient.js', () => {
 
 import {
   repoEnabled, listCharacters, getCharacter, createCharacter, saveCharacterData,
-  patchLive, assignPlayer, deleteCharacter, listPlayers, reconcile,
+  upsertCharacter, patchLive, assignPlayer, deleteCharacter, listPlayers, reconcile,
   subscribeLive, removeLiveSubscription,
 } from './characterRepo.js'
 
@@ -56,6 +63,7 @@ const row = (over = {}) => ({
 
 beforeEach(() => {
   h.result = { data: null, error: null }
+  h.results = null
   h.table = h.op = h.payload = h.rpc = null
   h.eqs = []
   h.sends = []
@@ -136,6 +144,41 @@ describe('saveCharacterData', () => {
     h.result = { data: row({ data_rev: 3 }), error: null }
     const c = await saveCharacterData('c1', { name: 'Hero' })
     expect(c._dataRev).toBe(3)
+  })
+})
+
+// The #127 dedup guard: an explicit save must UPDATE an existing cloud row,
+// never INSERT a second one, even when the working character is a stale
+// localStorage 'current' draft that lost its _ownerUserId marker.
+describe('upsertCharacter (create-vs-update keyed on row existence, #127)', () => {
+  it('updates in place when a cloud row already exists for the _rosterId', async () => {
+    // getCharacter lookup finds the row → write takes the update branch. The
+    // stale draft has NO _ownerUserId, proving we key on existence, not the marker.
+    h.results = [{ data: row(), error: null }, { data: row(), error: null }]
+    const c = await upsertCharacter({ name: 'Hero', _rosterId: 'c1' })
+    expect(h.op).toBe('update')          // updated, not inserted → no duplicate
+    expect(c._rosterId).toBe('c1')
+  })
+
+  it('creates when the _rosterId has no matching cloud row (fresh local draft)', async () => {
+    // Lookup misses (null) → insert. A local uuid that was never pushed to cloud.
+    h.results = [{ data: null, error: null }, { data: row(), error: null }]
+    const c = await upsertCharacter({ name: 'Hero', _rosterId: 'local-x' })
+    expect(h.op).toBe('insert')
+    expect(c._rosterId).toBe('c1')
+  })
+
+  it('creates without a lookup when there is no _rosterId at all', async () => {
+    h.results = [{ data: row(), error: null }] // single query: the insert
+    const c = await upsertCharacter({ name: 'Hero' })
+    expect(h.op).toBe('insert')
+    expect(c._rosterId).toBe('c1')
+  })
+
+  it('propagates a lookup error instead of falling through to create (no dup on a transient failure)', async () => {
+    h.result = { data: null, error: new Error('network') }
+    await expect(upsertCharacter({ name: 'Hero', _rosterId: 'c1' })).rejects.toThrow('network')
+    expect(h.op).toBeNull() // never reached a write
   })
 })
 

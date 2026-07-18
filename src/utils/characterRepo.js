@@ -94,6 +94,23 @@ export async function createCharacter(character, { ownerUserId } = {}) {
   return rowToCharacter(data)
 }
 
+// Create-or-update keyed by whether a cloud row already EXISTS for this
+// character's _rosterId — not by the presence of the _ownerUserId marker. A
+// stale localStorage 'current' draft can carry a _rosterId that already matches
+// a cloud row while missing _ownerUserId (#127); keying create-vs-update on
+// ownership alone would insert a DUPLICATE on an explicit save. getCharacter is
+// RLS-scoped, so it reports the row only when the signed-in user may write it.
+// A lookup error propagates (we do NOT fall through to create) so a transient
+// failure can never mint a duplicate — the caller saves locally and retries.
+export async function upsertCharacter(character, { ownerUserId } = {}) {
+  if (!repoEnabled()) return null
+  if (character._rosterId) {
+    const existing = await getCharacter(character._rosterId)
+    if (existing) return saveCharacterData(character._rosterId, character)
+  }
+  return createCharacter(character, { ownerUserId })
+}
+
 // Replace the full character blob (wizard/structural edits). Optimistic
 // concurrency (#146): pass `expectedRev` (the data_rev the caller last saw) to
 // guard the write — the update only lands if the row is still at that rev, and
