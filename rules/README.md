@@ -10,7 +10,7 @@ This directory is the **source of truth** for the Sidherun Player's Handbook (PH
 ## What "golden pages" means here
 
 - The original `.docx` is now a **generated artifact**, not a source. If anyone needs a Word/PDF copy for printing or sharing outside the repo, it should be *rendered from* these Markdown files, not edited independently and re-imported. Any future edit to the rules happens here first.
-- Every chapter file (`00-overview.md` … `20-world-southern-shores.md`) starts with an H1 title and a one-line provenance comment:
+- Every chapter file (`00-overview.md` … `21-quindel-language.md`) starts with an H1 title and a one-line provenance comment:
   ```
   <!-- source: Sidherun PHB 2_8_2026.docx -->
   ```
@@ -66,6 +66,7 @@ These JSON files are meant to be consumed by two things:
 | `18-spell-damage-and-healing.md` | Spell damage/healing math |
 | `19-mana.md` | Mana resource |
 | `20-world-southern-shores.md` | Southern Shores setting lore |
+| `21-quindel-language.md` | Quin'dhel (Elven) language primitives — phonology, morphemes, and name-generation rules for go-forward naming (derived from Notion world content rather than the PHB docx) |
 
 See `FIDELITY-NOTES.md` for the full source-section-to-chapter-file coverage map, and `VERSION` for the current rules version.
 
@@ -73,7 +74,7 @@ See `FIDELITY-NOTES.md` for the full source-section-to-chapter-file coverage map
 
 Deliberately deferred (2026-07-09) while rules changes are still landing — regenerate on demand after any material `rules/` merge. Recipe:
 
-1. **Assemble the book:** concatenate the chapter files in numeric order (`00-overview.md` → `20-world-southern-shores.md`; skip `flavor/` or append it as a closing section). Prepend a cover block: title, `rules/VERSION`, "rulings as of" date (last `FIDELITY-NOTES.md` ruling), and a generated table of contents.
+1. **Assemble the book:** concatenate the chapter files in numeric order (`00-overview.md` → `21-quindel-language.md`; skip `flavor/` or append it as a closing section). Prepend a cover block: title, `rules/VERSION`, "rulings as of" date (last `FIDELITY-NOTES.md` ruling), and a generated table of contents.
 2. **Render the data appendix:** the prose chapters intentionally do NOT inline the big grids. Generate appendix pages from `rules/data/`: the full 20×20 spell matrix **with color zones** (from `spell-matrix.json` — red cells are rules-bearing: no attribute added, per the 2026-07-09 ruling), plus the XP, movement, armor, and difficulty-ladder tables.
 3. **Produce the PDF** from the assembled Markdown (e.g. the `/make-pdf` skill or pandoc/typst). One character sheet of a page-break discipline: each chapter starts on a new page.
 4. **Retire the source docx** the first time this ships: rename `~/Code/Sidherun/Sidherun PHB 2_8_2026.docx` → `SUPERSEDED-...` (or move to an archive folder) so the dead copy can't be edited by accident.
