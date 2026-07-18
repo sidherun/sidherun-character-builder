@@ -147,7 +147,7 @@ Ready-made examples:
 ## 10. Open items
 
 - **Provenance: resolved.** With Eledhel and Glamredhel retired, no load-bearing Feist coinage remains in elven canon. #270 also renamed Stardock → Starquay and Spine of the World → **Kaelorun Range** (formal name; "the Spine" survives as the colloquial). Rillanon survives only as a blank legacy PC page.
-- **Rename touch-points: shipped in #270.** `races.json` ids are `quindhel` / `glamdroi`, a `normalizeLegacyRace` transform migrates stored and imported characters (with regression tests), and rules chapters 05/16/18/20 carry the new names, including **the Quin'dhel Deep**. The PHB docx is a generated artifact per `rules/README.md` — it picks up the renames on the next render from these golden pages.
+- **Rename touch-points: shipped in #270.** `races.json` ids are `quindhel` / `glamdroi`, a `normalizeLegacyRace` transform migrates stored and imported characters (with regression tests), and rules chapters 05/16/18/20 carry the new names, including **the Quin'dhel Deep**. The PHB docx is deprecated (all PHB copies outside these golden pages are dead as of 2026-07-18); any future print handout renders from `rules/` and picks up the renames automatically.
 - Bella D'Antonia's roster line reads Human/Quin'dhel — as of v1.1 that means half *high* elf specifically.
 - **Nol'Hradadra** breaks elven phonotactics (hr- onset, stacked heavy syllables, desert location). Options: reassign it to another culture, or canonize it as a Quin'lae adaptation of a foreign name. Undecided.
 - **Qaal'el** appears once, in a PHB example. Decide whether it stands alone or aliases an existing deity.
