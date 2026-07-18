@@ -4,3 +4,6 @@ dist/
 *.local
 .gstack/
 public/dice3d/
+# Roster "Back up all" exports carry the GM key + cloud map and player names —
+# never publishable. Keep exports in ~/Code/Sidherun, not the repo.
+sidherun-roster-*.json
