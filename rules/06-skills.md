@@ -31,7 +31,7 @@ Sidherun is a game which can be applied to various genres of role-playing games 
 *Skills* work off a character's base attribute for the 'thing the character is trying to do'. This determination is made during character creation, and may be based on the 'type of thing' your character wants to do, along with any story-based influences
 
 - Example(s):
-  - Ingrid is lost and by herself in the Wildes at the base of the Spine of the World mountains, deep in Vale Dwarf country. She hasn't eaten in days, and the early Spring days haven't yet revealed any game to hunt. Ingrid wants to use her herbalism skill (created during character creation) to find edible plants, but her rolls have failed her thus far. Let's see how that roll would work:
+  - Ingrid is lost and by herself in the Wildes at the base of the Kaelorun Range, deep in Vale Dwarf country. She hasn't eaten in days, and the early Spring days haven't yet revealed any game to hunt. Ingrid wants to use her herbalism skill (created during character creation) to find edible plants, but her rolls have failed her thus far. Let's see how that roll would work:
     - Ingrid has an herbalism skill based on her Intellect Attribute (16)
     - Ingrid's been able to work on her herbalism skill during her various adventures and has allocated 15 points to this skill, bringing the total herbalism score to 31 (16(Int) + 15(Skill))
     - The GM has assigned a difficulty to this check of 85 (a very hard roll for a low-level character to overcome, but appropriate to the story and the difficulty of what Ingrid is trying to do. Ingrid has rolled each day of her search:
