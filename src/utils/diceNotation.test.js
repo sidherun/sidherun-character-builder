@@ -39,6 +39,9 @@ describe('primaryRoll / rollToDiceSpec', () => {
     expect(primaryRoll({ kind: 'damage', rolls: [6], dice: '1d8' })).toBeNull()
     expect(rollToDiceSpec({ kind: 'damage', rolls: [6], dice: '1d8' })).toBeNull()
   })
+  it('does not send d10 initiative to the percentile tray', () => {
+    expect(rollToDiceSpec({ kind: 'initiative', roll: 7, total: 19 })).toBeNull()
+  })
   it('animates a fumble by its low die', () => {
     expect(primaryRoll({ kind: 'total', rolls: [3], isFumble: true, fumble: 43 })).toBe(3)
   })

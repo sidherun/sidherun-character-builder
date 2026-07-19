@@ -117,4 +117,18 @@ describe('PlayMode double-roll guard (#218/#222)', () => {
     expect(onRoll).toHaveBeenCalledTimes(2)
     expect(onRoll.mock.calls[1][0]).toMatchObject({ kind: 'damage', label: 'Quarterstaff damage', dice: '1d6', bonus: 2, damageType: 'blunt' })
   })
+
+  it('broadcasts explicit d10 + AGI initiative with stable roster identity', async () => {
+    const onRoll = vi.fn()
+    await act(async () => {
+      root.render(<PlayMode character={character()} onUpdate={() => {}} onExit={() => {}} onToggleNotes={() => {}} onRoll={onRoll} />)
+    })
+    const initiative = [...container.querySelectorAll('button')].find(b => b.textContent.trim() === 'Roll initiative')
+    await act(async () => { initiative.click() })
+    expect(onRoll).toHaveBeenCalledTimes(1)
+    expect(onRoll.mock.calls[0][0]).toMatchObject({
+      kind: 'initiative', label: 'Initiative', modifier: 9, rosterId: 'r-dulu', actor: 'Dulu Breac',
+    })
+    expect(onRoll.mock.calls[0][0].total).toBe(onRoll.mock.calls[0][0].roll + 9)
+  })
 })

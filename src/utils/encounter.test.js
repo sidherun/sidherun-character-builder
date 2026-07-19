@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   startEncounter, addNpc, removeCombatant, setInitiative, rollInitiative,
+  rollCharacterInitiative, applyInitiativeRoll,
   orderedCombatants, advanceTurn, adjustNpcHp, applyNpcDamage,
   loadEncounter, saveEncounter,
 } from './encounter.js'
@@ -44,6 +45,22 @@ describe('encounter model (#239)', () => {
     encounter = { ...encounter, currentId: 'pc:b' }
     expect(advanceTurn(encounter).currentId).toBe('pc:a')
     expect(advanceTurn(advanceTurn(encounter)).currentId).toBe('pc:b')
+  })
+
+  it('creates a player initiative payload from d10 + current AGI', () => {
+    expect(rollCharacterInitiative(pc('a', 'Ada', 12), () => 0.5)).toEqual({ roll: 6, modifier: 12, total: 18 })
+  })
+
+  it('applies and replaces matched player initiative while ignoring unrelated rolls', () => {
+    let encounter = startEncounter([pc('a', 'Ada', 12), pc('b', 'Bram', 9)])
+    encounter = applyInitiativeRoll(encounter, { kind: 'initiative', rosterId: 'a', total: 18 })
+    expect(encounter.combatants.find(c => c.rosterId === 'a').initiative).toBe(18)
+    encounter = applyInitiativeRoll(encounter, { kind: 'initiative', rosterId: 'a', total: 25 })
+    expect(orderedCombatants(encounter.combatants)[0].rosterId).toBe('a')
+
+    const unchanged = encounter
+    expect(applyInitiativeRoll(encounter, { kind: 'total', rosterId: 'b', total: 99 })).toBe(unchanged)
+    expect(applyInitiativeRoll(encounter, { kind: 'initiative', rosterId: 'other-table', total: 99 })).toBe(unchanged)
   })
 
   it('tracks raw NPC HP adjustments and armor-aware incoming damage', () => {

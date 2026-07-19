@@ -88,3 +88,11 @@ describe('formatRoll — weapon damage', () => {
       .toBe('flat damage + 8')
   })
 })
+
+describe('formatRoll — initiative', () => {
+  it('shows d10 + AGI without applying a GM difficulty target', () => {
+    expect(formatRoll({ kind: 'initiative', roll: 7, modifier: 12, total: 19, gmTarget: 75 })).toEqual({
+      color: 'var(--bronze)', headline: '19', detail: 'd10 7 + 12',
+    })
+  })
+})

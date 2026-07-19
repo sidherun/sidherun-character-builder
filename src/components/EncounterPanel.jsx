@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { uuid } from '../utils/uuid.js'
 import {
   emptyEncounter, startEncounter, addNpc, removeCombatant, setInitiative,
-  rollInitiative, orderedCombatants, advanceTurn, adjustNpcHp, applyNpcDamage,
+  rollInitiative, applyInitiativeRoll, orderedCombatants, advanceTurn, adjustNpcHp, applyNpcDamage,
   loadEncounter, saveEncounter,
 } from '../utils/encounter.js'
 import styles from './EncounterPanel.module.css'
@@ -53,13 +53,16 @@ function HpControls({ name, current, total, onAdjust, onDamage }) {
   )
 }
 
-export default function EncounterPanel({ characters, seedCharacters, onAdjustPc, onActiveChange }) {
+export default function EncounterPanel({ characters, seedCharacters, onAdjustPc, onActiveChange, initiativeRoll }) {
   const [encounter, setEncounter] = useState(loadEncounter)
   const [showNpcForm, setShowNpcForm] = useState(false)
   const [npcDraft, setNpcDraft] = useState(blankNpc)
 
   useEffect(() => { saveEncounter(encounter) }, [encounter])
   useEffect(() => { onActiveChange?.(encounter.active) }, [encounter.active, onActiveChange])
+  useEffect(() => {
+    if (initiativeRoll) setEncounter(prev => applyInitiativeRoll(prev, initiativeRoll))
+  }, [initiativeRoll])
 
   if (!encounter.active) {
     return (

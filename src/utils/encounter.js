@@ -71,6 +71,20 @@ export function rollInitiative(encounter, id, rng = Math.random) {
   return setInitiative(encounter, id, roll + (combatant.initiativeBonus || 0))
 }
 
+export function rollCharacterInitiative(character, rng = Math.random) {
+  const roll = Math.min(10, Math.max(1, Math.floor(rng() * 10) + 1))
+  const modifier = attributeTotal(character?.attributes?.agility)
+  return { roll, modifier, total: roll + modifier }
+}
+
+export function applyInitiativeRoll(encounter, entry) {
+  if (!encounter.active || entry?.kind !== 'initiative' || !entry.rosterId || !Number.isFinite(entry.total)) {
+    return encounter
+  }
+  const combatant = encounter.combatants.find(c => c.type === 'pc' && c.rosterId === entry.rosterId)
+  return combatant ? setInitiative(encounter, combatant.id, entry.total) : encounter
+}
+
 export function orderedCombatants(combatants) {
   return [...combatants].sort((a, b) => {
     if (a.initiative == null && b.initiative != null) return 1

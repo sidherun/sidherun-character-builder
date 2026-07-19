@@ -327,6 +327,20 @@
   gap: 4px;
 }
 
+.initiativeBtn {
+  float: right;
+  padding: 4px 7px;
+  border: 1px solid var(--bronze);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--bronze);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.initiativeBtn:hover:not(:disabled) { background: var(--ghost-hover); }
+
 .attrItem {
   display: flex;
   justify-content: space-between;

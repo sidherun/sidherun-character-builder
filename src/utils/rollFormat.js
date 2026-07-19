@@ -9,6 +9,14 @@
 // rolled again). Spells resolve pass/fail against the computed target, or flag
 // an out-of-range target level.
 export function formatRoll(roll) {
+  if (roll.kind === 'initiative') {
+    return {
+      color: 'var(--bronze)',
+      headline: String(roll.total),
+      detail: `d10 ${roll.roll} + ${roll.modifier}`,
+    }
+  }
+
   if (roll.kind === 'damage') {
     const dice = roll.dice
       ? `${roll.dice} [${(roll.rolls || []).join(', ')}]`
