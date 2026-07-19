@@ -5,6 +5,10 @@
 **Live tracker = GitHub issues** (`gh issue list`). This file is now just the
 shipped-history log; open/planned work lives in issues, not here.
 
+**Append-only:** each PR adds its own row to the shipped table, in that same PR.
+Never rewrite or reorganize this file — session working notes belong in the PR
+or issue (see `AGENTS.md` § Multi-agent coordination).
+
 ## Legend
 - [ ] not started · [~] in progress · [x] done · [!] blocked
 
