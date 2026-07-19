@@ -12,6 +12,8 @@
 
 **v2.2 (2026-07-18).** Register ruling (Ed): Quin'lae has two registers — **Eth'vor** ("first-speech", the formal voice of Tem'wen) and **Din'vor** ("day-speech", everyday talk) — and the kindreds diverge in Din'vor: Quin'dhel speech stays near the formal register, Gla'mdroi speech clips particles and runs words together at the seams. Details at the end of §11. In ceremony the Sidhe'dhel remain one voice.
 
+**v2.3 (2026-07-18).** Second text: [`texts/malgrath-threl.md`](texts/malgrath-threl.md) — **Malgrath'threl**, "The Scar Malgrath Carries" — stress-testing the v2.1 numerals and the loan conventions. **Ith'ver** (Roughnira, "the Deep Green") and **Seth'wen** (Serakhala, "the Still Wind") are canon Quin'lae divine names; foreign proper names stay unadapted in Quin'lae text, and *khel* "iron" enters as the language's one k-bearing word, a marked Dûrakhar loan.
+
 Reference for generating Elven names in Sidherun. Derived from every attested elven-styled name in the Notion wiki (World Map, Southern Shores, session rosters) and the PHB. This is the go-forward standard: new elven names for places, people, artifacts, and festivals should be built from the tables below.
 
 **Canon change (v1.1, 2026-07-18):** the elf kindreds are renamed. High elves are **Quin'dhel** (retiring *Eledhel*); wild elves are **Gla'mdroi** (retiring *Glamredhel*). Both retired names were Raymond E. Feist coinages; the replacements are native formations, and the rename gives the language a second productive pattern (see §6, demonyms). The rename shipped to app data and the rules chapters in #270.
@@ -132,6 +134,10 @@ Adopted as canon 2026-07-18:
 | El'sae | Lightwells | The Lumen Wells |
 | Ver'laeor | Life-Singer | Pulse-Singer (Order of the Verdant Pulse rank) |
 | El'halor | Light-Keeper | Lumen-Keeper (Order of the Verdant Pulse rank) |
+| Ith'ver | The Deep Green | The Quin'lae name for Roughnira (canonized 2026-07-18) |
+| Seth'wen | The Still Wind | The Quin'lae name for Serakhala, the Stillness (canonized 2026-07-18) |
+| Run'thrin | The Thorn-Road | The Thorned Path, Roughnira's order |
+| Malgrath'threl | Malgrath's Mark | "The Scar Malgrath Carries" — the second Quin'lae text |
 
 ## 8. Generation recipe
 
@@ -232,9 +238,17 @@ All coinages follow §3 phonotactics; most derive from existing roots.
 
 **Phrasebook coinages (v2.2, 2026-07-18):** dar- halt, stay · haeldhel stranger ("far-kin") · quaen how many, how much (que + maen) · dhel promoted to a freestanding noun: kinsman, kin-friend (in Din'vor, simply a friend) · tem extended: balance; also peace, truce. First used in [`texts/phrasebook.md`](texts/phrasebook.md).
 
+**Malgrath'threl coinages (v2.3, 2026-07-18):** first used in [`texts/malgrath-threl.md`](texts/malgrath-threl.md).
+
+- *New roots:* drion wolf · threl scar, mark (also the verb threl- to mark) · vath blood · nor bone · slaen vine · thrin thorn (a common noun, native thr- formation).
+- *Derivations:* velil eye ("little seer") · taril hand ("little carrier") · wenil feather ("little wind") · orinil shard ("little stone") · velor witness ("seer") · haldon cage ("hold-place") · dav- give (daven "gift" re-parsed as its participle) · nuvel- forsake, look away from (the nu- antonym of vel-) · nim extended: white, snow; also cold · soren warm (participle of a flame) · wen glosses both wind and breath (as Tem'wen always implied).
+- *Compounds:* ith'don vault ("deep-place") · el'hal crown ("light-hold") · sor'vor oath-fire ("word-flame") · Vel'orin the Lens ("seeing-stone") · Run'thrin the Thorned Path ("thorn-road").
+- *Loan:* khel iron — borrowed from Dûrakhar with its alien k intact; the visible mark of borrowing, and the one licensed k in Quin'lae.
+
 ## 13. Texts
 
 Full Quin'lae texts live in [`texts/`](texts/), with interlinear gloss and English.
 
 - [`texts/tem-wen.md`](texts/tem-wen.md) — **Tem'wen**, "The Equinox of Breath" told in Quin'lae (21 stanzas covering the full story).
 - [`texts/phrasebook.md`](texts/phrasebook.md) — the table phrasebook: 25 stock utterances for GM use, in both registers, with Gla'mdroi liaison variants.
+- [`texts/malgrath-threl.md`](texts/malgrath-threl.md) — **Malgrath'threl**, "The Scar Malgrath Carries" told in Quin'lae (18 stanzas; numerals, loans, and the Ith'ver / Seth'wen divine names).
