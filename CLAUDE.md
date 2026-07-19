@@ -14,11 +14,18 @@ level 3 at kickoff) will **level up** and keep playing, so leveling, correctness
 dice/combat math, and the live-table infra (GM Screen, cloud sync, roll feed) are the durable,
 reused core. Optimize for **quality and correctness across future sessions, not race-to-a-date**.
 
+## Multi-agent coordination
+
+Claude and Codex both work this repo. The canonical coordination rules live in
+`AGENTS.md` § "Multi-agent coordination" — follow them. Where this file and
+`AGENTS.md` overlap, keep them in sync; the rules themselves are edited only in
+`AGENTS.md`.
+
 ## Workflow
 
-1. Read `tasks/todo.md` at session start
-2. Work directly on `main` or short-lived feature branches as needed
-3. Update `tasks/todo.md` with what shipped
+1. At session start: read `tasks/todo.md` (shipped history) and `gh issue list` (live work)
+2. Work in a dedicated worktree on a `claude/*` branch off freshly fetched `origin/main`; land via PR
+3. Append a one-line row to `tasks/todo.md`'s shipped table inside the same PR (append-only — never rewrite the file)
 
 ## Design tokens (Codex)
 
