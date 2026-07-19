@@ -28,6 +28,12 @@ export function rollSkill(character, skill, rng = Math.random) {
   return rollTotal({ modifier: calcSkillTotal(skill), rng })
 }
 
+// Bare attribute check: d100 + the attribute's fully derived value (base,
+// racial, and temporary modifiers), using the same total-roll rules as skills.
+export function rollAttribute(attribute, rng = Math.random) {
+  return rollTotal({ modifier: attrTotal(attribute || {}), rng })
+}
+
 // Attack: d100 + the single (non-stacking) weapon modifier, display the total.
 // No defense input — the GM adjudicates the total against the target's defense.
 export function rollAttack(character, weapon, rng = Math.random) {

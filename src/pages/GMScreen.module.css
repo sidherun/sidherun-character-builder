@@ -227,6 +227,55 @@
 }
 
 /* Live roll feed (#148) — shared table roll broadcast */
+.difficulty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.difficulty .feedTitle { margin-bottom: 3px; }
+
+.difficultyStatus {
+  color: var(--ink-700);
+  font-family: 'Spectral', serif;
+  font-size: 13px;
+}
+
+.difficultyActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.difficultyButton {
+  min-width: 44px;
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--ink-800);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.difficultyButton:hover:not(:disabled),
+.difficultyButton[aria-pressed="true"] {
+  border-color: var(--bronze);
+  background: var(--sel);
+  color: var(--bronze);
+}
+
+.difficultyButton:disabled { opacity: 0.45; cursor: default; }
+
 .rollFeed {
   background: var(--card);
   border: 1px solid var(--line);
@@ -302,6 +351,8 @@
 }
 
 @media (max-width: 640px) {
+  .difficulty { align-items: flex-start; flex-direction: column; }
+  .difficultyActions { justify-content: flex-start; }
   .feedItem {
     display: flex;
     flex-wrap: wrap;

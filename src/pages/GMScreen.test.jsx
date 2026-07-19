@@ -60,6 +60,32 @@ describe('GMScreen', () => {
     expect(html).toContain('No saved characters')
   })
 
+  it('offers the standard difficulty ladder and starts cleared', () => {
+    const html = renderToStaticMarkup(<GMScreen onNavigate={() => {}} theme="dark" onToggleTheme={() => {}} />)
+    expect(html).toContain('Roll Difficulty')
+    expect(html).toContain('No target · GM adjudicates')
+    for (const target of ['50', '75', '100', '125', '150']) expect(html).toContain(`>${target}<`)
+  })
+
+  it('sets and clears the active difficulty target', async () => {
+    await act(async () => {
+      root.render(<GMScreen onNavigate={() => {}} theme="dark" onToggleTheme={() => {}} />)
+    })
+
+    const target75 = [...container.querySelectorAll('button')].find(button => button.textContent === '75')
+    const clear = [...container.querySelectorAll('button')].find(button => button.textContent === 'Clear')
+    expect(clear.disabled).toBe(true)
+
+    act(() => target75.click())
+    expect(target75.getAttribute('aria-pressed')).toBe('true')
+    expect(container.textContent).toContain('Target 75 · match or beat')
+    expect(clear.disabled).toBe(false)
+
+    act(() => clear.click())
+    expect(container.textContent).toContain('No target · GM adjudicates')
+    expect(clear.disabled).toBe(true)
+  })
+
   it('keeps all 15 rapid HP adjustments across six character cards', async () => {
     for (let i = 1; i <= 6; i++) {
       saveCharacterToRoster({ ...mk(), _rosterId: `r${i}`, name: `Hero ${i}`, hitPoints: { total: 20, current: 20 } })

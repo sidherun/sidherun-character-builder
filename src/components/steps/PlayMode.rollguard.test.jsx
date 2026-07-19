@@ -83,4 +83,17 @@ describe('PlayMode double-roll guard (#218/#222)', () => {
     await act(async () => { attackButton().click() })
     expect(onRoll).toHaveBeenCalledTimes(2)
   })
+
+  it('broadcasts a bare attribute roll with its derived modifier', async () => {
+    const onRoll = vi.fn()
+    await act(async () => {
+      root.render(<PlayMode character={character()} onUpdate={() => {}} onExit={() => {}} onToggleNotes={() => {}} onRoll={onRoll} />)
+    })
+
+    await act(async () => { container.querySelector('button[aria-label="Roll STR attribute"]').click() })
+    expect(onRoll).toHaveBeenCalledTimes(1)
+    expect(onRoll.mock.calls[0][0]).toMatchObject({ kind: 'total', label: 'STR attribute', modifier: 8, actor: 'Dulu Breac' })
+
+    await act(async () => { rollResolvers.forEach(r => r()); await Promise.resolve() })
+  })
 })
