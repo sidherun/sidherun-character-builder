@@ -8,6 +8,8 @@ The origin liturgy of the Sidhe'dhel — the answer elvenkind gives to "where di
 
 It is sung at namings, at deaths, and on the last night of autumn. Unlike Tem'wen (a telling) and Malgrath'threl (a translation), the Eth'lae is a chant: short lines, heavy repetition, the *aia* ("always") formula carrying the theology.
 
+Stanzas 10–11 are the warning verses (v2.6, issue #294): the Always-Walker and those who walk again. The song's grammar keeps the sides straight — the rightful dead walk the *road* again (*im run anu*, stanza 9); the anu'runorin walk the *world* again, and are halted.
+
 Format per stanza: Quin'lae, then word-by-word gloss, then plain English.
 
 ---
@@ -40,18 +42,26 @@ Format per stanza: Quin'lae, then word-by-word gloss, then plain English.
    remember we one saying: came we from the-road · is it our-first and our-last
    We remember one thing only: we came from the road. It is our beginning and our end.
 
-8. **Darir ethin im quin; tola Quin'dhel os sain. Nu darir sain aia, ya runa anu; tola Gla'mdroi os sain.**
-   stopped the-first in the-grove; come Grove-kin from them · not stopped they wholly, who walk again; come Wild-Hold-folk from them
-   The first stopped in the Grove; from them come the Quin'dhel. Others never wholly stopped, and still walk; from them come the Gla'mdroi.
+8. **Darir ethin im quin; tola Quin'dhel os sain. Nu darir sain aia; ea sain runorin; tola Gla'mdroi os sain.**
+   stopped the-first in the-grove; come Grove-kin from them · not stopped they wholly; are they walkers; come Wild-Hold-folk from them
+   The first stopped in the Grove; from them come the Quin'dhel. Others never wholly stopped — walkers still; from them come the Gla'mdroi.
 
-9. **Imya setha min, runa sa anu. Im wen methen, meora sa run.**
-   when grows-still one, walks they again · in breath last, remembers they the-road
-   When one of us grows still, they walk again. In the last breath, the road is remembered.
+9. **Imya setha min, runa sa im run anu. Im wen methen, meora sa run.**
+   when grows-still one, walks they on the-road again · in breath last, remembers they the-road
+   When one of us grows still, they walk the road again. In the last breath, the road is remembered.
 
-10. **Hala Mor'el seth an nin. Ea nin runorin o run; nu quera sa anin enu nin'din.**
+10. **Runa min im run ya nu darir, ya nu daruin. Vora nin ansa Aia'runor.**
+    walks one on the-road who not stopped, who not will-stop · name we him Always-Walker
+    One walks the road who never stopped and never will. We name him the Always-Walker.
+
+11. **Nudara sa morenin, ar runa sain anu im don, nu im run. Ea sain anu'runorin, ya dara nin. Ea dar nin'tar.**
+    un-stops he the-dead, and walk they again in the-world, not on the-road · are they the-again-walkers, whom halt we · is the-stopping our-burden
+    He un-stops the dead, and they walk again in the world, not on the road. These are the walking-again, and we halt them. Stopping is our burden.
+
+12. **Hala Mor'el seth an nin. Ea nin runorin o run; nu quera sa anin enu nin'din.**
     keeps Still-Light silence for us · are we walkers of the-road; not asks he us before our-day
     Morvathun keeps his silence for us. We are the road's walkers, and he does not ask for us before our day.
 
-11. **Ea nin ya darir. Runuin nin im methen.**
+13. **Ea nin ya darir. Runuin nin im methen.**
     are we those-who stopped · will-walk we at the-last
     We are the ones who stopped. We will walk at the end.

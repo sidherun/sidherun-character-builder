@@ -18,6 +18,8 @@
 
 **v2.5 (2026-07-18).** Origin ruled (Ed, issue #291): the Sidhe'dhel have no maker — the sidhe always walked the Spirits' Road, and elvenkind are the spirits who stopped. The elves do not remember stopping; their origin liturgy is the **Eth'lae** (the First Song), carried by memory and never written in-world. Third Quin'lae text: [`texts/eth-lae.md`](texts/eth-lae.md). See §15.
 
+**v2.6 (2026-07-18).** Enemy ruling (Ed, issue #294): death is the road resumed — walking *back* is the one violation. The **anu'runorin** ("those who walk again", the returned dead) are the Quin'dhel's ancient enemies, and halting them is elven duty. One walker on the road has always been and will always be: **Aia'runor**, the Always-Walker — the Quin'lae epithet for the being other tongues call Nakar. Eth'lae warning stanzas 10–11 added (13 stanzas total). See §15.
+
 Reference for generating Elven names in Sidherun. Derived from every attested elven-styled name in the Notion wiki (World Map, Southern Shores, session rosters) and the PHB. This is the go-forward standard: new elven names for places, people, artifacts, and festivals should be built from the tables below.
 
 **Canon change (v1.1, 2026-07-18):** the elf kindreds are renamed. High elves are **Quin'dhel** (retiring *Eledhel*); wild elves are **Gla'mdroi** (retiring *Glamredhel*). Both retired names were Raymond E. Feist coinages; the replacements are native formations, and the rename gives the language a second productive pattern (see §6, demonyms). The rename shipped to app data and the rules chapters in #270.
@@ -255,6 +257,8 @@ All coinages follow §3 phonotactics; most derive from existing roots.
 
 **Eth'lae coinages (v2.5, 2026-07-18):** noth- hear, listen · lae- sing (zero-derived from lae; laeor "singer" was always its agent) · dar as a noun: the stopping (zero-derived from dar-) · runor walker, traveler (run + -or) · sidhe takes the vowel plural: sidhen, the spirits. First used in [`texts/eth-lae.md`](texts/eth-lae.md).
 
+**Aia'runor coinages (v2.6, 2026-07-18):** nudar- to un-stop, to set the dead walking (the nu- antonym of dar-; the forbidden verb) · anu'runor one who walks again (pl. anu'runorin — the returned dead) · Aia'runor the Always-Walker (aia + runor). "Nakar" stays unadapted in Quin'lae text — its alien k marks it as no elven word (§9).
+
 ## 13. Texts
 
 Full Quin'lae texts live in [`texts/`](texts/), with interlinear gloss and English.
@@ -262,7 +266,7 @@ Full Quin'lae texts live in [`texts/`](texts/), with interlinear gloss and Engli
 - [`texts/tem-wen.md`](texts/tem-wen.md) — **Tem'wen**, "The Equinox of Breath" told in Quin'lae (21 stanzas covering the full story).
 - [`texts/phrasebook.md`](texts/phrasebook.md) — the table phrasebook: 25 stock utterances for GM use, in both registers, with Gla'mdroi liaison variants.
 - [`texts/malgrath-threl.md`](texts/malgrath-threl.md) — **Malgrath'threl**, "The Scar Malgrath Carries" told in Quin'lae (18 stanzas; numerals, loans, and the Ith'ver / Seth'wen divine names).
-- [`texts/eth-lae.md`](texts/eth-lae.md) — **Eth'lae**, "The First Song": the origin liturgy (11 stanzas, chant form; never written in-world — the file is an out-of-world transcription).
+- [`texts/eth-lae.md`](texts/eth-lae.md) — **Eth'lae**, "The First Song": the origin liturgy (13 stanzas, chant form, including the v2.6 warning verses; never written in-world — the file is an out-of-world transcription).
 
 ## 14. Writing (v2.4)
 
@@ -291,4 +295,6 @@ Ruled by Ed 2026-07-18 (issue #291). The elves have no origin story because they
 - **Never written.** The Eth'lae is the one record both kindreds refuse to trust to Thal'threl or Syl'vor (§14); committing it to marks or knots is held to be a kind of killing it. No in-world document of the Eth'lae exists. If one is ever found, someone made it, and that is a story.
 - **Death is the road resumed.** *Seth-*, "grow still", is stepping back into the current. Some tellings say the road returns in the last breath — the only moment an elf remembers. This is why Morvathun does not hurry them (Tem'wen 13–16): they are travelers of his road, overdue by choice.
 - **The kindreds.** The first who rooted in the Grove founded the lines the Quin'dhel still reckon descent by — lineage is *which traveler you come from*. The Gla'mdroi descend from those who never wholly stopped; for them home is the hold, because the road still matters more than the ancestor.
-- **Unresolved on purpose:** whether the elder-speech marks (§14, Duskmantle) were left by spirits who stopped earlier, or differently, is not ruled. Neither is what the sidhe were walking *from*, or *toward*.
+- **Those who walk again (v2.6).** Death is the road resumed; walking *back* is the one violation. The dead who return to the world — the **anu'runorin**, "those who walk again" — are neither spirits nor kin, and the Sidhe'dhel hold halting them as a duty older than either kindred: the ones who stopped are the ones who stop them (*Ea dar nin'tar* — "stopping is our burden", Eth'lae 11). This is why elven tradition is implacable toward the returned dead in every form.
+- **The Always-Walker (v2.6).** One walker on the road never stopped and never will. He has always walked and always will — old the way the gods are old, with no beginning anyone remembers. He *un-stops* the dead (*nudar-*, the forbidden verb), and the anu'runorin are his. The elves name him **Aia'runor**; other tongues call him Nakar, a name no elven mouth shaped — its k is foreign (§9). The Eth'lae warns of him in stanzas 10–11 and says nothing else about him, which the elves consider prudent.
+- **Unresolved on purpose:** whether the elder-speech marks (§14, Duskmantle) were left by spirits who stopped earlier, or differently, is not ruled. Neither is what the sidhe were walking *from*, or *toward* — nor what Aia'runor wants, why he un-stops the dead, or whether other tales already touch him (nothing is ruled about the cold thing in the Seventh Vault). Ruled only: he exists, always has, and always will.
