@@ -127,10 +127,13 @@ export function tableMemberCount(chars, tableId) {
   return chars.reduce((n, c) => n + (inTable(c, tableId) ? 1 : 0), 0)
 }
 
-// Scope the live roll feed to a table's member names (bonus carried from #154;
-// #173 tracks the robust id-based version). Falsy tableId = feed untouched.
+// Scope the live roll feed to a table's stable roster ids. Payloads broadcast
+// before #173 did not carry rosterId, so retain name matching only as a legacy
+// fallback for those entries. Falsy tableId = feed untouched.
 export function visibleRollsForTable(feed, chars, tableId) {
   if (!tableId) return feed
-  const names = new Set(chars.filter(c => inTable(c, tableId)).map(c => c.name || 'Unnamed'))
-  return feed.filter(r => names.has(r.actor))
+  const members = chars.filter(c => inTable(c, tableId))
+  const ids = new Set(members.map(c => c._rosterId).filter(Boolean))
+  const names = new Set(members.map(c => c.name || 'Unnamed'))
+  return feed.filter(r => r.rosterId ? ids.has(r.rosterId) : names.has(r.actor))
 }

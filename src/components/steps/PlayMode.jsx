@@ -165,10 +165,14 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
   // so a failed or blocked animation still shows the result.
   const emitRoll = (entry) => {
     if (rollingRef.current) return // a roll is already tumbling — ignore the repeat (#218)
+    const identity = {
+      actor: character.name || character.playerName || 'Someone',
+      rosterId: character._rosterId || null,
+    }
     const spec = animOn ? rollToDiceSpec(entry) : null
     // Instant (no-animation) path: reveal + broadcast immediately, nothing to guard.
     if (!spec) {
-      onRoll?.({ ...entry, actor: character.name || character.playerName || 'Someone' })
+      onRoll?.({ ...entry, ...identity })
       setLastRoll(entry)
       return
     }
@@ -176,7 +180,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
     // second click during the tumble can't fire or broadcast a duplicate roll.
     rollingRef.current = true
     setRolling(true)
-    onRoll?.({ ...entry, actor: character.name || character.playerName || 'Someone' })
+    onRoll?.({ ...entry, ...identity })
     if (sndOn) playRollSound()
     rollDice(spec.notation)
       .catch(() => {}) // engine failure → still reveal the result below
