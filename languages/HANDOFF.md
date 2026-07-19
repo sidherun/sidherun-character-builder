@@ -10,6 +10,7 @@ State as of 2026-07-18 night (Quin'lae v2.6, PRs #273–#286, #293, and the #294
 | Texts (gloss + English) | `languages/texts/` — `tem-wen.md` (21 stanzas), `phrasebook.md` (25 utterances), `malgrath-threl.md` (18 stanzas), `eth-lae.md` (13 stanzas, origin liturgy) |
 | Authoritative creation process | `languages/README.md` § "Creating a new language" |
 | Notion mirror (derived, never canonical) | page `3a1e8e2e-a25a-8153-a833-d1c4c0f976cf` under the Sidherun hub |
+| Text mirrors in Notion (children of the mirror page) | Tem'wen `3a2e8e2e-a25a-818f-b2eb-f735aa1aa251` · Phrasebook `3a2e8e2e-a25a-81d1-a00e-d364248ade5a` · Malgrath'threl `3a2e8e2e-a25a-8153-86cc-d347b5f3ee4b` · Eth'lae `3a2e8e2e-a25a-8183-bd40-d74f49a0699e` — every new text gets a mirror child page (Ed's ruling: everything mirrors, completely) |
 | Divine-name callouts in Notion | Selinthræ (`95fe8e2e-a25a-82da-baa7-815480aeb2fe`), Vælloria (`1dae8e2e-a25a-8272-bf13-815e94e2c38a`), Morvathun (`7d0e8e2e-a25a-82f9-9c42-01e068b48b54`), Roughnira (`1c7e8e2e-a25a-8237-99cd-01a6f91f4672`), Serakhala (`cf3e8e2e-a25a-8270-aed4-01260cafb368`) — all five placed; Duskmantle Hollow (`334e8e2e-a25a-8161-b729-e6b8887be26b`) carries a Thal'threl cross-ref |
 | Retired pointer stubs | `~/Code/Sidherun/quindel-language.md`, `~/Code/Sidherun/tem-wen-translation-draft.md` |
 
