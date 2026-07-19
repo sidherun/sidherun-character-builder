@@ -65,8 +65,8 @@ Contract terms:
 
 Planned next (from #297): races & kindreds beyond elves, a language primer + phrasebook selection, pantheon as commonly worshipped.
 
-## Open shape questions (for Ed's review)
+## Shape rulings (Ed, 2026-07-19)
 
-- **Aia'runor exposure.** `elves.md` includes the Always-Walker exactly as the Eth'lae presents him (stanzas 10–11: he exists, he un-stops the dead, the elves halt them) and nothing more. The Nakar equation stays GM-only. Ed ruled player-facing exposure of the connection is his call — this draft draws the line at "what the song says"; confirm or move it.
-- **Notion placement.** Which part of the hub is the player-visible section for these mirrors?
-- **Texts wholesale.** `eth-lae.md` and `phrasebook.md` read as player-safe in full. `tem-wen.md` and `malgrath-threl.md` haven't been audited for player exposure — audit when a player doc wants them, or on request.
+- **Aia'runor exposure: confirmed.** Player docs may carry the Always-Walker exactly as the Eth'lae presents him. The name Nakar never appears in `players/` — that is the line.
+- **Texts audit (Ed ordered; run 2026-07-19).** `eth-lae.md`, `phrasebook.md`, and `tem-wen.md` are player-safe in full — Tem'wen is an in-world story with nothing GM-only in it. `malgrath-threl.md` is **excluded**: it centers on the Seventh Vault (canon deliberately leaves the cold thing there unresolved, and #297 flags the vault as GM-only) and involves Grandanto-era campaign figures. It joins the player layer only if Ed rules the story common in-world knowledge.
+- **Notion placement (default, adjustable).** Player-doc mirrors go on a **Player Reference** page created at the top level of the Sidherun hub, sibling to Languages. That page is the answer to "what can players read." Moving it later is a drag in Notion; nothing else depends on the location.

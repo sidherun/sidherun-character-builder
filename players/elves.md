@@ -10,6 +10,7 @@ sources:
 texts:
   - languages/texts/eth-lae.md
   - languages/texts/phrasebook.md
+  - languages/texts/tem-wen.md
 updated: 2026-07-19
 ---
 
@@ -87,6 +88,8 @@ Elves invoke the gods by Quin'lae names:
 | Seth'wen | The Still Wind | Serakhala |
 
 "Trust Qaal'el's mercy" is an elven blessing.
+
+The story every elf knows of the two gods is **Tem'wen**, "The Equinox of Breath" — the meeting of Ver'ama and Mor'el in the Deep Grove, told in full at [`languages/texts/tem-wen.md`](../languages/texts/tem-wen.md).
 
 ## Places an elf knows
 
