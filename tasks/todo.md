@@ -75,3 +75,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Dedup-safe authed save against stale localStorage 'current' slot (#127/#163) | 09c15e1 | 2026-07-18 |
 | Cloud push dead-mapping detection + recovery — no false 'updated' on rotated/deleted tokens (#252) | fae44c5 (#282) | 2026-07-18 |
 | Last full-phrase 'Spine of the World' in rules (06-skills example) → Kaelorun Range; #271 offline-file audit complete | #288 | 2026-07-18 |
+| GM Screen reliable HP entry — quick deltas, numeric Damage/Heal, no lost rapid adjustments (#236) | #289 | 2026-07-18 |
