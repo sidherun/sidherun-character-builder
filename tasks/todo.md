@@ -80,3 +80,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Quin'lae v2.5 — Sidhe'dhel origin canon (§15) + Eth'lae origin liturgy (texts/eth-lae.md) | #291 | 2026-07-18 |
 | Quin'lae v2.6 — anu'runorin (returned dead) as elven enemies + Aia'runor/Nakar eternal-walker canon | #294 | 2026-07-18 |
 | Bare attribute rolls + optional GM difficulty targets with feed Pass/Fail (#238) | #300 | 2026-07-18 |
+| Live GM-set condition chips + player visibility + rest clear (#240) | #301 | 2026-07-18 |
