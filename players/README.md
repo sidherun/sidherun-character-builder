@@ -55,7 +55,7 @@ Contract terms:
 
 1. **App** — a lore/reference surface in the character builder fed from this directory (Codex's scope). The elven name generator is a separate feature fed from `languages/` directly.
 2. **PHB print** — any future print handout renders `players/` alongside `rules/`.
-3. **Notion** — each player doc gets a derived mirror in a player-visible section of the hub (placement is Ed's call; see open questions).
+3. **Notion** — each player doc gets a derived mirror under the **Player Reference** page in the Sidherun hub (page `3a2e8e2e-a25a-81b6-bedc-cfcbfe288d78`; `elves.md` mirror `3a2e8e2e-a25a-8127-a817-e2830dc3165e`).
 
 ## Docs
 
