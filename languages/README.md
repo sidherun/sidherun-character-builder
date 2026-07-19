@@ -22,6 +22,7 @@ Each language doc carries the primitives needed for go-forward naming: attested 
 | [`texts/tem-wen.md`](texts/tem-wen.md) | **Tem'wen** — "The Equinox of Breath" told in Quin'lae, 21 stanzas with interlinear gloss |
 | [`texts/phrasebook.md`](texts/phrasebook.md) | **Table phrasebook** — 25 stock Quin'lae utterances for GM use, both registers, with Gla'mdroi variants |
 | [`texts/malgrath-threl.md`](texts/malgrath-threl.md) | **Malgrath'threl** — "The Scar Malgrath Carries" told in Quin'lae, 18 stanzas with interlinear gloss |
+| [`texts/eth-lae.md`](texts/eth-lae.md) | **Eth'lae** — "The First Song", the Sidhe'dhel origin liturgy, 11 stanzas (never written in-world) |
 
 ## Candidates not yet documented
 

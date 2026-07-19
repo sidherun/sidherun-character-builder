@@ -16,6 +16,8 @@
 
 **v2.4 (2026-07-18).** Writing ruled (Ed's direction: the script is where the kindreds diverge). One spoken tongue, two hands: the ancestral carved script is **Thal'threl** ("tree-marks"), which the Gla'mdroi still keep; the Quin'dhel replaced carving with **Syl'vor** ("weave-speech"), knotted cord records kept by the weaver-healers. Neither kindred fully reads the oldest marks. See §14.
 
+**v2.5 (2026-07-18).** Origin ruled (Ed, issue #291): the Sidhe'dhel have no maker — the sidhe always walked the Spirits' Road, and elvenkind are the spirits who stopped. The elves do not remember stopping; their origin liturgy is the **Eth'lae** (the First Song), carried by memory and never written in-world. Third Quin'lae text: [`texts/eth-lae.md`](texts/eth-lae.md). See §15.
+
 Reference for generating Elven names in Sidherun. Derived from every attested elven-styled name in the Notion wiki (World Map, Southern Shores, session rosters) and the PHB. This is the go-forward standard: new elven names for places, people, artifacts, and festivals should be built from the tables below.
 
 **Canon change (v1.1, 2026-07-18):** the elf kindreds are renamed. High elves are **Quin'dhel** (retiring *Eledhel*); wild elves are **Gla'mdroi** (retiring *Glamredhel*). Both retired names were Raymond E. Feist coinages; the replacements are native formations, and the rename gives the language a second productive pattern (see §6, demonyms). The rename shipped to app data and the rules chapters in #270.
@@ -143,6 +145,7 @@ Adopted as canon 2026-07-18:
 | Eth'vor / Din'vor | First-Speech / Day-Speech | The formal and everyday registers (§11) |
 | Thal'threl | Tree-Marks | The ancestral carved script, kept by the Gla'mdroi (§14) |
 | Syl'vor | Weave-Speech | The Quin'dhel knotted-cord writing (§14) |
+| Eth'lae | The First Song | The origin liturgy — never written in-world (§15); the §8 artifact gloss now resolves here |
 
 ## 8. Generation recipe
 
@@ -250,6 +253,8 @@ All coinages follow §3 phonotactics; most derive from existing roots.
 - *Compounds:* ith'don vault ("deep-place") · el'hal crown ("light-hold") · sor'vor oath-fire ("word-flame") · Vel'orin the Lens ("seeing-stone") · Run'thrin the Thorned Path ("thorn-road").
 - *Loan:* khel iron — borrowed from Dûrakhar with its alien k intact; the visible mark of borrowing, and the one licensed k in Quin'lae.
 
+**Eth'lae coinages (v2.5, 2026-07-18):** noth- hear, listen · lae- sing (zero-derived from lae; laeor "singer" was always its agent) · dar as a noun: the stopping (zero-derived from dar-) · runor walker, traveler (run + -or) · sidhe takes the vowel plural: sidhen, the spirits. First used in [`texts/eth-lae.md`](texts/eth-lae.md).
+
 ## 13. Texts
 
 Full Quin'lae texts live in [`texts/`](texts/), with interlinear gloss and English.
@@ -257,6 +262,7 @@ Full Quin'lae texts live in [`texts/`](texts/), with interlinear gloss and Engli
 - [`texts/tem-wen.md`](texts/tem-wen.md) — **Tem'wen**, "The Equinox of Breath" told in Quin'lae (21 stanzas covering the full story).
 - [`texts/phrasebook.md`](texts/phrasebook.md) — the table phrasebook: 25 stock utterances for GM use, in both registers, with Gla'mdroi liaison variants.
 - [`texts/malgrath-threl.md`](texts/malgrath-threl.md) — **Malgrath'threl**, "The Scar Malgrath Carries" told in Quin'lae (18 stanzas; numerals, loans, and the Ith'ver / Seth'wen divine names).
+- [`texts/eth-lae.md`](texts/eth-lae.md) — **Eth'lae**, "The First Song": the origin liturgy (11 stanzas, chant form; never written in-world — the file is an out-of-world transcription).
 
 ## 14. Writing (v2.4)
 
@@ -273,3 +279,16 @@ Ruled 2026-07-18: the Sidhe'dhel speak one language and write two. The divergenc
 **The Duskmantle Root Break.** The ironbark trees above the Duskmantle Hollow throw shadows that look "like writing in a language that no longer exists." What travelers half-see there is the look of old Thal'threl — branching strokes on a grown line of trees. Whether the Root Break arc is a true inscription of the elder speech or an accident of wind and stone is deliberately unresolved in canon; what it says, if it says anything, is the table's to discover.
 
 Open sub-items: glyph shapes and a rendering are optional later work; the elder speech beneath Quin'lae has no doc and needs none until a text demands it.
+
+## 15. Origin — the Spirits Who Stayed (v2.5)
+
+Ruled by Ed 2026-07-18 (issue #291). The elves have no origin story because they have no origin — the same condition as the gods, who remember no beginning and always were. In Sidherun, having an origin myth is a mark of a young people. The old things simply were.
+
+- **The road.** Sidherun, "the Spirits' Road" (§7), is the path spirits walk between the world and the Void Beneath. No one made the road; the gods remember no beginning of it. The road is part of the equilibrium the pantheon settled into: the current between Vælloria's filling and Morvathun's emptying.
+- **The stopping.** The sidhe were travelers on the road. Some heard the Grove's song — Quin'lae, "grove-song", is named for it — and stopped, growing bodies as trees grow. Elvenkind (Sidhe'dhel, "spirit-kin") are the spirits who stayed.
+- **Out of the current.** A stopped spirit stands outside the life-death flow, which is why elves live long (the current barely tugs them) and why both Vælloria and Morvathun treat them as natural neutrals — when the Balance Accord was forged in Ith'quin, its witnesses were not made for the task; they were already standing there, the only people on the boundary with no stake in either flow.
+- **The elves do not remember stopping.** The memory-people, whose one verb *meor-* covers knowing and remembering, cannot remember their own beginning. What they have is the **Eth'lae**, the First Song ([`texts/eth-lae.md`](texts/eth-lae.md)) — sung at namings, deaths, and the last night of autumn, and every elf knows the song is younger than the stopping.
+- **Never written.** The Eth'lae is the one record both kindreds refuse to trust to Thal'threl or Syl'vor (§14); committing it to marks or knots is held to be a kind of killing it. No in-world document of the Eth'lae exists. If one is ever found, someone made it, and that is a story.
+- **Death is the road resumed.** *Seth-*, "grow still", is stepping back into the current. Some tellings say the road returns in the last breath — the only moment an elf remembers. This is why Morvathun does not hurry them (Tem'wen 13–16): they are travelers of his road, overdue by choice.
+- **The kindreds.** The first who rooted in the Grove founded the lines the Quin'dhel still reckon descent by — lineage is *which traveler you come from*. The Gla'mdroi descend from those who never wholly stopped; for them home is the hold, because the road still matters more than the ancestor.
+- **Unresolved on purpose:** whether the elder-speech marks (§14, Duskmantle) were left by spirits who stopped earlier, or differently, is not ruled. Neither is what the sidhe were walking *from*, or *toward*.
