@@ -124,9 +124,18 @@ describe('GM-screen filtering', () => {
     expect(tableMemberCount(chars, 'gone')).toBe(0)
   })
 
-  it('visibleRollsForTable scopes the feed to a table by member name', () => {
-    const feed = [{ actor: 'Thorin' }, { actor: 'Galadriel' }, { actor: 'Someone' }]
+  it('visibleRollsForTable scopes the feed by stable roster id', () => {
+    const feed = [
+      { rosterId: 'a', actor: 'Duplicate' },
+      { rosterId: 'b', actor: 'Thorin' },
+      { rosterId: 'missing', actor: 'Thorin' },
+    ]
     expect(visibleRollsForTable(feed, chars, '').length).toBe(3)
+    expect(visibleRollsForTable(feed, chars, 't1')).toEqual([feed[0]])
+  })
+
+  it('falls back to actor names for legacy payloads without rosterId', () => {
+    const feed = [{ actor: 'Thorin' }, { actor: 'Galadriel' }, { actor: 'Someone' }]
     expect(visibleRollsForTable(feed, chars, 't1').map(r => r.actor)).toEqual(['Thorin'])
   })
 })

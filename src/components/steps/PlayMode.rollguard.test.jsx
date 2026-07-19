@@ -27,7 +27,7 @@ import PlayMode from './PlayMode.jsx'
 
 const D = () => ({ skillBonus: 0, misc: 0 })
 const character = () => ({
-  name: 'Dulu Breac', race: 'Human', archetype: 'Druid', level: 2,
+  _rosterId: 'r-dulu', name: 'Dulu Breac', race: 'Human', archetype: 'Druid', level: 2,
   hasMagic: false, hasPowers: false,
   attributes: Object.fromEntries(
     ['strength','agility','dexterity','endurance','constitution','intelligence',
@@ -93,7 +93,10 @@ describe('PlayMode double-roll guard (#218/#222)', () => {
 
     await act(async () => { container.querySelector('button[aria-label="Roll STR attribute"]').click() })
     expect(onRoll).toHaveBeenCalledTimes(1)
-    expect(onRoll.mock.calls[0][0]).toMatchObject({ kind: 'total', label: 'STR attribute', modifier: 8, actor: 'Dulu Breac' })
+    expect(onRoll.mock.calls[0][0]).toMatchObject({
+      kind: 'total', label: 'STR attribute', modifier: 8,
+      actor: 'Dulu Breac', rosterId: 'r-dulu',
+    })
 
     await act(async () => { rollResolvers.forEach(r => r()); await Promise.resolve() })
   })
