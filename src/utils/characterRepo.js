@@ -184,6 +184,23 @@ export async function setUserRole(userId, role) {
   return data
 }
 
+// Admin-only display-name update. App-visible identity belongs in profiles,
+// rather than being duplicated into auth.users metadata. The same admin RLS
+// policy and role-change guard used by setUserRole protect this write.
+export async function setDisplayName(userId, displayName) {
+  if (!repoEnabled() || !userId) return null
+  const name = displayName?.trim()
+  if (!name) throw new Error('Display name is required.')
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({ display_name: name })
+    .eq('id', userId)
+    .select('id, display_name, email, role')
+    .maybeSingle()
+  if (error) throw error
+  return data
+}
+
 // Delete a character (RLS: owner or gm/admin only).
 export async function deleteCharacter(id) {
   if (!repoEnabled() || !id) return false

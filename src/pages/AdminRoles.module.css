@@ -55,6 +55,51 @@
   padding: 24px 0;
 }
 
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.searchLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: var(--ink-700);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.searchLabel input { width: 100%; }
+
+.roleFilters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.filter,
+.activeFilter {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card2);
+  color: var(--ink-700);
+  padding: 6px 10px;
+  cursor: pointer;
+  text-transform: capitalize;
+}
+
+.activeFilter {
+  border-color: var(--bronze);
+  color: var(--ink-900);
+}
+
+.filter span,
+.activeFilter span { color: var(--ink-500); }
+
 .list {
   list-style: none;
   padding: 0;
@@ -75,13 +120,31 @@
   background: var(--card2);
 }
 
-.who { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.who { display: flex; flex: 1; flex-direction: column; gap: 4px; min-width: 0; }
 
-.name {
-  color: var(--ink-900);
-  font-size: 14px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.nameForm {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.nameForm label {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--ink-600);
+  font-size: 11px;
+}
+
+.nameForm input {
+  min-width: 0;
+  width: 100%;
+}
+
+.nameForm button {
+  min-height: 38px;
+  white-space: nowrap;
 }
 
 .youTag {
@@ -99,6 +162,8 @@
   text-overflow: ellipsis;
 }
 
+.nameFeedback { min-height: 18px; }
+
 .roleCell {
   display: flex;
   align-items: center;
@@ -114,3 +179,9 @@
 .pending { color: var(--ink-500); font-size: 12px; }
 .ok       { color: var(--story);  font-size: 12px; }
 .err      { color: var(--danger); font-size: 12px; max-width: 220px; }
+
+@media (max-width: 620px) {
+  .row { align-items: stretch; flex-direction: column; }
+  .roleCell { justify-content: flex-end; }
+  .nameForm { align-items: stretch; flex-direction: column; }
+}

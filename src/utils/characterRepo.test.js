@@ -45,7 +45,7 @@ vi.mock('./supabaseClient.js', () => {
 
 import {
   repoEnabled, listCharacters, getCharacter, createCharacter, saveCharacterData,
-  upsertCharacter, patchLive, assignPlayer, deleteCharacter, listPlayers, reconcile,
+  upsertCharacter, patchLive, assignPlayer, deleteCharacter, listPlayers, setDisplayName, reconcile,
   subscribeLive, removeLiveSubscription,
 } from './characterRepo.js'
 
@@ -228,6 +228,20 @@ describe('deleteCharacter / listPlayers', () => {
     const players = await listPlayers()
     expect(players).toHaveLength(1)
     expect(h.table).toBe('profiles')
+  })
+
+  it('setDisplayName trims and updates the profile', async () => {
+    h.result = { data: { id: 'u1', display_name: 'Dave', role: 'player' }, error: null }
+    const profile = await setDisplayName('u1', '  Dave  ')
+    expect(h.table).toBe('profiles')
+    expect(h.op).toBe('update')
+    expect(h.payload).toEqual({ display_name: 'Dave' })
+    expect(profile.display_name).toBe('Dave')
+  })
+
+  it('setDisplayName rejects an empty name without querying Supabase', async () => {
+    await expect(setDisplayName('u1', '   ')).rejects.toThrow('Display name is required')
+    expect(h.table).toBeNull()
   })
 })
 
