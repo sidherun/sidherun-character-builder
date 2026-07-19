@@ -15,6 +15,8 @@ State as of 2026-07-18 night (Quin'lae v2.6, PRs #273–#286, #293, and the #294
 
 Working conventions: every change lands via PR (worktree branch off `origin/main`); after merging, re-sync the Notion mirror (plain paragraphs match with targeted `update_content`; anything touching a table needs a full-content replace); prose obeys `~/Code/Sidherun/VOICE.md`; every coinage passes the IP-provenance check and §3 phonotactics.
 
+**Mirror completeness (Ed's ruling, 2026-07-18):** the Notion mirror always carries the complete canon — no redactions, no spoiler-trimming. Player-safe exposure is handled by a separate player-facing content layer (planned in issue #297), never by editing the mirror.
+
 ## Rulings landed 2026-07-18 evening (Ed, in session)
 
 - **Registers (v2.2, #283):** Eth'vor (formal) / Din'vor (everyday); Quin'dhel day-speech conservative, Gla'mdroi clipped with liaison. Both kindreds share Eth'vor.
@@ -25,12 +27,13 @@ Working conventions: every change lands via PR (worktree branch off `origin/main
 
 ## Next steps, in recommended order
 
-1. **Origin World Story (waiting on Ed).** The prose telling of the Spirits Who Stayed for the Notion World Stories DB — beat-sheet delivered in the 2026-07-18 session; facts in §15. Ed writes the prose per VOICE.md.
-2. **First named elves.** No named Quin'dhel or Gla'mdroi NPC exists anywhere in canon (Caelindra and Hesswyn in Tem'wen are the nearest thing — order titles, kindred unstated). Coin with §6 personal names. Highest-leverage first use: Bella D'Antonia's elven parent (campaign-relevant — Deidre's PC is Human/Quin'dhel). Ed is mulling the parent decision (mother/father, living/dead, Qu'Droia vs Quin'meori).
-3. **The Hul.** Give them a real name and a primitives doc (follow the README process; corpus: HulFadar, HulDramar, Nol'Hradadra plus whatever new canon exists by then). Their apostrophe-borrowing lore is set in `quindel.md` §9.
-4. **Dûrakhar.** The second full language build — richest existing corpus (Karak Vohn, Bryndak, Khelvar, Halvra, Vosk, Ketta, the û convention, three Dûrakhar stories to mine and stress-test against). The Quin'lae loan *khel* "iron" (v2.3) is the first cross-language datum to honor.
-5. **Thal'threl glyphs (optional).** §14 defines the scripts without drawing them; §15's origin canon is now also a source for imagery. If ever wanted: stroke inventory for Thal'threl, knot/color scheme for Syl'vor, and a rendered sample — cosmetic, no canon pressure.
-6. **Small canon rulings when convenient:** what is remembered at Quin'meori; the Oreg ar/af Nata spelling and whose language that name is (if the Quin'lae particle *ar* "and" applies, it glosses oddly); whether the elder speech beneath Quin'lae ever gets even a sketch (default: no, until a text demands it).
+1. **Player-facing content layer (#297, waiting on Ed's shape review).** Curated player-safe docs (`players/`) for the app and PHB — first deliverable `players/elves.md`. Content is Claude's; the app surface is Codex's; design the data contract first.
+2. **Origin World Story (waiting on Ed).** The prose telling of the Spirits Who Stayed for the Notion World Stories DB — beat-sheet delivered in the 2026-07-18 session; facts in §15. Ed writes the prose per VOICE.md.
+3. **First named elves.** No named Quin'dhel or Gla'mdroi NPC exists anywhere in canon (Caelindra and Hesswyn in Tem'wen are the nearest thing — order titles, kindred unstated). Coin with §6 personal names. Highest-leverage first use: Bella D'Antonia's elven parent (campaign-relevant — Deidre's PC is Human/Quin'dhel). Ed is mulling the parent decision (mother/father, living/dead, Qu'Droia vs Quin'meori).
+4. **The Hul.** Give them a real name and a primitives doc (follow the README process; corpus: HulFadar, HulDramar, Nol'Hradadra plus whatever new canon exists by then). Their apostrophe-borrowing lore is set in `quindel.md` §9.
+5. **Dûrakhar.** The second full language build — richest existing corpus (Karak Vohn, Bryndak, Khelvar, Halvra, Vosk, Ketta, the û convention, three Dûrakhar stories to mine and stress-test against). The Quin'lae loan *khel* "iron" (v2.3) is the first cross-language datum to honor.
+6. **Thal'threl glyphs (optional).** §14 defines the scripts without drawing them; §15's origin canon is now also a source for imagery. If ever wanted: stroke inventory for Thal'threl, knot/color scheme for Syl'vor, and a rendered sample — cosmetic, no canon pressure.
+7. **Small canon rulings when convenient:** what is remembered at Quin'meori; the Oreg ar/af Nata spelling and whose language that name is (if the Quin'lae particle *ar* "and" applies, it glosses oddly); whether the elder speech beneath Quin'lae ever gets even a sketch (default: no, until a text demands it).
 
 ## Repo placement
 
