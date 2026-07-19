@@ -70,3 +70,21 @@ describe('formatRoll — interim mana cost on casts (#237)', () => {
     expect(out.detail).not.toContain('mana')
   })
 })
+
+describe('formatRoll — weapon damage', () => {
+  it('shows dice, flat bonus, melee crit STR, and type without GM target resolution', () => {
+    const out = formatRoll({
+      kind: 'damage', rolls: [6], dice: '1d8', bonus: 2, critBonus: 15,
+      total: 23, damageType: 'slashing', gmTarget: 75,
+    })
+    expect(out).toEqual({
+      color: 'var(--danger)', headline: '23',
+      detail: '1d8 [6] + 2 + 15 crit STR · slashing',
+    })
+  })
+
+  it('formats migrated flat damage', () => {
+    expect(formatRoll({ kind: 'damage', rolls: [], dice: '', bonus: 8, critBonus: 0, total: 8, damageType: '' }).detail)
+      .toBe('flat damage + 8')
+  })
+})

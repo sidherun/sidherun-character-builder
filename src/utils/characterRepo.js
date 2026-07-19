@@ -10,6 +10,7 @@
 // guest/token plane in cloudSync.js is untouched and used for #c=/#play= links.
 import { supabase, authEnabled } from './supabaseClient.js'
 import { foldLive, projectLive } from './cloudSync.js'
+import { migrateCharacterWeaponDamage } from './weaponDamage.js'
 
 // True when the authenticated repo should be the source of truth. Callers fall
 // back to the localStorage path when this is false (auth off / signed out).
@@ -23,7 +24,7 @@ const COLS = 'id, name, data, live, owner_user_id, assigned_player_id, data_rev,
 // We also surface ownership so the UI can gate per-character actions.
 function rowToCharacter(row) {
   if (!row) return null
-  const c = foldLive(row.data, row.live)
+  const c = migrateCharacterWeaponDamage(foldLive(row.data, row.live))
   return {
     ...c,
     _rosterId:          row.id,

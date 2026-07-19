@@ -34,6 +34,11 @@ describe('primaryRoll / rollToDiceSpec', () => {
     expect(primaryRoll({ kind: 'total', rolls: [62, 40], total: 130 })).toBe(62)
     expect(rollToDiceSpec({ kind: 'total', rolls: [62] })).toMatchObject({ d100val: 60, d10val: 2 })
   })
+
+  it('does not send non-percentile weapon damage to the percentile tray', () => {
+    expect(primaryRoll({ kind: 'damage', rolls: [6], dice: '1d8' })).toBeNull()
+    expect(rollToDiceSpec({ kind: 'damage', rolls: [6], dice: '1d8' })).toBeNull()
+  })
   it('animates a fumble by its low die', () => {
     expect(primaryRoll({ kind: 'total', rolls: [3], isFumble: true, fumble: 43 })).toBe(3)
   })

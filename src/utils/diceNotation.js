@@ -32,6 +32,9 @@ export function percentileRead(d100val, d10val) {
 // fumble — the animation is a flourish on the lead die).
 export function primaryRoll(entry) {
   if (!entry) return null
+  // Structured weapon damage uses non-percentile dice. The current 3D tray is
+  // percentile-only, so the damage banner/feed remain the source of truth.
+  if (entry.kind === 'damage') return null
   if (entry.kind === 'spell') return entry.roll ?? null
   return (Array.isArray(entry.rolls) && entry.rolls.length) ? entry.rolls[0] : (entry.roll ?? null)
 }

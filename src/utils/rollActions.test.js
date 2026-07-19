@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { weaponModifier, rollAttribute, rollSkill, rollAttack, rollSpell, rollCast, craftTotal } from './rollActions.js'
+import { weaponModifier, rollAttribute, rollSkill, rollAttack, rollWeaponDamage, rollSpell, rollCast, craftTotal } from './rollActions.js'
 
 const fixed = (v) => () => v // Math.floor(v * 100) + 1 = the d100 roll
 
@@ -73,6 +73,31 @@ describe('rollAttack (roll d100 + non-stacking weapon modifier, display total)',
   it('uses the attribute when the weapon is unskilled', () => {
     const weapon = { skillBonus: 0, attributeBonus: 12 }
     expect(rollAttack({}, weapon, fixed(0.61))).toMatchObject({ modifier: 12, total: 74 })
+  })
+})
+
+describe('rollWeaponDamage', () => {
+  const character = { attributes: { strength: { base: 15, racialMod: 1, tempMod: -1 } } }
+
+  it('rolls structured dice plus a flat bonus', () => {
+    const weapon = { damageDice: '2d6', damageBonus: 2, damageType: 'slashing', isMelee: true }
+    expect(rollWeaponDamage(character, weapon, { rolls: [60] }, fixed(0.5))).toMatchObject({
+      rolls: [4, 4], dice: '2d6', bonus: 2, critBonus: 0, total: 10, damageType: 'slashing',
+    })
+  })
+
+  it('adds Strength once for each additional melee crit roll', () => {
+    const weapon = { damageDice: '1d8', damageBonus: 0, isMelee: true }
+    expect(rollWeaponDamage(character, weapon, { rolls: [97, 99, 40] }, fixed(0))).toMatchObject({
+      rolls: [1], extraCritRolls: 2, critBonus: 30, total: 31,
+    })
+  })
+
+  it('never adds crit Strength to a ranged weapon', () => {
+    const weapon = { damageDice: '', damageBonus: 8, isMelee: false }
+    expect(rollWeaponDamage(character, weapon, { rolls: [97, 40] }, fixed(0))).toMatchObject({
+      extraCritRolls: 1, critBonus: 0, total: 8,
+    })
   })
 })
 

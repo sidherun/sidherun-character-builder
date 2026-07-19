@@ -4,7 +4,8 @@ import { calcDefense, calcSkillTotal, attrTotal } from '../../utils/characterDer
 import { ITEM_DICTIONARY } from '../../utils/spellcheck.js'
 import SpellSuggest from '../SpellSuggest.jsx'
 import { getFinalSpellTarget, getSpellZone } from '../../utils/spellTarget.js'
-import { rollAttribute, rollSkill, rollAttack, rollSpell, rollCast, craftTotal, weaponModifier } from '../../utils/rollActions.js'
+import { rollAttribute, rollSkill, rollAttack, rollWeaponDamage, rollSpell, rollCast, craftTotal, weaponModifier } from '../../utils/rollActions.js'
+import { parseDamageDice, weaponDamageLabel } from '../../utils/weaponDamage.js'
 import { formatRoll } from '../../utils/rollFormat.js'
 import { rollToDiceSpec } from '../../utils/diceNotation.js'
 import { rollDice, preloadDice } from '../../utils/diceStage.js'
@@ -45,6 +46,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
   const [armorDmg, setArmorDmg] = useState('')
   const [lastHit, setLastHit]   = useState(null)
   const [lastRoll, setLastRoll] = useState(null)
+  const [pendingDamage, setPendingDamage] = useState(null)
   const [animOn, setAnimOn] = useState(animationsOn)
   const [sndOn, setSndOn] = useState(soundOn)
   // Guard against a second roll fired while one is still tumbling — that would
@@ -192,7 +194,14 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
     emitRoll({ kind: 'total', label: `${ATTR_LABELS[key]} attribute`, ...rollAttribute(attribute) })
   }
   function rollWeapon(weapon) {
-    emitRoll({ kind: 'total', label: weapon.name || 'Attack', ...rollAttack(character, weapon) })
+    const attack = rollAttack(character, weapon)
+    emitRoll({ kind: 'total', label: weapon.name || 'Attack', ...attack })
+    setPendingDamage(attack.isFumble ? null : { weaponId: weapon.id, attack })
+  }
+  function rollDamage(weapon) {
+    const damage = rollWeaponDamage(character, weapon, pendingDamage?.attack)
+    emitRoll({ kind: 'damage', label: `${weapon.name || 'Weapon'} damage`, ...damage })
+    setPendingDamage(null)
   }
   function rollSpellCheck() {
     emitRoll({ kind: 'spell', label: `Spell vs Lvl ${targetLevel}`, ...rollSpell(character, targetLevel) })
@@ -400,8 +409,15 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
                 <div key={w.id} className={styles.weaponItem}>
                   <span>{w.name}</span>
                   <span className={styles.weaponBonus}>+{weaponModifier(w)}</span>
-                  <span className={styles.weaponDesc}>{w.descriptor}</span>
-                  <button className={styles.rollBtn} onClick={() => rollWeapon(w)} disabled={rolling}>Attack</button>
+                  <span className={styles.weaponDesc} title={w.descriptor || undefined}>
+                    {weaponDamageLabel(w)}{w.damageNeedsReview ? ' ⚠' : ''}
+                  </span>
+                  <div className={styles.weaponActions}>
+                    <button className={styles.rollBtn} onClick={() => rollWeapon(w)} disabled={rolling}>Attack</button>
+                    {pendingDamage?.weaponId === w.id && (parseDamageDice(w.damageDice) || Number(w.damageBonus)) && (
+                      <button className={styles.damageBtn} onClick={() => rollDamage(w)} disabled={rolling}>Damage</button>
+                    )}
+                  </div>
                 </div>
               )) : <p className={styles.refEmpty}>None yet.</p>}
             </section>

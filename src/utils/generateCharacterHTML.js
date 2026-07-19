@@ -2,6 +2,7 @@ import qrcode from 'qrcode-generator'
 import { calcDefense, calcHitPoints, calcMana, attrTotal, calcSkillTotal, calcPowerTotal } from './characterDerived.js'
 import { qrLinkFor } from './cloudSync.js'
 import { weaponModifier } from './rollActions.js'
+import { weaponDamageLabel } from './weaponDamage.js'
 
 const ATTR_LABELS = {
   strength: 'STR', agility: 'AGI', dexterity: 'DEX', endurance: 'END',
@@ -48,7 +49,7 @@ function sheetBody(character) {
   ).join('')
 
   const weapons = (character.weapons || []).map(w =>
-    `<tr><td>${esc(w.name) || '—'}</td><td>${esc(w.attribute)}</td><td>+${weaponModifier(w)}</td><td>${esc(w.descriptor)}</td></tr>`
+    `<tr><td>${esc(w.name) || '—'}</td><td>${esc(w.attribute)}</td><td>+${weaponModifier(w)}</td><td>${esc(weaponDamageLabel(w))}</td><td>${esc(w.descriptor)}</td></tr>`
   ).join('')
 
   // "Use" tracking: 5 circles per skill, filled to the recorded count, the
@@ -109,7 +110,7 @@ function sheetBody(character) {
         ).join('')}
       </div>
       <div>
-        ${weapons ? `<h2>Weapons</h2><table><tr><th>Weapon</th><th>Attr</th><th>Bonus</th><th>Descriptor</th></tr>${weapons}</table>` : ''}
+        ${weapons ? `<h2>Weapons</h2><table><tr><th>Weapon</th><th>Attr</th><th>Attack</th><th>Damage</th><th>Notes</th></tr>${weapons}</table>` : ''}
         ${skills  ? `<h2>Skills</h2><table><tr><th>Skill</th><th>Attribute</th><th>Total</th><th>Use</th></tr>${skills}</table>` : ''}
         ${character.hasPowers && powers ? `<h2>Powers</h2><table><tr><th>Power</th><th>Total</th><th>Description</th></tr>${powers}</table>` : ''}
         ${character.hasMagic && crafts ? `<h2>Magic Crafts</h2><table><tr><th>Craft</th><th>Attribute</th><th>Total</th><th>Description</th></tr>${crafts}</table>` : ''}

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { migrateWeaponDamage } from './weaponDamage.js'
 
 const attrSchema = z.object({
   base:      z.number().int().min(0).default(0),
@@ -10,10 +11,11 @@ const weaponSchema = z.preprocess((w) => {
   // Migrate legacy weapons saved before the explicit `usesSkill` flag existed:
   // infer it from the old "nonzero skillBonus means the skill applies" heuristic
   // so their attack modifier is unchanged. New/blank weapons keep default false.
-  if (w && typeof w === 'object' && w.usesSkill === undefined) {
-    return { ...w, usesSkill: (Number(w.skillBonus) || 0) > 0 }
+  const migrated = migrateWeaponDamage(w)
+  if (migrated && typeof migrated === 'object' && migrated.usesSkill === undefined) {
+    return { ...migrated, usesSkill: (Number(migrated.skillBonus) || 0) > 0 }
   }
-  return w
+  return migrated
 }, z.object({
   id:           z.string(),
   name:         z.string(),
@@ -23,6 +25,11 @@ const weaponSchema = z.preprocess((w) => {
   // Whether the weapon's skill value (not the governing attribute) is the
   // non-stacking attack modifier. Explicit so a legitimate skill of 0 can win.
   usesSkill:    z.boolean().default(false),
+  damageDice:   z.string().default(''),
+  damageBonus:  z.number().int().default(0),
+  damageType:   z.string().default(''),
+  isMelee:      z.boolean().default(true),
+  damageNeedsReview: z.boolean().default(false),
   descriptor:   z.string().default(''),
 }))
 

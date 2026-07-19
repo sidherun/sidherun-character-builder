@@ -2,6 +2,7 @@ import { calcDefense, attrTotal } from '../../utils/characterDerived.js'
 import { weaponModifier } from '../../utils/rollActions.js'
 import { useFocusOnAdd } from '../../hooks/useFocusOnAdd.js'
 import { uuid } from '../../utils/uuid.js'
+import { parseDamageDice } from '../../utils/weaponDamage.js'
 import NumberInput from '../NumberInput.jsx'
 import armorTypes from '../../data/armorTypes.json'
 import styles from './Step4Combat.module.css'
@@ -42,7 +43,9 @@ export default function Step4Combat({ character, onUpdate }) {
     const weapons = [...character.weapons, {
       id: uuid(),
       name: '', attribute: 'Agility',
-      attributeBonus: attrTotalByName('Agility'), skillBonus: 0, usesSkill: false, descriptor: '',
+      attributeBonus: attrTotalByName('Agility'), skillBonus: 0, usesSkill: false,
+      damageDice: '', damageBonus: 0, damageType: '', isMelee: true,
+      damageNeedsReview: false, descriptor: '',
     }]
     weaponFocus.markLast(weapons.length)
     onUpdate({ weapons })
@@ -54,6 +57,9 @@ export default function Step4Combat({ character, onUpdate }) {
       const updated = { ...w, ...patch }
       // Keep the attribute bonus in sync when the linked attribute changes.
       if (patch.attribute) updated.attributeBonus = attrTotalByName(patch.attribute)
+      if ('damageDice' in patch || 'damageBonus' in patch || 'damageType' in patch) {
+        updated.damageNeedsReview = false
+      }
       return updated
     }) })
   }
@@ -157,14 +163,61 @@ export default function Step4Combat({ character, onUpdate }) {
                 <span>Total</span>
                 <strong aria-label={`Total bonus: ${total}`}>{total}</strong>
               </div>
+              <label className={styles.numLabel}>
+                <span>Damage Dice</span>
+                <input
+                  className={styles.damageDice}
+                  value={w.damageDice || ''}
+                  onChange={e => updateWeapon(w.id, { damageDice: e.target.value })}
+                  placeholder="1d8"
+                  aria-label={`Damage dice for ${weaponName}`}
+                  aria-invalid={Boolean(w.damageDice && !parseDamageDice(w.damageDice))}
+                />
+              </label>
+              <label className={styles.numLabel}>
+                <span>Flat Bonus</span>
+                <NumberInput
+                  value={w.damageBonus || 0}
+                  onChange={n => updateWeapon(w.id, { damageBonus: n })}
+                  aria-label={`Flat damage bonus for ${weaponName}`}
+                  showZero
+                />
+              </label>
+              <label className={styles.numLabel}>
+                <span>Damage Type</span>
+                <input
+                  className={styles.damageType}
+                  value={w.damageType || ''}
+                  onChange={e => updateWeapon(w.id, { damageType: e.target.value })}
+                  placeholder="slashing"
+                  aria-label={`Damage type for ${weaponName}`}
+                />
+              </label>
+              <label className={styles.usesSkillLabel}>
+                <input
+                  type="checkbox"
+                  checked={w.isMelee ?? true}
+                  onChange={e => updateWeapon(w.id, { isMelee: e.target.checked })}
+                  aria-label={`${weaponName} is a melee weapon`}
+                />
+                <span>Melee</span>
+              </label>
               <input
                 className={styles.wDesc}
                 value={w.descriptor}
                 onChange={e => updateWeapon(w.id, { descriptor: e.target.value })}
                 onKeyDown={weaponFocus.enterAdds(addWeapon)}
-                placeholder="Damage / notes…"
-                aria-label={`Damage and notes for ${weaponName}`}
+                placeholder="Flavor / notes…"
+                aria-label={`Weapon notes for ${weaponName}`}
               />
+              {w.damageNeedsReview && (
+                <div className={styles.damageReview} role="alert">
+                  <span>Legacy damage needs review: “{w.descriptor}”</span>
+                  <button type="button" onClick={() => updateWeapon(w.id, { damageNeedsReview: false })}>
+                    Notes only
+                  </button>
+                </div>
+              )}
               <button
                 className="btn-danger"
                 onClick={() => removeWeapon(w.id)}

@@ -58,7 +58,10 @@ describe('play URL compact codec', () => {
     expect(d.armor).toEqual({ type: 'plate', absorption: 8, remaining: 160, max: 160 })
     expect(d.shield).toBe('small')
     expect(d.defense.typical.misc).toBe(10)
-    expect(d.weapons[0]).toMatchObject({ name: 'Sword', attribute: 'strength', attributeBonus: 20, descriptor: 'base dmg 8' })
+    expect(d.weapons[0]).toMatchObject({
+      name: 'Sword', attribute: 'strength', attributeBonus: 20,
+      damageBonus: 8, damageNeedsReview: false, descriptor: '',
+    })
     expect(d.skills[0]).toMatchObject({ name: 'Dodge', attributeName: 'agility', attributeScore: 16, skillPoints: 10, isSpecialty: false, usePips: 3 })
     expect(d.powers[0]).toMatchObject({ name: 'Talk to Trees' })
     expect(d.crafts[0]).toMatchObject({ name: 'Divinity', attributeName: 'enlightenment', attributeValue: 20 })
@@ -82,6 +85,20 @@ describe('play URL compact codec', () => {
     window.location.hash = url.slice(url.indexOf('#'))
     const d = decodeCharacterFromURL()
     expect(d.weapons[0]).toMatchObject({ name: 'Trained Fist', usesSkill: true })
+  })
+
+  it('carries structured weapon damage through the compact play URL', () => {
+    const c = character()
+    c.weapons = [{
+      id: 'w-d', name: 'Longbow', attribute: 'dexterity', attributeBonus: 12, skillBonus: 8,
+      usesSkill: true, damageDice: '1d8', damageBonus: 2, damageType: 'piercing',
+      isMelee: false, damageNeedsReview: false, descriptor: 'silvered',
+    }]
+    const url = encodeCharacterToPlayURL(c)
+    window.location.hash = url.slice(url.indexOf('#'))
+    expect(decodeCharacterFromURL().weapons[0]).toMatchObject({
+      damageDice: '1d8', damageBonus: 2, damageType: 'piercing', isMelee: false, descriptor: 'silvered',
+    })
   })
 
   it('round-trips in-app (attributeType/powerBonus) power fields', () => {

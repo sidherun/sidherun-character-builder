@@ -1,5 +1,6 @@
 import { uuid } from './uuid.js'
 import { skillBudget } from './skillPoints.js'
+import { migrateCharacterWeaponDamage } from './weaponDamage.js'
 
 const KEY_CURRENT   = 'sidherun_character'
 const KEY_ROSTER    = 'sidherun_roster'
@@ -29,7 +30,7 @@ export function getLastSaveStatus() {
 }
 
 export function loadCurrent() {
-  return parse(localStorage.getItem(KEY_CURRENT))
+  return migrateCharacterWeaponDamage(parse(localStorage.getItem(KEY_CURRENT)))
 }
 
 export function saveCurrent(character) {
@@ -101,7 +102,7 @@ export function saveCharacterToRoster(character) {
 }
 
 export function loadCharacterFromRoster(id) {
-  return parse(localStorage.getItem(charKey(id)))
+  return migrateCharacterWeaponDamage(parse(localStorage.getItem(charKey(id))))
 }
 
 export function deleteCharacterFromRoster(id) {
@@ -119,5 +120,5 @@ export function deleteCharacterFromRoster(id) {
 }
 
 export function loadVersionHistory(id) {
-  return parse(localStorage.getItem(versKey(id))) || []
+  return (parse(localStorage.getItem(versKey(id))) || []).map(migrateCharacterWeaponDamage)
 }

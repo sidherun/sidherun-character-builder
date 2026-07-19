@@ -9,6 +9,20 @@
 // rolled again). Spells resolve pass/fail against the computed target, or flag
 // an out-of-range target level.
 export function formatRoll(roll) {
+  if (roll.kind === 'damage') {
+    const dice = roll.dice
+      ? `${roll.dice} [${(roll.rolls || []).join(', ')}]`
+      : 'flat damage'
+    const bonus = roll.bonus ? ` ${roll.bonus > 0 ? '+' : '−'} ${Math.abs(roll.bonus)}` : ''
+    const crit = roll.critBonus ? ` + ${roll.critBonus} crit STR` : ''
+    const type = roll.damageType ? ` · ${roll.damageType}` : ''
+    return {
+      color: 'var(--danger)',
+      headline: String(roll.total),
+      detail: `${dice}${bonus}${crit}${type}`,
+    }
+  }
+
   if (roll.kind !== 'spell') {
     // Fumble: show the low die and the unmodified fumble die for the GM.
     if (roll.isFumble) {
