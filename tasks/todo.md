@@ -83,3 +83,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Live GM-set condition chips + player visibility + rest clear (#240) | #301 | 2026-07-18 |
 | Structured weapon damage + legacy parsing + melee crit STR workflow (#241) | #307 | 2026-07-18 |
 | Stable roster ID in roll payloads + ID-based GM table filtering (#173) | #308 | 2026-07-18 |
+| Player initiative broadcast + automatic Encounter Mode populate/re-sort (#292) | #310 | 2026-07-18 |
