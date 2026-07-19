@@ -207,6 +207,12 @@ numbers are fine"; the GM knows to fix the connection or fall back to paper on
 purpose. (`--danger`/`--bg` are light/dark inverses, so the bar stays legible in
 both themes token-only.)
 
+Guest-mode capability mappings are also validated on every explicit roster
+push. If a character's token was rotated or its cloud row was deleted, a
+background save reports a sync error and removes the dead mapping; the next
+**Push roster to cloud** recreates the row and reports it as new instead of
+silently claiming that an update succeeded (#252).
+
 **Structural saves use optimistic concurrency** (authenticated plane): each
 full-blob write guards on the row's `data_rev`, so if two devices edit the same
 character at once the second doesn't silently clobber the first — the app

@@ -1,5 +1,34 @@
 import { describe, it, expect, afterEach, vi } from 'vitest'
-import { projectLive, foldLive, dataSignature, chooseChannel, mergeRemote, qrLinkFor, rosterIdForCloudId } from './cloudSync.js'
+
+const cloud = vi.hoisted(() => ({
+  results: [], calls: [], sends: [], removed: [],
+}))
+
+vi.mock('./supabaseClient.js', () => ({
+  cloudEnabled: true,
+  authEnabled: false,
+  supabase: {
+    rpc: vi.fn(async (fn, params) => {
+      cloud.calls.push({ fn, params })
+      return cloud.results.shift() || { data: [], error: null }
+    }),
+    channel: vi.fn(() => {
+      const ch = {
+        on() { return ch },
+        subscribe() { return ch },
+        send(payload) { cloud.sends.push(payload); return ch },
+      }
+      return ch
+    }),
+    removeChannel: vi.fn(ch => cloud.removed.push(ch)),
+  },
+}))
+
+import {
+  projectLive, foldLive, dataSignature, chooseChannel, mergeRemote, qrLinkFor,
+  rosterIdForCloudId, registerCloudLink, getCloudMap, subscribeCharacter,
+  syncCharacter, pushRoster,
+} from './cloudSync.js'
 import { createDefaultCharacter } from './defaultCharacter.js'
 
 const mk = () => {
@@ -107,5 +136,91 @@ describe('mergeRemote', () => {
     expect(mergeRemote(c, {})).toBe(c)
     expect(mergeRemote(c, null)).toBe(c)
     expect(mergeRemote(null, { live: {} })).toBe(null)
+  })
+})
+
+function memoryStorage(seed = {}) {
+  const values = { ...seed }
+  return {
+    getItem: key => values[key] ?? null,
+    setItem: (key, value) => { values[key] = String(value) },
+    removeItem: key => { delete values[key] },
+  }
+}
+
+describe('dead cloud mapping recovery (#252)', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  function setup(rosterId) {
+    vi.stubGlobal('localStorage', memoryStorage({ sidherun_gm_key: 'gm_test' }))
+    cloud.results = []
+    cloud.calls = []
+    cloud.sends = []
+    cloud.removed = []
+    registerCloudLink(rosterId, { id: `old-${rosterId}`, token: `dead-${rosterId}` })
+    subscribeCharacter(rosterId, () => {})
+    return { ...mk(), _rosterId: rosterId }
+  }
+
+  it('rejects a dead structural write, removes its mapping, and does not broadcast', async () => {
+    const c = setup('dead-data')
+    cloud.results.push({ data: [], error: null })
+
+    await expect(syncCharacter(c)).rejects.toThrow('mapping is no longer valid')
+
+    expect(getCloudMap()['dead-data']).toBeUndefined()
+    expect(cloud.sends).toEqual([])
+    expect(cloud.removed).toHaveLength(1)
+  })
+
+  it('rejects a dead live write, removes its mapping, and does not broadcast', async () => {
+    const c = setup('dead-live')
+    cloud.results.push({ data: [{ id: 'old-dead-live' }], error: null })
+    await syncCharacter(c)
+    cloud.sends = []
+
+    const changed = { ...c, hitPoints: { ...c.hitPoints, current: 12 } }
+    cloud.results.push({ data: [], error: null })
+    await expect(syncCharacter(changed)).rejects.toThrow('mapping is no longer valid')
+
+    expect(cloud.calls.at(-1).fn).toBe('patch_live')
+    expect(getCloudMap()['dead-live']).toBeUndefined()
+    expect(cloud.sends).toEqual([])
+  })
+
+  it('recreates a dead mapped row during explicit roster push and reports it as new', async () => {
+    const c = setup('dead-push')
+    cloud.results.push(
+      { data: [], error: null },
+      { data: [{ id: 'new-id', token: 'new-token' }], error: null },
+    )
+
+    await expect(pushRoster([c])).resolves.toEqual({ created: 1, updated: 0, failed: 0 })
+    expect(cloud.calls.map(x => x.fn)).toEqual(['update_character_data', 'create_character'])
+    expect(getCloudMap()['dead-push']).toEqual({ id: 'new-id', token: 'new-token' })
+  })
+
+  it('validates and recreates a mapped row on explicit push even when the snapshot is unchanged', async () => {
+    const c = setup('dead-unchanged')
+    cloud.results.push({ data: [{ id: 'old-dead-unchanged' }], error: null })
+    await syncCharacter(c)
+    cloud.calls = []
+    cloud.sends = []
+    cloud.results.push(
+      { data: [], error: null },
+      { data: [{ id: 'replacement', token: 'replacement-token' }], error: null },
+    )
+
+    await expect(pushRoster([c])).resolves.toEqual({ created: 1, updated: 0, failed: 0 })
+    expect(cloud.calls.map(x => x.fn)).toEqual(['update_character_data', 'create_character'])
+    expect(cloud.sends).toEqual([])
+  })
+
+  it('keeps a healthy mapped row counted as updated', async () => {
+    const c = setup('healthy')
+    cloud.results.push({ data: [{ id: 'old-healthy' }], error: null })
+
+    await expect(pushRoster([c])).resolves.toEqual({ created: 0, updated: 1, failed: 0 })
+    expect(getCloudMap().healthy).toBeTruthy()
   })
 })

@@ -202,6 +202,32 @@ export function unsubscribeCharacter(rosterId) {
   if (ch && supabase) { supabase.removeChannel(ch); delete channels[rosterId] }
 }
 
+function invalidateCloudMapping(rosterId) {
+  unsubscribeCharacter(rosterId)
+  removeCloudMapEntry(rosterId)
+  delete lastSnapshot[rosterId]
+}
+
+async function createCloudCharacter(character) {
+  const rows = await rpc('create_character', {
+    p_gm_key: ensureGmKey(),
+    p_name:   character.name || 'Unnamed',
+    p_data:   character,
+    p_live:   projectLive(character),
+  })
+  const created = rows?.[0]
+  if (!created?.id || !created?.token) throw new Error('Cloud character creation returned no row')
+  setCloudMapEntry(character._rosterId, { id: created.id, token: created.token })
+  lastSnapshot[character._rosterId] = character
+  return { created: true, id: created.id }
+}
+
+async function handleDeadMapping(character, allowCreate) {
+  invalidateCloudMapping(character._rosterId)
+  if (allowCreate) return createCloudCharacter(character)
+  throw new Error('Cloud character mapping is no longer valid; push the roster to reconnect it')
+}
+
 // Fetch a cloud character by capability token. Returns the character with live
 // counters folded in, plus the server's updated_at (for newer-wins on open),
 // or null if the token is unknown / cloud disabled.
@@ -221,29 +247,27 @@ export async function syncCharacter(character, { allowCreate = false } = {}) {
 
   if (!entry) {
     if (!allowCreate) return null
-    const rows = await rpc('create_character', {
-      p_gm_key: ensureGmKey(),
-      p_name:   character.name || 'Unnamed',
-      p_data:   character,
-      p_live:   projectLive(character),
-    })
-    setCloudMapEntry(character._rosterId, { id: rows[0].id, token: rows[0].token })
-    lastSnapshot[character._rosterId] = character
-    return { created: true, id: rows[0].id }
+    return createCloudCharacter(character)
   }
 
-  const channel = chooseChannel(lastSnapshot[character._rosterId], character)
+  // An explicit roster push is also a mapping-health check. Force a full data
+  // write when the in-memory snapshot is unchanged so a row deleted or rotated
+  // during this session cannot remain falsely reported as synced.
+  const chosen = chooseChannel(lastSnapshot[character._rosterId], character)
+  const channel = allowCreate && chosen === 'none' ? 'data' : chosen
   if (channel === 'data') {
-    await rpc('update_character_data', {
+    const rows = await rpc('update_character_data', {
       p_token: entry.token, p_name: character.name || 'Unnamed',
       p_data: character, p_expected_rev: -1,
     })
+    if (!rows?.length) return handleDeadMapping(character, allowCreate)
     // Nudge other viewers to re-hydrate the fresh structural data (parity with the
     // live broadcast below). Payload-less signal → receivers refetch the row.
     channels[character._rosterId]?.send({ type: 'broadcast', event: 'data', payload: {} })
   } else if (channel === 'live') {
     const live = projectLive(character)
-    await rpc('patch_live', { p_token: entry.token, p_patch: live })
+    const rows = await rpc('patch_live', { p_token: entry.token, p_patch: live })
+    if (!rows?.length) return handleDeadMapping(character, allowCreate)
     // Nudge other connected viewers instantly (best-effort; persistence is the
     // patch above, so offline peers still catch up on their next hydrate).
     channels[character._rosterId]?.send({ type: 'broadcast', event: 'live', payload: { live } })
