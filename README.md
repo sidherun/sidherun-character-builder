@@ -130,6 +130,7 @@ src/
     (spell matrix: the engine imports rules/data/spell-matrix.json directly — #245)
 rules/                # golden pages: PHB 2.8 chapters 00–20 + rules/data/*.json + FIDELITY-NOTES.md
 languages/            # constructed-language references (quindel.md — Quin'dhel naming primitives)
+players/              # player-safe lore derived from canon (frontmatter data contract — #297)
 scripts/
   copy-dice-assets.mjs  # predev/prebuild: copies the 3D dice engine's assets into public/
 supabase/
@@ -144,7 +145,7 @@ public/               # favicons + webmanifest, CNAME (custom domain), sfx/ (dic
 
 ## Game System Notes (Sidherun PHB 2.8.2026)
 
-> **Canonical rules now live in [`rules/`](rules/README.md)** ("golden pages") — the full PHB 2.8 as Markdown chapters plus machine-readable tables in `rules/data/*.json` (spell matrix, XP, movement, armor, difficulty ladder, combat-defense modifiers, constitution modification, skill pool allocation, skill usage bonus, specialty pool). Constructed-language references live in [`languages/`](languages/README.md) — `quindel.md` is the Quin'dhel naming primitives (#273/#274). The Word doc is retired — all PHB copies outside this repo are deprecated; rule changes go through PRs against `rules/`. Known source contradictions are logged in `rules/FIDELITY-NOTES.md` — five have been **resolved by ruling**: crit = natural 96-00 only; rating-8 armor max durability 160; XP L15 = 150001; red-zone matrix cells add no attribute (all 2026-07-09); and **attack bonus is non-stacking** — weapon skill OR governing attribute, never both, misc bonuses still add (§1.13, 2026-07-11, found by the onboarding rules audit). See FIDELITY-NOTES §7.
+> **Canonical rules now live in [`rules/`](rules/README.md)** ("golden pages") — the full PHB 2.8 as Markdown chapters plus machine-readable tables in `rules/data/*.json` (spell matrix, XP, movement, armor, difficulty ladder, combat-defense modifiers, constitution modification, skill pool allocation, skill usage bonus, specialty pool). Constructed-language references live in [`languages/`](languages/README.md) — `quindel.md` is the Quin'dhel naming primitives (#273/#274). Player-safe lore derived from canon lives in [`players/`](players/README.md), which also defines the frontmatter data contract for the app's lore surface (#297). The Word doc is retired — all PHB copies outside this repo are deprecated; rule changes go through PRs against `rules/`. Known source contradictions are logged in `rules/FIDELITY-NOTES.md` — five have been **resolved by ruling**: crit = natural 96-00 only; rating-8 armor max durability 160; XP L15 = 150001; red-zone matrix cells add no attribute (all 2026-07-09); and **attack bonus is non-stacking** — weapon skill OR governing attribute, never both, misc bonuses still add (§1.13, 2026-07-11, found by the onboarding rules audit). See FIDELITY-NOTES §7.
 
 - **Races** — the playable race list lives in `src/data/races.json`. 2026-07-18: **Eledhel → Quin'dhel** (`quindhel`) and **Glamredhel → Gla'mdroi** (`glamdroi`), part of the setting-wide removal of names borrowed from published fantasy IP; the Southern Shores rules chapter now uses **Starquay** (was Stardock) and the world's mountain range is formally **the Kaelorun Range** (was Spine of the World, which survives in narrative text as local parlance). The Zod schema migrates stored/imported characters on load — exact legacy ids plus free-text hybrids like `"Human / Eledhel"` — so existing rosters, play links, and cloud saves resolve unchanged.
 - **HP** = `BASE(raceType × size × age) + round((STR + END) / 2) + CON`
@@ -378,6 +379,7 @@ This repository contains two distinct works under two different terms:
 
 - **Application source code** — MIT, see [`LICENSE`](LICENSE).
 - **Sidherun game content** (the `rules/` Player's Handbook text, the `languages/`
-  constructed-language references, game data and descriptions under `src/data/`,
+  constructed-language references, the `players/` player-facing lore docs,
+  game data and descriptions under `src/data/`,
   the Sidherun name, and the Southern Shores setting) — **all rights reserved**,
   with permission for personal at-table use; see [`COPYRIGHT.md`](COPYRIGHT.md).
