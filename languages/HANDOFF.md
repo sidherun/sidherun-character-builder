@@ -1,13 +1,13 @@
 # Languages — Handoff & Next Steps
 
-State as of 2026-07-18 night (Quin'lae v2.5, PRs #273–#286 + the #291 origin PR). This file is the entry point for any session continuing the language work. Read `README.md` (the nine-step process) and `quindel.md` before starting anything.
+State as of 2026-07-18 night (Quin'lae v2.6, PRs #273–#286, #293, and the #294 enemy-canon PR). This file is the entry point for any session continuing the language work. Read `README.md` (the nine-step process) and `quindel.md` before starting anything.
 
 ## Where everything is
 
 | Thing | Location |
 |---|---|
 | Quin'lae canonical doc (v2.5) | `languages/quindel.md` — §1–10 names/canon, §11 grammar + registers, §12 lexicon, §13 texts, §14 writing, §15 origin |
-| Texts (gloss + English) | `languages/texts/` — `tem-wen.md` (21 stanzas), `phrasebook.md` (25 utterances), `malgrath-threl.md` (18 stanzas), `eth-lae.md` (11 stanzas, origin liturgy) |
+| Texts (gloss + English) | `languages/texts/` — `tem-wen.md` (21 stanzas), `phrasebook.md` (25 utterances), `malgrath-threl.md` (18 stanzas), `eth-lae.md` (13 stanzas, origin liturgy) |
 | Authoritative creation process | `languages/README.md` § "Creating a new language" |
 | Notion mirror (derived, never canonical) | page `3a1e8e2e-a25a-8153-a833-d1c4c0f976cf` under the Sidherun hub |
 | Divine-name callouts in Notion | Selinthræ (`95fe8e2e-a25a-82da-baa7-815480aeb2fe`), Vælloria (`1dae8e2e-a25a-8272-bf13-815e94e2c38a`), Morvathun (`7d0e8e2e-a25a-82f9-9c42-01e068b48b54`), Roughnira (`1c7e8e2e-a25a-8237-99cd-01a6f91f4672`), Serakhala (`cf3e8e2e-a25a-8270-aed4-01260cafb368`) — all five placed; Duskmantle Hollow (`334e8e2e-a25a-8161-b729-e6b8887be26b`) carries a Thal'threl cross-ref |
@@ -21,6 +21,7 @@ Working conventions: every change lands via PR (worktree branch off `origin/main
 - **Second text (v2.3, #285):** Malgrath'threl; Ith'ver = Roughnira, Seth'wen = Serakhala; foreign names stay unadapted; *khel* iron is a marked Dûrakhar loan.
 - **Writing (v2.4, #286):** the script is where the kindreds diverge — Gla'mdroi keep the carved Thal'threl, Quin'dhel weave Syl'vor cords; the oldest marks (elder speech) are read by no one, and the Duskmantle Root Break deliberately stays unresolved.
 - **Origin (v2.5, #291):** the Sidhe'dhel have no maker — the sidhe always walked the Spirits' Road; elvenkind are the spirits who stopped, and they do not remember stopping. The Eth'lae is the origin liturgy, never written in-world. Full canon in §15.
+- **Enemies (v2.6, #294):** walking back along the road is the one violation — the **anu'runorin** (returned dead) are the elves' ancient enemies, and **Aia'runor** the Always-Walker (= Nakar, Character DB) un-stops them; he has always existed and always will, everything else deliberately open. Eth'lae stanzas 10–11 are the warning verses. **Spoiler note:** Nakar is unrevealed in-game; his Notion character page is deliberately untouched, and player-facing exposure of the Aia'runor connection is Ed's call.
 
 ## Next steps, in recommended order
 
