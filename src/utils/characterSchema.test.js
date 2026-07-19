@@ -77,3 +77,18 @@ describe('legacy race name migration', () => {
     expect(result.data.race).toBe('human')
   })
 })
+
+describe('conditions', () => {
+  it('defaults legacy characters to no conditions', () => {
+    expect(safeParseCharacter(base([])).data.conditions).toEqual([])
+  })
+
+  it('preserves a free-text label and optional numeric modifier', () => {
+    const result = safeParseCharacter({
+      ...base([]),
+      conditions: [{ id: 'c1', label: 'all rolls (backdraft)', modifier: -10 }],
+    })
+    expect(result.success).toBe(true)
+    expect(result.data.conditions).toEqual([{ id: 'c1', label: 'all rolls (backdraft)', modifier: -10 }])
+  })
+})

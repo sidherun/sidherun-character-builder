@@ -28,6 +28,24 @@
   text-transform: capitalize;
 }
 
+.headerConditions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 7px;
+}
+
+.headerCondition {
+  padding: 3px 7px;
+  border: 1px solid var(--danger);
+  border-radius: 999px;
+  color: var(--danger);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
 .headerActions {
   display: flex;
   gap: 10px;

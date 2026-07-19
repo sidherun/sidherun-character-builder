@@ -41,6 +41,17 @@ describe('PlayMode', () => {
     expect(html).toContain('Tinderbox')
   })
 
+  it('shows active condition chips in the player header', () => {
+    const html = render(base({ conditions: [
+      { id: 'c1', label: 'all rolls (backdraft)', modifier: -10 },
+      { id: 'c2', label: 'blessed', modifier: null },
+    ] }))
+    expect(html).toContain('Active conditions')
+    expect(html).toContain('−10')
+    expect(html).toContain('all rolls (backdraft)')
+    expect(html).toContain('blessed')
+  })
+
   it('hides caster-only sections; Inventory is always present (editable)', () => {
     const html = render(base({ hasMagic: false, hasPowers: false, inventory: [] }))
     expect(html).not.toContain('Magic Crafts')

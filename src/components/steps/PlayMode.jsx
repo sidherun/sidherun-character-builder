@@ -221,6 +221,16 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
         <div className={styles.charInfo}>
           <h1>{character.name || 'Unnamed'}</h1>
           <span>{character.race} · {character.archetype === 'custom' ? (character.customArchetypeName || 'Custom') : character.archetype} · Level {character.level}{character.playerName ? ` · played by ${character.playerName}` : ''}</span>
+          {character.conditions?.length > 0 && (
+            <div className={styles.headerConditions} aria-label="Active conditions">
+              {character.conditions.map(condition => (
+                <strong key={condition.id} className={styles.headerCondition}>
+                  {condition.modifier == null ? '' : `${condition.modifier > 0 ? '+' : '−'}${Math.abs(condition.modifier)} `}
+                  {condition.label}
+                </strong>
+              ))}
+            </div>
+          )}
         </div>
         <div className={styles.headerActions}>
           <CloudStatus />

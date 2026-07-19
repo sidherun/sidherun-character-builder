@@ -13,6 +13,7 @@ import { formatRoll } from '../utils/rollFormat.js'
 import { listTables, visibleForTable, tableMemberCount, visibleRollsForTable, deriveRegistry, mergeRegistry } from '../utils/tables.js'
 import { skillBudget } from '../utils/skillPoints.js'
 import { trackPush } from '../utils/cloudStatus.js'
+import { uuid } from '../utils/uuid.js'
 import CloudStatus from '../components/CloudStatus.jsx'
 import SyncBanner from '../components/SyncBanner.jsx'
 import EncounterPanel from '../components/EncounterPanel.jsx'
@@ -82,6 +83,73 @@ function HpStat({ c, cur, total, onAdjust }) {
         <button className={styles.hpAction} type="submit">Damage</button>
         <button className={styles.hpAction} type="button" onClick={() => applyAmount(1)}>Heal</button>
       </form>
+    </div>
+  )
+}
+
+const conditionText = ({ label, modifier }) =>
+  `${modifier == null ? '' : `${modifier > 0 ? '+' : '−'}${Math.abs(modifier)} `}${label}`
+
+function ConditionEditor({ c, onAdd, onRemove }) {
+  const [adding, setAdding] = useState(false)
+  const [label, setLabel] = useState('')
+  const [modifier, setModifier] = useState('')
+
+  function submit(e) {
+    e.preventDefault()
+    const trimmed = label.trim()
+    if (!trimmed) return
+    const parsedModifier = Number(modifier)
+    onAdd(c, {
+      id: uuid(),
+      label: trimmed,
+      modifier: modifier === '' || !Number.isFinite(parsedModifier) ? null : Math.trunc(parsedModifier),
+    })
+    setLabel('')
+    setModifier('')
+    setAdding(false)
+  }
+
+  return (
+    <div className={styles.conditionEditor}>
+      {(c.conditions || []).length > 0 && (
+        <div className={styles.conditionList} aria-label={`Conditions for ${c.name || 'Unnamed'}`}>
+          {c.conditions.map(condition => (
+            <button
+              key={condition.id}
+              type="button"
+              className={styles.conditionChip}
+              onClick={() => onRemove(c, condition.id)}
+              aria-label={`Remove ${conditionText(condition)} from ${c.name || 'Unnamed'}`}
+              title="Remove condition"
+            >
+              {conditionText(condition)} <span aria-hidden="true">×</span>
+            </button>
+          ))}
+        </div>
+      )}
+      {adding ? (
+        <form className={styles.conditionForm} onSubmit={submit}>
+          <input
+            autoFocus
+            value={label}
+            onChange={e => setLabel(e.target.value)}
+            placeholder="Condition"
+            aria-label={`Condition label for ${c.name || 'Unnamed'}`}
+          />
+          <input
+            type="number"
+            value={modifier}
+            onChange={e => setModifier(e.target.value)}
+            placeholder="±"
+            aria-label={`Condition modifier for ${c.name || 'Unnamed'}`}
+          />
+          <button type="submit" className={styles.conditionAdd} disabled={!label.trim()}>Add</button>
+          <button type="button" className={styles.conditionAdd} onClick={() => setAdding(false)} aria-label="Cancel condition">×</button>
+        </form>
+      ) : (
+        <button type="button" className={styles.conditionAdd} onClick={() => setAdding(true)}>+ Condition</button>
+      )}
     </div>
   )
 }
@@ -248,6 +316,10 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
     // and silently collapse multiple hits into one (#236).
     const current = charsRef.current.find(x => x._rosterId === c._rosterId) || c
     const next = applyAdjust(current, kind, delta)
+    commitLive(next)
+  }
+
+  function commitLive(next) {
     const updated = charsRef.current.map(x => x._rosterId === next._rosterId ? next : x)
     charsRef.current = updated
     setChars(updated)
@@ -258,6 +330,26 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
       if (cloudEnabled && getCloudMap()[next._rosterId]) {
         trackPush(syncCharacter(next)).catch(() => {})
       }
+    }
+  }
+
+  function addCondition(c, condition) {
+    const current = charsRef.current.find(x => x._rosterId === c._rosterId) || c
+    commitLive({ ...current, conditions: [...(current.conditions || []), condition] })
+  }
+
+  function removeCondition(c, conditionId) {
+    const current = charsRef.current.find(x => x._rosterId === c._rosterId) || c
+    commitLive({ ...current, conditions: (current.conditions || []).filter(condition => condition.id !== conditionId) })
+  }
+
+  function clearConditionsOnRest() {
+    const ids = new Set(visible.filter(c => c.conditions?.length).map(c => c._rosterId))
+    if (ids.size === 0) return
+    const scope = filtering ? 'this table' : 'all characters'
+    if (!window.confirm(`Clear conditions for ${scope} after rest?`)) return
+    for (const c of charsRef.current) {
+      if (ids.has(c._rosterId)) commitLive({ ...c, conditions: [] })
     }
   }
 
@@ -372,8 +464,9 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
           <p className={styles.empty}>No saved characters. Add characters from the Roster first.</p>
         ) : (
           <>
-            {tables.length > 0 && (
-              <div className={styles.sessionBar}>
+            <div className={styles.sessionBar}>
+              {tables.length > 0 && (
+                <>
                 <label className={styles.sessionLabel} htmlFor="gm-table-filter">Show</label>
                 <select
                   id="gm-table-filter"
@@ -386,8 +479,17 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
                     <option key={t.id} value={t.id}>{t.name} ({tableMemberCount(chars, t.id)})</option>
                   ))}
                 </select>
-              </div>
-            )}
+                </>
+              )}
+              <button
+                type="button"
+                className="btn-secondary"
+                disabled={!visible.some(c => c.conditions?.length)}
+                onClick={clearConditionsOnRest}
+              >
+                {filtering ? 'Clear table conditions on rest' : 'Clear all conditions on rest'}
+              </button>
+            </div>
             <EncounterPanel
               characters={chars}
               seedCharacters={visible}
@@ -407,6 +509,7 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
                     <div className={styles.meta}>
                       {c.race} · {c.archetype === 'custom' ? (c.customArchetypeName || 'Custom') : c.archetype} · L{c.level}
                     </div>
+                    <ConditionEditor c={c} onAdd={addCondition} onRemove={removeCondition} />
                     {canAssign && (
                       <select
                         className={styles.assign}

@@ -46,7 +46,7 @@ const mk = () => {
 describe('projectLive', () => {
   it('extracts the live counters incl. per-skill pips', () => {
     expect(projectLive(mk())).toEqual({
-      hpCurrent: 40, manaCurrent: 8, spCurrent: 2, armorRemaining: 6, usePips: { s1: 3 },
+      hpCurrent: 40, manaCurrent: 8, spCurrent: 2, armorRemaining: 6, conditions: [], usePips: { s1: 3 },
     })
   })
 })
@@ -64,12 +64,20 @@ describe('foldLive', () => {
     expect(next.skills[0].usePips).toBe(7)
     expect(next.mana.current).toBe(8) // untouched
   })
+  it('applies remote conditions without disturbing counters', () => {
+    const c = mk()
+    const conditions = [{ id: 'c1', label: 'concentration', modifier: -5 }]
+    const next = foldLive(c, { conditions })
+    expect(next.conditions).toEqual(conditions)
+    expect(next.hitPoints.current).toBe(40)
+  })
 })
 
 describe('dataSignature', () => {
   it('ignores live-only changes', () => {
     const a = mk(); const b = mk()
     b.hitPoints.current = 1; b.armor.remaining = 0; b.skills[0].usePips = 9
+    b.conditions = [{ id: 'c1', label: 'slowed', modifier: -2 }]
     expect(dataSignature(a)).toBe(dataSignature(b))
   })
   it('reflects structural changes', () => {
@@ -88,6 +96,10 @@ describe('chooseChannel', () => {
   })
   it('live-only change → live', () => {
     const a = mk(); const b = mk(); b.hitPoints.current = 20
+    expect(chooseChannel(a, b)).toBe('live')
+  })
+  it('condition change → live', () => {
+    const a = mk(); const b = mk(); b.conditions = [{ id: 'c1', label: 'slowed', modifier: -2 }]
     expect(chooseChannel(a, b)).toBe('live')
   })
   it('structural change → data', () => {

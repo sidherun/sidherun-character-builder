@@ -103,6 +103,7 @@ export function projectLive(c) {
     manaCurrent:    c.mana?.current ?? 0,
     spCurrent:      c.storyPoints?.current ?? 0,
     armorRemaining: c.armor?.remaining ?? 0,
+    conditions:     c.conditions || [],
     usePips,
   }
 }
@@ -116,6 +117,7 @@ export function foldLive(c, live) {
     mana:        { ...c.mana,        current:   live.manaCurrent    ?? c.mana?.current },
     storyPoints: { ...c.storyPoints, current:   live.spCurrent      ?? c.storyPoints?.current },
     armor:       { ...c.armor,       remaining: live.armorRemaining ?? c.armor?.remaining },
+    conditions:  live.conditions ?? c.conditions ?? [],
   }
   if (live.usePips) {
     next.skills = (c.skills || []).map(s =>
@@ -133,6 +135,7 @@ export function dataSignature(c) {
   if (x.mana)        delete x.mana.current
   if (x.storyPoints) delete x.storyPoints.current
   if (x.armor)       delete x.armor.remaining
+  delete x.conditions
   for (const s of x.skills || []) delete s.usePips
   return JSON.stringify(x)
 }
