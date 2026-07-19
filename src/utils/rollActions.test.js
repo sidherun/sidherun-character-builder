@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { weaponModifier, rollSkill, rollAttack, rollSpell, rollCast, craftTotal } from './rollActions.js'
+import { weaponModifier, rollAttribute, rollSkill, rollAttack, rollSpell, rollCast, craftTotal } from './rollActions.js'
 
 const fixed = (v) => () => v // Math.floor(v * 100) + 1 = the d100 roll
 
@@ -54,6 +54,13 @@ describe('rollSkill (roll d100 + skill total, display total)', () => {
   it('adds calcSkillTotal to the roll', () => {
     const skill = { attributeScore: 10, skillPoints: 8, tempMod: 0 } // total 18
     expect(rollSkill({}, skill, fixed(0.61))).toMatchObject({ roll: 62, modifier: 18, total: 80 })
+  })
+})
+
+describe('rollAttribute (roll d100 + derived attribute total)', () => {
+  it('includes base, racial, and temporary modifiers', () => {
+    expect(rollAttribute({ base: 12, racialMod: 2, tempMod: -1 }, fixed(0.61)))
+      .toMatchObject({ roll: 62, modifier: 13, total: 75 })
   })
 })
 

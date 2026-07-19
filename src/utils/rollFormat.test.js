@@ -23,6 +23,18 @@ describe('formatRoll — skills & attacks (display total, no pass/fail)', () => 
     expect(out.color).toBe('var(--danger)')
     expect(out.detail).toBe('d100 3 · fumble die 40 → GM determines the result')
   })
+
+  it('marks a total as passing when it matches or beats the captured GM target', () => {
+    const out = formatRoll({ kind: 'total', rolls: [62], roll: 62, modifier: 13, total: 75, gmTarget: 75 })
+    expect(out).toMatchObject({ headline: 'Pass', color: 'var(--story)' })
+    expect(out.detail).toBe('d100 62 + 13 = 75 ≥ 75')
+  })
+
+  it('marks a total below the captured GM target as failing', () => {
+    const out = formatRoll({ kind: 'total', rolls: [62], roll: 62, modifier: 12, total: 74, gmTarget: 75 })
+    expect(out).toMatchObject({ headline: 'Fail', color: 'var(--danger)' })
+    expect(out.detail).toBe('d100 62 + 12 = 74 < 75')
+  })
 })
 
 describe('formatRoll — spells (app resolves pass/fail)', () => {

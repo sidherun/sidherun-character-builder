@@ -4,7 +4,7 @@ import { calcDefense, calcSkillTotal, attrTotal } from '../../utils/characterDer
 import { ITEM_DICTIONARY } from '../../utils/spellcheck.js'
 import SpellSuggest from '../SpellSuggest.jsx'
 import { getFinalSpellTarget, getSpellZone } from '../../utils/spellTarget.js'
-import { rollSkill, rollAttack, rollSpell, rollCast, craftTotal, weaponModifier } from '../../utils/rollActions.js'
+import { rollAttribute, rollSkill, rollAttack, rollSpell, rollCast, craftTotal, weaponModifier } from '../../utils/rollActions.js'
 import { formatRoll } from '../../utils/rollFormat.js'
 import { rollToDiceSpec } from '../../utils/diceNotation.js'
 import { rollDice, preloadDice } from '../../utils/diceStage.js'
@@ -188,6 +188,9 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
   function rollSkillCheck(skill) {
     emitRoll({ kind: 'total', label: skill.name, ...rollSkill(character, skill) })
   }
+  function rollAttributeCheck(key, attribute) {
+    emitRoll({ kind: 'total', label: `${ATTR_LABELS[key]} attribute`, ...rollAttribute(attribute) })
+  }
   function rollWeapon(weapon) {
     emitRoll({ kind: 'total', label: weapon.name || 'Attack', ...rollAttack(character, weapon) })
   }
@@ -344,10 +347,17 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
                 {Object.entries(character.attributes)
                   .filter(([key]) => key in ATTR_LABELS)
                   .map(([key, val]) => (
-                    <div key={key} className={styles.attrItem}>
+                    <button
+                      key={key}
+                      type="button"
+                      className={styles.attrItem}
+                      onClick={() => rollAttributeCheck(key, val)}
+                      disabled={rolling}
+                      aria-label={`Roll ${ATTR_LABELS[key]} attribute`}
+                    >
                       <span>{ATTR_LABELS[key]}</span>
                       <strong>{attrTotal(val)}</strong>
-                    </div>
+                    </button>
                   ))}
               </div>
             </section>

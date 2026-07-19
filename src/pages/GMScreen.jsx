@@ -19,6 +19,7 @@ import EncounterPanel from '../components/EncounterPanel.jsx'
 import styles from './GMScreen.module.css'
 
 const loadAll = () => loadRoster().map(e => loadCharacterFromRoster(e.id)).filter(Boolean)
+const DIFFICULTY_TARGETS = [50, 75, 100, 125, 150]
 
 // One HP/Mana/Story stepper. Defined at MODULE scope, not inside GMScreen: a
 // component declared inside the render is a new type every render, so React
@@ -93,6 +94,9 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
   const [chars, setChars] = useState(useRepo ? [] : loadAll)
   const [players, setPlayers] = useState([])
   const [rollFeed, setRollFeed] = useState([])
+  const [difficultyTarget, setDifficultyTarget] = useState(null)
+  const difficultyTargetRef = useRef(difficultyTarget)
+  difficultyTargetRef.current = difficultyTarget
   const [encounterActive, setEncounterActive] = useState(false)
   // Distinguish "still loading" and "load failed" from a genuinely empty
   // campaign — a swallowed fetch error used to render "No saved characters",
@@ -120,7 +124,11 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
   useEffect(() => {
     if (!cloudEnabled) return
     return subscribeRollFeed(entry => {
-      setRollFeed(prev => [{ ...entry, _key: `${entry.ts}-${entry.actor}-${entry.roll}` }, ...prev].slice(0, 20))
+      setRollFeed(prev => [{
+        ...entry,
+        gmTarget: difficultyTargetRef.current,
+        _key: `${entry.ts}-${entry.actor}-${entry.roll}`,
+      }, ...prev].slice(0, 20))
     })
   }, [])
 
@@ -306,6 +314,35 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
       </header>
 
       <main className={styles.main}>
+        <section className={styles.difficulty} aria-label="Roll difficulty target">
+          <div>
+            <h2 className={styles.feedTitle}>Roll Difficulty</h2>
+            <p className={styles.difficultyStatus} aria-live="polite">
+              {difficultyTarget == null ? 'No target · GM adjudicates' : `Target ${difficultyTarget} · match or beat`}
+            </p>
+          </div>
+          <div className={styles.difficultyActions} role="group" aria-label="Set roll difficulty">
+            {DIFFICULTY_TARGETS.map(target => (
+              <button
+                key={target}
+                type="button"
+                className={styles.difficultyButton}
+                aria-pressed={difficultyTarget === target}
+                onClick={() => setDifficultyTarget(target)}
+              >
+                {target}
+              </button>
+            ))}
+            <button
+              type="button"
+              className={styles.difficultyButton}
+              disabled={difficultyTarget == null}
+              onClick={() => setDifficultyTarget(null)}
+            >
+              Clear
+            </button>
+          </div>
+        </section>
         {cloudEnabled && rollFeed.length > 0 && (
           <section className={styles.rollFeed} aria-label="Live roll feed" aria-live="polite">
             <h2 className={styles.feedTitle}>Live Rolls{filtering ? ` · ${tables.find(t => t.id === activeTable)?.name}` : ''}</h2>
