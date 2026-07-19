@@ -67,3 +67,6 @@ shipped-history log; open/planned work lives in issues, not here.
 | Play Mode spell casting flow — per-craft Cast (zone-aware, craft's own value), interim mana cost, banner+feed (#237) | — | 2026-07-11 |
 | Sidherun favicon — Cinzel S monogram, vector SVG + ico/png set + manifest (#198) | — | 2026-07-11 |
 | First-character guide — rules-grounded per-step onboarding cards + 💡 toggle (built by sonnet agent, rules-audited) | — | 2026-07-11 |
+| Security fixes — GM key entropy, dep CVEs, HTML escape completeness (#160) | 30afb62 | 2026-07-18 |
+| Dedup-safe authed save against stale localStorage 'current' slot (#127/#163) | 09c15e1 | 2026-07-18 |
+| Cloud push dead-mapping detection + recovery — no false 'updated' on rotated/deleted tokens (#252) | fae44c5 (#282) | 2026-07-18 |
