@@ -162,6 +162,7 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
   const [chars, setChars] = useState(useRepo ? [] : loadAll)
   const [players, setPlayers] = useState([])
   const [rollFeed, setRollFeed] = useState([])
+  const [initiativeRoll, setInitiativeRoll] = useState(null)
   const [difficultyTarget, setDifficultyTarget] = useState(null)
   const difficultyTargetRef = useRef(difficultyTarget)
   difficultyTargetRef.current = difficultyTarget
@@ -192,6 +193,7 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
   useEffect(() => {
     if (!cloudEnabled) return
     return subscribeRollFeed(entry => {
+      if (entry.kind === 'initiative') setInitiativeRoll(entry)
       setRollFeed(prev => [{
         ...entry,
         gmTarget: difficultyTargetRef.current,
@@ -495,6 +497,7 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
               seedCharacters={visible}
               onAdjustPc={adjust}
               onActiveChange={setEncounterActive}
+              initiativeRoll={initiativeRoll}
             />
             {!encounterActive && (
               <div className={styles.grid}>

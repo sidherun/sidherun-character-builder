@@ -103,4 +103,48 @@ describe('EncounterPanel', () => {
     expect(container.textContent).toContain('Encounter mode')
     expect(container.querySelector('input[aria-label="Initiative for Ada"]').value).toBe('17')
   })
+
+  it('auto-populates and re-sorts matched player initiative rolls', async () => {
+    sessionStorage.setItem('sidherun_encounter_v1', JSON.stringify({
+      active: true,
+      currentId: 'pc:a',
+      combatants: [
+        { id: 'pc:a', type: 'pc', rosterId: 'a', name: 'Ada', initiative: 12, initiativeBonus: 10 },
+        { id: 'pc:b', type: 'pc', rosterId: 'b', name: 'Bram', initiative: 15, initiativeBonus: 10 },
+      ],
+    }))
+    const characters = [character('a', 'Ada'), character('b', 'Bram')]
+    await act(async () => {
+      root.render(<EncounterPanel characters={characters} seedCharacters={[]} onAdjustPc={() => {}} initiativeRoll={null} />)
+    })
+    await act(async () => {
+      root.render(<EncounterPanel
+        characters={characters}
+        seedCharacters={[]}
+        onAdjustPc={() => {}}
+        initiativeRoll={{ kind: 'initiative', rosterId: 'a', total: 22 }}
+      />)
+    })
+
+    expect(container.querySelector('input[aria-label="Initiative for Ada"]').value).toBe('22')
+    const orderedNames = [...container.querySelectorAll('article strong')].map(node => node.textContent)
+    expect(orderedNames.slice(0, 2)).toEqual(['Ada', 'Bram'])
+  })
+
+  it('ignores initiative rolls for characters outside the active encounter', async () => {
+    sessionStorage.setItem('sidherun_encounter_v1', JSON.stringify({
+      active: true,
+      currentId: 'pc:a',
+      combatants: [{ id: 'pc:a', type: 'pc', rosterId: 'a', name: 'Ada', initiative: 12, initiativeBonus: 10 }],
+    }))
+    await act(async () => {
+      root.render(<EncounterPanel
+        characters={[character('a', 'Ada')]}
+        seedCharacters={[]}
+        onAdjustPc={() => {}}
+        initiativeRoll={{ kind: 'initiative', rosterId: 'other-table', total: 99 }}
+      />)
+    })
+    expect(container.querySelector('input[aria-label="Initiative for Ada"]').value).toBe('12')
+  })
 })

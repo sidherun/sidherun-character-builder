@@ -6,6 +6,7 @@ import SpellSuggest from '../SpellSuggest.jsx'
 import { getFinalSpellTarget, getSpellZone } from '../../utils/spellTarget.js'
 import { rollAttribute, rollSkill, rollAttack, rollWeaponDamage, rollSpell, rollCast, craftTotal, weaponModifier } from '../../utils/rollActions.js'
 import { parseDamageDice, weaponDamageLabel } from '../../utils/weaponDamage.js'
+import { rollCharacterInitiative } from '../../utils/encounter.js'
 import { formatRoll } from '../../utils/rollFormat.js'
 import { rollToDiceSpec } from '../../utils/diceNotation.js'
 import { rollDice, preloadDice } from '../../utils/diceStage.js'
@@ -197,6 +198,9 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
   function rollAttributeCheck(key, attribute) {
     emitRoll({ kind: 'total', label: `${ATTR_LABELS[key]} attribute`, ...rollAttribute(attribute) })
   }
+  function rollPlayerInitiative() {
+    emitRoll({ kind: 'initiative', label: 'Initiative', ...rollCharacterInitiative(character) })
+  }
   function rollWeapon(weapon) {
     const attack = rollAttack(character, weapon)
     emitRoll({ kind: 'total', label: weapon.name || 'Attack', ...attack })
@@ -365,7 +369,12 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
           {/* Attributes quick-ref */}
           {character.attributes && (
             <section className={styles.refSection}>
-              <h3>Attributes</h3>
+              <h3>
+                Attributes
+                <button className={styles.initiativeBtn} onClick={rollPlayerInitiative} disabled={rolling}>
+                  Roll initiative
+                </button>
+              </h3>
               <div className={styles.attrGrid}>
                 {Object.entries(character.attributes)
                   .filter(([key]) => key in ATTR_LABELS)
