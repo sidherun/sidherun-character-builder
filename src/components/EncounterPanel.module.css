@@ -1,0 +1,214 @@
+.launch,
+.toolbar,
+.toolbarActions,
+.amountRow,
+.quickRow,
+.rowActions,
+.initiative > div {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.launch {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  color: var(--ink-700);
+  font-size: 13px;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.toolbar {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  background: var(--card2);
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+}
+
+.toolbar > div:first-child {
+  display: flex;
+  flex-direction: column;
+}
+
+.eyebrow,
+.turnMarker,
+.initiative label,
+.npcForm label span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bronze);
+}
+
+.primaryButton,
+.secondaryButton,
+.dangerButton,
+.smallButton,
+.removeButton {
+  min-height: 36px;
+  padding: 7px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--ink-800);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.primaryButton {
+  border-color: var(--bronze);
+  color: var(--bronze);
+}
+
+.dangerButton,
+.removeButton { color: var(--danger); }
+
+.primaryButton:hover,
+.secondaryButton:hover,
+.smallButton:hover {
+  background: var(--ghost-hover);
+  border-color: var(--bronze);
+  color: var(--bronze);
+}
+
+.dangerButton:hover,
+.removeButton:hover {
+  background: var(--ghost-hover);
+  border-color: var(--danger);
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled,
+.dangerButton:disabled,
+.smallButton:disabled,
+.removeButton:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.npcForm {
+  display: grid;
+  grid-template-columns: minmax(150px, 1.5fr) repeat(4, minmax(78px, 0.7fr)) auto;
+  gap: 8px;
+  align-items: end;
+  padding: 12px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.npcForm label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.npcForm input,
+.initiative input,
+.amountRow input {
+  min-width: 0;
+  width: 100%;
+  padding: 7px 8px;
+}
+
+.combatants {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.combatant {
+  display: grid;
+  grid-template-columns: minmax(150px, 1.2fr) minmax(150px, 0.8fr) minmax(290px, 1.8fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 12px 14px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.current {
+  border-color: var(--bronze);
+  box-shadow: inset 3px 0 0 var(--bronze);
+}
+
+.identity,
+.initiative,
+.hpControls {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.identity strong {
+  font-family: 'Newsreader', serif;
+  font-size: 1.1rem;
+  color: var(--ink-900);
+}
+
+.identity > span:last-child {
+  color: var(--ink-700);
+  font-size: 12px;
+}
+
+.initiative input { width: 64px; text-align: center; }
+
+.hpValue {
+  font-family: 'Newsreader', serif;
+  font-size: 1.35rem;
+  color: var(--hp);
+}
+
+.hpValue small {
+  color: var(--ink-400);
+  font-size: 0.8rem;
+}
+
+.quickRow { display: grid; grid-template-columns: repeat(6, 1fr); }
+.quickRow .smallButton { min-width: 0; padding-inline: 5px; }
+.amountRow input { flex: 1; }
+
+.rowActions {
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.hitResult,
+.missing {
+  color: var(--ink-700);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.empty {
+  padding: 2rem;
+  text-align: center;
+  color: var(--ink-400);
+}
+
+@media (max-width: 860px) {
+  .npcForm { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .npcForm label:first-child { grid-column: 1 / -1; }
+  .combatant { grid-template-columns: 1fr 1fr; }
+  .hpControls { grid-column: 1 / -1; }
+  .rowActions { align-items: flex-start; }
+}
+
+@media (max-width: 520px) {
+  .toolbarActions { width: 100%; flex-wrap: wrap; }
+  .toolbarActions button { flex: 1; }
+  .npcForm,
+  .combatant { grid-template-columns: 1fr; }
+  .npcForm label:first-child,
+  .hpControls { grid-column: auto; }
+  .quickRow { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .amountRow { display: grid; grid-template-columns: minmax(74px, 1fr) auto auto; }
+}

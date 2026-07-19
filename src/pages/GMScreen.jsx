@@ -15,6 +15,7 @@ import { skillBudget } from '../utils/skillPoints.js'
 import { trackPush } from '../utils/cloudStatus.js'
 import CloudStatus from '../components/CloudStatus.jsx'
 import SyncBanner from '../components/SyncBanner.jsx'
+import EncounterPanel from '../components/EncounterPanel.jsx'
 import styles from './GMScreen.module.css'
 
 const loadAll = () => loadRoster().map(e => loadCharacterFromRoster(e.id)).filter(Boolean)
@@ -92,6 +93,7 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
   const [chars, setChars] = useState(useRepo ? [] : loadAll)
   const [players, setPlayers] = useState([])
   const [rollFeed, setRollFeed] = useState([])
+  const [encounterActive, setEncounterActive] = useState(false)
   // Distinguish "still loading" and "load failed" from a genuinely empty
   // campaign — a swallowed fetch error used to render "No saved characters",
   // making a broken app look empty mid-session (#218).
@@ -349,41 +351,49 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
                 </select>
               </div>
             )}
-            <div className={styles.grid}>
-            {visible.map(c => (
-              <div key={c._rosterId} className={styles.row}>
-                <div className={styles.who}>
-                  <div className={styles.name}>
-                    {c.name || 'Unnamed'}
-                    {skillBudget(c).overBudget && <span className={styles.overBudget} title="Skill points over the level budget">⚠</span>}
+            <EncounterPanel
+              characters={chars}
+              seedCharacters={visible}
+              onAdjustPc={adjust}
+              onActiveChange={setEncounterActive}
+            />
+            {!encounterActive && (
+              <div className={styles.grid}>
+              {visible.map(c => (
+                <div key={c._rosterId} className={styles.row}>
+                  <div className={styles.who}>
+                    <div className={styles.name}>
+                      {c.name || 'Unnamed'}
+                      {skillBudget(c).overBudget && <span className={styles.overBudget} title="Skill points over the level budget">⚠</span>}
+                    </div>
+                    {c.playerName && <div className={styles.player}>{c.playerName}</div>}
+                    <div className={styles.meta}>
+                      {c.race} · {c.archetype === 'custom' ? (c.customArchetypeName || 'Custom') : c.archetype} · L{c.level}
+                    </div>
+                    {canAssign && (
+                      <select
+                        className={styles.assign}
+                        value={c._assignedPlayerId || ''}
+                        onChange={e => reassign(c, e.target.value)}
+                        aria-label={`Assign player for ${c.name || 'Unnamed'}`}
+                      >
+                        <option value="">— Unassigned —</option>
+                        {players.map(p => (
+                          <option key={p.id} value={p.id}>{p.display_name || p.email}</option>
+                        ))}
+                      </select>
+                    )}
                   </div>
-                  {c.playerName && <div className={styles.player}>{c.playerName}</div>}
-                  <div className={styles.meta}>
-                    {c.race} · {c.archetype === 'custom' ? (c.customArchetypeName || 'Custom') : c.archetype} · L{c.level}
-                  </div>
-                  {canAssign && (
-                    <select
-                      className={styles.assign}
-                      value={c._assignedPlayerId || ''}
-                      onChange={e => reassign(c, e.target.value)}
-                      aria-label={`Assign player for ${c.name || 'Unnamed'}`}
-                    >
-                      <option value="">— Unassigned —</option>
-                      {players.map(p => (
-                        <option key={p.id} value={p.id}>{p.display_name || p.email}</option>
-                      ))}
-                    </select>
-                  )}
+                  <HpStat c={c} cur={c.hitPoints?.current || 0} total={c.hitPoints?.total || 0} onAdjust={adjust} />
+                  {c.hasMagic
+                    ? <Stat c={c} kind="mana" label="Mana" cur={c.mana?.current || 0} total={c.mana?.total || 0} color="var(--mana)" onAdjust={adjust} />
+                    : <div className={styles.stat}><span className={styles.statLabel}>Mana</span><span className={styles.dash}>—</span></div>}
+                  <Stat c={c} kind="sp" label="Story" cur={c.storyPoints?.current || 0} total={c.storyPoints?.total || 0} color="var(--story)" onAdjust={adjust} />
+                  <button className="btn-secondary" onClick={() => openPlay(c)}>Open</button>
                 </div>
-                <HpStat c={c} cur={c.hitPoints?.current || 0} total={c.hitPoints?.total || 0} onAdjust={adjust} />
-                {c.hasMagic
-                  ? <Stat c={c} kind="mana" label="Mana" cur={c.mana?.current || 0} total={c.mana?.total || 0} color="var(--mana)" onAdjust={adjust} />
-                  : <div className={styles.stat}><span className={styles.statLabel}>Mana</span><span className={styles.dash}>—</span></div>}
-                <Stat c={c} kind="sp" label="Story" cur={c.storyPoints?.current || 0} total={c.storyPoints?.total || 0} color="var(--story)" onAdjust={adjust} />
-                <button className="btn-secondary" onClick={() => openPlay(c)}>Open</button>
+              ))}
               </div>
-            ))}
-            </div>
+            )}
           </>
         )}
       </main>

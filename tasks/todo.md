@@ -76,3 +76,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Cloud push dead-mapping detection + recovery — no false 'updated' on rotated/deleted tokens (#252) | fae44c5 (#282) | 2026-07-18 |
 | Last full-phrase 'Spine of the World' in rules (06-skills example) → Kaelorun Range; #271 offline-file audit complete | #288 | 2026-07-18 |
 | GM Screen reliable HP entry — quick deltas, numeric Damage/Heal, no lost rapid adjustments (#236) | #289 | 2026-07-18 |
+| GM Encounter Mode — initiative order, turn marker, temporary NPC HP/defense/armor tracking (#239) | #290 | 2026-07-18 |
