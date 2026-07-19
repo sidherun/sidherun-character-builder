@@ -87,7 +87,7 @@
 
 .row {
   display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr 1fr auto;
+  grid-template-columns: 1.25fr 1.8fr 0.8fr 0.8fr auto;
   gap: 14px;
   align-items: center;
   background: var(--card);
@@ -147,6 +147,49 @@
 
 .statControls { display: flex; align-items: center; gap: 8px; }
 
+.hpStat { min-width: 190px; }
+
+.quickAdjust {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(28px, 1fr));
+  gap: 4px;
+  width: 100%;
+}
+
+.quickAdjustButton,
+.hpAction {
+  min-height: 36px;
+  padding: 5px 6px;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: var(--ink-700);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.quickAdjustButton:hover,
+.hpAction:hover {
+  background: var(--ghost-hover);
+  border-color: var(--bronze);
+  color: var(--bronze);
+}
+
+.hpEntry {
+  display: grid;
+  grid-template-columns: minmax(68px, 1fr) auto auto;
+  gap: 4px;
+  width: 100%;
+}
+
+.hpInput {
+  min-width: 0;
+  width: 100%;
+  padding: 5px 6px;
+  text-align: center;
+}
+
 .adj {
   /* Bigger tap target for the +/- a GM hits constantly during combat (#217). */
   width: 40px;
@@ -180,6 +223,7 @@
 @media (max-width: 720px) {
   .row { grid-template-columns: 1fr 1fr; row-gap: 12px; }
   .who { grid-column: 1 / -1; }
+  .hpStat { min-width: 0; }
 }
 
 /* Live roll feed (#148) — shared table roll broadcast */

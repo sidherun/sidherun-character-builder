@@ -37,6 +37,53 @@ function Stat({ c, kind, label, cur, total, color, onAdjust }) {
   )
 }
 
+function HpStat({ c, cur, total, onAdjust }) {
+  const [amount, setAmount] = useState('')
+
+  function applyAmount(direction) {
+    const value = Math.floor(Math.abs(Number(amount)))
+    if (!Number.isFinite(value) || value <= 0) return
+    onAdjust(c, 'hp', direction * value)
+    setAmount('')
+  }
+
+  return (
+    <div className={`${styles.stat} ${styles.hpStat}`}>
+      <span className={styles.statLabel} style={{ color: 'var(--hp)' }}>HP</span>
+      <span className={styles.statVal} style={{ color: 'var(--hp)' }}>
+        {cur}<span className={styles.statTotal}>/{total}</span>
+      </span>
+      <div className={styles.quickAdjust} aria-label={`Quick HP adjustment for ${c.name || 'Unnamed'}`}>
+        {[-5, -3, -1, 1, 3, 5].map(delta => (
+          <button
+            key={delta}
+            className={styles.quickAdjustButton}
+            onClick={() => onAdjust(c, 'hp', delta)}
+            aria-label={`${delta < 0 ? 'Damage' : 'Heal'} ${Math.abs(delta)} HP for ${c.name || 'Unnamed'}`}
+          >
+            {delta > 0 ? `+${delta}` : delta}
+          </button>
+        ))}
+      </div>
+      <form className={styles.hpEntry} onSubmit={e => { e.preventDefault(); applyAmount(-1) }}>
+        <input
+          className={styles.hpInput}
+          type="number"
+          min="1"
+          step="1"
+          inputMode="numeric"
+          placeholder="amount"
+          value={amount}
+          onChange={e => setAmount(e.target.value)}
+          aria-label={`HP adjustment amount for ${c.name || 'Unnamed'}`}
+        />
+        <button className={styles.hpAction} type="submit">Damage</button>
+        <button className={styles.hpAction} type="button" onClick={() => applyAmount(1)}>Heal</button>
+      </form>
+    </div>
+  )
+}
+
 export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
   const { role, signOut } = useAuth()
   const useRepo = repoEnabled()
@@ -186,8 +233,14 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
   const feedToShow = visibleRollsForTable(rollFeed, chars, activeTable)
 
   function adjust(c, kind, delta) {
-    const next = applyAdjust(c, kind, delta)
-    setChars(prev => prev.map(x => x._rosterId === next._rosterId ? next : x))
+    // Read from and advance the ref synchronously. React may batch several rapid
+    // clicks before rendering; deriving from `c` would then reuse a stale counter
+    // and silently collapse multiple hits into one (#236).
+    const current = charsRef.current.find(x => x._rosterId === c._rosterId) || c
+    const next = applyAdjust(current, kind, delta)
+    const updated = charsRef.current.map(x => x._rosterId === next._rosterId ? next : x)
+    charsRef.current = updated
+    setChars(updated)
     if (useRepo) {
       trackPush(patchLive(next._rosterId, next)).catch(() => {})
     } else {
@@ -322,7 +375,7 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
                     </select>
                   )}
                 </div>
-                <Stat c={c} kind="hp" label="HP" cur={c.hitPoints?.current || 0} total={c.hitPoints?.total || 0} color="var(--hp)" onAdjust={adjust} />
+                <HpStat c={c} cur={c.hitPoints?.current || 0} total={c.hitPoints?.total || 0} onAdjust={adjust} />
                 {c.hasMagic
                   ? <Stat c={c} kind="mana" label="Mana" cur={c.mana?.current || 0} total={c.mana?.total || 0} color="var(--mana)" onAdjust={adjust} />
                   : <div className={styles.stat}><span className={styles.statLabel}>Mana</span><span className={styles.dash}>—</span></div>}
