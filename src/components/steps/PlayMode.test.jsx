@@ -16,7 +16,8 @@ const base = (extra = {}) => ({
   hitPoints: { total: 24, current: 24 }, mana: { total: 18, current: 18 },
   storyPoints: { total: 3, current: 3 }, armor: { type: 'leather', absorption: 2, remaining: 6, max: 6 },
   defense: { typical: D(), prone: D(), magic: D(), psychic: D(), other: { base: 0, skillBonus: 0, misc: 0 } },
-  weapons: [{ id: 1, name: 'Quarterstaff', attribute: 'strength', attributeBonus: 3, skillBonus: 2, descriptor: '1d6 blunt' }],
+  weapons: [{ id: 1, name: 'Quarterstaff', attribute: 'strength', attributeBonus: 3, skillBonus: 2,
+    damageDice: '1d6', damageBonus: 0, damageType: 'blunt', isMelee: true, descriptor: '' }],
   skills: [{ id: 1, name: 'Herbalism', attributeName: 'wisdom', attributeScore: 14, skillPoints: 5, isSpecialty: true }],
   powers: [{ id: 1, name: 'Beast Sense', base: 2, attributeBonus: 3, description: 'commune with animals' }],
   crafts: [{ id: 1, name: 'Entangle', attributeName: 'wisdom', attributeValue: 14, skillBonus: 3, description: 'roots grasp foes' }],
@@ -133,6 +134,12 @@ describe('PlayMode tap-to-roll wiring', () => {
     const html = render(base())
     expect(html).toContain('>Roll<')
     expect(html).toContain('>Attack<')
+  })
+
+  it('shows structured weapon damage on the Play Mode weapon row', () => {
+    const html = render(base())
+    expect(html).toContain('1d6 blunt')
+    expect(html).not.toContain('>Damage<') // appears only after that weapon attacks
   })
 
   it('renders every attribute as a labelled roll button', () => {

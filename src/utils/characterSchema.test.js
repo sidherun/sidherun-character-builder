@@ -46,6 +46,21 @@ describe('weapon usesSkill migration', () => {
   })
 })
 
+describe('weapon damage migration', () => {
+  it('parses a recognized legacy descriptor into rollable fields', () => {
+    const w = parseWeapon({ id: 'w', name: 'Sword', attribute: 'strength', descriptor: '1d8 slashing' })
+    expect(w).toMatchObject({
+      damageDice: '1d8', damageBonus: 0, damageType: 'slashing',
+      damageNeedsReview: false, descriptor: '', isMelee: true,
+    })
+  })
+
+  it('flags unrecognized legacy damage without discarding it', () => {
+    const w = parseWeapon({ id: 'w', name: 'Oddity', attribute: 'dexterity', descriptor: 'ask the GM' })
+    expect(w).toMatchObject({ descriptor: 'ask the GM', damageNeedsReview: true, isMelee: false })
+  })
+})
+
 describe('legacy race name migration', () => {
   const parseRace = (race) => {
     const result = safeParseCharacter({ ...base([]), race })

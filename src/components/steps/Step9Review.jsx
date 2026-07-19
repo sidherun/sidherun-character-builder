@@ -5,6 +5,7 @@ import { skillBudget } from '../../utils/skillPoints.js'
 import { canLevelUp, applyLevelUp } from '../../utils/leveling.js'
 import { ITEM_DICTIONARY } from '../../utils/spellcheck.js'
 import { weaponModifier } from '../../utils/rollActions.js'
+import { weaponDamageLabel } from '../../utils/weaponDamage.js'
 import LevelUpDialog from '../LevelUpDialog.jsx'
 import SpellSuggest from '../SpellSuggest.jsx'
 import { encodeCharacterToURL } from '../../utils/urlState.js'
@@ -227,7 +228,10 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
                       <span className={styles.weaponName}>{w.name || '—'}</span>
                       <span className={styles.weaponAttr}>{w.attribute}</span>
                       <span className={styles.weaponTotal}>+{total}</span>
-                      <span className={styles.weaponDesc}>{w.descriptor}</span>
+                      <span className={styles.weaponDesc}>
+                        {weaponDamageLabel(w)}{w.damageNeedsReview ? ' ⚠ needs review' : ''}
+                        {w.descriptor ? ` · ${w.descriptor}` : ''}
+                      </span>
                     </div>
                   )
                 })

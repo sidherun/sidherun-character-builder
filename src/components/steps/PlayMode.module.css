@@ -404,6 +404,21 @@
   font-size: 12px;
 }
 
+.weaponActions { display: flex; gap: 5px; }
+
+.damageBtn {
+  padding: 5px 8px;
+  border: 1px solid var(--danger);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--danger);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.damageBtn:hover:not(:disabled) { background: var(--ghost-hover); }
+
 .skillItem {
   display: flex;
   justify-content: space-between;

@@ -33,6 +33,13 @@ describe('saveCharacterToRoster storage hardening', () => {
     expect(loadRoster().find(r => r.id === 'fixed-id')).toBeTruthy()
   })
 
+  it('migrates recognized legacy weapon damage when loading a roster character', () => {
+    saveCharacterToRoster(mk({ weapons: [{ id: 'w1', attribute: 'strength', descriptor: 'base dmg 8' }] }))
+    expect(loadCharacterFromRoster('fixed-id').weapons[0]).toMatchObject({
+      damageBonus: 8, damageNeedsReview: false, descriptor: '',
+    })
+  })
+
   it('does not throw and still saves the character when version history cannot be written', () => {
     vi.stubGlobal('localStorage', makeStore(k => { if (k.startsWith('sidherun_versions_')) quota() }))
     expect(() => saveCharacterToRoster(mk())).not.toThrow()

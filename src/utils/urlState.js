@@ -1,4 +1,5 @@
 import LZString from 'lz-string'
+import { migrateWeaponDamage } from './weaponDamage.js'
 
 const ATTR_KEYS = [
   'strength', 'agility', 'dexterity', 'endurance', 'constitution', 'intelligence',
@@ -14,7 +15,13 @@ const ATTR_KEYS = [
 // shape (ids, defaults) so safeParse still validates on decode.
 function toCompact(c) {
   const at  = ATTR_KEYS.map(k => c.attributes?.[k]?.base || 0)
-  const w   = (c.weapons || []).map(x => [x.name, x.attribute, x.attributeBonus || 0, x.skillBonus || 0, x.descriptor || '', x.usesSkill ? 1 : 0])
+  const w   = (c.weapons || []).map(raw => {
+    const x = migrateWeaponDamage(raw)
+    return [
+      x.name, x.attribute, x.attributeBonus || 0, x.skillBonus || 0, x.descriptor || '', x.usesSkill ? 1 : 0,
+      x.damageDice || '', x.damageBonus || 0, x.damageType || '', x.isMelee === false ? 0 : 1, x.damageNeedsReview ? 1 : 0,
+    ]
+  })
   const sk  = (c.skills  || []).map(x => [x.name, x.attributeName, x.attributeScore || 0, x.skillPoints || 0, x.tempMod || 0, x.isSpecialty ? 1 : 0, x.usePips || 0])
   const pw  = (c.powers  || []).map(x => [x.name, x.base || 0, x.attributeBonus || 0, x.skillBonus || 0, x.misc || 0, x.description || '', x.attributeType || '', x.powerBonus || 0])
   const cr  = (c.crafts  || []).map(x => [x.name, x.attributeName, x.attributeValue || 0, x.skillBonus || 0, x.misc || 0, x.description || ''])
@@ -47,7 +54,15 @@ function fromCompact(a) {
     attributes,
     // usesSkill (x[5]) is only present on links minted after the flag shipped;
     // omit it for older links so the schema migrates them from the skill bonus.
-    weapons: (w || []).map((x, i) => ({ id: 'w' + i, name: x[0] || '', attribute: x[1] || '', attributeBonus: x[2] || 0, skillBonus: x[3] || 0, descriptor: x[4] || '', ...(x.length > 5 ? { usesSkill: !!x[5] } : {}) })),
+    weapons: (w || []).map((x, i) => ({
+      id: 'w' + i, name: x[0] || '', attribute: x[1] || '', attributeBonus: x[2] || 0,
+      skillBonus: x[3] || 0, descriptor: x[4] || '',
+      ...(x.length > 5 ? { usesSkill: !!x[5] } : {}),
+      ...(x.length > 6 ? {
+        damageDice: x[6] || '', damageBonus: x[7] || 0, damageType: x[8] || '',
+        isMelee: x[9] !== 0, damageNeedsReview: !!x[10],
+      } : {}),
+    })),
     armor: { type: (arm && arm[0]) || 'none', absorption: (arm && arm[1]) || 0, remaining: (arm && arm[2]) || 0, max: (arm && arm[3]) || 0 },
     shield: shield || 'none',
     defense: {

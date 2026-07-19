@@ -32,6 +32,32 @@
 
 .wName { flex: 2; min-width: 120px; }
 .wDesc { flex: 3; min-width: 140px; }
+.damageDice { width: 72px; text-align: center; }
+.damageType { width: 100px; }
+
+.damageReview {
+  flex-basis: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 9px;
+  border: 1px solid var(--danger);
+  border-radius: 4px;
+  color: var(--danger);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+}
+
+.damageReview button {
+  flex: none;
+  border: 1px solid var(--danger);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--danger);
+  padding: 4px 7px;
+  cursor: pointer;
+}
 
 .numLabel {
   display: flex;
