@@ -85,3 +85,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Stable roster ID in roll payloads + ID-based GM table filtering (#173) | #308 | 2026-07-18 |
 | Player initiative broadcast + automatic Encounter Mode populate/re-sort (#292) | #310 | 2026-07-18 |
 | Manage Roles search, role filters, and editable player display names (#313) | #313 | 2026-07-19 |
+| Player-facing content layer: players/ contract + elves.md shape draft (#297) | #315 | 2026-07-19 |
