@@ -126,4 +126,45 @@ describe('GMScreen', () => {
     expect(loadCharacterFromRoster('r1').hitPoints.current).toBe(7)
     expect(input.value).toBe('')
   })
+
+  it('adds, removes, and bulk-clears player conditions', async () => {
+    saveCharacterToRoster({ ...mk(), conditions: [] })
+    await act(async () => {
+      root.render(<GMScreen onNavigate={() => {}} theme="dark" onToggleTheme={() => {}} />)
+    })
+
+    const button = text => [...container.querySelectorAll('button')].find(b => b.textContent.trim() === text)
+    act(() => button('+ Condition').click())
+
+    const label = container.querySelector('input[aria-label="Condition label for Hero"]')
+    const modifier = container.querySelector('input[aria-label="Condition modifier for Hero"]')
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set
+    act(() => {
+      setter.call(label, 'all rolls (backdraft)')
+      label.dispatchEvent(new Event('input', { bubbles: true }))
+      setter.call(modifier, '-10')
+      modifier.dispatchEvent(new Event('input', { bubbles: true }))
+    })
+    act(() => label.form.requestSubmit())
+
+    expect(loadCharacterFromRoster('r1').conditions[0]).toMatchObject({ label: 'all rolls (backdraft)', modifier: -10 })
+    expect(container.textContent).toContain('−10 all rolls (backdraft)')
+
+    const remove = container.querySelector('button[aria-label^="Remove −10 all rolls"]')
+    act(() => remove.click())
+    expect(loadCharacterFromRoster('r1').conditions).toEqual([])
+
+    act(() => button('+ Condition').click())
+    const secondLabel = container.querySelector('input[aria-label="Condition label for Hero"]')
+    act(() => {
+      setter.call(secondLabel, 'slowed')
+      secondLabel.dispatchEvent(new Event('input', { bubbles: true }))
+    })
+    act(() => secondLabel.form.requestSubmit())
+
+    vi.stubGlobal('confirm', vi.fn(() => true))
+    act(() => button('Clear all conditions on rest').click())
+    expect(confirm).toHaveBeenCalledOnce()
+    expect(loadCharacterFromRoster('r1').conditions).toEqual([])
+  })
 })

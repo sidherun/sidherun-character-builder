@@ -97,6 +97,12 @@ const noteSchema = z.object({
   lastEdited:  z.string().default(''),
 })
 
+const conditionSchema = z.object({
+  id:       z.string(),
+  label:    z.string().default(''),
+  modifier: z.number().int().nullable().default(null),
+})
+
 export const characterSchema = z.object({
   wizardStep:  z.number().int().min(1).max(9).default(1),
   _rosterId:   z.string().nullable().default(null),
@@ -154,6 +160,7 @@ export const characterSchema = z.object({
   crafts:    z.array(craftSchema).default([]),
   skills:    z.array(skillSchema).default([]),
   inventory: z.array(inventoryItemSchema).default([]),
+  conditions: z.array(conditionSchema).default([]),
 
   hitPoints:   z.object({ total: z.number().int().default(0), current: z.number().int().default(0) }).default({ total: 0, current: 0 }),
   mana:        z.object({ total: z.number().int().default(0), current: z.number().int().default(0) }).default({ total: 0, current: 0 }),

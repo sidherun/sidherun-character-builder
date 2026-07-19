@@ -135,6 +135,55 @@
   padding: 2px 4px;
 }
 
+.conditionEditor {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.conditionList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.conditionChip,
+.conditionAdd {
+  min-height: 30px;
+  padding: 4px 7px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--sel);
+  color: var(--ink-800);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.conditionChip { color: var(--danger); }
+
+.conditionChip:hover,
+.conditionAdd:hover:not(:disabled) {
+  border-color: var(--bronze);
+  background: var(--ghost-hover);
+}
+
+.conditionForm {
+  display: grid;
+  grid-template-columns: minmax(90px, 1fr) 48px auto auto;
+  gap: 4px;
+  width: min(100%, 280px);
+}
+
+.conditionForm input {
+  min-width: 0;
+  width: 100%;
+  padding: 5px 6px;
+  font-size: 12px;
+}
+
 .stat { display: flex; flex-direction: column; gap: 4px; align-items: center; }
 
 .statLabel {

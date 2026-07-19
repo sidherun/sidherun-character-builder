@@ -58,6 +58,7 @@ export function createDefaultCharacter() {
     // Step 7
     skills: [],
     inventory: [],
+    conditions: [],
 
     // Step 8
     hitPoints:   { total: 0, current: 0 },
