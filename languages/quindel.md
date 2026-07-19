@@ -14,6 +14,8 @@
 
 **v2.3 (2026-07-18).** Second text: [`texts/malgrath-threl.md`](texts/malgrath-threl.md) — **Malgrath'threl**, "The Scar Malgrath Carries" — stress-testing the v2.1 numerals and the loan conventions. **Ith'ver** (Roughnira, "the Deep Green") and **Seth'wen** (Serakhala, "the Still Wind") are canon Quin'lae divine names; foreign proper names stay unadapted in Quin'lae text, and *khel* "iron" enters as the language's one k-bearing word, a marked Dûrakhar loan.
 
+**v2.4 (2026-07-18).** Writing ruled (Ed's direction: the script is where the kindreds diverge). One spoken tongue, two hands: the ancestral carved script is **Thal'threl** ("tree-marks"), which the Gla'mdroi still keep; the Quin'dhel replaced carving with **Syl'vor** ("weave-speech"), knotted cord records kept by the weaver-healers. Neither kindred fully reads the oldest marks. See §14.
+
 Reference for generating Elven names in Sidherun. Derived from every attested elven-styled name in the Notion wiki (World Map, Southern Shores, session rosters) and the PHB. This is the go-forward standard: new elven names for places, people, artifacts, and festivals should be built from the tables below.
 
 **Canon change (v1.1, 2026-07-18):** the elf kindreds are renamed. High elves are **Quin'dhel** (retiring *Eledhel*); wild elves are **Gla'mdroi** (retiring *Glamredhel*). Both retired names were Raymond E. Feist coinages; the replacements are native formations, and the rename gives the language a second productive pattern (see §6, demonyms). The rename shipped to app data and the rules chapters in #270.
@@ -138,6 +140,9 @@ Adopted as canon 2026-07-18:
 | Seth'wen | The Still Wind | The Quin'lae name for Serakhala, the Stillness (canonized 2026-07-18) |
 | Run'thrin | The Thorn-Road | The Thorned Path, Roughnira's order |
 | Malgrath'threl | Malgrath's Mark | "The Scar Malgrath Carries" — the second Quin'lae text |
+| Eth'vor / Din'vor | First-Speech / Day-Speech | The formal and everyday registers (§11) |
+| Thal'threl | Tree-Marks | The ancestral carved script, kept by the Gla'mdroi (§14) |
+| Syl'vor | Weave-Speech | The Quin'dhel knotted-cord writing (§14) |
 
 ## 8. Generation recipe
 
@@ -252,3 +257,19 @@ Full Quin'lae texts live in [`texts/`](texts/), with interlinear gloss and Engli
 - [`texts/tem-wen.md`](texts/tem-wen.md) — **Tem'wen**, "The Equinox of Breath" told in Quin'lae (21 stanzas covering the full story).
 - [`texts/phrasebook.md`](texts/phrasebook.md) — the table phrasebook: 25 stock utterances for GM use, in both registers, with Gla'mdroi liaison variants.
 - [`texts/malgrath-threl.md`](texts/malgrath-threl.md) — **Malgrath'threl**, "The Scar Malgrath Carries" told in Quin'lae (18 stanzas; numerals, loans, and the Ith'ver / Seth'wen divine names).
+
+## 14. Writing (v2.4)
+
+Ruled 2026-07-18: the Sidhe'dhel speak one language and write two. The divergence of the kindreds shows most plainly in their hands.
+
+**Thal'threl ("tree-marks") — the old script.** The ancestral writing of all elves: straight base-strokes with branching finials, cut into living wood so the marks grow with the tree. A trained line of trees is a document that lengthens over centuries. Reading old Thal'threl means reading growth — how the tree has stretched the strokes tells a reader *when* each mark was cut. The oldest inscriptions predate the parting of the kindreds and are written in the elder speech beneath Quin'lae; no living elf reads them fully.
+
+**The Gla'mdroi hand.** The Gla'mdroi still cut Thal'threl — hold-boundaries, way-marks, grave-trees, treaty-trees at the edges of Gla'mDroia country. Their letter-forms have drifted from the old inscriptions the way their speech has drifted from Eth'vor: clipped, run together, seldom finished with the formal finials. A Gla'mdroi elder can piece out fragments of the oldest marks; that is the closest thing to reading them that remains.
+
+**Syl'vor ("weave-speech") — the Quin'dhel hand.** The Quin'dhel stopped cutting trees to write on them; to the Grove-kin, wounding wood to keep words became unthinkable. Their records are woven: knotted cords of dyed thread, knot-order carrying the words, color carrying the register. The weaver-healers (§5, *syl*) are also the record-keepers, and the "old records of the Lightwells" in Tem'wen 1 (*meorin al o El'sae*) are woven archives — shelves of hanging cords, read by hand as much as by eye. A burned archive is called *seth silin*, "a silence of moons."
+
+**Mutual legibility:** each kindred can slowly puzzle out the other's hand — the underlying letter-values are shared — but fluency in both is rare and is the mark of a scholar or a go-between. Eth'vor ceremony needs no writing at all; liturgy is carried by memory (*meor-*), which both kindreds hold higher than any record.
+
+**The Duskmantle Root Break.** The ironbark trees above the Duskmantle Hollow throw shadows that look "like writing in a language that no longer exists." What travelers half-see there is the look of old Thal'threl — branching strokes on a grown line of trees. Whether the Root Break arc is a true inscription of the elder speech or an accident of wind and stone is deliberately unresolved in canon; what it says, if it says anything, is the table's to discover.
+
+Open sub-items: glyph shapes and a rendering are optional later work; the elder speech beneath Quin'lae has no doc and needs none until a text demands it.

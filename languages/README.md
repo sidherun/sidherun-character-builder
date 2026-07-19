@@ -13,7 +13,7 @@ Each language doc carries the primitives needed for go-forward naming: attested 
 
 | File | Language | People |
 |---|---|---|
-| [`quindel.md`](quindel.md) | Quin'lae ("grove-song") — names + full sentence grammar (VSO, v2.1) | The Sidhe'dhel (elvenkind) — Quin'dhel (high) and Gla'mdroi (wild) kindreds |
+| [`quindel.md`](quindel.md) | Quin'lae ("grove-song") — names, full sentence grammar (VSO), registers, and writing (v2.4) | The Sidhe'dhel (elvenkind) — Quin'dhel (high) and Gla'mdroi (wild) kindreds |
 
 ## Texts
 
