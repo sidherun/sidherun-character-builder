@@ -20,6 +20,7 @@ function toCompact(c) {
     return [
       x.name, x.attribute, x.attributeBonus || 0, x.skillBonus || 0, x.descriptor || '', x.usesSkill ? 1 : 0,
       x.damageDice || '', x.damageBonus || 0, x.damageType || '', x.isMelee === false ? 0 : 1, x.damageNeedsReview ? 1 : 0,
+      x.rangeNeedsReview ? 1 : 0,
     ]
   })
   const sk  = (c.skills  || []).map(x => [x.name, x.attributeName, x.attributeScore || 0, x.skillPoints || 0, x.tempMod || 0, x.isSpecialty ? 1 : 0, x.usePips || 0])
@@ -60,7 +61,7 @@ function fromCompact(a) {
       ...(x.length > 5 ? { usesSkill: !!x[5] } : {}),
       ...(x.length > 6 ? {
         damageDice: x[6] || '', damageBonus: x[7] || 0, damageType: x[8] || '',
-        isMelee: x[9] !== 0, damageNeedsReview: !!x[10],
+        isMelee: x[9] !== 0, damageNeedsReview: !!x[10], rangeNeedsReview: !!x[11],
       } : {}),
     })),
     armor: { type: (arm && arm[0]) || 'none', absorption: (arm && arm[1]) || 0, remaining: (arm && arm[2]) || 0, max: (arm && arm[3]) || 0 },

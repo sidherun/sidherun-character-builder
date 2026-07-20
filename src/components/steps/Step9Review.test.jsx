@@ -35,6 +35,17 @@ describe('Step9Review as the manage-mode character sheet', () => {
     expect(html).not.toContain('+ Add item')
   })
 
+  it('flags a weapon whose melee/ranged classification needs review', () => {
+    const c = base()
+    c.weapons = [{
+      id: 'w1', name: 'Spear', attribute: 'Strength', attributeBonus: 10,
+      skillBonus: 0, damageDice: '1d6', damageBonus: 0,
+      damageType: 'piercing', isMelee: true, rangeNeedsReview: true,
+      damageNeedsReview: false, descriptor: '',
+    }]
+    expect(sheet(c)).toContain('⚠ needs review')
+  })
+
   // Skills-header budget badge: under-spent shows an informational unspent cue,
   // exactly-spent shows neither cue, over-spent keeps the warning (#178).
   // Three skills so no single skill trips the per-skill cap (40 at level 3) —

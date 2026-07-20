@@ -92,12 +92,13 @@ describe('play URL compact codec', () => {
     c.weapons = [{
       id: 'w-d', name: 'Longbow', attribute: 'dexterity', attributeBonus: 12, skillBonus: 8,
       usesSkill: true, damageDice: '1d8', damageBonus: 2, damageType: 'piercing',
-      isMelee: false, damageNeedsReview: false, descriptor: 'silvered',
+      isMelee: false, damageNeedsReview: false, rangeNeedsReview: true, descriptor: 'silvered',
     }]
     const url = encodeCharacterToPlayURL(c)
     window.location.hash = url.slice(url.indexOf('#'))
     expect(decodeCharacterFromURL().weapons[0]).toMatchObject({
-      damageDice: '1d8', damageBonus: 2, damageType: 'piercing', isMelee: false, descriptor: 'silvered',
+      damageDice: '1d8', damageBonus: 2, damageType: 'piercing', isMelee: false,
+      rangeNeedsReview: true, descriptor: 'silvered',
     })
   })
 

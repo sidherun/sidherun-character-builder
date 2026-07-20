@@ -423,7 +423,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
                   <span>{w.name}</span>
                   <span className={styles.weaponBonus}>+{weaponModifier(w)}</span>
                   <span className={styles.weaponDesc} title={w.descriptor || undefined}>
-                    {weaponDamageLabel(w)}{w.damageNeedsReview ? ' ⚠' : ''}
+                    {weaponDamageLabel(w)}{(w.damageNeedsReview || w.rangeNeedsReview) ? ' ⚠' : ''}
                   </span>
                   <div className={styles.weaponActions}>
                     <button className={styles.rollBtn} onClick={() => rollWeapon(w)} disabled={rolling}>Attack</button>

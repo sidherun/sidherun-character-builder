@@ -90,3 +90,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | todo.md: fix issue-vs-PR numbers in v2.5/v2.6 shipped-history rows (#319) | #320 | 2026-07-20 |
 | Supabase SECURITY DEFINER permission hardening + verification matrix (#321) | #321 | 2026-07-20 |
 | Production structured-weapon audit: zero review flags / invalid dice (#306) | #306 | 2026-07-20 |
+| Explicit legacy weapon range review + partial structured-data migration (#324) | #324 | 2026-07-20 |

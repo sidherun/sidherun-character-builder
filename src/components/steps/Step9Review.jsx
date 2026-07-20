@@ -229,7 +229,7 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
                       <span className={styles.weaponAttr}>{w.attribute}</span>
                       <span className={styles.weaponTotal}>+{total}</span>
                       <span className={styles.weaponDesc}>
-                        {weaponDamageLabel(w)}{w.damageNeedsReview ? ' ⚠ needs review' : ''}
+                        {weaponDamageLabel(w)}{(w.damageNeedsReview || w.rangeNeedsReview) ? ' ⚠ needs review' : ''}
                         {w.descriptor ? ` · ${w.descriptor}` : ''}
                       </span>
                     </div>
