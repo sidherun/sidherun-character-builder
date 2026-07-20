@@ -29,6 +29,7 @@ const weaponSchema = z.preprocess((w) => {
   damageBonus:  z.number().int().default(0),
   damageType:   z.string().default(''),
   isMelee:      z.boolean().default(true),
+  rangeNeedsReview: z.boolean().default(false),
   damageNeedsReview: z.boolean().default(false),
   descriptor:   z.string().default(''),
 }))

@@ -57,7 +57,10 @@ describe('weapon damage migration', () => {
 
   it('flags unrecognized legacy damage without discarding it', () => {
     const w = parseWeapon({ id: 'w', name: 'Oddity', attribute: 'dexterity', descriptor: 'ask the GM' })
-    expect(w).toMatchObject({ descriptor: 'ask the GM', damageNeedsReview: true, isMelee: false })
+    expect(w).toMatchObject({
+      descriptor: 'ask the GM', damageNeedsReview: true,
+      isMelee: true, rangeNeedsReview: true,
+    })
   })
 })
 

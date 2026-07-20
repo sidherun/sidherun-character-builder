@@ -94,7 +94,7 @@ describe('row → character mapping', () => {
 
   it('migrates legacy weapon damage while mapping cloud rows', async () => {
     h.result = { data: [row({
-      data: { ...row().data, weapons: [{ id: 'w1', attribute: 'dexterity', descriptor: '1d8 piercing' }] },
+      data: { ...row().data, weapons: [{ id: 'w1', attribute: 'dexterity', descriptor: '1d8 piercing, ranged' }] },
     })], error: null }
     const [c] = await listCharacters()
     expect(c.weapons[0]).toMatchObject({ damageDice: '1d8', damageType: 'piercing', isMelee: false })

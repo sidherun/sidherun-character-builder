@@ -53,6 +53,11 @@ describe('PlayMode', () => {
     expect(html).toContain('blessed')
   })
 
+  it('flags a weapon whose melee/ranged classification needs review', () => {
+    const weapons = base().weapons.map(weapon => ({ ...weapon, rangeNeedsReview: true }))
+    expect(render(base({ weapons }))).toContain('1d6 blunt ⚠')
+  })
+
   it('hides caster-only sections; Inventory is always present (editable)', () => {
     const html = render(base({ hasMagic: false, hasPowers: false, inventory: [] }))
     expect(html).not.toContain('Magic Crafts')

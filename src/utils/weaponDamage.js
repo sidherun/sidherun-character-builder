@@ -16,7 +16,9 @@ function splitType(text) {
   const trimmed = text.trim().replace(/^[,;:\s-]+|[,;:\s-]+$/g, '')
   if (!trimmed) return { damageType: '', descriptor: '' }
   const lower = trimmed.toLowerCase()
-  const type = DAMAGE_TYPES.find(candidate => lower === candidate || lower.startsWith(`${candidate} `))
+  const type = DAMAGE_TYPES.find(candidate => (
+    lower === candidate || new RegExp(`^${candidate}(?:[\\s,;:-]|$)`).test(lower)
+  ))
   if (!type) return { damageType: '', descriptor: trimmed }
   return {
     damageType: type,
@@ -55,24 +57,44 @@ export function parseLegacyDamageDescriptor(value) {
   return null
 }
 
+// Range cannot be inferred from the governing attack attribute: a dagger may
+// use Dexterity and still be melee, while a pistol may use Agility and be
+// ranged. Only explicit legacy wording is safe to migrate automatically.
+export function migrateLegacyRange(weapon) {
+  const descriptor = String(weapon?.descriptor || '').toLowerCase()
+  if (/\b(ranged|thrown)\b/.test(descriptor)) {
+    return { isMelee: false, rangeNeedsReview: false }
+  }
+  return { isMelee: true, rangeNeedsReview: true }
+}
+
 export function migrateWeaponDamage(weapon) {
   if (!weapon || typeof weapon !== 'object') return weapon
-  const hasStructuredFields = [
-    'damageDice', 'damageBonus', 'damageType', 'damageNeedsReview',
-  ].some(key => weapon[key] !== undefined)
-  if (hasStructuredFields) return weapon
-
+  const hasOwn = key => Object.prototype.hasOwnProperty.call(weapon, key)
   const parsed = parseLegacyDamageDescriptor(weapon.descriptor)
-  const inferredMelee = String(weapon.attribute || '').toLowerCase() !== 'dexterity'
-  if (!parsed) {
-    return {
-      ...weapon,
-      damageDice: '', damageBonus: 0, damageType: '',
-      damageNeedsReview: Boolean((weapon.descriptor || '').trim()),
-      isMelee: inferredMelee,
-    }
+  const missingAmount = !hasOwn('damageDice') && !hasOwn('damageBonus')
+  const missingType = !hasOwn('damageType')
+  const migrated = { ...weapon }
+
+  if (missingAmount) {
+    migrated.damageDice = parsed?.damageDice || ''
+    migrated.damageBonus = parsed?.damageBonus || 0
   }
-  return { ...weapon, ...parsed, damageNeedsReview: false, isMelee: inferredMelee }
+  if (missingType) migrated.damageType = parsed?.damageType || ''
+  if (parsed && (missingAmount || missingType)) migrated.descriptor = parsed.descriptor
+
+  if (!hasOwn('damageNeedsReview')) {
+    migrated.damageNeedsReview = Boolean(
+      (weapon.descriptor || '').trim()
+      && !parsed
+      && weaponStructureIssues(migrated).length,
+    )
+  }
+
+  if (!hasOwn('isMelee')) Object.assign(migrated, migrateLegacyRange(weapon))
+  else if (!hasOwn('rangeNeedsReview')) migrated.rangeNeedsReview = false
+
+  return migrated
 }
 
 export function migrateCharacterWeaponDamage(character) {
@@ -90,4 +112,18 @@ export function weaponDamageLabel(weapon) {
   const typed = [amount, normalized?.damageType].filter(Boolean).join(' ')
   if (typed) return typed
   return normalized?.damageNeedsReview ? 'Damage needs review' : 'No damage set'
+}
+
+// Derived completeness audit for both migrated and newly edited weapons. These
+// issues do not guess values; they tell the owner exactly what still needs an
+// explicit decision.
+export function weaponStructureIssues(weapon) {
+  const issues = []
+  const diceText = weapon?.damageDice || ''
+  const dice = parseDamageDice(diceText)
+  const bonus = Number(weapon?.damageBonus) || 0
+  if (diceText && !dice) issues.push('Invalid damage dice')
+  if (!diceText && !bonus) issues.push('Damage amount missing')
+  if ((dice || bonus) && !String(weapon?.damageType || '').trim()) issues.push('Damage type missing')
+  return issues
 }

@@ -2,7 +2,7 @@ import { calcDefense, attrTotal } from '../../utils/characterDerived.js'
 import { weaponModifier } from '../../utils/rollActions.js'
 import { useFocusOnAdd } from '../../hooks/useFocusOnAdd.js'
 import { uuid } from '../../utils/uuid.js'
-import { parseDamageDice } from '../../utils/weaponDamage.js'
+import { parseDamageDice, weaponStructureIssues } from '../../utils/weaponDamage.js'
 import NumberInput from '../NumberInput.jsx'
 import armorTypes from '../../data/armorTypes.json'
 import styles from './Step4Combat.module.css'
@@ -45,7 +45,7 @@ export default function Step4Combat({ character, onUpdate }) {
       name: '', attribute: 'Agility',
       attributeBonus: attrTotalByName('Agility'), skillBonus: 0, usesSkill: false,
       damageDice: '', damageBonus: 0, damageType: '', isMelee: true,
-      damageNeedsReview: false, descriptor: '',
+      rangeNeedsReview: false, damageNeedsReview: false, descriptor: '',
     }]
     weaponFocus.markLast(weapons.length)
     onUpdate({ weapons })
@@ -105,6 +105,7 @@ export default function Step4Combat({ character, onUpdate }) {
         {character.weapons.map((w, i) => {
           const total = weaponModifier(w) // non-stacking: skill OR attribute, matches the attack roll
           const weaponName = w.name || 'unnamed weapon'
+          const structureIssues = weaponStructureIssues(w)
           return (
             <div key={w.id} className={styles.weaponRow} role="group" aria-label={`Weapon: ${weaponName}`}>
               <input
@@ -197,7 +198,7 @@ export default function Step4Combat({ character, onUpdate }) {
                 <input
                   type="checkbox"
                   checked={w.isMelee ?? true}
-                  onChange={e => updateWeapon(w.id, { isMelee: e.target.checked })}
+                  onChange={e => updateWeapon(w.id, { isMelee: e.target.checked, rangeNeedsReview: false })}
                   aria-label={`${weaponName} is a melee weapon`}
                 />
                 <span>Melee</span>
@@ -216,6 +217,19 @@ export default function Step4Combat({ character, onUpdate }) {
                   <button type="button" onClick={() => updateWeapon(w.id, { damageNeedsReview: false })}>
                     Notes only
                   </button>
+                </div>
+              )}
+              {w.rangeNeedsReview && (
+                <div className={styles.damageReview} role="alert">
+                  <span>Melee/ranged needs review.</span>
+                  <button type="button" onClick={() => updateWeapon(w.id, { rangeNeedsReview: false })}>
+                    Confirm {w.isMelee ? 'melee' : 'ranged'}
+                  </button>
+                </div>
+              )}
+              {structureIssues.length > 0 && (
+                <div className={styles.damageReview} role="status">
+                  <span>{structureIssues.join(' · ')}</span>
                 </div>
               )}
               <button
