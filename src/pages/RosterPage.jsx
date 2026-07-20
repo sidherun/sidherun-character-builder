@@ -390,6 +390,7 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
               onDelete={handleDelete}
               onGetCharacter={getCharacter}
               onPrint={handlePrintOne}
+              syncOwnershipWarning={Boolean(useRepo && !entry.ownerUserId && !entry.assignedPlayerId)}
               canManage={!useRepo || isGmOrAdmin(role) || entry.ownerUserId === user?.id}
               canReassign={useRepo && isGmOrAdmin(role)}
               players={players}

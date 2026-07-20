@@ -74,6 +74,17 @@ describe('CharacterCard action collapsing (#158)', () => {
     expect(html).not.toContain('Campaign B') // only member tables become chips
   })
 
+  it('surfaces an authenticated character with no sync ownership', () => {
+    const html = renderToStaticMarkup(
+      <CharacterCard
+        entry={entry()} onLoad={noop} onDelete={noop} onGetCharacter={noop}
+        syncOwnershipWarning
+      />,
+    )
+    expect(html).toContain('sync unavailable')
+    expect(html).toContain('owner or player assignment')
+  })
+
   it('offers one-sheet printing from the ⋯ menu', () => {
     const onPrint = vi.fn()
     act(() => root.render(

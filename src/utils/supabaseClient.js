@@ -11,6 +11,12 @@ import { createClient } from '@supabase/supabase-js'
 const url = import.meta.env.VITE_SUPABASE_URL
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
+// A GM can update all 14 campaign characters from one screen, and each durable
+// write sends a Realtime nudge. Five events/second was low enough to throttle a
+// rapid combat round; 20 covers the whole table with modest headroom while
+// remaining deliberately bounded.
+export const REALTIME_EVENTS_PER_SECOND = 20
+
 // VITE_AUTH=on turns on magic-link login + role gating (the authenticated
 // plane). It implies cloud, so the legacy VITE_CLOUD_SYNC flag need not also be
 // set. VITE_CLOUD_SYNC=on still works for guest-only deployments.
@@ -31,6 +37,6 @@ export const supabase = cloudEnabled
         autoRefreshToken: true,
         detectSessionInUrl: true,
       },
-      realtime: { params: { eventsPerSecond: 5 } },
+      realtime: { params: { eventsPerSecond: REALTIME_EVENTS_PER_SECOND } },
     })
   : null

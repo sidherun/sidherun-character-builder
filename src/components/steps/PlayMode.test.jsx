@@ -53,6 +53,17 @@ describe('PlayMode', () => {
     expect(html).toContain('blessed')
   })
 
+  it('warns when authenticated live sync has no owner or player assignment', () => {
+    const html = renderToStaticMarkup(
+      <PlayMode
+        character={base()} onUpdate={noop} onExit={noop} onToggleNotes={noop}
+        syncOwnershipWarning
+      />,
+    )
+    expect(html).toContain('Live sync unavailable')
+    expect(html).toContain('no owner or player assignment')
+  })
+
   it('flags a weapon whose melee/ranged classification needs review', () => {
     const weapons = base().weapons.map(weapon => ({ ...weapon, rangeNeedsReview: true }))
     expect(render(base({ weapons }))).toContain('1d6 blunt ⚠')
