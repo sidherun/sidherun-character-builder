@@ -2,6 +2,16 @@
 
 Patterns captured after corrections, so the same mistake isn't repeated.
 
+## Use visible production labels in UI guidance (2026-07-20)
+
+**Context:** Told Ed to edit Dante's “Combat” section, which is the internal
+wizard/editor name, but the loaded character sheet exposes the action as the
+pencil beside **Weapons**.
+
+**Lesson:** Before giving production click paths, verify the labels rendered in
+the user's current mode. Describe the visible heading and control (for example,
+“Weapons → pencil icon”), not an internal component or wizard-step name.
+
 ## Don't iterate blind on output you can't observe (2026-07-03)
 
 **Context:** Spent several passes tuning the dice-roll *sound* by feel ("rattlesnake",
