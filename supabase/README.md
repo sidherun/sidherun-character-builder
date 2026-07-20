@@ -74,6 +74,25 @@ want player/GM/admin accounts with cloud-as-source-of-truth.
    reconciliation that can prefer an older cached copy (#253). Verify: edit a
    character while signed in → its roster card's Saved date becomes today.
 
+5. Apply `migrations/0004_function_permissions.sql`. This hardens the database
+   function execution matrix after the role/RLS migration:
+   - `_h`, `_mint_token`, `handle_new_user`, and `guard_role_change` cannot be
+     called through the Data API;
+   - role-policy helpers move to the unexposed `private` schema;
+   - authenticated `patch_live_by_id` uses `SECURITY INVOKER`, so character RLS
+     remains the access boundary;
+   - new functions no longer inherit PostgreSQL's default public execution grant.
+
+   Rerun the Supabase Security Advisor after applying it. The seven guest
+   capability RPCs (`create_character`, `get_character`, `update_character_data`,
+   `patch_live`, `list_characters`, `rotate_token`, `delete_character`) will still
+   produce 0028/0029 warnings **by design**: anonymous and signed-in browsers both
+   need them for token/GM-key links, and each function validates that capability
+   internally. Do not revoke those grants unless guest links are being retired.
+   `create_character` remains an abuse/rate-limit surface tracked under #200.
+   Run `verify_function_permissions.sql` in the SQL Editor afterward; every
+   reported boolean should be `true`.
+
 ### RLS smoke test (two planes)
 - As **anon** from the app JS: `supabase.from('characters').select('*')` still
   returns 0 rows / permission denied, and `get_character('<token>')` still works
