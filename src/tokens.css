@@ -42,6 +42,7 @@
   --solid-bot:    #b5824e;
   --solid-shadow: rgba(181, 130, 78, 0.36);
   --card-shadow:  0 24px 64px rgba(0, 0, 0, 0.5);
+  --overlay-scrim: rgba(0, 0, 0, 0.55);
   --top-edge:     linear-gradient(90deg, transparent, #9a6b3f 18%, #d9ab6a 50%, #9a6b3f 82%, transparent);
   --focus-ring:   rgba(198, 145, 82, 0.18);
   --ghost-hover:  rgba(198, 145, 82, 0.10);
@@ -84,6 +85,7 @@
   --solid-bot:    #8a5f30;
   --solid-shadow: rgba(154, 107, 63, 0.32);
   --card-shadow:  0 12px 40px rgba(60, 44, 20, 0.12);
+  --overlay-scrim: rgba(28, 22, 13, 0.48);
   --top-edge:     linear-gradient(90deg, transparent, #d8c19a, transparent);
   --focus-ring:   rgba(154, 107, 63, 0.14);
   --ghost-hover:  rgba(154, 107, 63, 0.10);

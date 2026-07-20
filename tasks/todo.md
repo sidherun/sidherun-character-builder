@@ -91,3 +91,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Supabase SECURITY DEFINER permission hardening + verification matrix (#321) | #321 | 2026-07-20 |
 | Production structured-weapon audit: zero review flags / invalid dice (#306) | #306 | 2026-07-20 |
 | Explicit legacy weapon range review + partial structured-data migration (#324) | #324 | 2026-07-20 |
+| Roster print scopes: one character, named table, or full roster + popup-block recovery (#242) | #242 | 2026-07-20 |

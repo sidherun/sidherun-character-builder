@@ -15,7 +15,7 @@ async function shortenURL(longUrl) {
 }
 
 export default function CharacterCard({
-  entry, onLoad, onDelete, onGetCharacter,
+  entry, onLoad, onDelete, onGetCharacter, onPrint,
   // Authenticated-plane role gating (epic #109). Defaults preserve the legacy
   // single-user behavior: everything manageable, no reassign control.
   canManage = true, canReassign = false, players = [], onReassign,
@@ -130,6 +130,15 @@ export default function CharacterCard({
                     title="Revoke the shared link and generate a new one"
                   >
                     Reset link
+                  </button>
+                )}
+                {onPrint && (
+                  <button
+                    role="menuitem"
+                    className={styles.menuItem}
+                    onClick={() => { closeMenu(); onPrint(entry.id) }}
+                  >
+                    Print sheet
                   </button>
                 )}
                 {canManage && onToggleTable && (

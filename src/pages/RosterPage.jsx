@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { loadRoster, deleteCharacterFromRoster, loadCharacterFromRoster, saveCharacterToRoster, saveCurrent, clearCurrent } from '../utils/rosterStorage.js'
-import { generateBatchHTML } from '../utils/generateCharacterHTML.js'
+import { openCharacterPrintWindow } from '../utils/printCharacters.js'
 import { buildRosterBackup, extractCharacters, validateCharacters, extractCloudState } from '../utils/rosterBackup.js'
 import { cloudEnabled } from '../utils/supabaseClient.js'
 import { pushRoster, ensureGmKey, getGmKey, getCloudMap, importCloudState, deleteCloudCharacter, syncCharacter } from '../utils/cloudSync.js'
@@ -12,6 +12,7 @@ import { skillBudget } from '../utils/skillPoints.js'
 import { listTables, createTable, renameTable, deleteTable, importTables, toggleMembership, withoutTable, deriveRegistry, mergeRegistry } from '../utils/tables.js'
 import CharacterCard from '../components/CharacterCard.jsx'
 import TablesManager from '../components/TablesManager.jsx'
+import PrintDialog from '../components/PrintDialog.jsx'
 import styles from './RosterPage.module.css'
 
 // Project a full (repo) character into the lightweight roster-entry shape the
@@ -68,6 +69,8 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
     try { return localStorage.getItem('sidherun_roster_sort') || 'name' } catch { return 'name' }
   })
   const [status, setStatus] = useState('')
+  const [printMode, setPrintMode] = useState(null) // null | choose | confirm
+  const [printSelection, setPrintSelection] = useState(null)
   const [pushing, setPushing] = useState(false)
   const restoreRef = useRef(null)
 
@@ -227,17 +230,28 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
     }
   }
 
-  function handlePrintAll() {
-    const chars = roster
-      .map(entry => getCharacter(entry.id))
+  function choosePrintScope(selection) {
+    setPrintSelection(selection)
+    setPrintMode('confirm')
+  }
+
+  function handlePrintOne(id) {
+    const entry = roster.find(item => item.id === id)
+    if (!entry) return
+    choosePrintScope({ label: entry.name || 'Unnamed', ids: [id] })
+  }
+
+  function handleConfirmPrint() {
+    const chars = (printSelection?.ids || [])
+      .map(id => getCharacter(id))
       .filter(Boolean)
-    if (chars.length === 0) return
-    const html = generateBatchHTML(chars)
-    const blob = new Blob([html], { type: 'text/html' })
-    const url  = URL.createObjectURL(blob)
-    window.open(url, '_blank')
-    // Revoke after the new tab has had time to load the document.
-    setTimeout(() => URL.revokeObjectURL(url), 60000)
+    if (chars.length === 0) { setPrintMode(null); return }
+    const opened = openCharacterPrintWindow(chars, printSelection.label)
+    setPrintMode(null)
+    setPrintSelection(null)
+    setStatus(opened
+      ? `Opened ${chars.length} printable sheet${chars.length === 1 ? '' : 's'} in a new tab.`
+      : 'Print tab was blocked. Allow pop-ups for this site, then try again.')
   }
 
   async function handleDelete(id) {
@@ -297,8 +311,8 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
             </button>
           )}
           {roster.length > 0 && (
-            <button className="btn-secondary" onClick={handlePrintAll}>
-              Print all ({roster.length})
+            <button className="btn-secondary" onClick={() => setPrintMode('choose')}>
+              Print…
             </button>
           )}
           {roster.length > 0 && (
@@ -375,6 +389,7 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
               onLoad={handleLoad}
               onDelete={handleDelete}
               onGetCharacter={getCharacter}
+              onPrint={handlePrintOne}
               canManage={!useRepo || isGmOrAdmin(role) || entry.ownerUserId === user?.id}
               canReassign={useRepo && isGmOrAdmin(role)}
               players={players}
@@ -409,6 +424,18 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
           )
         })()}
       </main>
+      {printMode && (
+        <PrintDialog
+          mode={printMode}
+          roster={roster}
+          tables={tables}
+          tableCounts={tableCounts}
+          selection={printSelection}
+          onChoose={choosePrintScope}
+          onConfirm={handleConfirmPrint}
+          onClose={() => { setPrintMode(null); setPrintSelection(null) }}
+        />
+      )}
     </div>
   )
 }

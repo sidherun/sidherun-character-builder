@@ -1,6 +1,10 @@
-import { describe, it, expect } from 'vitest'
+import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest'
+import { act } from 'react'
+import { createRoot } from 'react-dom/client'
 import { renderToStaticMarkup } from 'react-dom/server'
 import CharacterCard from './CharacterCard.jsx'
+
+globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
 const noop = () => {}
 const entry = () => ({
@@ -18,6 +22,20 @@ const entry = () => ({
 // render exercises the collapsed default: Load is the only visible action
 // button and the ⋯ "more options" control is present and labelled.
 describe('CharacterCard action collapsing (#158)', () => {
+  let container
+  let root
+
+  beforeEach(() => {
+    container = document.createElement('div')
+    document.body.appendChild(container)
+    root = createRoot(container)
+  })
+
+  afterEach(() => {
+    act(() => root.unmount())
+    container.remove()
+  })
+
   it('shows Load as the primary action and a labelled ⋯ menu button', () => {
     const html = renderToStaticMarkup(
       <CharacterCard entry={entry()} onLoad={noop} onDelete={noop} onGetCharacter={noop} />
@@ -54,5 +72,17 @@ describe('CharacterCard action collapsing (#158)', () => {
     )
     expect(html).toContain('Thursday Table')
     expect(html).not.toContain('Campaign B') // only member tables become chips
+  })
+
+  it('offers one-sheet printing from the ⋯ menu', () => {
+    const onPrint = vi.fn()
+    act(() => root.render(
+      <CharacterCard entry={entry()} onLoad={noop} onDelete={noop} onGetCharacter={noop} onPrint={onPrint} />,
+    ))
+    act(() => container.querySelector('button[aria-label="More options for Thorin"]').click())
+    const print = [...container.querySelectorAll('button')].find(button => button.textContent === 'Print sheet')
+    act(() => print.click())
+    expect(onPrint).toHaveBeenCalledWith('abc')
+    expect(container.querySelector('[role="menu"]')).toBeNull()
   })
 })
