@@ -499,6 +499,10 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
     && character._ownerUserId !== user.id
     && character._assignedPlayerId !== user.id,
   )
+  const syncOwnershipWarning = Boolean(
+    repoEnabled() && user && character._rosterId
+    && !character._ownerUserId && !character._assignedPlayerId,
+  )
 
   if (isPlayMode) {
     return (
@@ -512,6 +516,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
           onToggleTheme={onToggleTheme}
           readOnly={playReadOnly}
           onRoll={broadcastRoll}
+          syncOwnershipWarning={syncOwnershipWarning}
         />
         {isNotesOpen && (
           <NotesPanel

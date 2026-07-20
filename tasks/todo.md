@@ -92,3 +92,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Production structured-weapon audit: zero review flags / invalid dice (#306) | #306 | 2026-07-20 |
 | Explicit legacy weapon range review + partial structured-data migration (#324) | #324 | 2026-07-20 |
 | Roster print scopes: one character, named table, or full roster + popup-block recovery (#242) | #242 | 2026-07-20 |
+| Live-sync owner/assignment warnings + 20 events/sec Realtime burst allowance (#200) | #200 | 2026-07-20 |

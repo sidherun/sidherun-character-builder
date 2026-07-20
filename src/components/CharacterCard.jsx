@@ -19,6 +19,7 @@ export default function CharacterCard({
   // Authenticated-plane role gating (epic #109). Defaults preserve the legacy
   // single-user behavior: everything manageable, no reassign control.
   canManage = true, canReassign = false, players = [], onReassign,
+  syncOwnershipWarning = false,
   // Named tables (#175): the GM's table registry + a toggle for membership.
   tables = [], onToggleTable,
 }) {
@@ -185,6 +186,11 @@ export default function CharacterCard({
       <div className={styles.name}>
         {name}
         {entry.overBudget && <span className={styles.overBudget} title="Skill points over the level budget">⚠ over budget</span>}
+        {syncOwnershipWarning && (
+          <span className={styles.syncWarning} title="Live changes will not sync until this character has an owner or player assignment">
+            ⚠ sync unavailable
+          </span>
+        )}
       </div>
       {entry.playerName && <div className={styles.player}>Player: {entry.playerName}</div>}
       <div className={styles.meta}>

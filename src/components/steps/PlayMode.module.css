@@ -51,6 +51,16 @@
   gap: 10px;
 }
 
+.syncOwnershipWarning {
+  padding: 9px 16px;
+  color: var(--danger);
+  background: var(--card2);
+  border-bottom: 1px solid var(--danger);
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
 .content {
   flex: 1;
   display: grid;

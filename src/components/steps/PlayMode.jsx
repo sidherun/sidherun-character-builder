@@ -37,7 +37,7 @@ const ATTR_LABELS = {
   enlightenment: 'EN', charisma: 'CHA', comeliness: 'COM', fame: 'FAM',
 }
 
-export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, theme, onToggleTheme, readOnly = false, onRoll }) {
+export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, theme, onToggleTheme, readOnly = false, onRoll, syncOwnershipWarning = false }) {
   const defense = calcDefense(character)
   const hp    = character.hitPoints
   const mana  = character.mana
@@ -264,6 +264,12 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
           {!readOnly && <button className="btn-secondary" onClick={onExit}>← Edit</button>}
         </div>
       </header>
+
+      {syncOwnershipWarning && (
+        <div className={styles.syncOwnershipWarning} role="alert">
+          ⚠ Live sync unavailable — this character has no owner or player assignment. Ask a GM to assign it from the roster.
+        </div>
+      )}
 
       <div className={styles.content}>
         {lastRoll && <RollResult roll={lastRoll} onClear={() => setLastRoll(null)} />}
