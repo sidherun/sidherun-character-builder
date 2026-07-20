@@ -1,6 +1,6 @@
 # Languages — Handoff & Next Steps
 
-State as of 2026-07-18 night (Quin'lae v2.6, PRs #273–#286, #293, and the #294 enemy-canon PR). This file is the entry point for any session continuing the language work. Read `README.md` (the nine-step process) and `quindel.md` before starting anything.
+State as of 2026-07-18 night (Quin'lae v2.6, PRs #273–#286, #293, and #295 the enemy-canon PR). This file is the entry point for any session continuing the language work. Read `README.md` (the nine-step process) and `quindel.md` before starting anything.
 
 ## Where everything is
 

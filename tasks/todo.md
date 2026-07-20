@@ -86,3 +86,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Player initiative broadcast + automatic Encounter Mode populate/re-sort (#292) | #310 | 2026-07-18 |
 | Manage Roles search, role filters, and editable player display names (#313) | #313 | 2026-07-19 |
 | Player-facing content layer: players/ contract + elves.md shape draft (#297) | #315 | 2026-07-19 |
+| HANDOFF.md: fix wrong PR number for v2.6 enemy-canon citation (#317) | #318 | 2026-07-20 |
