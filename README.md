@@ -337,7 +337,11 @@ working unchanged, so game-day QR / printout scans still need no login.
   `0003_updated_at_trigger.sql` — a `moddatetime` trigger so **authed-plane
   writes bump `updated_at`** like the guest RPCs already do; without it, roster
   "Saved" dates go stale and newer-wins reconciliation can prefer an older
-  cached copy over a fresh authed save (#253).
+  cached copy over a fresh authed save (#253). Finally apply
+  `0004_function_permissions.sql`: it removes Data API execution from internal
+  and trigger-only functions, moves RLS helpers to an unexposed schema, makes
+  authenticated live patching run under RLS, and locks down default function
+  grants (#321). Run `supabase/verify_function_permissions.sql` afterward.
 - **First-admin bootstrap:** a `guard_role_change()` trigger stops a signed-in
   non-admin from self-promoting. It is scoped to authenticated users
   (`auth.uid() is not null`), so the very first admin is seeded from a backend
@@ -348,9 +352,11 @@ working unchanged, so game-day QR / printout scans still need no login.
   `src/utils/characterRepo.js` (cloud-first repository), with role gating in
   `Router.jsx`, `RosterPage.jsx`, `GMScreen.jsx`, `CharacterCard.jsx`, and a
   `readOnly` mode in `PlayMode.jsx`.
-- **Role helper:** the migration's caller-role lookup is `public.caller_role()`
-  (not `current_role` — that's a reserved Postgres keyword and cannot be a
-  function name). `is_gm_or_admin()` and the RLS policies build on it.
+- **Role helpers:** after migration 0004, `private.caller_role()` and
+  `private.is_gm_or_admin()` support the RLS policies without being exposed as
+  public REST RPCs. The seven guest capability-token functions intentionally
+  remain callable by anonymous and authenticated browsers; Supabase Advisor
+  warnings for those seven are expected while guest links remain supported.
 - **Applying the migration:** paste `0002_auth_roles.sql` into the Supabase SQL
   Editor and **Run**. If the editor reports a syntax error on a line that looks
   correct, the paste may have dropped characters (some clipboard setups do this

@@ -88,3 +88,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Player-facing content layer: players/ contract + elves.md shape draft (#297) | #315 | 2026-07-19 |
 | HANDOFF.md: fix wrong PR number for v2.6 enemy-canon citation (#317) | #318 | 2026-07-20 |
 | todo.md: fix issue-vs-PR numbers in v2.5/v2.6 shipped-history rows (#319) | #320 | 2026-07-20 |
+| Supabase SECURITY DEFINER permission hardening + verification matrix (#321) | #321 | 2026-07-20 |
