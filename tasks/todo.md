@@ -77,8 +77,8 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Last full-phrase 'Spine of the World' in rules (06-skills example) → Kaelorun Range; #271 offline-file audit complete | #288 | 2026-07-18 |
 | GM Screen reliable HP entry — quick deltas, numeric Damage/Heal, no lost rapid adjustments (#236) | #289 | 2026-07-18 |
 | GM Encounter Mode — initiative order, turn marker, temporary NPC HP/defense/armor tracking (#239) | #290 | 2026-07-18 |
-| Quin'lae v2.5 — Sidhe'dhel origin canon (§15) + Eth'lae origin liturgy (texts/eth-lae.md) | #291 | 2026-07-18 |
-| Quin'lae v2.6 — anu'runorin (returned dead) as elven enemies + Aia'runor/Nakar eternal-walker canon | #294 | 2026-07-18 |
+| Quin'lae v2.5 — Sidhe'dhel origin canon (§15) + Eth'lae origin liturgy (texts/eth-lae.md) (#291) | #293 | 2026-07-18 |
+| Quin'lae v2.6 — anu'runorin (returned dead) as elven enemies + Aia'runor/Nakar eternal-walker canon (#294) | #295 | 2026-07-18 |
 | Bare attribute rolls + optional GM difficulty targets with feed Pass/Fail (#238) | #300 | 2026-07-18 |
 | Live GM-set condition chips + player visibility + rest clear (#240) | #301 | 2026-07-18 |
 | Structured weapon damage + legacy parsing + melee crit STR workflow (#241) | #307 | 2026-07-18 |
