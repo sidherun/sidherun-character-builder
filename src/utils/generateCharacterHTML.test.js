@@ -135,7 +135,7 @@ describe('generateBatchHTML', () => {
   it('stacks every character with a page break and a print toolbar', () => {
     const html = generateBatchHTML([mk('A'), mk('B'), mk('C')])
     expect((html.match(/class="sheet"/g) || []).length).toBe(3)
-    expect(html).toContain('Print all 3 sheets')
+    expect(html).toContain('Print 3 sheets')
     expect(html).toContain('page-break-after: always')
   })
 

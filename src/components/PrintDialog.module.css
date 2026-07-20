@@ -1,0 +1,71 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: var(--overlay-scrim);
+}
+
+.dialog {
+  width: 100%;
+  max-width: 460px;
+  padding: 22px;
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  box-shadow: var(--card-shadow);
+}
+
+.dialog h2 {
+  margin-bottom: 8px;
+  color: var(--ink-900);
+  font-family: 'Newsreader', serif;
+  font-size: 1.4rem;
+}
+
+.dialog p { color: var(--ink-700); }
+
+.hint {
+  margin-bottom: 14px;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.choices {
+  display: grid;
+  gap: 8px;
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 12px 14px;
+  color: var(--ink-900);
+  text-align: left;
+  background: var(--card2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.choice:hover:not(:disabled) { border-color: var(--bronze); }
+.choice:disabled { cursor: not-allowed; opacity: 0.5; }
+.choice span { color: var(--ink-500); font-size: 0.82rem; }
+
+.empty {
+  margin-top: 10px;
+  font-style: italic;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}

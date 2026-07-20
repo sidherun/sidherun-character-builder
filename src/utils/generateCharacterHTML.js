@@ -187,11 +187,12 @@ export function generateCharacterHTML(character) {
 // "print all" deliverable. Includes a screen-only toolbar so the GM can
 // trigger the browser print dialog with a single click (no popup-blocker
 // timing issues from auto-calling window.print()).
-export function generateBatchHTML(characters) {
+export function generateBatchHTML(characters, scopeLabel = 'All characters') {
   const sheets = (characters || []).map(sheetBody).join('\n')
+  const count = characters.length
   const toolbar = `<div class="toolbar">
-    <button onclick="window.print()">🖨 Print all ${characters.length} sheets</button>
+    <button onclick="window.print()">🖨 Print ${count} sheet${count === 1 ? '' : 's'}</button>
     <span>One character per page. Use your browser's "Save as PDF" to keep a copy.</span>
   </div>`
-  return pageWrap(`Sidherun — ${characters.length} character sheets`, sheets, toolbar)
+  return pageWrap(`Sidherun — ${scopeLabel} — ${count} character sheet${count === 1 ? '' : 's'}`, sheets, toolbar)
 }
