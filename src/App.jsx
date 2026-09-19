@@ -32,6 +32,7 @@ import Step9Review from './components/steps/Step9Review.jsx'
 import PlayMode from './components/steps/PlayMode.jsx'
 import { broadcastRoll } from './utils/rollFeed.js'
 import { trackPush } from './utils/cloudStatus.js'
+import { appCharacterSyncScopes } from './utils/characterSyncScope.js'
 import styles from './App.module.css'
 
 const STEP_COMPONENTS = {
@@ -144,43 +145,57 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
     setGuideOn(false)
   }, [])
 
+  const syncIdentity = cloudToken
+    ? `capability:${cloudId}:${cloudToken}`
+    : (authLoading ? null : (user ? `repository:${user.id}` : 'guest:local'))
+  const syncScope = appCharacterSyncScopes.forIdentity(syncIdentity)
+  const pendingWrites = syncScope.writes
+  const dataRevisions = syncScope.revisions
+  const mountedRef = useRef(true)
+  useEffect(() => {
+    mountedRef.current = true
+    return () => { mountedRef.current = false }
+  }, [])
+
   const saveStatus = useAutoSave(character)
   const cloudWritePlane = useCloudSync(character, {
     user,
     authLoading,
     capabilityToken: cloudToken,
-  })
+  }, pendingWrites)
   const useRepoPlane = cloudWritePlane === 'repo'
 
   // Apply remote live-counter broadcasts (another viewer's HP/mana/etc. change)
   // to local state in real time. No-op for non-cloud characters.
-  const applyRemoteLive = useCallback((payload) => {
-    setCharacter(prev => mergeRemote(prev, payload))
-  }, [])
+  const applyRemoteLive = useCallback((payload, rid) => {
+    if (!rid || syncScope.disposed) return
+    setCharacter(prev => (prev._rosterId === rid ? mergeRemote(prev, payload) : prev))
+  }, [syncScope])
   // A structural edit elsewhere (inventory/skills/name) → refetch the fresh
   // character and adopt its data fields, so it shows up here in real time too.
-  const applyRemoteData = useCallback(() => {
-    const rid = character._rosterId
-    if (!rid) return
-    hydrateCharacter(rid).then(fresh => {
-      if (!fresh) return
+  const applyRemoteData = useCallback((rid) => {
+    if (!rid || syncScope.disposed) return
+    const refresh = () => hydrateCharacter(rid).then(fresh => {
+      if (syncScope.disposed) return
+      if (!fresh) throw new Error('Could not refresh the cloud character')
+      if (pendingWrites.isBusy(rid)) {
+        pendingWrites.requestRemote(rid, refresh)
+        return
+      }
+      if (!mountedRef.current) return
       setCharacter(prev => (prev._rosterId === rid ? { ...prev, ...fresh } : prev))
-    }).catch(() => {})
-  }, [character._rosterId])
+    })
+    pendingWrites.requestRemote(rid, refresh)
+  }, [pendingWrites, syncScope])
   useRealtimeCharacter(character._rosterId, applyRemoteLive, applyRemoteData)
 
   // Authenticated cloud sync. The guest broadcast above only covers #c=/#play=
   // links; signed-in play uses the cloud row as source of truth. We track the
   // last live + data signatures we pushed OR received so the effects below never
   // echo each other into a loop.
-  const lastLiveSig = useRef(null)
-  const lastDataSig = useRef(null)
-  // Pending debounced cloud pushes, held so they can be flushed on unmount
-  // (navigating away / switching character mid-debounce) instead of being
-  // dropped with the timer — otherwise the last HP/Mana/Story tick before you
-  // leave a screen never reaches the cloud (#196). Cleared when the timer fires.
-  const liveFlushRef = useRef(null)
-  const dataFlushRef = useRef(null)
+  const lastLiveSigs = useRef(new Map())
+  const lastDataSigs = useRef(new Map())
+  const dataGenerations = useRef(new Map())
   // Latest character, for the focus/visibility reconcile listener below whose
   // effect doesn't re-bind on every character change.
   const charRef = useRef(character)
@@ -188,8 +203,16 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   // The authoritative data_rev for optimistic-concurrency structural saves
   // (#146). Kept in a ref, not state: dataSignature() doesn't strip it, so
   // putting it in `character` would loop the structural-autosave effect.
-  const dataRevRef = useRef(null)
-  useEffect(() => { dataRevRef.current = character._dataRev ?? null }, [character._rosterId, character._dataRev])
+  useEffect(() => {
+    if (character._rosterId) {
+      const known = dataRevisions.get(character._rosterId)
+      const incoming = character._dataRev ?? null
+      if (!dataRevisions.has(character._rosterId)
+          || (incoming != null && (known == null || incoming > known))) {
+        dataRevisions.set(character._rosterId, incoming)
+      }
+    }
+  }, [character._rosterId, character._dataRev, dataRevisions])
 
   // Authed localStorage cutover (#127). When signed in, App still seeds the
   // working character from the localStorage 'current' slot (deferred cloud-first
@@ -229,27 +252,37 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   // (or another viewer's) edit shows up here in real time.
   useEffect(() => {
     if (!useRepoPlane || !repoEnabled() || !user || !character._rosterId) return
-    lastLiveSig.current = null // reset for the newly-opened character
-    lastDataSig.current = null
     const rid = character._rosterId
+    const opened = charRef.current
+    lastLiveSigs.current.set(rid, JSON.stringify(projectLive(opened)))
+    lastDataSigs.current.set(rid, dataSignature(opened))
     subscribeLive(rid, ({ live }) => {
+      if (!mountedRef.current || syncScope.disposed) return
       setCharacter(prev => {
+        if (prev._rosterId !== rid) return prev
         const next = mergeRemote(prev, { live })
-        lastLiveSig.current = JSON.stringify(projectLive(next)) // mark known → don't re-push
+        lastLiveSigs.current.set(rid, JSON.stringify(projectLive(next)))
         return next
       })
     }, () => {
       // Structural edit elsewhere → adopt the fresh row (same as conflict-adopt),
       // marking the sigs known so the autosave effects don't echo it back.
-      getCharacter(rid).then(fresh => {
-        if (!fresh) return
-        dataRevRef.current = fresh._dataRev ?? null
-        lastDataSig.current = dataSignature(fresh)
+      const refresh = () => getCharacter(rid).then(fresh => {
+        if (syncScope.disposed) return
+        if (!fresh) throw new Error('Could not refresh the repository character')
+        if (pendingWrites.isBusy(rid)) {
+          pendingWrites.requestRemote(rid, refresh)
+          return
+        }
+        dataRevisions.set(rid, fresh._dataRev ?? null)
+        lastDataSigs.current.set(rid, dataSignature(fresh))
+        if (!mountedRef.current) return
         setCharacter(prev => (prev._rosterId === rid ? fresh : prev))
-      }).catch(() => {})
+      })
+      pendingWrites.requestRemote(rid, refresh)
     })
     return () => removeLiveSubscription(rid)
-  }, [user, useRepoPlane, character._rosterId])
+  }, [user, useRepoPlane, character._rosterId, pendingWrites, dataRevisions, syncScope])
 
   // SEND: push local live-counter changes (HP/Mana/Story/armor/use-pips) to the
   // cloud, debounced, so the GM and other viewers see them and they survive a
@@ -257,17 +290,18 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   // initial load and any change that merely echoes a received update.
   useEffect(() => {
     if (!useRepoPlane || !repoEnabled() || !user || !character._rosterId || !character._ownerUserId) return
-    const sig = JSON.stringify(projectLive(character))
-    if (lastLiveSig.current === null) { lastLiveSig.current = sig; return }
-    if (sig === lastLiveSig.current) return
-    lastLiveSig.current = sig
     const rid = character._rosterId
+    const sig = JSON.stringify(projectLive(character))
+    if (!lastLiveSigs.current.has(rid)) { lastLiveSigs.current.set(rid, sig); return }
+    if (sig === lastLiveSigs.current.get(rid)) return
+    lastLiveSigs.current.set(rid, sig)
     const snapshot = character
-    const push = () => trackPush(patchLive(rid, snapshot)).catch(() => {})
-    liveFlushRef.current = push
-    const t = setTimeout(() => { liveFlushRef.current = null; push() }, 800)
-    return () => clearTimeout(t)
-  }, [character, user, useRepoPlane])
+    pendingWrites.schedule('repo-live', {
+      characterId: rid,
+      delay: 800,
+      run: () => trackPush(patchLive(rid, snapshot)),
+    })
+  }, [character, user, useRepoPlane, pendingWrites])
 
   // SEND (structure): push non-counter edits — inventory, notes, name, skills,
   // attributes, etc. — to the cloud, debounced, so every field persists during
@@ -275,33 +309,86 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   // (handled above) and wizardStep, so this fires only on real structural change.
   useEffect(() => {
     if (!useRepoPlane || !repoEnabled() || !user || !character._rosterId || !character._ownerUserId) return
-    const sig = dataSignature(character)
-    if (lastDataSig.current === null) { lastDataSig.current = sig; return } // initial load
-    if (sig === lastDataSig.current) return
-    lastDataSig.current = sig
     const rosterId = character._rosterId
+    const sig = dataSignature(character)
+    if (!lastDataSigs.current.has(rosterId)) { lastDataSigs.current.set(rosterId, sig); return }
+    if (sig === lastDataSigs.current.get(rosterId)) return
+    lastDataSigs.current.set(rosterId, sig)
+    const generation = (dataGenerations.current.get(rosterId) || 0) + 1
+    dataGenerations.current.set(rosterId, generation)
     const snapshot = character
-    const push = () => trackPush(saveCharacterData(rosterId, snapshot, dataRevRef.current))
-      .then(res => {
+    const push = ({ expectedRevision: capturedRevision }) => trackPush(
+      saveCharacterData(rosterId, snapshot, capturedRevision).then(res => {
+        if (syncScope.disposed) throw new Error('Sync identity changed')
         if (res && res.conflict) {
           // Another device wrote this character between our load and this save.
           // Adopt the latest instead of silently clobbering it, and say so (#146).
-          getCharacter(rosterId).then(fresh => {
-            if (!fresh) return
-            dataRevRef.current = fresh._dataRev ?? null
-            lastDataSig.current = dataSignature(fresh)
-            setCharacter(prev => (prev._rosterId === rosterId ? fresh : prev))
-            addToast('This character changed on another device — reloaded the latest.', 'info')
-          }).catch(() => {})
+          return getCharacter(rosterId).then(fresh => {
+            if (!fresh) throw new Error('Could not reload the conflicted character')
+            if (syncScope.disposed) throw new Error('Sync identity changed')
+            dataRevisions.set(rosterId, fresh._dataRev ?? null)
+            const stillCurrent = mountedRef.current && charRef.current._rosterId === rosterId
+            const sameGeneration = dataGenerations.current.get(rosterId) === generation
+            const sameSnapshot = dataSignature(charRef.current) === sig
+            if (stillCurrent && sameGeneration && sameSnapshot) {
+              lastDataSigs.current.set(rosterId, dataSignature(fresh))
+              setCharacter(prev => (prev._rosterId === rosterId ? fresh : prev))
+              addToast('This character changed on another device — reloaded the latest.', 'info')
+            } else {
+              // A was switched away from or edited again while its conflict was
+              // resolving. Keep this snapshot failed/retryable; treating it as
+              // success would strand the unsaved edit in the local cache.
+              throw new Error('Conflict remains pending for the local snapshot')
+            }
+          })
         } else if (res && res._dataRev != null) {
-          dataRevRef.current = res._dataRev // advance so the next save guards on the fresh rev
+          if (syncScope.disposed) throw new Error('Sync identity changed')
+          dataRevisions.set(rosterId, res._dataRev) // advance this character only
+          const sameGeneration = dataGenerations.current.get(rosterId) === generation
+          const metadata = {
+            _dataRev: res._dataRev,
+            _updatedAt: res._updatedAt ?? snapshot._updatedAt,
+            _ownerUserId: res._ownerUserId ?? snapshot._ownerUserId,
+            _assignedPlayerId: res._assignedPlayerId ?? snapshot._assignedPlayerId,
+          }
+          if (sameGeneration) {
+            // Persist the authoritative revision even across reloads. The
+            // metadata-free dataSignature keeps this state/cache refresh from
+            // creating another cloud save.
+            const revised = { ...snapshot, ...metadata }
+            saveCharacterToRoster(revised)
+            const cachedCurrent = loadCurrent()
+            if (cachedCurrent?._rosterId === rosterId && dataSignature(cachedCurrent) === sig) {
+              saveCurrent(revised)
+            }
+            if (mountedRef.current) {
+              setCharacter(prev => (
+                prev._rosterId === rosterId && dataSignature(prev) === sig
+                  ? { ...prev, ...metadata }
+                  : prev
+              ))
+            }
+          }
         }
-      })
-      .catch(() => {}) // a network error is already reflected by the sync-status badge
-    dataFlushRef.current = push
-    const t = setTimeout(() => { dataFlushRef.current = null; push() }, 1200)
-    return () => clearTimeout(t)
-  }, [character, user, useRepoPlane, addToast])
+      }),
+    )
+    pendingWrites.schedule('repo-data', {
+      characterId: rosterId,
+      expectedRevision: () => dataRevisions.get(rosterId) ?? snapshot._dataRev ?? null,
+      delay: 1200,
+      run: push,
+    })
+  }, [character, user, useRepoPlane, addToast, pendingWrites, dataRevisions, syncScope])
+
+  // A character switch flushes only the character being left. The coordinator
+  // consumes callbacks before starting them, so a later pagehide cannot replay A
+  // after B is open.
+  useEffect(() => {
+    const rosterId = character._rosterId
+    if (!rosterId) return
+    pendingWrites.retryCharacter(rosterId)
+    return () => { pendingWrites.flushCharacter(rosterId) }
+  }, [character._rosterId, pendingWrites])
 
   // Flush any pending debounced cloud push before the app goes away, so the last
   // HP/Mana/Story (or structural) change isn't dropped with the timer (#196).
@@ -311,7 +398,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   // (patchLive/saveCharacterData set fields to the snapshot), so a redundant
   // flush is harmless.
   useEffect(() => {
-    const flush = () => { liveFlushRef.current?.(); dataFlushRef.current?.() }
+    const flush = () => { pendingWrites.flushAll() }
     const onVisibility = () => { if (document.visibilityState === 'hidden') flush() }
     document.addEventListener('visibilitychange', onVisibility)
     window.addEventListener('pagehide', flush)
@@ -320,7 +407,19 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
       window.removeEventListener('pagehide', flush)
       flush()
     }
-  }, [])
+  }, [pendingWrites])
+
+  // A failed newest snapshot stays retryable. Connectivity recovery or a later
+  // focus retries it once; repeated failures remain parked until the next event.
+  useEffect(() => {
+    const retry = () => { pendingWrites.retryAllFailed() }
+    window.addEventListener('online', retry)
+    window.addEventListener('focus', retry)
+    return () => {
+      window.removeEventListener('online', retry)
+      window.removeEventListener('focus', retry)
+    }
+  }, [pendingWrites])
 
   // RECONCILE: a live Broadcast can be dropped (weak wifi, rate cap, a peer that
   // was backgrounded), leaving this screen showing a stale number until the
@@ -335,15 +434,18 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
       const c = charRef.current
       const rid = c._rosterId
       if (!rid) return
-      if (JSON.stringify(projectLive(c)) !== lastLiveSig.current) return // live edit pending
-      if (dataSignature(c) !== lastDataSig.current) return               // structural edit pending
+      if (pendingWrites.isBusy(rid)) return
+      if (JSON.stringify(projectLive(c)) !== lastLiveSigs.current.get(rid)) return
+      if (dataSignature(c) !== lastDataSigs.current.get(rid)) return
       getCharacter(rid).then(fresh => {
+        if (syncScope.disposed) return
         if (!fresh || fresh._rosterId !== rid) return
         if (c._updatedAt && fresh._updatedAt &&
             Date.parse(fresh._updatedAt) <= Date.parse(c._updatedAt)) return // not newer → nothing missed
-        dataRevRef.current = fresh._dataRev ?? null
-        lastLiveSig.current = JSON.stringify(projectLive(fresh))
-        lastDataSig.current = dataSignature(fresh)
+        dataRevisions.set(rid, fresh._dataRev ?? null)
+        lastLiveSigs.current.set(rid, JSON.stringify(projectLive(fresh)))
+        lastDataSigs.current.set(rid, dataSignature(fresh))
+        if (!mountedRef.current) return
         setCharacter(prev => (prev._rosterId === rid ? fresh : prev))
       }).catch(() => {})
     }
@@ -353,7 +455,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
       document.removeEventListener('visibilitychange', reconcile)
       window.removeEventListener('focus', reconcile)
     }
-  }, [user, useRepoPlane])
+  }, [user, useRepoPlane, pendingWrites, dataRevisions, syncScope])
 
   // Hydrate a cloud link from the server (once on mount). Adopt the cloud copy
   // when it's newer than the local one (or there's no local copy); otherwise

@@ -24,8 +24,8 @@ export function selectCloudWritePlane({ user, authLoading, capabilityToken } = {
 // characters must stay off it or they can double-write stale localStorage data
 // over the authoritative row. App uses the same returned plane to disable its
 // characterRepo effects when a signed-in visitor explicitly opens a #c= link.
-export function useCloudSync(character, session) {
-  const timer = useRef(null)
+export function useCloudSync(character, session, pendingWrites) {
+  const fallbackTimer = useRef(null)
   const plane = selectCloudWritePlane(session)
   useEffect(() => {
     if (plane !== 'guest') return
@@ -33,11 +33,26 @@ export function useCloudSync(character, session) {
     if (!character?.name?.trim() || !character?._rosterId) return
     if (!getCloudMap()[character._rosterId]) return // not opted into cloud yet
 
-    clearTimeout(timer.current)
-    timer.current = setTimeout(() => {
-      trackPush(syncCharacter(character)).catch(() => { /* local-first: a failed push never disrupts the user */ })
+    const snapshot = character
+    if (pendingWrites) {
+      pendingWrites.schedule('guest', {
+        characterId: character._rosterId,
+        delay: 1500,
+        run: () => trackPush(syncCharacter(snapshot)),
+      })
+      return
+    }
+    clearTimeout(fallbackTimer.current)
+    fallbackTimer.current = setTimeout(() => {
+      trackPush(syncCharacter(snapshot)).catch(() => { /* local-first: a failed push never disrupts the user */ })
     }, 1500)
-    return () => clearTimeout(timer.current)
-  }, [character, plane])
+    return () => clearTimeout(fallbackTimer.current)
+  }, [character, plane, pendingWrites])
+
+  useEffect(() => {
+    if (!pendingWrites || plane !== 'guest' || !character?._rosterId) return
+    const rosterId = character._rosterId
+    return () => { pendingWrites.flushCharacter(rosterId) }
+  }, [character?._rosterId, plane, pendingWrites])
   return plane
 }

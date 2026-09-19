@@ -95,3 +95,5 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Live-sync owner/assignment warnings + 20 events/sec Realtime burst allowance (#200) | #200 | 2026-07-20 |
 | Auth-aware cloud-plane selection restores `#c=` guest writes without repository double-writes (#333) | #333 | 2026-09-19 |
 | Authenticated table membership saves — revision advancement, serialized writes, conflict retry (#335) | #335 | 2026-09-19 |
+| Realtime structural nudges defer behind dirty local writes on guest + authenticated planes (#334) | #334 | 2026-09-19 |
+| Per-character pending-write coordinator prevents stale replay across switches/pagehide (#336) | #336 | 2026-09-19 |
