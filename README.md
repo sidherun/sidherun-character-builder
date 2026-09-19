@@ -222,6 +222,9 @@ silently claiming that an update succeeded (#252).
 full-blob write guards on the row's `data_rev`, so if two devices edit the same
 character at once the second doesn't silently clobber the first — the app
 reloads the latest and tells the player, instead of losing an edit.
+Successful writes copy the returned revision metadata into the local roster
+cache, so a reload continues from the authoritative revision instead of
+conflicting again on a stale cached value.
 
 - **Off by default.** Enabled only when `VITE_CLOUD_SYNC=on` and the Supabase keys
   are present (see `.env.example` and `supabase/README.md`). With the flag off the
@@ -292,13 +295,22 @@ working unchanged, so game-day QR / printout scans still need no login.
   `patchLive` (`live` column), and structural fields — inventory, notes, name,
   skills, attributes, etc. — via debounced `saveCharacterData` (`data` column),
   keyed on `cloudSync.dataSignature` so it fires only on real structural change.
-  Two `useRef` signatures (`lastLiveSig`/`lastDataSig` in `App.jsx`) gate each
-  plane and reset per opened character. A brand-new character is still first
+  Per-character signature maps (`lastLiveSigs`/`lastDataSigs` in `App.jsx`) gate
+  each plane. A brand-new character is still first
   created on the explicit **Complete** (it has no cloud row to update yet).
-  Each debounced push is also held in a ref (`liveFlushRef`/`dataFlushRef`) and
-  **flushed when the tab is backgrounded, closed, or unmounts** (`visibilitychange`
-  → hidden / `pagehide`), so the last HP/Mana/Story tick before you leave a screen
-  isn't dropped with the pending timer (#196). Flushes are idempotent.
+  Debounced pushes are owned by a per-character write coordinator and
+  **flushed when the character changes or the tab is backgrounded, closed, or
+  unmounts** (`visibilitychange` → hidden / `pagehide`), so the last
+  HP/Mana/Story tick before leaving a screen isn't dropped with the pending
+  timer. A callback is consumed before it runs, writes serialize per character,
+  and each structural write resolves the expected revision only after the prior
+  write completes. Later lifecycle signals therefore cannot replay a stale
+  character or race on an old revision (#196/#336). The coordinator lives for
+  the browser module lifetime and is scoped to the authenticated user or guest
+  capability link, so routed App unmount/remount cycles do not orphan in-flight
+  conflicts while an account/link change disposes every old timer, callback,
+  failure and revision. A failed newest snapshot is retained and retried once
+  when connectivity or window focus returns.
 - **Save is dedup-safe against a stale `current` slot (#127).** When signed in,
   App still seeds the wizard from the localStorage `current` draft (cloud-first
   wizard load is deferred, #119). A draft that predates sign-in has a `_rosterId`
@@ -321,7 +333,10 @@ working unchanged, so game-day QR / printout scans still need no login.
   deliver to authenticated browsers, whereas Broadcast is plain pub/sub and just
   works — and it shares the channel name with the guest plane, so guest and
   authed viewers of the same character interoperate. App.jsx tracks a last-live
-  signature so the push/receive effects don't echo into a loop.
+  signature so the push/receive effects don't echo into a loop. Structural
+  Broadcast nudges on both planes wait for that character's pending local writes
+  to settle before refetching. A failed local write keeps the nudge parked,
+  preserving the newer local edit until a later successful sync (#334).
   Because Broadcast is best-effort (a nudge can drop on weak wifi, the 5 ev/s
   cap, or a backgrounded peer), both Play Mode and the GM Screen also **reconcile
   on focus** (`visibilitychange`→visible / window `focus`): they re-read the

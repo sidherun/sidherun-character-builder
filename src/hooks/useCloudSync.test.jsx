@@ -14,18 +14,19 @@ vi.mock('../utils/cloudSync.js', () => ({
 vi.mock('../utils/cloudStatus.js', () => ({ trackPush: h.trackPush }))
 
 import { selectCloudWritePlane, useCloudSync } from './useCloudSync.js'
+import { createPendingCharacterWrites } from '../utils/pendingCharacterWrites.js'
 
 const character = { name: 'Hero', _rosterId: 'localHero' }
 
-function Probe({ session }) {
-  useCloudSync(character, session)
+function Probe({ session, value = character, pendingWrites }) {
+  useCloudSync(value, session, pendingWrites)
   return null
 }
 
-async function renderSession(session) {
+async function renderSession(session, pendingWrites) {
   const container = document.createElement('div')
   const root = createRoot(container)
-  await act(async () => { root.render(<Probe session={session} />) })
+  await act(async () => { root.render(<Probe session={session} pendingWrites={pendingWrites} />) })
   return root
 }
 
@@ -71,6 +72,65 @@ describe('useCloudSync', () => {
 
     expect(h.syncCharacter).not.toHaveBeenCalled()
     expect(h.trackPush).not.toHaveBeenCalled()
+    act(() => root.unmount())
+  })
+
+  it('wires guest writes through the shared coordinator and flushes once on unmount', async () => {
+    const pendingWrites = createPendingCharacterWrites()
+    const root = await renderSession(
+      { user: null, authLoading: false, capabilityToken: 'token' },
+      pendingWrites,
+    )
+
+    await act(async () => { root.unmount(); await Promise.resolve() })
+    expect(h.syncCharacter).toHaveBeenCalledOnce()
+    expect(h.syncCharacter).toHaveBeenCalledWith(character)
+
+    pendingWrites.flushAll()
+    await Promise.resolve()
+    expect(h.syncCharacter).toHaveBeenCalledOnce()
+  })
+
+  it('defers a guest structural nudge through debounce and the in-flight push', async () => {
+    let finishPush
+    h.syncCharacter.mockReturnValue(new Promise(resolve => { finishPush = resolve }))
+    const pendingWrites = createPendingCharacterWrites()
+    const remote = vi.fn()
+    const root = await renderSession(
+      { user: null, authLoading: false, capabilityToken: 'token' },
+      pendingWrites,
+    )
+
+    expect(pendingWrites.requestRemote('localHero', remote)).toBe(false)
+    await act(async () => { await vi.advanceTimersByTimeAsync(1500) })
+    expect(h.syncCharacter).toHaveBeenCalledOnce()
+    expect(remote).not.toHaveBeenCalled()
+
+    await act(async () => { finishPush({ channel: 'data' }); await Promise.resolve() })
+    expect(remote).toHaveBeenCalledOnce()
+    act(() => root.unmount())
+  })
+
+  it('serializes two guest snapshots scheduled through the hook', async () => {
+    let finishFirst
+    h.syncCharacter
+      .mockReturnValueOnce(new Promise(resolve => { finishFirst = resolve }))
+      .mockResolvedValueOnce({ channel: 'data' })
+    const pendingWrites = createPendingCharacterWrites()
+    const session = { user: null, authLoading: false, capabilityToken: 'token' }
+    const root = await renderSession(session, pendingWrites)
+
+    await act(async () => { await vi.advanceTimersByTimeAsync(1500) })
+    await act(async () => {
+      root.render(<Probe session={session} value={{ ...character, name: 'Hero two' }} pendingWrites={pendingWrites} />)
+      await Promise.resolve()
+    })
+    await act(async () => { await vi.advanceTimersByTimeAsync(1500) })
+    expect(h.syncCharacter).toHaveBeenCalledTimes(1)
+
+    await act(async () => { finishFirst({ channel: 'data' }); await Promise.resolve() })
+    expect(h.syncCharacter).toHaveBeenCalledTimes(2)
+    expect(h.syncCharacter).toHaveBeenLastCalledWith({ ...character, name: 'Hero two' })
     act(() => root.unmount())
   })
 })

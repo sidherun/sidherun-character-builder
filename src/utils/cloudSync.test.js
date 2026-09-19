@@ -84,6 +84,11 @@ describe('dataSignature', () => {
     const a = mk(); const b = mk(); b.name = 'Renamed'
     expect(dataSignature(a)).not.toBe(dataSignature(b))
   })
+  it('ignores repository revision and ownership metadata', () => {
+    const a = { ...mk(), _rosterId: 'a', _dataRev: 1, _updatedAt: 'old', _ownerUserId: 'owner-a' }
+    const b = { ...a, _dataRev: 2, _updatedAt: 'new', _ownerUserId: 'owner-b', _assignedPlayerId: 'player' }
+    expect(dataSignature(a)).toBe(dataSignature(b))
+  })
 })
 
 describe('chooseChannel', () => {

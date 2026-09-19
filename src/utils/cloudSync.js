@@ -130,6 +130,14 @@ export function foldLive(c, live) {
 // state, so a live-only change (HP tick) doesn't look like a structural edit.
 export function dataSignature(c) {
   const x = JSON.parse(JSON.stringify(c))
+  // Repository/cache metadata is not character structure. Successful authed
+  // saves update these markers locally; excluding them prevents that metadata
+  // refresh from scheduling another structural write.
+  delete x._rosterId
+  delete x._ownerUserId
+  delete x._assignedPlayerId
+  delete x._dataRev
+  delete x._updatedAt
   delete x.wizardStep
   if (x.hitPoints)   delete x.hitPoints.current
   if (x.mana)        delete x.mana.current
