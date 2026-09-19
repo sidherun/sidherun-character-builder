@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { cloudEnabled } from '../utils/supabaseClient.js'
 import { getCloudMap, syncCharacter } from '../utils/cloudSync.js'
-import { repoEnabled } from '../utils/characterRepo.js'
 import { trackPush } from '../utils/cloudStatus.js'
 
 // Background cloud push, mirroring useAutoSave's debounce. Runs only when cloud
@@ -10,15 +9,26 @@ import { trackPush } from '../utils/cloudStatus.js'
 // cloud-link opens do that. localStorage remains the instant store; this is a
 // fire-and-forget background sync.
 //
-// CRITICAL: this is the GUEST/legacy token plane. For authenticated users
-// (repoEnabled), the app writes through characterRepo against the cloud — if this
-// also ran, it would push the stale localStorage character over the cloud row via
-// the old capability token, clobbering authoritative cloud data (e.g. wiping a
-// character's notes). So it must stay off whenever the repo is the source of truth.
-export function useCloudSync(character) {
+// Pick the write plane from the resolved session, not the build-time auth flag.
+// A #c= link explicitly grants capability-token access, even when its visitor is
+// signed in. Otherwise signed-in sessions use characterRepo and signed-out
+// sessions use this guest plane. While auth is still resolving, neither plane
+// should write.
+export function selectCloudWritePlane({ user, authLoading, capabilityToken } = {}) {
+  if (capabilityToken) return 'guest'
+  if (authLoading) return null
+  return user ? 'repo' : 'guest'
+}
+
+// CRITICAL: this is the GUEST/legacy token plane. Authenticated repository
+// characters must stay off it or they can double-write stale localStorage data
+// over the authoritative row. App uses the same returned plane to disable its
+// characterRepo effects when a signed-in visitor explicitly opens a #c= link.
+export function useCloudSync(character, session) {
   const timer = useRef(null)
+  const plane = selectCloudWritePlane(session)
   useEffect(() => {
-    if (repoEnabled()) return // authenticated → characterRepo owns cloud writes
+    if (plane !== 'guest') return
     if (!cloudEnabled) return
     if (!character?.name?.trim() || !character?._rosterId) return
     if (!getCloudMap()[character._rosterId]) return // not opted into cloud yet
@@ -28,5 +38,6 @@ export function useCloudSync(character) {
       trackPush(syncCharacter(character)).catch(() => { /* local-first: a failed push never disrupts the user */ })
     }, 1500)
     return () => clearTimeout(timer.current)
-  }, [character])
+  }, [character, plane])
+  return plane
 }

@@ -113,7 +113,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
     Boolean(cloud && playMode && !loadCharacterFromRoster(cloudRosterId)),
   )
 
-  const { user, role } = useAuth()
+  const { user, role, loading: authLoading } = useAuth()
   const { isPlayMode, enterPlayMode, exitPlayMode } = usePlayMode(playMode)
   const { isNotesOpen, toggleNotes, closeNotes }    = useNotesPanel()
   const { toasts, addToast, removeToast }           = useToast()
@@ -145,7 +145,12 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   }, [])
 
   const saveStatus = useAutoSave(character)
-  useCloudSync(character)
+  const cloudWritePlane = useCloudSync(character, {
+    user,
+    authLoading,
+    capabilityToken: cloudToken,
+  })
+  const useRepoPlane = cloudWritePlane === 'repo'
 
   // Apply remote live-counter broadcasts (another viewer's HP/mana/etc. change)
   // to local state in real time. No-op for non-cloud characters.
@@ -199,7 +204,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   // and is created on first save. No-op when signed out — the unauthenticated
   // localStorage-only flow is unaffected. upsertCharacter guards Save either way.
   useEffect(() => {
-    if (!repoEnabled() || !user) return
+    if (!useRepoPlane || !repoEnabled() || !user) return
     if (!character._rosterId || character._ownerUserId) return
     let alive = true
     getCharacter(character._rosterId)
@@ -218,12 +223,12 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
       })
       .catch(() => {})
     return () => { alive = false }
-  }, [user, character._rosterId, character._ownerUserId])
+  }, [user, useRepoPlane, character._rosterId, character._ownerUserId])
 
   // RECEIVE: subscribe to this character's live-counter broadcasts so a GM's
   // (or another viewer's) edit shows up here in real time.
   useEffect(() => {
-    if (!repoEnabled() || !user || !character._rosterId) return
+    if (!useRepoPlane || !repoEnabled() || !user || !character._rosterId) return
     lastLiveSig.current = null // reset for the newly-opened character
     lastDataSig.current = null
     const rid = character._rosterId
@@ -244,14 +249,14 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
       }).catch(() => {})
     })
     return () => removeLiveSubscription(rid)
-  }, [user, character._rosterId])
+  }, [user, useRepoPlane, character._rosterId])
 
   // SEND: push local live-counter changes (HP/Mana/Story/armor/use-pips) to the
   // cloud, debounced, so the GM and other viewers see them and they survive a
   // reload. Structure/data edits still persist on explicit save. Skips the
   // initial load and any change that merely echoes a received update.
   useEffect(() => {
-    if (!repoEnabled() || !user || !character._rosterId || !character._ownerUserId) return
+    if (!useRepoPlane || !repoEnabled() || !user || !character._rosterId || !character._ownerUserId) return
     const sig = JSON.stringify(projectLive(character))
     if (lastLiveSig.current === null) { lastLiveSig.current = sig; return }
     if (sig === lastLiveSig.current) return
@@ -262,14 +267,14 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
     liveFlushRef.current = push
     const t = setTimeout(() => { liveFlushRef.current = null; push() }, 800)
     return () => clearTimeout(t)
-  }, [character, user])
+  }, [character, user, useRepoPlane])
 
   // SEND (structure): push non-counter edits — inventory, notes, name, skills,
   // attributes, etc. — to the cloud, debounced, so every field persists during
   // play, not just on an explicit Save. dataSignature excludes the live counters
   // (handled above) and wizardStep, so this fires only on real structural change.
   useEffect(() => {
-    if (!repoEnabled() || !user || !character._rosterId || !character._ownerUserId) return
+    if (!useRepoPlane || !repoEnabled() || !user || !character._rosterId || !character._ownerUserId) return
     const sig = dataSignature(character)
     if (lastDataSig.current === null) { lastDataSig.current = sig; return } // initial load
     if (sig === lastDataSig.current) return
@@ -296,7 +301,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
     dataFlushRef.current = push
     const t = setTimeout(() => { dataFlushRef.current = null; push() }, 1200)
     return () => clearTimeout(t)
-  }, [character, user, addToast])
+  }, [character, user, useRepoPlane, addToast])
 
   // Flush any pending debounced cloud push before the app goes away, so the last
   // HP/Mana/Story (or structural) change isn't dropped with the timer (#196).
@@ -324,7 +329,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   // edit: skip if a push is still pending (the live/data signature differs from
   // what was last synced), and only adopt a strictly newer cloud row.
   useEffect(() => {
-    if (!repoEnabled() || !user) return
+    if (!useRepoPlane || !repoEnabled() || !user) return
     const reconcile = () => {
       if (document.visibilityState !== 'visible') return
       const c = charRef.current
@@ -348,7 +353,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
       document.removeEventListener('visibilitychange', reconcile)
       window.removeEventListener('focus', reconcile)
     }
-  }, [user])
+  }, [user, useRepoPlane])
 
   // Hydrate a cloud link from the server (once on mount). Adopt the cloud copy
   // when it's newer than the local one (or there's no local copy); otherwise
@@ -435,7 +440,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   // written too, as the offline cache. No-op (returns the local save) when auth
   // is off.
   async function persistToCloud(saved) {
-    if (!repoEnabled() || !user) return saved
+    if (!useRepoPlane || !repoEnabled() || !user) return saved
     try {
       const row = await upsertCharacter(saved)
       if (row) { setCharacter(row); saveCharacterToRoster(row); return row }
