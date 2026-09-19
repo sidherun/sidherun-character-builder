@@ -31,18 +31,27 @@ export function AuthProvider({ children }) {
     if (!authEnabled || !supabase) { setLoading(false); return }
     let active = true
 
-    supabase.auth.getSession().then(async ({ data }) => {
-      if (!active) return
-      const u = data?.session?.user ?? null
-      setUser(u)
-      await loadProfile(u?.id)
-      if (active) setLoading(false)
-    })
+    supabase.auth.getSession()
+      .then(async ({ data }) => {
+        if (!active) return
+        const u = data?.session?.user ?? null
+        setUser(u)
+        await loadProfile(u?.id)
+      })
+      .catch((err) => console.error('Auth session restore failed', err))
+      .finally(() => { if (active) setLoading(false) })
 
-    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    // Must NOT await Supabase calls inside this callback: auth-js awaits it while
+    // holding its init lock, and any query needs that lock for its token. With a
+    // stale persisted session the startup refresh fires TOKEN_REFRESHED here, the
+    // profile query waits on init, init waits on us, and the app stays blank
+    // forever. Defer the profile load until after the callback returns.
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       const u = session?.user ?? null
       setUser(u)
-      await loadProfile(u?.id)
+      setTimeout(() => {
+        if (active) loadProfile(u?.id).catch((err) => console.error('Profile load failed', err))
+      }, 0)
     })
 
     return () => { active = false; sub?.subscription?.unsubscribe() }

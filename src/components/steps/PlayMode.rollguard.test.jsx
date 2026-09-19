@@ -52,6 +52,7 @@ beforeEach(() => {
 afterEach(() => {
   act(() => root.unmount())
   container.remove()
+  vi.restoreAllMocks()
 })
 
 const attackButton = () =>
@@ -102,6 +103,9 @@ describe('PlayMode double-roll guard (#218/#222)', () => {
   })
 
   it('offers one-tap structured damage after an attack settles', async () => {
+    // Pin the d100 mid-range: a natural-1 fumble correctly withholds Damage,
+    // which made this test fail ~1% of runs and block deploys (#315, #328).
+    vi.spyOn(Math, 'random').mockReturnValue(0.5)
     const onRoll = vi.fn()
     await act(async () => {
       root.render(<PlayMode character={character()} onUpdate={() => {}} onExit={() => {}} onToggleNotes={() => {}} onRoll={onRoll} />)
