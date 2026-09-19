@@ -127,10 +127,10 @@ describe('saveCharacterData', () => {
   })
 
   // Optimistic concurrency (#146)
-  it('with expectedRev: guards on data_rev and bumps it', async () => {
+  it('with expectedRev: guards on data_rev and lets the database bump it', async () => {
     h.result = { data: row({ data_rev: 7 }), error: null } // server returns the bumped row
     const c = await saveCharacterData('c1', { name: 'Hero' }, 6)
-    expect(h.payload.data_rev).toBe(7)                 // bumped expectedRev + 1
+    expect(h.payload).not.toHaveProperty('data_rev')   // server-maintained; client cannot forge it
     expect(h.eqs).toContainEqual(['data_rev', 6])      // guarded on the expected rev
     expect(h.eqs).toContainEqual(['id', 'c1'])
     expect(c._dataRev).toBe(7)                         // returns the new rev

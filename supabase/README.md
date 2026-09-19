@@ -74,7 +74,7 @@ want player/GM/admin accounts with cloud-as-source-of-truth.
    reconciliation that can prefer an older cached copy (#253). Verify: edit a
    character while signed in → its roster card's Saved date becomes today.
 
-5. Apply `migrations/0004_function_permissions.sql`. This hardens the database
+6. Apply `migrations/0004_function_permissions.sql`. This hardens the database
    function execution matrix after the role/RLS migration:
    - `_h`, `_mint_token`, `handle_new_user`, and `guard_role_change` cannot be
      called through the Data API;
@@ -89,15 +89,28 @@ want player/GM/admin accounts with cloud-as-source-of-truth.
    produce 0028/0029 warnings **by design**: anonymous and signed-in browsers both
    need them for token/GM-key links, and each function validates that capability
    internally. Do not revoke those grants unless guest links are being retired.
-   `create_character` remains an abuse/rate-limit surface tracked under #200.
+   `create_character` remains an abuse/rate-limit surface tracked under #338.
    Run `verify_function_permissions.sql` in the SQL Editor afterward; every
    reported boolean should be `true`.
+
+7. Apply `migrations/0005_character_update_authorization.sql`. This repairs the
+   authenticated update boundary: owners and assigned players may update
+   character content/live counters, only GM/admin users may reassign ownership,
+   and non-GM direct writes cannot alter capability hashes or revision counters.
+   Revisions for direct authenticated content writes are bumped by the database,
+   preserving optimistic concurrency without trusting client-supplied metadata.
+   The seven guest capability RPCs remain unchanged and callable by anonymous or
+   signed-in browsers. Run `verify_character_update_authorization.sql` in the
+   SQL Editor afterward; it executes an anon/owner/assignee/GM/admin matrix inside
+   a transaction and rolls all fixtures back.
 
 ### RLS smoke test (two planes)
 - As **anon** from the app JS: `supabase.from('characters').select('*')` still
   returns 0 rows / permission denied, and `get_character('<token>')` still works
   (guest plane intact).
-- As a signed-in **player**: `select` returns only their owned/assigned rows;
-  updating someone else's row, self-promoting to `admin`, or reassigning all fail.
+- As a signed-in **player**: `select` returns only their owned/assigned rows and
+  content/live updates to either succeed; updating someone else's row,
+  self-promoting to `admin`, or changing ownership/assignment/capability/revision
+  fields fails.
 - As **gm/admin**: `select` returns all rows; update/assign succeed; only `admin`
   may change a role.
