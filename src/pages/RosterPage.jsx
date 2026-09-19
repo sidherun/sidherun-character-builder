@@ -4,7 +4,7 @@ import { openCharacterPrintWindow } from '../utils/printCharacters.js'
 import { buildRosterBackup, extractCharacters, validateCharacters, extractCloudState } from '../utils/rosterBackup.js'
 import { cloudEnabled } from '../utils/supabaseClient.js'
 import { pushRoster, ensureGmKey, getGmKey, getCloudMap, importCloudState, deleteCloudCharacter, syncCharacter } from '../utils/cloudSync.js'
-import { repoEnabled, listCharacters, listPlayers, assignPlayer, deleteCharacter as repoDelete, saveCharacterData } from '../utils/characterRepo.js'
+import { repoEnabled, listCharacters, listPlayers, assignPlayer, deleteCharacter as repoDelete, getCharacter as repoGetCharacter, saveCharacterData } from '../utils/characterRepo.js'
 import { trackPush } from '../utils/cloudStatus.js'
 import { useAuth, isGmOrAdmin, isAdmin } from '../auth/useAuth.js'
 import { sortRoster, SORT_KEYS } from '../utils/rosterSort.js'
@@ -36,12 +36,21 @@ function toEntry(c) {
   }
 }
 
+function withMembership(character, membership) {
+  return {
+    ...character,
+    tableIds: [...(membership.tableIds || [])],
+    _tableNames: { ...(membership._tableNames || {}) },
+  }
+}
+
 export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
   const { user, role, signOut } = useAuth()
   const useRepo = repoEnabled()
   const [roster, setRoster] = useState(() => (useRepo ? [] : loadRoster()))
   // Full characters by id (repo path), so onGetCharacter/handleLoad have the blob.
-  const [repoChars, setRepoChars] = useState({})
+  const repoCharsRef = useRef({})
+  const membershipWritesRef = useRef(new Map())
   const [players, setPlayers] = useState([])
 
   // Cloud-first load for signed-in users (RLS-scoped). localStorage path is
@@ -51,8 +60,9 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
     let alive = true
     listCharacters().then(chars => {
       if (!alive) return
+      const byId = Object.fromEntries(chars.map(c => [c._rosterId, c]))
       setRoster(chars.map(toEntry))
-      setRepoChars(Object.fromEntries(chars.map(c => [c._rosterId, c])))
+      repoCharsRef.current = byId
     }).catch(() => {})
     if (isGmOrAdmin(role)) listPlayers().then(p => { if (alive) setPlayers(p) }).catch(() => {})
     return () => { alive = false }
@@ -60,11 +70,12 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
 
   async function refreshRepo() {
     const chars = await listCharacters()
+    const byId = Object.fromEntries(chars.map(c => [c._rosterId, c]))
     setRoster(chars.map(toEntry))
-    setRepoChars(Object.fromEntries(chars.map(c => [c._rosterId, c])))
+    repoCharsRef.current = byId
   }
 
-  const getCharacter = useRepo ? (id => repoChars[id] || null) : loadCharacterFromRoster
+  const getCharacter = useRepo ? (id => repoCharsRef.current[id] || null) : loadCharacterFromRoster
   const [sortKey, setSortKey] = useState(() => {
     try { return localStorage.getItem('sidherun_roster_sort') || 'name' } catch { return 'name' }
   })
@@ -84,13 +95,89 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
   const tableCounts = {}
   for (const e of roster) for (const tid of (e.tableIds || [])) tableCounts[tid] = (tableCounts[tid] || 0) + 1
 
-  // Persist a character's changed membership on the active storage plane, and
-  // reflect tableIds + names in the roster index so chips/checkboxes/registry
-  // update immediately.
+  function applyRepoCharacter(character) {
+    const id = character._rosterId
+    repoCharsRef.current = { ...repoCharsRef.current, [id]: character }
+    setRoster(prev => prev.map(entry => (entry.id === id ? toEntry(character) : entry)))
+  }
+
+  // Persist a character's changed membership on the active storage plane.
+  // Authenticated writes are serialized per character: each save advances the
+  // revision used by the next queued save, while the UI can still compose rapid
+  // toggles against the latest optimistic character in repoCharsRef.
   function persistMembership(id, updated) {
     if (useRepo) {
-      setRepoChars(prev => ({ ...prev, [id]: updated }))
-      saveCharacterData(id, updated, updated._dataRev).catch(() => setStatus('Could not save table change to cloud.'))
+      const previous = repoCharsRef.current[id]
+      applyRepoCharacter(updated)
+
+      let queue = membershipWritesRef.current.get(id)
+      if (!queue) {
+        queue = {
+          tail: Promise.resolve(),
+          revision: updated._dataRev ?? null,
+          authoritative: previous || updated,
+          latestVersion: 0,
+        }
+        membershipWritesRef.current.set(id, queue)
+      }
+      const version = ++queue.latestVersion
+
+      const write = queue.tail.then(async () => {
+        try {
+          // Rebase this queued membership change onto the row returned by the
+          // prior write. That preserves server/remote fields even when several
+          // clicks were queued before the first request completed.
+          let candidate = withMembership(queue.authoritative, updated)
+          let saved = await saveCharacterData(id, candidate, queue.revision)
+
+          if (saved?.conflict) {
+            const authoritative = await repoGetCharacter(id)
+            if (!authoritative) throw new Error('Character is no longer available.')
+
+            queue.authoritative = authoritative
+            queue.revision = authoritative._dataRev ?? null
+            candidate = withMembership(authoritative, updated)
+            saved = await saveCharacterData(id, candidate, queue.revision)
+
+            if (saved?.conflict) {
+              const latest = await repoGetCharacter(id)
+              if (latest) {
+                queue.authoritative = latest
+                queue.revision = latest._dataRev ?? null
+              }
+              if (version === queue.latestVersion) applyRepoCharacter(queue.authoritative)
+              setStatus('Table change was not saved because another update won. Please reload and try again.')
+              return
+            }
+
+            setStatus('Table change reconciled with a newer cloud update.')
+          }
+
+          if (!saved) throw new Error('Cloud save returned no character.')
+          queue.authoritative = saved
+          queue.revision = saved._dataRev ?? queue.revision
+          // A newer optimistic operation may already be visible. Only replace
+          // it with the authoritative row after the final queued save settles.
+          if (version === queue.latestVersion) applyRepoCharacter(saved)
+        } catch {
+          const latest = await repoGetCharacter(id).catch(() => null)
+          if (latest) {
+            queue.authoritative = latest
+            queue.revision = latest._dataRev ?? null
+            if (version === queue.latestVersion) applyRepoCharacter(latest)
+            setStatus('Could not save table change. Reloaded the latest cloud version.')
+          } else {
+            if (version === queue.latestVersion) applyRepoCharacter(queue.authoritative)
+            setStatus('Could not save table change to cloud.')
+          }
+        }
+      })
+
+      queue.tail = write
+      write.finally(() => {
+        if (queue.tail === write) membershipWritesRef.current.delete(id)
+      })
+      return
     } else {
       saveCharacterToRoster(updated)
       if (cloudEnabled && getCloudMap()[id]) trackPush(syncCharacter(updated)).catch(() => {})
