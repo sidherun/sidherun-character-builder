@@ -2,9 +2,9 @@
 // of truth (rosterStorage.js is untouched); this layer pushes changes to
 // Supabase in the background. M2 is PUSH-ONLY — hydrate/realtime come in M3/M4.
 //
-// Opt-in model: a character syncs only once it's in the cloud map (added by the
-// "Push roster to cloud" button, or later by opening a cloud link). The
-// background hook then keeps mapped characters up to date; it never auto-creates.
+// A character syncs only when it already has a capability mapping, restored
+// from a backup or registered by opening a cloud link. Anonymous creation was
+// retired in migration 0006; new cloud rows use the authenticated repository.
 //
 // R1 (epic #71): cloud metadata (row id, capability token, GM key) lives ONLY
 // here / in localStorage maps — never inside the character blob, which is
@@ -219,24 +219,9 @@ function invalidateCloudMapping(rosterId) {
   delete lastSnapshot[rosterId]
 }
 
-async function createCloudCharacter(character) {
-  const rows = await rpc('create_character', {
-    p_gm_key: ensureGmKey(),
-    p_name:   character.name || 'Unnamed',
-    p_data:   character,
-    p_live:   projectLive(character),
-  })
-  const created = rows?.[0]
-  if (!created?.id || !created?.token) throw new Error('Cloud character creation returned no row')
-  setCloudMapEntry(character._rosterId, { id: created.id, token: created.token })
-  lastSnapshot[character._rosterId] = character
-  return { created: true, id: created.id }
-}
-
-async function handleDeadMapping(character, allowCreate) {
+function handleDeadMapping(character) {
   invalidateCloudMapping(character._rosterId)
-  if (allowCreate) return createCloudCharacter(character)
-  throw new Error('Cloud character mapping is no longer valid; push the roster to reconnect it')
+  throw new Error('Cloud character mapping is no longer valid')
 }
 
 // Fetch a cloud character by capability token. Returns the character with live
@@ -250,41 +235,33 @@ export async function fetchCloudCharacter(token) {
   return { character: foldLive(r.data, r.live), updatedAt: r.updated_at, id: r.id }
 }
 
-// Sync one character to the cloud. `allowCreate` lets the migration button
-// create new rows; the background hook passes false (update mapped rows only).
-export async function syncCharacter(character, { allowCreate = false } = {}) {
+// Sync an existing capability-mapped character. This never creates rows.
+export async function syncCharacter(character) {
   if (!supabase || !character?._rosterId) return null
   const entry = getCloudMap()[character._rosterId]
 
-  if (!entry) {
-    if (!allowCreate) return null
-    return createCloudCharacter(character)
-  }
+  if (!entry) return null
 
-  // An explicit roster push is also a mapping-health check. Force a full data
-  // write when the in-memory snapshot is unchanged so a row deleted or rotated
-  // during this session cannot remain falsely reported as synced.
   const chosen = chooseChannel(lastSnapshot[character._rosterId], character)
-  const channel = allowCreate && chosen === 'none' ? 'data' : chosen
-  if (channel === 'data') {
+  if (chosen === 'data') {
     const rows = await rpc('update_character_data', {
       p_token: entry.token, p_name: character.name || 'Unnamed',
       p_data: character, p_expected_rev: -1,
     })
-    if (!rows?.length) return handleDeadMapping(character, allowCreate)
+    if (!rows?.length) return handleDeadMapping(character)
     // Nudge other viewers to re-hydrate the fresh structural data (parity with the
     // live broadcast below). Payload-less signal → receivers refetch the row.
     channels[character._rosterId]?.send({ type: 'broadcast', event: 'data', payload: {} })
-  } else if (channel === 'live') {
+  } else if (chosen === 'live') {
     const live = projectLive(character)
     const rows = await rpc('patch_live', { p_token: entry.token, p_patch: live })
-    if (!rows?.length) return handleDeadMapping(character, allowCreate)
+    if (!rows?.length) return handleDeadMapping(character)
     // Nudge other connected viewers instantly (best-effort; persistence is the
     // patch above, so offline peers still catch up on their next hydrate).
     channels[character._rosterId]?.send({ type: 'broadcast', event: 'live', payload: { live } })
   }
   lastSnapshot[character._rosterId] = character
-  return { created: false, channel }
+  return { channel: chosen }
 }
 
 // Rotate a character's capability token (invalidates old links). Returns the
@@ -306,18 +283,4 @@ export async function deleteCloudCharacter(rosterId) {
     try { await rpc('delete_character', { p_gm_key: ensureGmKey(), p_id: entry.id }) } catch { /* ignore */ }
   }
   removeCloudMapEntry(rosterId)
-}
-
-// Migration: push an array of characters, creating cloud rows for any not yet
-// mapped (idempotent — already-mapped characters are updated, not duplicated).
-export async function pushRoster(characters) {
-  let created = 0, updated = 0, failed = 0
-  for (const c of characters) {
-    if (!c?.name?.trim()) continue
-    try {
-      const r = await syncCharacter(c, { allowCreate: true })
-      if (r?.created) created++; else updated++
-    } catch { failed++ }
-  }
-  return { created, updated, failed }
 }

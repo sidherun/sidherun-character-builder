@@ -1,4 +1,4 @@
--- Run in the Supabase SQL Editor after 0004_function_permissions.sql.
+-- Run in the Supabase SQL Editor after 0006_anonymous_creation_controls.sql.
 -- Every *_matches column should be true.
 
 with expected(signature, anon_execute, authenticated_execute) as (
@@ -8,7 +8,7 @@ with expected(signature, anon_execute, authenticated_execute) as (
     ('public.handle_new_user()', false, false),
     ('public.guard_role_change()', false, false),
     ('public.patch_live_by_id(uuid,jsonb)', false, true),
-    ('public.create_character(text,text,jsonb,jsonb)', true, true),
+    ('public.create_character(text,text,jsonb,jsonb)', false, false),
     ('public.get_character(text)', true, true),
     ('public.update_character_data(text,text,jsonb,bigint)', true, true),
     ('public.patch_live(text,jsonb)', true, true),
