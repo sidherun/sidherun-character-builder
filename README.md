@@ -194,12 +194,12 @@ To add a new archetype: add an entry to `src/data/archetypes.json` with `id`, `n
 
 ## Cloud sync (optional)
 
-By default the app is localStorage-only (per browser/device). An optional Supabase
-backend (epic #71) makes a character a **shared, live source of truth**: the GM
-pushes the roster to the cloud, shares a per-character **live link**
-(`#c=<id>~<token>`), and a player's HP/notes edits sync back and appear on the
-GM's screen in real time. It stays **local-first** — localStorage is the instant
-store; the cloud syncs in the background and the app keeps working offline.
+By default the app is localStorage-only (per browser/device). The Supabase
+backend (epics #71 and #109) makes signed-in characters a **shared, live source
+of truth** and supports per-character **live links** (`#c=<id>~<token>`) whose
+HP/notes edits sync back to the GM's screen. New cloud rows require a signed-in
+user; anonymous creation was retired in migration 0006 (#338). Existing live
+links remain usable without an account.
 
 A small **sync status badge** (Play Mode + GM Screen headers) shows whether cloud
 sync is healthy — **Live** / **Saving…** / **Sync error** / **Offline** — so a
@@ -212,11 +212,10 @@ numbers are fine"; the GM knows to fix the connection or fall back to paper on
 purpose. (`--danger`/`--bg` are light/dark inverses, so the bar stays legible in
 both themes token-only.)
 
-Guest-mode capability mappings are also validated on every explicit roster
-push. If a character's token was rotated or its cloud row was deleted, a
-background save reports a sync error and removes the dead mapping; the next
-**Push roster to cloud** recreates the row and reports it as new instead of
-silently claiming that an update succeeded (#252).
+If a legacy capability mapping points to a deleted row or rotated token, a
+background save reports a sync error and removes the dead mapping instead of
+silently claiming that an update succeeded. It does not anonymously recreate
+the row; create or import the character while signed in.
 
 **Structural saves use optimistic concurrency** (authenticated plane): each
 full-blob write guards on the row's `data_rev`, so if two devices edit the same
@@ -229,21 +228,23 @@ conflicting again on a stale cached value.
 - **Off by default.** Enabled only when `VITE_CLOUD_SYNC=on` and the Supabase keys
   are present (see `.env.example` and `supabase/README.md`). With the flag off the
   cloud code is inert and the UI is hidden.
-- **Security.** The `characters` table is sealed by RLS; all access is via
-  token-gated RPCs. The anon/publishable key is public by design. A per-character
-  **capability token** lives in the link; a per-GM **key** (localStorage) owns the
-  roster — no accounts. The GM key is minted from `crypto.getRandomValues`
+- **Security.** Anonymous direct table access is sealed by RLS. Existing live
+  links use token-gated RPCs, while signed-in users create and manage rows under
+  authenticated RLS policies. The anon/publishable key is public by design. A
+  per-character **capability token** lives in each guest link; the legacy per-GM
+  **key** remains available for managing existing capability rows and is minted
+  from `crypto.getRandomValues`
   (32 bytes / 256 bits of entropy), not a `Math.random`-backed UUID. The GM key +
   cloud map are included in the **Back up all** file, so cloud access survives a
   browser wipe. **Reset link** rotates a token to revoke a shared link.
-- **Setup & cutover:** create a project, apply `supabase/migrations/0001_init.sql`,
-  set `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and `VITE_CLOUD_SYNC=on` in the
-  repo Variables to go live.
+- **Setup & cutover:** create a project, apply all migrations in numeric order,
+  then set `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and `VITE_AUTH=on` in
+  the repo Variables. See `supabase/README.md`.
 
-## Multi-user accounts & roles (optional)
+## Multi-user accounts & roles
 
-Epic #109 adds a second, **authenticated** access plane on top of the guest one
-above. With it on, each player signs in (passwordless **magic link**) and the
+Epic #109 adds an **authenticated** access plane alongside existing guest links.
+With it on, each player signs in (passwordless **magic link**) and the
 cloud — not localStorage — is the **source of truth** for character data
 (localStorage is demoted to an offline cache). The original guest links keep
 working unchanged, so game-day QR / printout scans still need no login.
@@ -351,8 +352,8 @@ working unchanged, so game-day QR / printout scans still need no login.
   never clobbers an un-pushed local change; the GM Screen is a viewer and just
   re-fetches.
 - **Off by default.** Enabled only when `VITE_AUTH=on` (which implies cloud) and
-  the Supabase keys are present. With it off the app is the legacy single-user /
-  guest build, byte-for-byte.
+  the Supabase keys are present. With it off, localStorage characters and
+  existing capability links still work, but new cloud rows cannot be created.
 - **Setup:** apply `supabase/migrations/0002_auth_roles.sql` after `0001`, set
   `VITE_AUTH=on`, then sign in once and run the one-time seed/backfill SQL noted
   at the bottom of the migration (make yourself `admin`; adopt existing
@@ -366,8 +367,9 @@ working unchanged, so game-day QR / printout scans still need no login.
   authenticated live patching run under RLS, and locks down default function
   grants (#321). Then apply `0005_character_update_authorization.sql`, which
   fixes assigned-player updates and protects authorization/capability/revision
-  columns (#331). Run `supabase/verify_function_permissions.sql` and
-  `supabase/verify_character_update_authorization.sql` afterward.
+  columns (#331). Then apply `0006_anonymous_creation_controls.sql`: it revokes
+  browser access to `create_character` and enforces the documented name/JSON
+  payload limits (#338). Run all three `supabase/verify_*.sql` matrices afterward.
 - **First-admin bootstrap:** a `guard_role_change()` trigger stops a signed-in
   non-admin from self-promoting. It is scoped to authenticated users
   (`auth.uid() is not null`), so the very first admin is seeded from a backend
@@ -380,9 +382,9 @@ working unchanged, so game-day QR / printout scans still need no login.
   `readOnly` mode in `PlayMode.jsx`.
 - **Role helpers:** after migration 0004, `private.caller_role()` and
   `private.is_gm_or_admin()` support the RLS policies without being exposed as
-  public REST RPCs. The seven guest capability-token functions intentionally
-  remain callable by anonymous and authenticated browsers; Supabase Advisor
-  warnings for those seven are expected while guest links remain supported.
+  public REST RPCs. Migration 0006 leaves six guest capability-token functions
+  callable by anonymous and authenticated browsers for existing links, while
+  `create_character` is unavailable to both roles.
 - **Applying the migration:** paste `0002_auth_roles.sql` into the Supabase SQL
   Editor and **Run**. If the editor reports a syntax error on a line that looks
   correct, the paste may have dropped characters (some clipboard setups do this
@@ -399,7 +401,8 @@ reads — anything not listed there ships unset. To run with auth + roles in
 production, set the repo **Variables** (not Secrets; the publishable key is public
 by design): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (the `sb_publishable_…`
 key), and `VITE_AUTH=on`. `VITE_AUTH=on` implies cloud, so `VITE_CLOUD_SYNC` is
-optional. Unset `VITE_AUTH` (and redeploy) to fall back to the guest-only build.
+optional. Unset `VITE_AUTH` (and redeploy) for localStorage plus existing
+capability-link access; anonymous cloud creation remains disabled.
 
 GitHub Pages must be set to source **GitHub Actions** in repo Settings → Pages.
 

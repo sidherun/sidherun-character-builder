@@ -27,7 +27,7 @@ vi.mock('./supabaseClient.js', () => ({
 import {
   projectLive, foldLive, dataSignature, chooseChannel, mergeRemote, qrLinkFor,
   rosterIdForCloudId, registerCloudLink, getCloudMap, subscribeCharacter,
-  syncCharacter, pushRoster,
+  syncCharacter,
 } from './cloudSync.js'
 import { createDefaultCharacter } from './defaultCharacter.js'
 
@@ -205,39 +205,13 @@ describe('dead cloud mapping recovery (#252)', () => {
     expect(cloud.sends).toEqual([])
   })
 
-  it('recreates a dead mapped row during explicit roster push and reports it as new', async () => {
-    const c = setup('dead-push')
-    cloud.results.push(
-      { data: [], error: null },
-      { data: [{ id: 'new-id', token: 'new-token' }], error: null },
-    )
+  it('never creates a replacement row after invalidating a dead mapping', async () => {
+    const c = setup('dead-no-recreate')
+    cloud.results.push({ data: [], error: null })
 
-    await expect(pushRoster([c])).resolves.toEqual({ created: 1, updated: 0, failed: 0 })
-    expect(cloud.calls.map(x => x.fn)).toEqual(['update_character_data', 'create_character'])
-    expect(getCloudMap()['dead-push']).toEqual({ id: 'new-id', token: 'new-token' })
-  })
+    await expect(syncCharacter(c)).rejects.toThrow('mapping is no longer valid')
 
-  it('validates and recreates a mapped row on explicit push even when the snapshot is unchanged', async () => {
-    const c = setup('dead-unchanged')
-    cloud.results.push({ data: [{ id: 'old-dead-unchanged' }], error: null })
-    await syncCharacter(c)
-    cloud.calls = []
-    cloud.sends = []
-    cloud.results.push(
-      { data: [], error: null },
-      { data: [{ id: 'replacement', token: 'replacement-token' }], error: null },
-    )
-
-    await expect(pushRoster([c])).resolves.toEqual({ created: 1, updated: 0, failed: 0 })
-    expect(cloud.calls.map(x => x.fn)).toEqual(['update_character_data', 'create_character'])
-    expect(cloud.sends).toEqual([])
-  })
-
-  it('keeps a healthy mapped row counted as updated', async () => {
-    const c = setup('healthy')
-    cloud.results.push({ data: [{ id: 'old-healthy' }], error: null })
-
-    await expect(pushRoster([c])).resolves.toEqual({ created: 0, updated: 1, failed: 0 })
-    expect(getCloudMap().healthy).toBeTruthy()
+    expect(cloud.calls.map(x => x.fn)).toEqual(['update_character_data'])
+    expect(getCloudMap()['dead-no-recreate']).toBeUndefined()
   })
 })

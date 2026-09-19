@@ -3,7 +3,7 @@ import { loadRoster, deleteCharacterFromRoster, loadCharacterFromRoster, saveCha
 import { openCharacterPrintWindow } from '../utils/printCharacters.js'
 import { buildRosterBackup, extractCharacters, validateCharacters, extractCloudState } from '../utils/rosterBackup.js'
 import { cloudEnabled } from '../utils/supabaseClient.js'
-import { pushRoster, ensureGmKey, getGmKey, getCloudMap, importCloudState, deleteCloudCharacter, syncCharacter } from '../utils/cloudSync.js'
+import { ensureGmKey, getGmKey, getCloudMap, importCloudState, deleteCloudCharacter, syncCharacter } from '../utils/cloudSync.js'
 import { repoEnabled, listCharacters, listPlayers, assignPlayer, deleteCharacter as repoDelete, getCharacter as repoGetCharacter, saveCharacterData } from '../utils/characterRepo.js'
 import { trackPush } from '../utils/cloudStatus.js'
 import { useAuth, isGmOrAdmin, isAdmin } from '../auth/useAuth.js'
@@ -82,7 +82,6 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
   const [status, setStatus] = useState('')
   const [printMode, setPrintMode] = useState(null) // null | choose | confirm
   const [printSelection, setPrintSelection] = useState(null)
-  const [pushing, setPushing] = useState(false)
   const restoreRef = useRef(null)
 
   // Named tables (#175). The localStorage registry is the GM's source of truth
@@ -225,25 +224,6 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
     }
     deleteTable(id)
     setLocalTables(listTables())
-  }
-
-  // Push the whole local roster to the cloud (idempotent: already-synced
-  // characters are updated, not duplicated). Opt-in entry point for cloud sync.
-  async function handlePushToCloud() {
-    const chars = roster.map(e => getCharacter(e.id)).filter(Boolean)
-    if (chars.length === 0) return
-    setPushing(true)
-    setStatus('Pushing roster to cloud…')
-    try {
-      const { created, updated, failed } = await pushRoster(chars)
-      const parts = [`Synced to cloud: ${created} new, ${updated} updated.`]
-      if (failed) parts.push(`${failed} failed.`)
-      setStatus(parts.join(' '))
-    } catch {
-      setStatus('Cloud push failed — your local characters are unaffected.')
-    } finally {
-      setPushing(false)
-    }
   }
 
   function handleCopyGmKey() {
@@ -410,11 +390,6 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
           <button className="btn-secondary" onClick={() => restoreRef.current?.click()}>
             Restore…
           </button>
-          {cloudEnabled && !useRepo && roster.length > 0 && (
-            <button className="btn-secondary" onClick={handlePushToCloud} disabled={pushing}>
-              {pushing ? 'Syncing…' : 'Push to cloud'}
-            </button>
-          )}
           {cloudEnabled && !useRepo && (
             <button className="btn-secondary" onClick={handleCopyGmKey}>
               Copy GM key
