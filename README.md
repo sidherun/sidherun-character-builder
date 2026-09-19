@@ -274,18 +274,19 @@ working unchanged, so game-day QR / printout scans still need no login.
   signed-in users appear (profile created on first login), and a role change takes
   effect on the target user's next reload. No migration required — the policies
   from `0002_auth_roles.sql` already allow it (#313).
-- **Two planes coexist.** Signed-in users get direct table access scoped by RLS
-  policies on `auth.uid()` + role; anonymous guests still reach a character only
-  through the sealed capability-token RPCs (`#c=`/`#play=`/`#share=`). Both
+- **Two planes coexist.** Signed-in repository characters get direct table access
+  scoped by RLS policies on `auth.uid()` + role. A `#c=` live link always uses
+  the sealed capability-token RPCs, whether its visitor is signed out or already
+  signed in, so scanning a game-day QR never requires a login. Both
   `characters` and `profiles` grant DML to `authenticated` only and revoke
   `anon`'s default grant — `anon` is hard-sealed (a direct read returns
   `permission denied`, verified against the live project).
-- **Who owns cloud writes.** For authenticated users `characterRepo` is the ONLY
-  writer to the cloud; the legacy capability-token push (`useCloudSync` →
-  `cloudSync.syncCharacter`) is gated off via `repoEnabled()`. This matters:
-  otherwise the legacy push would send the stale localStorage character over the
-  cloud row and overwrite authoritative data. localStorage is a non-authoritative
-  cache only when signed in.
+- **Who owns cloud writes.** The resolved session plus the explicit `#c=` token
+  select exactly one writer. Authenticated repository characters use
+  `characterRepo`; live-link visitors use `useCloudSync` →
+  `cloudSync.syncCharacter`. Keeping the planes exclusive prevents a stale
+  localStorage character from double-writing over an authoritative repository
+  row. localStorage is a non-authoritative cache for repository characters.
 - **Continuous autosave (all fields).** Signed-in edits persist to the cloud on
   their own, split by plane so writes stay small: live counters via debounced
   `patchLive` (`live` column), and structural fields — inventory, notes, name,

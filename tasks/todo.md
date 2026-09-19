@@ -93,3 +93,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Explicit legacy weapon range review + partial structured-data migration (#324) | #324 | 2026-07-20 |
 | Roster print scopes: one character, named table, or full roster + popup-block recovery (#242) | #242 | 2026-07-20 |
 | Live-sync owner/assignment warnings + 20 events/sec Realtime burst allowance (#200) | #200 | 2026-07-20 |
+| Auth-aware cloud-plane selection restores `#c=` guest writes without repository double-writes (#333) | #333 | 2026-09-19 |
