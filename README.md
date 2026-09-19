@@ -262,7 +262,12 @@ working unchanged, so game-day QR / printout scans still need no login.
 - **Roles.** `player` reads/edits the characters they own or are assigned and
   ticks counters during play; `gm` views and administers **every** character in
   the campaign (HP/Mana/Story, plus assigning players); `admin` can change any
-  data and any user's role.
+  data and any user's role. Migration `0005_character_update_authorization.sql`
+  enforces that distinction at the database boundary: owners and assignees may
+  update character content and live counters, while only GM/admin callers may
+  change ownership or assignment. Capability hashes and revision counters are
+  also protected from direct player writes; direct authenticated content writes
+  receive database-maintained revision bumps for optimistic concurrency (#331).
 - **Manage Roles (admin-only UI, #179).** An admin opens **Manage Roles** from the
   Roster (`#admin`, `pages/AdminRoles.jsx`) to see everyone who has signed in
   (`listPlayers()` → all `profiles`), search by display name/email, filter by
@@ -359,7 +364,10 @@ working unchanged, so game-day QR / printout scans still need no login.
   `0004_function_permissions.sql`: it removes Data API execution from internal
   and trigger-only functions, moves RLS helpers to an unexposed schema, makes
   authenticated live patching run under RLS, and locks down default function
-  grants (#321). Run `supabase/verify_function_permissions.sql` afterward.
+  grants (#321). Then apply `0005_character_update_authorization.sql`, which
+  fixes assigned-player updates and protects authorization/capability/revision
+  columns (#331). Run `supabase/verify_function_permissions.sql` and
+  `supabase/verify_character_update_authorization.sql` afterward.
 - **First-admin bootstrap:** a `guard_role_change()` trigger stops a signed-in
   non-admin from self-promoting. It is scoped to authenticated users
   (`auth.uid() is not null`), so the very first admin is seeded from a backend
