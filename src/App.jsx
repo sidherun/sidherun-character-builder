@@ -628,7 +628,9 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
         {isNotesOpen && (
           <NotesPanel
             notes={character._notes}
+            backstory={character.backstory}
             onChange={notes => update({ _notes: notes })}
+            onBackstoryChange={backstory => update({ backstory })}
             onClose={closeNotes}
           />
         )}
@@ -708,7 +710,13 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
             </div>
           </div>
           {isNotesOpen && (
-            <NotesPanel notes={character._notes} onChange={notes => update({ _notes: notes })} onClose={closeNotes} />
+            <NotesPanel
+              notes={character._notes}
+              backstory={character.backstory}
+              onChange={notes => update({ _notes: notes })}
+              onBackstoryChange={backstory => update({ backstory })}
+              onClose={closeNotes}
+            />
           )}
           <Toast toasts={toasts} onRemove={removeToast} />
         </div>
@@ -823,7 +831,9 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
         {isNotesOpen && (
           <NotesPanel
             notes={character._notes}
+            backstory={character.backstory}
             onChange={notes => update({ _notes: notes })}
+            onBackstoryChange={backstory => update({ backstory })}
             onClose={closeNotes}
           />
         )}

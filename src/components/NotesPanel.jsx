@@ -2,9 +2,12 @@ import { useState } from 'react'
 import { uuid } from '../utils/uuid.js'
 import styles from './NotesPanel.module.css'
 
-export default function NotesPanel({ notes, onChange, onClose }) {
+const BACKSTORY_NOTE_ID = 'character-backstory'
+
+export default function NotesPanel({ notes, backstory = '', onChange, onBackstoryChange, onClose }) {
   const [editing, setEditing] = useState(null)
   const [draft, setDraft] = useState({ title: '', body: '' })
+  const hasBackstory = Boolean(backstory.trim())
 
   function startNew() {
     setEditing('new')
@@ -16,7 +19,17 @@ export default function NotesPanel({ notes, onChange, onClose }) {
     setDraft({ title: note.title, body: note.body })
   }
 
+  function startEditBackstory() {
+    setEditing(BACKSTORY_NOTE_ID)
+    setDraft({ title: 'Backstory', body: backstory })
+  }
+
   function save() {
+    if (editing === BACKSTORY_NOTE_ID) {
+      onBackstoryChange(draft.body)
+      setEditing(null)
+      return
+    }
     if (!draft.title.trim()) return
     const now = new Date().toISOString()
     if (editing === 'new') {
@@ -54,6 +67,7 @@ export default function NotesPanel({ notes, onChange, onClose }) {
               className={styles.titleInput}
               placeholder="Note title…"
               value={draft.title}
+              readOnly={editing === BACKSTORY_NOTE_ID}
               onChange={e => setDraft(d => ({ ...d, title: e.target.value }))}
             />
             <label htmlFor="note-body" className="sr-only">Note body</label>
@@ -74,7 +88,25 @@ export default function NotesPanel({ notes, onChange, onClose }) {
           <>
             <button className={`btn-primary ${styles.newBtn}`} onClick={startNew}>+ New Note</button>
             <div className={styles.list}>
-              {notes.length === 0 && <p className={styles.empty}>No notes yet.</p>}
+              {!hasBackstory && notes.length === 0 && <p className={styles.empty}>No notes yet.</p>}
+              {hasBackstory && (
+                <div className={`${styles.noteCard} ${styles.backstoryCard}`}>
+                  <div className={styles.noteHeading}>
+                    <div className={styles.noteTitle}>Backstory</div>
+                    <span className={styles.backstoryBadge}>Synced</span>
+                  </div>
+                  <div className={styles.noteBody}>{backstory}</div>
+                  <div className={styles.noteActions}>
+                    <button
+                      className="btn-secondary"
+                      onClick={startEditBackstory}
+                      aria-label="Edit character backstory"
+                    >
+                      Edit
+                    </button>
+                  </div>
+                </div>
+              )}
               {notes.map(n => (
                 <div key={n.id} className={styles.noteCard}>
                   <div className={styles.noteTitle}>{n.title}</div>

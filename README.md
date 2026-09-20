@@ -30,7 +30,9 @@ characters, while GMs manage rosters, encounters, conditions, and shared rolls.
   whether powers and magic steps appear.
 - **Character sheets and Play Mode.** Existing characters open as mobile-first
   sheets. Play Mode adds live HP, Mana, Story Point, armor, condition, skill-use,
-  inventory, spell-casting, initiative, attack, and damage controls.
+  inventory, spell-casting, initiative, attack, and damage controls. Session
+  Notes pins an existing character backstory first and keeps edits synchronized
+  with the character sheet.
 - **Dice and rules calculations.** The app calculates derived statistics and
   supports attribute, skill, weapon, damage, initiative, and spell rolls,
   including Sidherun's critical and fumble behavior.

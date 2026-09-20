@@ -100,6 +100,7 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Authenticated character UPDATE authorization + protected columns (#331) | #331 | 2026-09-19 |
 | Revoke anonymous character creation + bound stored payloads (#338) | #338 | 2026-09-19 |
 | Audience-first README rewrite and documentation correction (#347) | #347 | 2026-09-20 |
+| Backstories pinned as first Session Note with two-way character-field sync (#355) | #356 | 2026-09-20 |
 | Shared Table Filter on roster + GM Screen with remembered selection (#349) | #350 | 2026-09-20 |
 | Replace non-interactive native Table Filter with explicit filter buttons (#351) | #352 | 2026-09-20 |
 | Notion-style compact Table Filter bar on roster + GM Screen (#353) | #353 | 2026-09-20 |
