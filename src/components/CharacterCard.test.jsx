@@ -85,6 +85,20 @@ describe('CharacterCard action collapsing (#158)', () => {
     expect(html).toContain('owner or player assignment')
   })
 
+  it('distinguishes the character player name from the authenticated account assignment', () => {
+    const html = renderToStaticMarkup(
+      <CharacterCard
+        entry={{ ...entry(), assignedPlayerId: 'user-1' }}
+        onLoad={noop} onDelete={noop} onGetCharacter={noop}
+        canReassign
+        players={[{ id: 'user-1', display_name: 'ed.martin' }]}
+      />,
+    )
+    expect(html).toContain('Player: Ed')
+    expect(html).toContain('Authenticated As')
+    expect(html).toContain('Select authenticated account for Thorin')
+  })
+
   it('offers one-sheet printing from the ⋯ menu', () => {
     const onPrint = vi.fn()
     act(() => root.render(
