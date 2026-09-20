@@ -95,6 +95,31 @@
   background: var(--card2);
 }
 
+.backstoryCard {
+  border-color: var(--story);
+  background: color-mix(in srgb, var(--story) 12%, var(--card2));
+}
+
+.noteHeading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.backstoryBadge {
+  flex: none;
+  border: 1px solid var(--story);
+  border-radius: 999px;
+  padding: 2px 7px;
+  color: var(--story);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  line-height: 1.2;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
 .noteTitle {
   font-family: 'Newsreader', serif;
   font-size: 15px;
@@ -137,6 +162,12 @@
   border-radius: 7px;
   padding: 9px 12px;
   transition: border-color 0.15s;
+}
+
+.titleInput[readonly] {
+  color: var(--story);
+  border-color: var(--story);
+  background: color-mix(in srgb, var(--story) 10%, var(--input));
 }
 
 .body {
