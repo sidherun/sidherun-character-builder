@@ -101,3 +101,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Revoke anonymous character creation + bound stored payloads (#338) | #338 | 2026-09-19 |
 | Audience-first README rewrite and documentation correction (#347) | #347 | 2026-09-20 |
 | Shared Table Filter on roster + GM Screen with remembered selection (#349) | #350 | 2026-09-20 |
+| Replace non-interactive native Table Filter with explicit filter buttons (#351) | #351 | 2026-09-20 |

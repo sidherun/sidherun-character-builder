@@ -99,9 +99,9 @@ describe('GMScreen', () => {
       root.render(<GMScreen onNavigate={() => {}} theme="dark" onToggleTheme={() => {}} />)
     })
 
-    const filter = container.querySelector('#gm-table-filter')
-    expect(container.querySelector('label[for="gm-table-filter"]').textContent).toBe('Table Filter')
-    expect(filter.value).toBe('alpha')
+    const filter = container.querySelector('[aria-labelledby="gm-table-filter-label"]')
+    expect(container.querySelector('#gm-table-filter-label').textContent).toBe('Table Filter')
+    expect([...filter.querySelectorAll('button')].find(button => button.textContent === 'Alpha (1)').getAttribute('aria-pressed')).toBe('true')
     expect(container.textContent).toContain('Hero Alpha')
     expect(container.textContent).not.toContain('Hero Beta')
   })

@@ -200,20 +200,19 @@ describe('RosterPage authenticated table membership', () => {
       await Promise.resolve()
     })
 
-    const filter = container.querySelector('#roster-table-filter')
+    const filter = container.querySelector('[aria-labelledby="roster-table-filter-label"]')
     expect(filter).not.toBeNull()
-    expect(container.querySelector('label[for="roster-table-filter"]').textContent).toBe('Table Filter')
-    expect([...filter.options].map(option => option.textContent)).toEqual([
+    expect(container.querySelector('#roster-table-filter-label').textContent).toBe('Table Filter')
+    expect([...filter.querySelectorAll('button')].map(button => button.textContent)).toEqual([
       'All characters (2)',
       'Alpha (1)',
       'Beta (1)',
     ])
 
-    act(() => {
-      filter.value = 'alpha'
-      filter.dispatchEvent(new Event('change', { bubbles: true }))
-    })
+    const alpha = [...filter.querySelectorAll('button')].find(button => button.textContent === 'Alpha (1)')
+    act(() => alpha.click())
 
+    expect(alpha.getAttribute('aria-pressed')).toBe('true')
     expect(container.textContent).toContain('Dulu')
     expect(container.textContent).not.toContain('Vela')
     expect(localStorage.getItem('sidherun_gm_table')).toBe('alpha')
