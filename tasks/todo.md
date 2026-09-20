@@ -102,3 +102,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Audience-first README rewrite and documentation correction (#347) | #347 | 2026-09-20 |
 | Shared Table Filter on roster + GM Screen with remembered selection (#349) | #350 | 2026-09-20 |
 | Replace non-interactive native Table Filter with explicit filter buttons (#351) | #352 | 2026-09-20 |
+| Notion-style compact Table Filter bar on roster + GM Screen (#353) | #353 | 2026-09-20 |

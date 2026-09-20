@@ -46,6 +46,10 @@
   --top-edge:     linear-gradient(90deg, transparent, #9a6b3f 18%, #d9ab6a 50%, #9a6b3f 82%, transparent);
   --focus-ring:   rgba(198, 145, 82, 0.18);
   --ghost-hover:  rgba(198, 145, 82, 0.10);
+  --filter-accent: #62a8e5;
+  --filter-surface: #17344c;
+  --filter-border: #315f86;
+  --filter-hover: rgba(98, 168, 229, 0.12);
 
   /* --- status --- */
   --danger:  #cf8a7a;
@@ -89,6 +93,10 @@
   --top-edge:     linear-gradient(90deg, transparent, #d8c19a, transparent);
   --focus-ring:   rgba(154, 107, 63, 0.14);
   --ghost-hover:  rgba(154, 107, 63, 0.10);
+  --filter-accent: #276ca8;
+  --filter-surface: #dbeaf6;
+  --filter-border: #aacbe4;
+  --filter-hover: rgba(39, 108, 168, 0.09);
 
   /* --- status --- */
   --danger: #9a5040;

@@ -56,9 +56,32 @@
 .sessionBar {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid var(--hair);
+  border-bottom: 1px solid var(--hair);
   margin-bottom: 14px;
   flex-wrap: wrap;
+}
+
+.sessionAction {
+  margin-left: auto;
+  padding: 5px 8px;
+  background: transparent;
+  border-color: transparent;
+  color: var(--ink-500);
+}
+
+.sessionAction:hover:not(:disabled) {
+  background: var(--ghost-hover);
+  border-color: transparent;
+  color: var(--ink-800);
+}
+
+@media (max-width: 520px) {
+  .sessionAction {
+    margin-left: 0;
+  }
 }
 
 .grid {

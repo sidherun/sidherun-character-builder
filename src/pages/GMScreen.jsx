@@ -476,7 +476,7 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
               )}
               <button
                 type="button"
-                className="btn-secondary"
+                className={`${styles.sessionAction} btn-secondary`}
                 disabled={!visible.some(c => c.conditions?.length)}
                 onClick={clearConditionsOnRest}
               >

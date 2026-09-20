@@ -1,49 +1,74 @@
 .filter {
   display: flex;
   align-items: center;
-  gap: 8px;
+  min-width: 0;
 }
 
 .label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-400);
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .options {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  align-items: center;
+  gap: 4px;
 }
 
 .option {
-  padding: 6px 10px;
-  background: var(--card2);
-  border: 1px solid var(--line-strong);
-  border-radius: 6px;
-  color: var(--ink-900);
-  font-family: 'Spectral', serif;
-  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 28px;
+  padding: 4px 9px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: var(--ink-600);
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
   cursor: pointer;
 }
 
-.option:hover,
+.option:hover {
+  background: var(--filter-hover);
+  color: var(--filter-accent);
+}
+
 .option[aria-pressed='true'] {
-  border-color: var(--bronze);
-  background: var(--sel);
-  color: var(--bronze);
+  border-color: var(--filter-border);
+  background: var(--filter-surface);
+  color: var(--filter-accent);
+}
+
+.option:focus-visible {
+  outline: 2px solid var(--filter-accent);
+  outline-offset: 2px;
+}
+
+.icon {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 1.5;
 }
 
 @media (max-width: 520px) {
   .filter {
-    align-items: stretch;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .options {
-    flex-direction: column;
+    width: 100%;
   }
 }
