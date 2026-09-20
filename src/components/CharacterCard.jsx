@@ -210,11 +210,11 @@ export default function CharacterCard({
       </div>
       {canReassign && (
         <label className={styles.assign}>
-          <span>Player</span>
+          <span>Authenticated As</span>
           <select
             value={entry.assignedPlayerId || ''}
             onChange={e => onReassign?.(entry.id, e.target.value)}
-            aria-label={`Assign player for ${entry.name || 'Unnamed'}`}
+            aria-label={`Select authenticated account for ${entry.name || 'Unnamed'}`}
           >
             <option value="">— Unassigned —</option>
             {players.map(p => (
