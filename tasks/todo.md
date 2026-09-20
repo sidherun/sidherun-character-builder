@@ -99,3 +99,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Per-character pending-write coordinator prevents stale replay across switches/pagehide (#336) | #336 | 2026-09-19 |
 | Authenticated character UPDATE authorization + protected columns (#331) | #331 | 2026-09-19 |
 | Revoke anonymous character creation + bound stored payloads (#338) | #338 | 2026-09-19 |
+| Audience-first README rewrite and documentation correction (#347) | #347 | 2026-09-20 |
