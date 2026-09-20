@@ -12,6 +12,7 @@ import { uuid } from './uuid.js'
 //     devices via Back up / Restore, exactly like the GM key + cloud map.
 
 const KEY = 'sidherun_tables'
+const FILTER_KEY = 'sidherun_gm_table'
 
 // ── registry (localStorage) ──────────────────────────────────────────────────
 
@@ -39,6 +40,18 @@ export function renameTable(id, name) {
 
 export function deleteTable(id) {
   return persist(listTables().filter(t => t.id !== id))
+}
+
+// The roster and GM screen share one locally remembered filter. Keeping the
+// original GM-screen key preserves existing selections from before the roster
+// gained the same control.
+export function loadTableFilter() {
+  try { return localStorage.getItem(FILTER_KEY) || '' } catch { return '' }
+}
+
+export function saveTableFilter(id) {
+  try { localStorage.setItem(FILTER_KEY, id || '') } catch { /* quota / disabled — non-fatal */ }
+  return id || ''
 }
 
 // Merge a restored registry into the local one (imported name wins; order keeps

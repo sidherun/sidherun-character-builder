@@ -52,31 +52,13 @@
   padding: 3rem 0;
 }
 
-/* "In session" filter (#154) */
+/* Table filter and session-wide actions */
 .sessionBar {
   display: flex;
   align-items: center;
   gap: 12px;
   margin-bottom: 14px;
   flex-wrap: wrap;
-}
-
-.sessionLabel {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-400);
-}
-
-.tableSelect {
-  font-size: 0.85rem;
-  padding: 6px 10px;
-  color: var(--ink-900);
-  background: var(--card);
-  border: 1px solid var(--line-strong);
-  border-radius: 6px;
-  cursor: pointer;
 }
 
 .grid {

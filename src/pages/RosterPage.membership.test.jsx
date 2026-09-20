@@ -7,13 +7,14 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
 const repo = vi.hoisted(() => ({
   character: null,
+  characters: [],
   saveCharacterData: vi.fn(),
   getCharacter: vi.fn(),
 }))
 
 vi.mock('../utils/characterRepo.js', () => ({
   repoEnabled: () => true,
-  listCharacters: vi.fn(async () => [repo.character]),
+  listCharacters: vi.fn(async () => repo.characters),
   listPlayers: vi.fn(async () => []),
   assignPlayer: vi.fn(),
   deleteCharacter: vi.fn(),
@@ -67,6 +68,7 @@ describe('RosterPage authenticated table membership', () => {
       tableIds: [],
       _tableNames: {},
     }
+    repo.characters = [repo.character]
     repo.saveCharacterData.mockReset()
     repo.getCharacter.mockReset()
     container = document.createElement('div')
@@ -170,5 +172,50 @@ describe('RosterPage authenticated table membership', () => {
       notes: remote.notes,
     })
     expect(container.textContent).toContain('Table change reconciled with a newer cloud update.')
+  })
+
+  it('filters roster cards by table and remembers the choice for the GM screen', async () => {
+    repo.character = {
+      ...repo.character,
+      tableIds: ['alpha'],
+      _tableNames: { alpha: 'Alpha' },
+    }
+    repo.characters = [
+      repo.character,
+      {
+        ...repo.character,
+        _rosterId: 'character-2',
+        name: 'Vela',
+        tableIds: ['beta'],
+        _tableNames: { beta: 'Beta' },
+      },
+    ]
+
+    await act(async () => {
+      root.render(
+        <AuthContext.Provider value={auth}>
+          <RosterPage onNavigate={vi.fn()} theme="dark" onToggleTheme={vi.fn()} />
+        </AuthContext.Provider>
+      )
+      await Promise.resolve()
+    })
+
+    const filter = container.querySelector('#roster-table-filter')
+    expect(filter).not.toBeNull()
+    expect(container.querySelector('label[for="roster-table-filter"]').textContent).toBe('Table Filter')
+    expect([...filter.options].map(option => option.textContent)).toEqual([
+      'All characters (2)',
+      'Alpha (1)',
+      'Beta (1)',
+    ])
+
+    act(() => {
+      filter.value = 'alpha'
+      filter.dispatchEvent(new Event('change', { bubbles: true }))
+    })
+
+    expect(container.textContent).toContain('Dulu')
+    expect(container.textContent).not.toContain('Vela')
+    expect(localStorage.getItem('sidherun_gm_table')).toBe('alpha')
   })
 })

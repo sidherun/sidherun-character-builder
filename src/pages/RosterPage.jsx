@@ -9,9 +9,10 @@ import { trackPush } from '../utils/cloudStatus.js'
 import { useAuth, isGmOrAdmin, isAdmin } from '../auth/useAuth.js'
 import { sortRoster, SORT_KEYS } from '../utils/rosterSort.js'
 import { skillBudget } from '../utils/skillPoints.js'
-import { listTables, createTable, renameTable, deleteTable, importTables, toggleMembership, withoutTable, deriveRegistry, mergeRegistry } from '../utils/tables.js'
+import { listTables, createTable, renameTable, deleteTable, importTables, toggleMembership, withoutTable, deriveRegistry, mergeRegistry, visibleForTable, loadTableFilter, saveTableFilter } from '../utils/tables.js'
 import CharacterCard from '../components/CharacterCard.jsx'
 import TablesManager from '../components/TablesManager.jsx'
+import TableFilter from '../components/TableFilter.jsx'
 import PrintDialog from '../components/PrintDialog.jsx'
 import styles from './RosterPage.module.css'
 
@@ -89,7 +90,10 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
   // characters' synced membership so a fresh device recovers them (#176).
   const [localTables, setLocalTables] = useState(listTables)
   const [showTables, setShowTables] = useState(false)
+  const [selectedTable, setSelectedTable] = useState(loadTableFilter)
   const tables = mergeRegistry(localTables, deriveRegistry(roster))
+  const activeTable = tables.some(table => table.id === selectedTable) ? selectedTable : ''
+  const visibleRoster = visibleForTable(roster, activeTable)
 
   const tableCounts = {}
   for (const e of roster) for (const tid of (e.tableIds || [])) tableCounts[tid] = (tableCounts[tid] || 0) + 1
@@ -197,6 +201,10 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
 
   function handleCreateTable(name) { createTable(name); setLocalTables(listTables()) }
 
+  function chooseTable(id) {
+    setSelectedTable(saveTableFilter(id))
+  }
+
   // Rename: update the local registry AND propagate the new name onto every
   // member's blob (`_tableNames`) so the rename follows the GM across devices.
   function handleRenameTable(id, name) {
@@ -224,6 +232,7 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
     }
     deleteTable(id)
     setLocalTables(listTables())
+    if (selectedTable === id) chooseTable('')
   }
 
   function handleCopyGmKey() {
@@ -443,7 +452,7 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
             </div>
           </div>
         ) : (() => {
-          const { withPlayer, noPlayer } = sortRoster(roster, sortKey)
+          const { withPlayer, noPlayer } = sortRoster(visibleRoster, sortKey)
           const card = entry => (
             <CharacterCard
               key={entry.id}
@@ -463,20 +472,36 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
           )
           return (
             <>
-              {roster.length > 1 && (
-                <div className={styles.sortbar}>
-                  <label htmlFor="roster-sort">Sort by</label>
-                  <select
-                    id="roster-sort"
-                    value={sortKey}
-                    onChange={e => {
-                      setSortKey(e.target.value)
-                      try { localStorage.setItem('sidherun_roster_sort', e.target.value) } catch { /* ignore */ }
-                    }}
-                  >
-                    {SORT_KEYS.map(k => <option key={k.value} value={k.value}>{k.label}</option>)}
-                  </select>
+              {(tables.length > 0 || roster.length > 1) && (
+                <div className={styles.rosterControls}>
+                  {tables.length > 0 && (
+                    <TableFilter
+                      id="roster-table-filter"
+                      tables={tables}
+                      characters={roster}
+                      value={activeTable}
+                      onChange={chooseTable}
+                    />
+                  )}
+                  {roster.length > 1 && (
+                    <div className={styles.sortbar}>
+                      <label htmlFor="roster-sort">Sort by</label>
+                      <select
+                        id="roster-sort"
+                        value={sortKey}
+                        onChange={e => {
+                          setSortKey(e.target.value)
+                          try { localStorage.setItem('sidherun_roster_sort', e.target.value) } catch { /* ignore */ }
+                        }}
+                      >
+                        {SORT_KEYS.map(k => <option key={k.value} value={k.value}>{k.label}</option>)}
+                      </select>
+                    </div>
+                  )}
                 </div>
+              )}
+              {activeTable && visibleRoster.length === 0 && (
+                <p className={styles.filteredEmpty}>No characters are assigned to this table.</p>
               )}
               {withPlayer.length > 0 && <div className={styles.grid}>{withPlayer.map(card)}</div>}
               {withPlayer.length > 0 && noPlayer.length > 0 && (

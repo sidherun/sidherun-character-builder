@@ -86,6 +86,26 @@ describe('GMScreen', () => {
     expect(clear.disabled).toBe(true)
   })
 
+  it('uses the remembered Table Filter to show only table members', async () => {
+    localStorage.setItem('sidherun_tables', JSON.stringify([
+      { id: 'alpha', name: 'Alpha' },
+      { id: 'beta', name: 'Beta' },
+    ]))
+    saveCharacterToRoster({ ...mk(), _rosterId: 'r1', name: 'Hero Alpha', tableIds: ['alpha'] })
+    saveCharacterToRoster({ ...mk(), _rosterId: 'r2', name: 'Hero Beta', tableIds: ['beta'] })
+    localStorage.setItem('sidherun_gm_table', 'alpha')
+
+    await act(async () => {
+      root.render(<GMScreen onNavigate={() => {}} theme="dark" onToggleTheme={() => {}} />)
+    })
+
+    const filter = container.querySelector('#gm-table-filter')
+    expect(container.querySelector('label[for="gm-table-filter"]').textContent).toBe('Table Filter')
+    expect(filter.value).toBe('alpha')
+    expect(container.textContent).toContain('Hero Alpha')
+    expect(container.textContent).not.toContain('Hero Beta')
+  })
+
   it('keeps all 15 rapid HP adjustments across six character cards', async () => {
     for (let i = 1; i <= 6; i++) {
       saveCharacterToRoster({ ...mk(), _rosterId: `r${i}`, name: `Hero ${i}`, hitPoints: { total: 20, current: 20 } })

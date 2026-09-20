@@ -100,3 +100,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Authenticated character UPDATE authorization + protected columns (#331) | #331 | 2026-09-19 |
 | Revoke anonymous character creation + bound stored payloads (#338) | #338 | 2026-09-19 |
 | Audience-first README rewrite and documentation correction (#347) | #347 | 2026-09-20 |
+| Shared Table Filter on roster + GM Screen with remembered selection (#349) | #349 | 2026-09-20 |

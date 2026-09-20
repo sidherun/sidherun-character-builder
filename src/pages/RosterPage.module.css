@@ -56,11 +56,19 @@
   gap: 16px;
 }
 
+.rosterControls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
 .sortbar {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 16px;
 }
 
 .sortbar label {
@@ -79,6 +87,14 @@
   color: var(--ink-900);
   font-family: 'Spectral', serif;
   font-size: 13px;
+}
+
+.filteredEmpty {
+  margin: 48px 0;
+  text-align: center;
+  color: var(--ink-400);
+  font-family: 'Spectral', serif;
+  font-style: italic;
 }
 
 .cutLine {
