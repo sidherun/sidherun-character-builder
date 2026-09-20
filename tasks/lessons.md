@@ -2,6 +2,18 @@
 
 Patterns captured after corrections, so the same mistake isn't repeated.
 
+## Verify native controls with the user's real interaction path (2026-09-20)
+
+**Context:** The Table Filter passed a browser check that used Playwright's
+programmatic `selectOption`, but Ed found the deployed native selector
+non-interactive. The check proved state logic while bypassing the pointer path.
+
+**Lesson:** For every new interactive control, verify a physical click or tap and
+the resulting state change. Programmatic setters and selection APIs are useful
+for coverage, but they do not validate hit targets, native control behavior, or
+cross-browser usability. Prefer explicit buttons when the choice set is small
+and immediate visibility matters.
+
 ## Use visible production labels in UI guidance (2026-07-20)
 
 **Context:** Told Ed to edit Dante's “Combat” section, which is the internal
