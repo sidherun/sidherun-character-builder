@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import {
   listTables, createTable, renameTable, deleteTable, importTables,
+  loadTableFilter, saveTableFilter,
   inTable, toggleMembership, tableNamesFor, withoutTable,
   visibleForTable, tableMemberCount, visibleRollsForTable,
   deriveRegistry, mergeRegistry,
@@ -42,6 +43,13 @@ describe('table registry (localStorage)', () => {
     const names = listTables()
     expect(names.find(t => t.id === a.id).name).toBe('Renamed A')
     expect(names.find(t => t.id === 't_new').name).toBe('New One')
+  })
+
+  it('persists one shared table filter selection', () => {
+    expect(loadTableFilter()).toBe('')
+    expect(saveTableFilter('t_alpha')).toBe('t_alpha')
+    expect(loadTableFilter()).toBe('t_alpha')
+    expect(saveTableFilter('')).toBe('')
   })
 })
 

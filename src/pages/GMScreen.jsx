@@ -10,7 +10,8 @@ import { useAuth, isGmOrAdmin } from '../auth/useAuth.js'
 import { applyAdjust } from '../utils/gmAdjust.js'
 import { subscribeRollFeed } from '../utils/rollFeed.js'
 import { formatRoll } from '../utils/rollFormat.js'
-import { listTables, visibleForTable, tableMemberCount, visibleRollsForTable, deriveRegistry, mergeRegistry } from '../utils/tables.js'
+import { listTables, visibleForTable, visibleRollsForTable, deriveRegistry, mergeRegistry, loadTableFilter, saveTableFilter } from '../utils/tables.js'
+import TableFilter from '../components/TableFilter.jsx'
 import { skillBudget } from '../utils/skillPoints.js'
 import { trackPush } from '../utils/cloudStatus.js'
 import { uuid } from '../utils/uuid.js'
@@ -179,13 +180,10 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
   // registry merges localStorage with names derived from the loaded characters,
   // so the filter works on a fresh device where localStorage is empty (#176).
   const tables = mergeRegistry(listTables(), deriveRegistry(chars))
-  const [selectedTable, setSelectedTable] = useState(() => {
-    try { return localStorage.getItem('sidherun_gm_table') || '' } catch { return '' }
-  })
+  const [selectedTable, setSelectedTable] = useState(loadTableFilter)
 
   function chooseTable(id) {
-    setSelectedTable(id)
-    try { localStorage.setItem('sidherun_gm_table', id) } catch { /* non-fatal */ }
+    setSelectedTable(saveTableFilter(id))
   }
 
   // Live dice-roll feed from the whole table (#148). One shared channel; every
@@ -468,20 +466,13 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
           <>
             <div className={styles.sessionBar}>
               {tables.length > 0 && (
-                <>
-                <label className={styles.sessionLabel} htmlFor="gm-table-filter">Show</label>
-                <select
+                <TableFilter
                   id="gm-table-filter"
-                  className={styles.tableSelect}
+                  tables={tables}
+                  characters={chars}
                   value={activeTable}
-                  onChange={e => chooseTable(e.target.value)}
-                >
-                  <option value="">All characters ({chars.length})</option>
-                  {tables.map(t => (
-                    <option key={t.id} value={t.id}>{t.name} ({tableMemberCount(chars, t.id)})</option>
-                  ))}
-                </select>
-                </>
+                  onChange={chooseTable}
+                />
               )}
               <button
                 type="button"

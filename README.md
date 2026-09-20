@@ -68,7 +68,7 @@ character sheet. A new character is not added to the roster before that step.
 The roster is the campaign hub. From there you can:
 
 - create, import, load, print, assign, group, or delete characters;
-- create named tables and filter the roster or GM Screen by table;
+- create named tables, then use **Table Filter** on the roster or GM Screen to show only that table’s characters;
 - open the **GM Screen** for live counters, rolls, conditions, and encounters;
 - use **Back up all** to preserve the roster and guest-link credentials; and
 - as an admin, open **Manage Roles** to update display names and account roles.
