@@ -104,3 +104,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Shared Table Filter on roster + GM Screen with remembered selection (#349) | #350 | 2026-09-20 |
 | Replace non-interactive native Table Filter with explicit filter buttons (#351) | #352 | 2026-09-20 |
 | Notion-style compact Table Filter bar on roster + GM Screen (#353) | #353 | 2026-09-20 |
+| Roster account-assignment label — “Authenticated As” (#357) | #358 | 2026-09-20 |
