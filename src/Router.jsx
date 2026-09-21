@@ -4,6 +4,7 @@ import RosterPage from './pages/RosterPage.jsx'
 import GMScreen from './pages/GMScreen.jsx'
 import AdminRoles from './pages/AdminRoles.jsx'
 import LoginPage from './pages/LoginPage.jsx'
+import { AuthLoadingPage, AuthRecoveryPage } from './pages/AuthGatePage.jsx'
 import { useTheme } from './hooks/useTheme.js'
 import { useAuth, isGmOrAdmin, isAdmin } from './auth/useAuth.js'
 import { authEnabled } from './utils/supabaseClient.js'
@@ -26,7 +27,7 @@ const GUEST_ROUTES = new Set(['share', 'play'])
 export default function Router() {
   const [hash, setHash] = useState(window.location.hash)
   const { theme, toggleTheme } = useTheme()
-  const { user, role, loading } = useAuth()
+  const { user, role, loading, startupError, recoverAuth } = useAuth()
 
   useEffect(() => {
     const handler = () => setHash(window.location.hash)
@@ -53,7 +54,8 @@ export default function Router() {
 
   // Auth gating (only when auth is actually enabled). Guest links stay open.
   if (authEnabled && !GUEST_ROUTES.has(route)) {
-    if (loading) return null // brief: resolving the persisted session
+    if (loading) return <AuthLoadingPage />
+    if (startupError) return <AuthRecoveryPage reason={startupError} onReset={recoverAuth} />
     if (!user && route !== 'login') { navigate('login'); return null }
     if (user && route === 'login') { navigate('app'); return null }
     // GM Screen is GM/admin only; players are redirected to their roster.

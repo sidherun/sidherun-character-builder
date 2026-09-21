@@ -150,6 +150,10 @@ Saved characters autosave after edits. Cloud builds display sync state and warn
 when writes fail or the browser is offline. Authenticated structural edits use
 revision checks to prevent one device from silently overwriting a newer edit.
 
+If a saved sign-in cannot be restored, the app stops waiting after ten seconds
+and offers to clear only the local Supabase session before returning to sign-in.
+Character drafts, roster backups, theme, and other local app data are preserved.
+
 For local-only use, browser storage is the only saved copy until you export it.
 Use JSON for individual characters and **Back up all** for the complete roster.
 Imports and share-link data are validated before loading.

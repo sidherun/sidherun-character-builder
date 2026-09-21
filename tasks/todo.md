@@ -105,3 +105,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Replace non-interactive native Table Filter with explicit filter buttons (#351) | #352 | 2026-09-20 |
 | Notion-style compact Table Filter bar on roster + GM Screen (#353) | #353 | 2026-09-20 |
 | Roster account-assignment label — “Authenticated As” (#357) | #358 | 2026-09-20 |
+| Bounded authenticated startup + targeted sign-in recovery (#359) | #359 | 2026-09-20 |
