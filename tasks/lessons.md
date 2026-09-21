@@ -2,6 +2,18 @@
 
 Patterns captured after corrections, so the same mistake isn't repeated.
 
+## Verify the originating user outcome and its production data (2026-09-20)
+
+**Context:** Issue #359 fixed a real authenticated-startup blank screen, but Ed's
+actual reason for reporting it was to read Tarben Jarlson's backstory in Session
+Notes. The fix was declared complete without checking Tarben. His production row
+still had an empty `backstory`, and the Notes card clipped long text to 96px.
+
+**Lesson:** Trace every bug back to the concrete outcome that prompted it. Before
+closing, verify that named production record through the user's visible path,
+including its data prerequisites and the full content—not merely a related
+infrastructure symptom or short synthetic fixture.
+
 ## Verify native controls with the user's real interaction path (2026-09-20)
 
 **Context:** The Table Filter passed a browser check that used Playwright's

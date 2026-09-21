@@ -51,6 +51,17 @@ describe('NotesPanel backstory note', () => {
     expect(cards[1].textContent).toContain('Session 1')
   })
 
+  it('gives a long backstory an unclipped reading surface', () => {
+    const finalLine = 'The homecoming changes everything.'
+    const longBackstory = `${'A long history of Völlur.\n\n'.repeat(80)}${finalLine}`
+    renderPanel({ backstory: longBackstory })
+
+    const body = container.querySelector('[class*="backstoryBody"]')
+    expect(body).not.toBeNull()
+    expect(body.textContent).toContain(finalLine)
+    expect(body.className).toContain('backstoryBody')
+  })
+
   it('writes backstory edits through the canonical backstory callback', () => {
     const props = renderPanel()
 

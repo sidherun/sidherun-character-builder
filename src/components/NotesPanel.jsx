@@ -95,7 +95,7 @@ export default function NotesPanel({ notes, backstory = '', onChange, onBackstor
                     <div className={styles.noteTitle}>Backstory</div>
                     <span className={styles.backstoryBadge}>Synced</span>
                   </div>
-                  <div className={styles.noteBody}>{backstory}</div>
+                  <div className={`${styles.noteBody} ${styles.backstoryBody}`}>{backstory}</div>
                   <div className={styles.noteActions}>
                     <button
                       className="btn-secondary"
