@@ -139,6 +139,14 @@
   overflow: hidden;
 }
 
+/* Ordinary notes stay compact previews. The pinned backstory is the canonical
+   reading surface, so long histories must remain fully readable by scrolling
+   the panel instead of being silently clipped to four lines. */
+.backstoryBody {
+  max-height: none;
+  overflow: visible;
+}
+
 .noteActions {
   display: flex;
   gap: 8px;
