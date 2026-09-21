@@ -11,6 +11,23 @@ import { createClient } from '@supabase/supabase-js'
 const url = import.meta.env.VITE_SUPABASE_URL
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
+// Keep the auth storage namespace explicit so a failed startup can remove only
+// Supabase's persisted session. Character drafts, roster backups, theme, and
+// every other app-owned localStorage entry use separate keys and are preserved.
+export const authStorageKey = url
+  ? `sb-${new URL(url).hostname.split('.')[0]}-auth-token`
+  : null
+
+export function clearPersistedAuthSession(
+  storage = globalThis.localStorage,
+  storageKey = authStorageKey,
+) {
+  if (!storageKey || !storage) return
+  storage.removeItem(storageKey)
+  storage.removeItem(`${storageKey}-code-verifier`)
+  storage.removeItem(`${storageKey}-user`)
+}
+
 // A GM can update all 14 campaign characters from one screen, and each durable
 // write sends a Realtime nudge. Five events/second was low enough to throttle a
 // rapid combat round; 20 covers the whole table with modest headroom while
@@ -36,6 +53,7 @@ export const supabase = cloudEnabled
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
+        storageKey: authStorageKey,
       },
       realtime: { params: { eventsPerSecond: REALTIME_EVENTS_PER_SECOND } },
     })

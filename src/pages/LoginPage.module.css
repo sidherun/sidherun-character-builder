@@ -46,3 +46,14 @@
   color: var(--danger);
   opacity: 0.95;
 }
+
+.recoveryTitle {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.detail {
+  margin: 0;
+  line-height: 1.5;
+  color: var(--ink-500);
+}
