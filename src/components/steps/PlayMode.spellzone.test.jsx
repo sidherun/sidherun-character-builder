@@ -5,7 +5,7 @@ import { createRoot } from 'react-dom/client'
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
 // The overlay would touch canvas/WebGL on mount; not needed for this test.
-vi.mock('../../utils/diceStage.js', () => ({ preloadDice: vi.fn(), rollDice: vi.fn() }))
+vi.mock('../../utils/diceStage.js', () => ({ preloadDice: vi.fn(), diceReady: () => false, rollDice: vi.fn() }))
 vi.mock('../../utils/diceSound.js', () => ({
   playRollSound: vi.fn(), playSettleSound: vi.fn(), preloadSound: vi.fn(),
 }))
