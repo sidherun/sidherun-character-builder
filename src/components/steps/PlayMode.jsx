@@ -452,7 +452,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
                   <div className={styles.skillItem}>
                     <span>{s.isSpecialty ? '★ ' : ''}{s.name}</span>
                     <span className={styles.skillRight}>
-                      <strong>{calcSkillTotal(s)}</strong>
+                      <strong>{calcSkillTotal(s, character.attributes)}</strong>
                       <button className={styles.rollBtn} onClick={() => rollSkillCheck(s)} disabled={rolling}>Roll</button>
                     </span>
                   </div>

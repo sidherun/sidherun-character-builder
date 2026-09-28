@@ -26,7 +26,7 @@ export function weaponModifier(weapon) {
 
 // Skill check: d100 + skill total, display the total. No target.
 export function rollSkill(character, skill, rng = Math.random) {
-  return rollTotal({ modifier: calcSkillTotal(skill), rng })
+  return rollTotal({ modifier: calcSkillTotal(skill, character?.attributes), rng })
 }
 
 // Bare attribute check: d100 + the attribute's fully derived value (base,

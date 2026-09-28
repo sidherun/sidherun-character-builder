@@ -55,6 +55,12 @@ describe('rollSkill (roll d100 + skill total, display total)', () => {
     const skill = { attributeScore: 10, skillPoints: 8, tempMod: 0 } // total 18
     expect(rollSkill({}, skill, fixed(0.61))).toMatchObject({ roll: 62, modifier: 18, total: 80 })
   })
+
+  it('uses the character\'s current attribute, not the stored snapshot (#373)', () => {
+    const character = { attributes: { wisdom: { base: 14, racialMod: 0, tempMod: 0 } } }
+    const skill = { attributeName: 'Wisdom', attributeScore: 11, skillPoints: 8, tempMod: 0 } // 14 + 8
+    expect(rollSkill(character, skill, fixed(0.61))).toMatchObject({ roll: 62, modifier: 22, total: 84 })
+  })
 })
 
 describe('rollAttribute (roll d100 + derived attribute total)', () => {
