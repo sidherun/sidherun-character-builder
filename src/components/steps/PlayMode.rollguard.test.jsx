@@ -136,3 +136,42 @@ describe('PlayMode double-roll guard (#218/#222)', () => {
     expect(onRoll.mock.calls[0][0].total).toBe(onRoll.mock.calls[0][0].roll + 9)
   })
 })
+
+describe('Plain Roll Dice button (#370)', () => {
+  const plainButton = () => container.querySelector('button[aria-label^="Roll Dice"]')
+
+  it('rolls an unmodified d100 in one click and broadcasts it as a plain roll', async () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.61) // d100 → 62
+    const onRoll = vi.fn()
+    await act(async () => {
+      root.render(<PlayMode character={character()} onUpdate={() => {}} onExit={() => {}} onToggleNotes={() => {}} onRoll={onRoll} />)
+    })
+    await act(async () => { plainButton().click() })
+    expect(onRoll).toHaveBeenCalledTimes(1)
+    expect(onRoll.mock.calls[0][0]).toMatchObject({
+      kind: 'total', label: 'Roll Dice', plain: true, roll: 62, modifier: 0, total: 62,
+      actor: 'Dulu Breac', rosterId: 'r-dulu',
+    })
+  })
+
+  it('respects the double-roll guard while the dice tumble', async () => {
+    const onRoll = vi.fn()
+    await act(async () => {
+      root.render(<PlayMode character={character()} onUpdate={() => {}} onExit={() => {}} onToggleNotes={() => {}} onRoll={onRoll} />)
+    })
+    await act(async () => { plainButton().click() })
+    expect(plainButton().disabled).toBe(true)
+    await act(async () => { plainButton().click() })
+    expect(onRoll).toHaveBeenCalledTimes(1)
+    await act(async () => { rollResolvers.forEach(r => r()); await Promise.resolve() })
+    expect(plainButton().disabled).toBe(false)
+  })
+
+  it('stays available on a read-only sheet', async () => {
+    await act(async () => {
+      root.render(<PlayMode character={character()} readOnly onUpdate={() => {}} onExit={() => {}} onToggleNotes={() => {}} onRoll={() => {}} />)
+    })
+    expect(plainButton()).toBeTruthy()
+    expect(plainButton().disabled).toBe(false)
+  })
+})

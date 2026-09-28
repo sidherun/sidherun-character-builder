@@ -781,3 +781,36 @@
   .quickAdj { flex-wrap: wrap; }
   .rollHeadline { font-size: 2rem; min-width: 60px; }
 }
+
+/* Plain Roll Dice button (#370): fixed bottom-right so it is always in reach,
+   below the dice overlay, dialogs and the sync banner in the stacking order. */
+.plainRoll {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 40;
+  min-height: 48px;
+  padding: 0 22px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--on-bronze);
+  background: linear-gradient(var(--solid-top), var(--solid-bot));
+  border: none;
+  border-radius: 999px;
+  box-shadow: 0 6px 18px var(--solid-shadow);
+  cursor: pointer;
+}
+.plainRoll:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+.plainRoll:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* Keep the last row of the sheet clear of the floating button. */
+.content {
+  padding-bottom: 96px;
+}

@@ -110,3 +110,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Skill totals use the current attribute, not a stale snapshot (#373) | #374 | 2026-09-27 |
 | Remove retired language stub pointers from languages/HANDOFF.md (stubs deleted in Code cleanup) | #376 | 2026-09-27 |
 | Story Points as individual points with reasons; tile opens modal on sheet, Play Mode and GM Screen (#377) | #378 | 2026-09-27 |
+| Plain Roll d100 button in Play Mode (#370) | #379 | 2026-09-27 |

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { weaponModifier, rollAttribute, rollSkill, rollAttack, rollWeaponDamage, rollSpell, rollCast, craftTotal } from './rollActions.js'
+import { weaponModifier, rollAttribute, rollPlain, rollSkill, rollAttack, rollWeaponDamage, rollSpell, rollCast, craftTotal } from './rollActions.js'
 
 const fixed = (v) => () => v // Math.floor(v * 100) + 1 = the d100 roll
 
@@ -153,5 +153,11 @@ describe('rollCast (per-craft casting, zone-aware — #237)', () => {
 
   it('flags an out-of-range target level', () => {
     expect(rollCast(caster, arcane, 21, fixed(0.5))).toMatchObject({ target: null, outOfRange: true })
+  })
+})
+
+describe('rollPlain (#370: unmodified d100)', () => {
+  it('rolls d100 with no modifier', () => {
+    expect(rollPlain(fixed(0.61))).toMatchObject({ roll: 62, modifier: 0, total: 62 })
   })
 })

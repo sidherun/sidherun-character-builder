@@ -6,7 +6,7 @@ import StoryPoints from '../StoryPoints.jsx'
 import { ITEM_DICTIONARY } from '../../utils/spellcheck.js'
 import SpellSuggest from '../SpellSuggest.jsx'
 import { getFinalSpellTarget, getSpellZone } from '../../utils/spellTarget.js'
-import { rollAttribute, rollSkill, rollAttack, rollWeaponDamage, rollSpell, rollCast, craftTotal, weaponModifier } from '../../utils/rollActions.js'
+import { rollAttribute, rollPlain, rollSkill, rollAttack, rollWeaponDamage, rollSpell, rollCast, craftTotal, weaponModifier } from '../../utils/rollActions.js'
 import { parseDamageDice, weaponDamageLabel } from '../../utils/weaponDamage.js'
 import { rollCharacterInitiative } from '../../utils/encounter.js'
 import { formatRoll } from '../../utils/rollFormat.js'
@@ -189,6 +189,9 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
         setRolling(false)
       })
   }
+  function rollPlainDice() {
+    emitRoll({ kind: 'total', label: 'Roll Dice', plain: true, ...rollPlain() })
+  }
   function rollSkillCheck(skill) {
     emitRoll({ kind: 'total', label: skill.name, ...rollSkill(character, skill) })
   }
@@ -267,6 +270,12 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
           ⚠ Live sync unavailable — this character has no owner or player assignment. Ask a GM to assign it from the roster.
         </div>
       )}
+
+      {/* Plain d100 (#370), fixed in the corner so it stays in reach while scrolling. */}
+      <button type="button" className={styles.plainRoll} onClick={rollPlainDice} disabled={rolling}
+        aria-label="Roll Dice: plain d100, no modifier">
+        Roll d100
+      </button>
 
       <div className={styles.content}>
         {lastRoll && <RollResult roll={lastRoll} onClear={() => setLastRoll(null)} />}
