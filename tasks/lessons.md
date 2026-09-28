@@ -132,3 +132,14 @@ a pre-#250 README; git's three-way merge happened to save it, and the third bran
 
 **Lesson:** `git fetch origin main` immediately before every `git checkout -b X origin/main`
 in a session where PRs merge along the way — a remote-tracking ref is a snapshot, not live.
+
+## Pin the dice in any test that asserts on a roll's outcome (2026-09-27)
+
+**Context:** PR #381's banner test clicked Attack with an unpinned `Math.random` and expected
+the modifier breakdown. It passed locally, then CI rolled a 2 — a fumble, which correctly hides
+the breakdown — and the failed build blocked the deploy of an otherwise-correct change.
+
+**Lesson:** Any test that asserts what a roll *shows* must fix the dice
+(`vi.spyOn(Math, 'random').mockReturnValue(0.5)` → d100 51, no explode, no fumble), or pass an
+rng. Unpinned rolls only belong in tests that assert on counts or wiring, never on the result.
+A green local run proves nothing for a ~5% branch.
