@@ -50,8 +50,11 @@ export function formatRoll(roll) {
       color: hasGmTarget ? (success ? 'var(--story)' : 'var(--danger)') : 'var(--bronze)',
       headline: hasGmTarget ? (success ? 'Pass' : 'Fail') : String(roll.total),
       tag: exploded ? 'Exploding roll!' : null,
-      detail: `d100 ${dice} + ${roll.modifier}` +
-        (hasGmTarget ? ` = ${roll.total} ${success ? '≥' : '<'} ${roll.gmTarget}` : ' · GM adjudicates'),
+      // A plain roll (#370) has no modifier, so skip the "+ 0" and the "= total".
+      detail: roll.plain
+        ? `d100 ${dice}` + (hasGmTarget ? ` ${success ? '≥' : '<'} ${roll.gmTarget}` : ' · GM adjudicates')
+        : `d100 ${dice} + ${roll.modifier}` +
+          (hasGmTarget ? ` = ${roll.total} ${success ? '≥' : '<'} ${roll.gmTarget}` : ' · GM adjudicates'),
     }
   }
 

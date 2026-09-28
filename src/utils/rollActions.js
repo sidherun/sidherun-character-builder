@@ -35,6 +35,12 @@ export function rollAttribute(attribute, rng = Math.random) {
   return rollTotal({ modifier: attrTotal(attribute || {}), rng })
 }
 
+// Plain roll (#370): d100 with no modifier, same explode/fumble rules. For when
+// the GM just says "roll" and nothing on the sheet applies.
+export function rollPlain(rng = Math.random) {
+  return rollTotal({ modifier: 0, rng })
+}
+
 // Attack: d100 + the single (non-stacking) weapon modifier, display the total.
 // No defense input — the GM adjudicates the total against the target's defense.
 export function rollAttack(character, weapon, rng = Math.random) {

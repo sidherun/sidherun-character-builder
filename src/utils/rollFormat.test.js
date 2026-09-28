@@ -96,3 +96,24 @@ describe('formatRoll — initiative', () => {
     })
   })
 })
+
+describe('formatRoll — plain Roll Dice (#370)', () => {
+  const plain = { kind: 'total', label: 'Roll Dice', plain: true, rolls: [62], roll: 62, modifier: 0, total: 62 }
+
+  it('shows the bare d100 without a "+ 0" modifier', () => {
+    const out = formatRoll(plain)
+    expect(out.headline).toBe('62')
+    expect(out.detail).toBe('d100 62 · GM adjudicates')
+  })
+
+  it('resolves pass/fail against an active GM target', () => {
+    expect(formatRoll({ ...plain, gmTarget: 50 })).toMatchObject({ headline: 'Pass', detail: 'd100 62 ≥ 50' })
+    expect(formatRoll({ ...plain, gmTarget: 75 })).toMatchObject({ headline: 'Fail', detail: 'd100 62 < 75' })
+  })
+
+  it('keeps the exploding-roll tag and summed dice', () => {
+    const out = formatRoll({ ...plain, rolls: [97, 40], roll: 137, total: 137 })
+    expect(out.tag).toBe('Exploding roll!')
+    expect(out.detail).toBe('d100 97+40 = 137 · GM adjudicates')
+  })
+})
