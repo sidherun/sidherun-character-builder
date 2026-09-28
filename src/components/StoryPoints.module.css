@@ -1,0 +1,175 @@
+/* Story Points tile + modal (#377). Tile visuals come from each surface's own
+   classes; this file only makes the tile a borderless, full-size button and
+   styles the modal. */
+
+.anchor {
+  position: relative;
+}
+
+.tile {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: center;
+}
+.tile:hover {
+  filter: brightness(1.12);
+}
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: var(--overlay-scrim);
+}
+
+.dialog {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 61;
+  width: min(440px, calc(100vw - 32px));
+  max-height: min(70vh, 560px);
+  overflow-y: auto;
+  background: var(--card);
+  border: 1px solid var(--story);
+  border-radius: 10px;
+  box-shadow: var(--card-shadow);
+  padding: 18px;
+  text-align: left;
+}
+.alignRight {
+  left: auto;
+  right: 0;
+}
+
+.title {
+  font-family: 'Newsreader', serif;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: var(--ink-900);
+  margin-bottom: 12px;
+}
+
+.empty {
+  color: var(--ink-600);
+  margin-bottom: 12px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 14px;
+}
+.table th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-600);
+  text-align: left;
+  padding: 0 6px 8px;
+  border-bottom: 1px solid var(--line);
+}
+.table td {
+  padding: 6px;
+  border-bottom: 1px solid var(--hair);
+  vertical-align: middle;
+}
+.table th:first-child,
+.toggleCell {
+  width: 1%;
+  white-space: nowrap;
+}
+.toggleCell {
+  text-align: center;
+}
+
+/* Round two-state toggle: filled = active, empty = spent. The button is a
+   44px touch target; the visible circle is drawn by ::before. */
+.radio {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+.radio::before {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--story);
+  background: transparent;
+}
+.radioOn::before {
+  background: var(--story);
+  box-shadow: inset 0 0 0 3px var(--card);
+}
+.radio:disabled {
+  cursor: default;
+}
+
+.spent .reason {
+  color: var(--ink-600);
+}
+
+.reason {
+  width: 100%;
+  min-height: 36px;
+  padding: 6px 8px;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--ink-900);
+  background: var(--input);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.reason:disabled {
+  background: transparent;
+  border-color: transparent;
+}
+
+.removeCell {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
+.remove {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: var(--ink-500);
+  font-size: 1.2rem;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.remove:hover {
+  color: var(--danger);
+  background: var(--ghost-hover);
+}
+.confirm {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* On phones the tile can sit anywhere; center the modal in the viewport. */
+@media (max-width: 560px) {
+  .dialog,
+  .alignRight {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    transform: translate(-50%, -50%);
+  }
+}

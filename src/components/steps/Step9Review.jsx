@@ -5,6 +5,8 @@ import { skillBudget } from '../../utils/skillPoints.js'
 import { canLevelUp, applyLevelUp } from '../../utils/leveling.js'
 import { ITEM_DICTIONARY } from '../../utils/spellcheck.js'
 import { weaponModifier } from '../../utils/rollActions.js'
+import { applyStoryPointOp } from '../../utils/storyPoints.js'
+import StoryPoints from '../StoryPoints.jsx'
 import { weaponDamageLabel } from '../../utils/weaponDamage.js'
 import LevelUpDialog from '../LevelUpDialog.jsx'
 import SpellSuggest from '../SpellSuggest.jsx'
@@ -162,10 +164,14 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
             <strong>{character.mana?.current ?? calcedMana} / {character.mana?.total || calcedMana}</strong>
           </div>
         )}
-        <div className={styles.resourceChip} style={{ borderColor: 'var(--story)' }}>
-          <span>Story Pts</span>
-          <strong>{character.storyPoints?.current} / {character.storyPoints?.total}</strong>
-        </div>
+        <StoryPoints
+          storyPoints={character.storyPoints}
+          onOp={op => onUpdate?.({ storyPoints: applyStoryPointOp(character.storyPoints, op) })}
+          readOnly={!onUpdate}
+          tileClassName={styles.resourceChip}
+          tileStyle={{ borderColor: 'var(--story)' }}
+          valueClassName={styles.resourceValue}
+        />
         {character.armor?.type !== 'none' && (
           <div className={styles.resourceChip} style={{ borderColor: 'var(--armor)' }}>
             <span>Armor</span>

@@ -4,10 +4,12 @@ import { cloudEnabled } from '../utils/supabaseClient.js'
 import { getCloudMap, subscribeCharacter, unsubscribeCharacter, syncCharacter, mergeRemote, hydrateCharacter } from '../utils/cloudSync.js'
 import {
   repoEnabled, listCharacters, listPlayers, assignPlayer, patchLive,
-  subscribeLive, removeLiveSubscription, getCharacter,
+  subscribeLive, removeLiveSubscription, getCharacter, saveCharacterData,
 } from '../utils/characterRepo.js'
 import { useAuth, isGmOrAdmin } from '../auth/useAuth.js'
-import { applyAdjust } from '../utils/gmAdjust.js'
+import { applyAdjust, saveStoryPointOp } from '../utils/gmAdjust.js'
+import { applyStoryPointOp } from '../utils/storyPoints.js'
+import StoryPoints from '../components/StoryPoints.jsx'
 import { subscribeRollFeed } from '../utils/rollFeed.js'
 import { formatRoll } from '../utils/rollFormat.js'
 import { listTables, visibleForTable, visibleRollsForTable, deriveRegistry, mergeRegistry, loadTableFilter, saveTableFilter } from '../utils/tables.js'
@@ -333,6 +335,29 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
     }
   }
 
+  // Story Points modal (#377). Show the change immediately and push the live
+  // count; the list itself (reasons, added/deleted rows) is structural, so in
+  // account mode it is saved against the freshest row with the revision check.
+  function storyPointOp(c, op) {
+    const current = charsRef.current.find(x => x._rosterId === c._rosterId) || c
+    const next = { ...current, storyPoints: applyStoryPointOp(current.storyPoints, op) }
+    if (!useRepo) { commitLive(next); return }
+    const updated = charsRef.current.map(x => x._rosterId === next._rosterId ? next : x)
+    charsRef.current = updated
+    setChars(updated)
+    // Land the live count first so the structural save builds on it.
+    const live = next.storyPoints.current !== current.storyPoints?.current
+      ? patchLive(next._rosterId, next)
+      : Promise.resolve()
+    trackPush(
+      live.then(() => saveStoryPointOp(next._rosterId, op, { getCharacter, saveCharacterData })).then(({ saved }) => {
+        const merged = { ...saved, storyPoints: { ...saved.storyPoints, current: next.storyPoints.current } }
+        charsRef.current = charsRef.current.map(x => x._rosterId === merged._rosterId ? { ...x, ...merged } : x)
+        setChars(charsRef.current)
+      })
+    ).catch(() => {})
+  }
+
   function addCondition(c, condition) {
     const current = charsRef.current.find(x => x._rosterId === c._rosterId) || c
     commitLive({ ...current, conditions: [...(current.conditions || []), condition] })
@@ -522,7 +547,17 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
                   {c.hasMagic
                     ? <Stat c={c} kind="mana" label="Mana" cur={c.mana?.current || 0} total={c.mana?.total || 0} color="var(--mana)" onAdjust={adjust} />
                     : <div className={styles.stat}><span className={styles.statLabel}>Mana</span><span className={styles.dash}>—</span></div>}
-                  <Stat c={c} kind="sp" label="Story" cur={c.storyPoints?.current || 0} total={c.storyPoints?.total || 0} color="var(--story)" onAdjust={adjust} />
+                  <StoryPoints
+                    storyPoints={c.storyPoints}
+                    onOp={op => storyPointOp(c, op)}
+                    label="Story"
+                    characterName={c.name || 'Unnamed'}
+                    tileClassName={`${styles.stat} ${styles.spTile}`}
+                    labelClassName={styles.statLabel}
+                    labelStyle={{ color: 'var(--story)' }}
+                    valueClassName={styles.statVal}
+                    valueStyle={{ color: 'var(--story)' }}
+                  />
                   <button className="btn-secondary" onClick={() => openPlay(c)}>Open</button>
                 </div>
               ))}
