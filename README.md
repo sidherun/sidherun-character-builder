@@ -42,7 +42,10 @@ characters, while GMs manage rosters, encounters, conditions, and shared rolls.
   `#play=` links carry the counts but not the reasons.
 - **Dice and rules calculations.** The app calculates derived statistics and
   supports attribute, skill, weapon, damage, initiative, and spell rolls,
-  including Sidherun's critical and fumble behavior. A floating **Roll d100**
+  including Sidherun's critical and fumble behavior. With the 3D dice on, a
+  roll's result appears when the dice settle or after 1.5 seconds, whichever
+  comes first; the dice finish tumbling behind it, and a roll made before the
+  dice engine has loaded shows its result immediately. A floating **Roll d100**
   button in Play Mode rolls a plain, unmodified d100 for when nothing on the
   sheet applies; it reaches the GM's roll feed and resolves against an active
   difficulty target like any other roll. Every roll result explains its
