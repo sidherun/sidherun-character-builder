@@ -2,10 +2,69 @@
 // Skills and attacks roll-and-display a total (GM adjudicates verbally); spells
 // self-resolve against the computed spell target.
 
-import { calcSkillTotal, attrTotal } from './characterDerived.js'
-import { getFinalSpellTarget } from './spellTarget.js'
+import { calcSkillTotal, attrTotal, skillAttributeScore } from './characterDerived.js'
+import { getFinalSpellTarget, getSpellTarget, getSpellZone } from './spellTarget.js'
 import { rollTotal, resolveUnder } from './dice.js'
 import { parseDamageDice } from './weaponDamage.js'
+
+// ── Roll breakdowns (#372) ───────────────────────────────────────────────────
+// Every roll carries `parts`: the sources of its modifier (or, for spells, of
+// the target), so the banner, GM feed and sheet can say WHY a number is there.
+// `note` records anything deliberately left out.
+
+const cap = (s) => {
+  const t = String(s || '').trim()
+  return t ? t[0].toUpperCase() + t.slice(1).toLowerCase() : ''
+}
+
+// Drop zero-value parts, but keep the first so a +0 still names its source.
+const nonZero = (parts) => {
+  const kept = parts.filter(p => p.value)
+  return kept.length ? kept : parts.slice(0, 1)
+}
+
+export function skillParts(skill, attributes) {
+  return nonZero([
+    { label: cap(skill.attributeName) || 'Attribute', value: skillAttributeScore(skill, attributes) },
+    { label: 'skill', value: Number(skill.skillPoints) || 0 },
+    { label: 'temp', value: Number(skill.tempMod) || 0 },
+  ])
+}
+
+export function attributeParts(attribute = {}) {
+  return nonZero([
+    { label: 'base', value: Number(attribute.base) || 0 },
+    { label: 'racial', value: Number(attribute.racialMod) || 0 },
+    { label: 'temp', value: Number(attribute.tempMod) || 0 },
+  ])
+}
+
+// Which single value an attack uses, and the one it ignores (non-stacking).
+export function attackParts(weapon = {}) {
+  const skill = Number(weapon.skillBonus) || 0
+  const attr = Number(weapon.attributeBonus) || 0
+  const usesSkill = weapon.usesSkill ?? skill > 0
+  const attrLabel = cap(weapon.attribute) || 'Attribute'
+  return {
+    parts: usesSkill ? [{ label: 'weapon skill', value: skill }] : [{ label: attrLabel, value: attr }],
+    note: usesSkill
+      ? (attr ? `${attrLabel} ${attr} not added (doesn't stack)` : null)
+      : (skill ? `weapon skill ${skill} not added (doesn't stack)` : null),
+  }
+}
+
+// A spell target's sources: the matrix cell plus the casting value, or the
+// PHB exceptions (red zone drops the attribute; the target caps at 95).
+function spellTargetParts(casterLevel, targetLevel, castLabel, castValue) {
+  const base = getSpellTarget(casterLevel, targetLevel)
+  if (base === null) return { parts: [], note: null }
+  const matrix = { label: `matrix L${casterLevel} vs L${targetLevel}`, value: base }
+  if (getSpellZone(casterLevel, targetLevel) === 'red') {
+    return { parts: [matrix], note: `red zone: ${castLabel} not added` }
+  }
+  const capped = base + (castValue || 0) > 95
+  return { parts: [matrix, { label: castLabel, value: castValue || 0 }], note: capped ? 'capped at 95' : null }
+}
 
 // Attack bonus is NON-STACKING: the weapon's skill value applies when the
 // character has the relevant skill, otherwise the governing attribute value —
@@ -26,13 +85,13 @@ export function weaponModifier(weapon) {
 
 // Skill check: d100 + skill total, display the total. No target.
 export function rollSkill(character, skill, rng = Math.random) {
-  return rollTotal({ modifier: calcSkillTotal(skill, character?.attributes), rng })
+  return { ...rollTotal({ modifier: calcSkillTotal(skill, character?.attributes), rng }), parts: skillParts(skill, character?.attributes) }
 }
 
 // Bare attribute check: d100 + the attribute's fully derived value (base,
 // racial, and temporary modifiers), using the same total-roll rules as skills.
 export function rollAttribute(attribute, rng = Math.random) {
-  return rollTotal({ modifier: attrTotal(attribute || {}), rng })
+  return { ...rollTotal({ modifier: attrTotal(attribute || {}), rng }), parts: attributeParts(attribute || {}) }
 }
 
 // Plain roll (#370): d100 with no modifier, same explode/fumble rules. For when
@@ -44,7 +103,7 @@ export function rollPlain(rng = Math.random) {
 // Attack: d100 + the single (non-stacking) weapon modifier, display the total.
 // No defense input — the GM adjudicates the total against the target's defense.
 export function rollAttack(character, weapon, rng = Math.random) {
-  return rollTotal({ modifier: weaponModifier(weapon), rng })
+  return { ...rollTotal({ modifier: weaponModifier(weapon), rng }), ...attackParts(weapon) }
 }
 
 // Roll structured weapon damage. A melee critical adds the character's full
@@ -77,7 +136,8 @@ export function rollSpell(character, targetLevel, rng = Math.random) {
   const attr = character.magicAttribute && character.attributes?.[character.magicAttribute]
   const magicAttrValue = attr ? attrTotal(attr) : 0
   const target = getFinalSpellTarget(character.level, targetLevel, magicAttrValue)
-  return resolveUnder({ target, rng })
+  const why = spellTargetParts(character.level, targetLevel, cap(character.magicAttribute) || 'attribute', magicAttrValue)
+  return { ...resolveUnder({ target, rng }), ...why }
 }
 
 // A craft's casting value: its governing attribute + skill + misc — the number
@@ -97,5 +157,6 @@ export function craftTotal(craft) {
 // getFinalSpellTarget. Self-resolves.
 export function rollCast(character, craft, targetLevel, rng = Math.random) {
   const target = getFinalSpellTarget(character.level, targetLevel, craftTotal(craft))
-  return resolveUnder({ target, rng })
+  const why = spellTargetParts(character.level, targetLevel, craft?.name || 'craft', craftTotal(craft))
+  return { ...resolveUnder({ target, rng }), ...why }
 }

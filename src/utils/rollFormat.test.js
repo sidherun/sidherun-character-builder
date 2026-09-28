@@ -80,6 +80,7 @@ describe('formatRoll — weapon damage', () => {
     expect(out).toEqual({
       color: 'var(--danger)', headline: '23',
       detail: '1d8 [6] + 2 + 15 crit STR · slashing',
+      breakdown: null, note: null,
     })
   })
 
@@ -93,6 +94,7 @@ describe('formatRoll — initiative', () => {
   it('shows d10 + AGI without applying a GM difficulty target', () => {
     expect(formatRoll({ kind: 'initiative', roll: 7, modifier: 12, total: 19, gmTarget: 75 })).toEqual({
       color: 'var(--bronze)', headline: '19', detail: 'd10 7 + 12',
+      breakdown: null, note: null, // an entry from a client that predates #372
     })
   })
 })
@@ -115,5 +117,51 @@ describe('formatRoll — plain Roll Dice (#370)', () => {
     const out = formatRoll({ ...plain, rolls: [97, 40], roll: 137, total: 137 })
     expect(out.tag).toBe('Exploding roll!')
     expect(out.detail).toBe('d100 97+40 = 137 · GM adjudicates')
+  })
+})
+
+describe('formatRoll — breakdowns (#372)', () => {
+  const total = { kind: 'total', rolls: [62], roll: 62, total: 81 }
+
+  it('names the source of an initiative modifier', () => {
+    const out = formatRoll({ kind: 'initiative', roll: 3, modifier: 12, total: 15, parts: [{ label: 'Agility', value: 12 }] })
+    expect(out.detail).toBe('d10 3 + 12')
+    expect(out.breakdown).toBe('+12 = Agility 12')
+  })
+
+  it('breaks a skill modifier into attribute, skill points and temp', () => {
+    const out = formatRoll({ ...total, modifier: 18, parts: [
+      { label: 'Wisdom', value: 14 }, { label: 'skill', value: 5 }, { label: 'temp', value: -1 },
+    ] })
+    expect(out.breakdown).toBe('+18 = Wisdom 14 + skill 5 − temp 1')
+  })
+
+  it('shows a negative modifier with a proper minus sign', () => {
+    expect(formatRoll({ ...total, modifier: -3, parts: [{ label: 'base', value: -3 }] }).breakdown).toBe('−3 = base −3')
+  })
+
+  it('carries a note about what was not added', () => {
+    const out = formatRoll({ ...total, modifier: 17, parts: [{ label: 'Agility', value: 17 }], note: "weapon skill 10 not added (doesn't stack)" })
+    expect(out.note).toBe("weapon skill 10 not added (doesn't stack)")
+  })
+
+  it('joins the roll note with the conditions note', () => {
+    const out = formatRoll({ ...total, modifier: 0, parts: [{ label: 'Agility', value: 0 }], note: 'a', conditionNote: 'Not included: −10 Frightened' })
+    expect(out.note).toBe('a · Not included: −10 Frightened')
+  })
+
+  it('skips the breakdown on a fumble (the modifier does not apply)', () => {
+    const out = formatRoll({ ...total, modifier: 19, isFumble: true, fumble: 40, rolls: [3], parts: [{ label: 'Wisdom', value: 19 }] })
+    expect(out.breakdown).toBeNull()
+  })
+
+  it('explains a spell target', () => {
+    const out = formatRoll({ kind: 'spell', roll: 40, target: 57, success: true, margin: 17,
+      parts: [{ label: 'matrix L3 vs L2', value: 43 }, { label: 'Thaumaturgy', value: 14 }] })
+    expect(out.breakdown).toBe('target 57 = matrix L3 vs L2 43 + Thaumaturgy 14')
+  })
+
+  it('shows no breakdown for a plain roll', () => {
+    expect(formatRoll({ ...total, kind: 'total', plain: true, modifier: 0, total: 62 }).breakdown).toBeNull()
   })
 })

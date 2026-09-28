@@ -472,6 +472,8 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
                     <span className={styles.feedWho}>{r.actor}</span>
                     <span className={styles.feedRoll}>{r.label}</span>
                     <span className={styles.feedDetail}>{f.detail}</span>
+                    {f.breakdown && <span className={styles.feedWhy}>{f.breakdown}</span>}
+                    {f.note && <span className={styles.feedNote}>{f.note}</span>}
                   </li>
                 )
               })}

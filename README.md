@@ -45,7 +45,13 @@ characters, while GMs manage rosters, encounters, conditions, and shared rolls.
   including Sidherun's critical and fumble behavior. A floating **Roll d100**
   button in Play Mode rolls a plain, unmodified d100 for when nothing on the
   sheet applies; it reaches the GM's roll feed and resolves against an active
-  difficulty target like any other roll. Skill totals always use
+  difficulty target like any other roll. Every roll result explains its
+  numbers: the banner and the GM's roll feed show where the modifier comes
+  from (for example `+12 = Agility 12` or `+19 = Wisdom 14 + skill 5`), spell
+  results show how the target was built, and a note says what was left out,
+  such as a weapon skill that doesn't stack with the attribute or GM condition
+  modifiers, which are reminders and are not added to totals. Hovering a skill
+  total, weapon bonus, or roll button shows the same breakdown. Skill totals always use
   the character's current attribute values, so level-ups and attribute edits
   carry through to every skill.
 - **GM tools.** The GM Screen provides roster-wide live counters, table filters,

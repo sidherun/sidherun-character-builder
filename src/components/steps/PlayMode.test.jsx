@@ -160,8 +160,8 @@ describe('PlayMode tap-to-roll wiring', () => {
 
   it('renders every attribute as a labelled roll button', () => {
     const html = render(base())
-    expect(html).toContain('aria-label="Roll STR attribute"')
-    expect(html).toContain('aria-label="Roll FAM attribute"')
+    expect(html).toContain('aria-label="Roll STR attribute: d100 + 8, modifier included"')
+    expect(html).toContain('aria-label="Roll FAM attribute: d100 + 19, modifier included"')
   })
 
   it('renders a spell Roll button for casters', () => {

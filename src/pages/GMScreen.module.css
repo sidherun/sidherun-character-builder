@@ -413,6 +413,16 @@
   text-overflow: ellipsis;
 }
 
+/* Breakdown + note under the roll, spanning everything after the headline (#372). */
+.feedWhy,
+.feedNote {
+  grid-column: 2 / -1;
+  font-size: 11px;
+  color: var(--ink-700);
+}
+.feedWhy { font-family: 'JetBrains Mono', monospace; }
+.feedNote { font-style: italic; }
+
 @media (max-width: 640px) {
   .difficulty { align-items: flex-start; flex-direction: column; }
   .difficultyActions { justify-content: flex-start; }
@@ -423,4 +433,5 @@
   }
   .feedHeadline { text-align: left; font-size: 1rem; }
   .feedDetail { flex-basis: 100%; }
+  .feedWhy, .feedNote { flex-basis: 100%; }
 }

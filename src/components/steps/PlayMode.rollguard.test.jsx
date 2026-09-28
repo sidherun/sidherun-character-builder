@@ -92,7 +92,7 @@ describe('PlayMode double-roll guard (#218/#222)', () => {
       root.render(<PlayMode character={character()} onUpdate={() => {}} onExit={() => {}} onToggleNotes={() => {}} onRoll={onRoll} />)
     })
 
-    await act(async () => { container.querySelector('button[aria-label="Roll STR attribute"]').click() })
+    await act(async () => { container.querySelector('button[aria-label^="Roll STR attribute"]').click() })
     expect(onRoll).toHaveBeenCalledTimes(1)
     expect(onRoll.mock.calls[0][0]).toMatchObject({
       kind: 'total', label: 'STR attribute', modifier: 8,
@@ -173,5 +173,51 @@ describe('Plain Roll Dice button (#370)', () => {
     })
     expect(plainButton()).toBeTruthy()
     expect(plainButton().disabled).toBe(false)
+  })
+})
+
+describe('Roll banner explains its numbers (#372)', () => {
+  const settle = async () => { await act(async () => { rollResolvers.forEach(r => r()); await Promise.resolve() }) }
+  const banner = () => container.querySelector('[role="status"][aria-live="polite"]')
+
+  it('names the attack value used and the one that does not stack', async () => {
+    await act(async () => {
+      root.render(<PlayMode character={character()} onUpdate={() => {}} onExit={() => {}} onToggleNotes={() => {}} onRoll={() => {}} />)
+    })
+    await act(async () => { attackButton().click() })
+    await settle()
+    // Quarterstaff: weapon skill 2 (used), Strength 3 (ignored — non-stacking).
+    expect(banner().textContent).toContain('+2 = weapon skill 2')
+    expect(banner().textContent).toContain("Strength 3 not added (doesn't stack)")
+  })
+
+  it('names Agility as the initiative modifier', async () => {
+    await act(async () => {
+      root.render(<PlayMode character={character()} onUpdate={() => {}} onExit={() => {}} onToggleNotes={() => {}} onRoll={() => {}} />)
+    })
+    const init = [...container.querySelectorAll('button')].find(b => b.textContent.trim() === 'Roll initiative')
+    await act(async () => { init.click() })
+    await settle()
+    expect(banner().textContent).toContain('+9 = Agility 9')
+  })
+
+  it('says GM conditions were not included, and sends that to the feed', async () => {
+    const onRoll = vi.fn()
+    const c = { ...character(), conditions: [{ id: 'x', label: 'Frightened', modifier: -10 }, { id: 'y', label: 'Prone', modifier: null }] }
+    await act(async () => {
+      root.render(<PlayMode character={c} onUpdate={() => {}} onExit={() => {}} onToggleNotes={() => {}} onRoll={onRoll} />)
+    })
+    await act(async () => { attackButton().click() })
+    await settle()
+    expect(onRoll.mock.calls[0][0].conditionNote).toBe('Not included: −10 Frightened')
+    expect(banner().textContent).toContain('Not included: −10 Frightened')
+  })
+
+  it('attack buttons say the modifier is included, with the breakdown on hover', async () => {
+    await act(async () => {
+      root.render(<PlayMode character={character()} onUpdate={() => {}} onExit={() => {}} onToggleNotes={() => {}} onRoll={() => {}} />)
+    })
+    expect(attackButton().getAttribute('aria-label')).toBe('Attack with Quarterstaff: d100 + 2, modifier included')
+    expect(attackButton().title).toBe("d100 + 2 (weapon skill 2) · Strength 3 not added (doesn't stack)")
   })
 })

@@ -629,6 +629,18 @@
   color: var(--ink-800);
 }
 
+/* Why the numbers are what they are (#372). */
+.rollWhy {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--ink-700);
+}
+.rollNote {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--ink-700);
+}
+
 .rollClear {
   background: transparent;
   border: 1px solid var(--line);
@@ -782,11 +794,12 @@
   .rollHeadline { font-size: 2rem; min-width: 60px; }
 }
 
-/* Plain Roll Dice button (#370): fixed bottom-right so it is always in reach,
-   below the dice overlay, dialogs and the sync banner in the stacking order. */
+/* Plain Roll Dice button (#370): fixed bottom-left so it is always in reach
+   without covering the sheet's right-aligned Roll/Attack/Cast buttons; below
+   the dice overlay, dialogs and the sync banner in the stacking order. */
 .plainRoll {
   position: fixed;
-  right: 20px;
+  left: 20px;
   bottom: 20px;
   z-index: 40;
   min-height: 48px;

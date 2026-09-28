@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { weaponModifier, rollAttribute, rollPlain, rollSkill, rollAttack, rollWeaponDamage, rollSpell, rollCast, craftTotal } from './rollActions.js'
+import { weaponModifier, rollAttribute, rollPlain, rollSkill, skillParts, attackParts, rollAttack, rollWeaponDamage, rollSpell, rollCast, craftTotal } from './rollActions.js'
 
 const fixed = (v) => () => v // Math.floor(v * 100) + 1 = the d100 roll
 
@@ -159,5 +159,43 @@ describe('rollCast (per-craft casting, zone-aware — #237)', () => {
 describe('rollPlain (#370: unmodified d100)', () => {
   it('rolls d100 with no modifier', () => {
     expect(rollPlain(fixed(0.61))).toMatchObject({ roll: 62, modifier: 0, total: 62 })
+  })
+})
+
+describe('roll parts (#372)', () => {
+  const attributes = { wisdom: { base: 14, racialMod: 0, tempMod: 0 } }
+
+  it('skill rolls carry attribute, skill points and temp (zeros dropped)', () => {
+    const skill = { attributeName: 'Wisdom', attributeScore: 11, skillPoints: 5, tempMod: 0 }
+    expect(skillParts(skill, attributes)).toEqual([{ label: 'Wisdom', value: 14 }, { label: 'skill', value: 5 }])
+    expect(rollSkill({ attributes }, skill, fixed(0.61)).parts).toEqual(skillParts(skill, attributes))
+  })
+
+  it('a zero modifier still names its source', () => {
+    expect(skillParts({ attributeName: 'wisdom', skillPoints: 0 }, { wisdom: { base: 0 } })).toEqual([{ label: 'Wisdom', value: 0 }])
+  })
+
+  it('attribute rolls break into base, racial and temp', () => {
+    expect(rollAttribute({ base: 12, racialMod: 2, tempMod: -1 }, fixed(0.61)).parts)
+      .toEqual([{ label: 'base', value: 12 }, { label: 'racial', value: 2 }, { label: 'temp', value: -1 }])
+  })
+
+  it('attacks name the value used and note the one that does not stack', () => {
+    expect(attackParts({ attribute: 'Agility', attributeBonus: 17, skillBonus: 10, usesSkill: false }))
+      .toEqual({ parts: [{ label: 'Agility', value: 17 }], note: "weapon skill 10 not added (doesn't stack)" })
+    expect(attackParts({ attribute: 'strength', attributeBonus: 12, skillBonus: 18, usesSkill: true }))
+      .toEqual({ parts: [{ label: 'weapon skill', value: 18 }], note: "Strength 12 not added (doesn't stack)" })
+    expect(attackParts({ attribute: 'Strength', attributeBonus: 10, skillBonus: 0 }).note).toBeNull()
+  })
+
+  it('spell rolls explain the target, including the red-zone rule', () => {
+    const c = { level: 3, magicAttribute: 'thaumaturgy', attributes: { thaumaturgy: { base: 14 } } }
+    const green = rollSpell(c, 1, fixed(0.1))
+    expect(green.parts[0].label).toBe('matrix L3 vs L1')
+    expect(green.parts[1]).toEqual({ label: 'Thaumaturgy', value: 14 })
+    // Find a red-zone cell for a level-1 caster and check the attribute is dropped.
+    const red = [...Array(20).keys()].map(i => rollSpell({ ...c, level: 1 }, i + 1, fixed(0.1))).find(r => r.note?.startsWith('red zone'))
+    expect(red.parts).toHaveLength(1)
+    expect(red.note).toBe('red zone: Thaumaturgy not added')
   })
 })
