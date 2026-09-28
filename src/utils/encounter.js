@@ -74,7 +74,8 @@ export function rollInitiative(encounter, id, rng = Math.random) {
 export function rollCharacterInitiative(character, rng = Math.random) {
   const roll = Math.min(10, Math.max(1, Math.floor(rng() * 10) + 1))
   const modifier = attributeTotal(character?.attributes?.agility)
-  return { roll, modifier, total: roll + modifier }
+  // `parts` names the modifier's source for the roll banner (#372).
+  return { roll, modifier, total: roll + modifier, parts: [{ label: 'Agility', value: modifier }] }
 }
 
 export function applyInitiativeRoll(encounter, entry) {

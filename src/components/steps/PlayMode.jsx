@@ -6,10 +6,10 @@ import StoryPoints from '../StoryPoints.jsx'
 import { ITEM_DICTIONARY } from '../../utils/spellcheck.js'
 import SpellSuggest from '../SpellSuggest.jsx'
 import { getFinalSpellTarget, getSpellZone } from '../../utils/spellTarget.js'
-import { rollAttribute, rollPlain, rollSkill, rollAttack, rollWeaponDamage, rollSpell, rollCast, craftTotal, weaponModifier } from '../../utils/rollActions.js'
+import { rollAttribute, rollPlain, rollSkill, rollAttack, rollWeaponDamage, rollSpell, rollCast, craftTotal, weaponModifier, skillParts, attributeParts, attackParts } from '../../utils/rollActions.js'
 import { parseDamageDice, weaponDamageLabel } from '../../utils/weaponDamage.js'
 import { rollCharacterInitiative } from '../../utils/encounter.js'
-import { formatRoll } from '../../utils/rollFormat.js'
+import { formatRoll, describeParts } from '../../utils/rollFormat.js'
 import { rollToDiceSpec } from '../../utils/diceNotation.js'
 import { rollDice, preloadDice } from '../../utils/diceStage.js'
 import { playRollSound, playSettleSound, preloadSound } from '../../utils/diceSound.js'
@@ -145,6 +145,13 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
   // the value rather than being pinned at 0.
   const capOf = (total) => (total > 0 ? total : Infinity)
 
+  // Hover text for sheet values: the same breakdown the roll banner shows (#372).
+  const skillWhy = (skill) => `d100 + ${calcSkillTotal(skill, character.attributes)} (${describeParts(skillParts(skill, character.attributes))})`
+  const weaponWhy = (weapon) => {
+    const { parts, note } = attackParts(weapon)
+    return `d100 + ${weaponModifier(weapon)} (${describeParts(parts)})${note ? ` · ${note}` : ''}`
+  }
+
   function adjustHP(delta) {
     const newCurrent = Math.max(0, Math.min(capOf(hp.total), (hp.current || 0) + delta))
     mutate({ hitPoints: { ...hp, current: newCurrent } })
@@ -161,12 +168,16 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
   // and reveal the banner when they settle; otherwise reveal instantly. The
   // animation/sound are a flourish — the banner + feed are the source of truth,
   // so a failed or blocked animation still shows the result.
-  const emitRoll = (entry) => {
+  const emitRoll = (rolled) => {
+    let entry = rolled
     if (rollingRef.current) return // a roll is already tumbling — ignore the repeat (#218)
     const identity = {
       actor: character.name || character.playerName || 'Someone',
       rosterId: character._rosterId || null,
     }
+    // GM condition chips are reminders, not applied to totals — say so (#372).
+    const conditionNote = entry.kind !== 'damage' ? conditionsNotIncluded(character.conditions) : null
+    if (conditionNote) entry = { ...entry, conditionNote }
     const spec = animOn ? rollToDiceSpec(entry) : null
     // Instant (no-animation) path: reveal + broadcast immediately, nothing to guard.
     if (!spec) {
@@ -271,7 +282,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
         </div>
       )}
 
-      {/* Plain d100 (#370), fixed in the corner so it stays in reach while scrolling. */}
+      {/* Plain d100 (#370), fixed bottom-left so it stays in reach without covering the right-aligned roll buttons. */}
       <button type="button" className={styles.plainRoll} onClick={rollPlainDice} disabled={rolling}
         aria-label="Roll Dice: plain d100, no modifier">
         Roll d100
@@ -386,7 +397,8 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
             <section className={styles.refSection}>
               <h3>
                 Attributes
-                <button className={styles.initiativeBtn} onClick={rollPlayerInitiative} disabled={rolling}>
+                <button className={styles.initiativeBtn} onClick={rollPlayerInitiative} disabled={rolling}
+                  title={`d10 + Agility ${attrTotal(character.attributes.agility || {})}`}>
                   Roll initiative
                 </button>
               </h3>
@@ -400,7 +412,8 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
                       className={styles.attrItem}
                       onClick={() => rollAttributeCheck(key, val)}
                       disabled={rolling}
-                      aria-label={`Roll ${ATTR_LABELS[key]} attribute`}
+                      aria-label={`Roll ${ATTR_LABELS[key]} attribute: d100 + ${attrTotal(val)}, modifier included`}
+                      title={`d100 + ${attrTotal(val)} (${describeParts(attributeParts(val))})`}
                     >
                       <span>{ATTR_LABELS[key]}</span>
                       <strong>{attrTotal(val)}</strong>
@@ -436,12 +449,13 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
               {character.weapons?.length > 0 ? character.weapons.map(w => (
                 <div key={w.id} className={styles.weaponItem}>
                   <span>{w.name}</span>
-                  <span className={styles.weaponBonus}>+{weaponModifier(w)}</span>
+                  <span className={styles.weaponBonus} title={weaponWhy(w)}>+{weaponModifier(w)}</span>
                   <span className={styles.weaponDesc} title={w.descriptor || undefined}>
                     {weaponDamageLabel(w)}{(w.damageNeedsReview || w.rangeNeedsReview) ? ' ⚠' : ''}
                   </span>
                   <div className={styles.weaponActions}>
-                    <button className={styles.rollBtn} onClick={() => rollWeapon(w)} disabled={rolling}>Attack</button>
+                    <button className={styles.rollBtn} onClick={() => rollWeapon(w)} disabled={rolling}
+                      aria-label={`Attack with ${w.name || 'weapon'}: d100 + ${weaponModifier(w)}, modifier included`} title={weaponWhy(w)}>Attack</button>
                     {pendingDamage?.weaponId === w.id && (parseDamageDice(w.damageDice) || Number(w.damageBonus)) && (
                       <button className={styles.damageBtn} onClick={() => rollDamage(w)} disabled={rolling}>Damage</button>
                     )}
@@ -461,8 +475,10 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
                   <div className={styles.skillItem}>
                     <span>{s.isSpecialty ? '★ ' : ''}{s.name}</span>
                     <span className={styles.skillRight}>
-                      <strong>{calcSkillTotal(s, character.attributes)}</strong>
-                      <button className={styles.rollBtn} onClick={() => rollSkillCheck(s)} disabled={rolling}>Roll</button>
+                      <strong title={skillWhy(s)}>{calcSkillTotal(s, character.attributes)}</strong>
+                      <button className={styles.rollBtn} onClick={() => rollSkillCheck(s)} disabled={rolling}
+                        aria-label={`Roll ${s.name || 'skill'}: d100 + ${calcSkillTotal(s, character.attributes)}, modifier included`}
+                        title={skillWhy(s)}>Roll</button>
                     </span>
                   </div>
                   <div className={styles.usePips} role="group" aria-label={`Use tracking for ${s.name}`}>
@@ -659,8 +675,15 @@ function Counter({ label, current, total, color, onAdjust, readOnly = false, zer
 
 // Shared roll-result banner. For skills/attacks it shows the total to read aloud
 // (the GM adjudicates); for spells it resolves pass/fail against the known target.
+// "Not included: −10 Frightened, +5 Blessed" for conditions that carry a modifier.
+function conditionsNotIncluded(conditions) {
+  const withMods = (conditions || []).filter(c => c.modifier != null && c.modifier !== 0)
+  if (!withMods.length) return null
+  return 'Not included: ' + withMods.map(c => `${c.modifier > 0 ? '+' : '−'}${Math.abs(c.modifier)} ${c.label}`).join(', ')
+}
+
 function RollResult({ roll, onClear }) {
-  const { color, headline, detail, tag } = formatRoll(roll)
+  const { color, headline, detail, tag, breakdown, note } = formatRoll(roll)
   return (
     <div className={styles.rollResult} role="status" aria-live="polite" style={{ '--roll-color': color }}>
       <div className={styles.rollHeadline} style={{ color }}>{headline}</div>
@@ -670,6 +693,8 @@ function RollResult({ roll, onClear }) {
           {tag && <span className={styles.rollTag}>{tag}</span>}
         </span>
         <span className={styles.rollDetail}>{detail}</span>
+        {breakdown && <span className={styles.rollWhy}>{breakdown}</span>}
+        {note && <span className={styles.rollNote}>{note}</span>}
       </div>
       <button className={styles.rollClear} onClick={onClear} aria-label="Clear roll">✕</button>
     </div>

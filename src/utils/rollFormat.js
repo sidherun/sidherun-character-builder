@@ -8,7 +8,37 @@
 // special cases for a fumble (natural 1-5) and an exploded roll (die over 95
 // rolled again). Spells resolve pass/fail against the computed target, or flag
 // an out-of-range target level.
+// "Wisdom 14 + skill 5 − temp 1" from a roll's parts (#372). Also used for
+// the sheet's hover text, so the sheet and the banner explain numbers alike.
+export function describeParts(parts) {
+  return parts.map((p, i) => {
+    const v = Number(p.value) || 0
+    if (i === 0) return `${p.label} ${v < 0 ? '−' : ''}${Math.abs(v)}`
+    return `${v < 0 ? '−' : '+'} ${p.label} ${Math.abs(v)}`
+  }).join(' ')
+}
+const signed = (n) => `${n < 0 ? '−' : '+'}${Math.abs(n)}`
+
+// Why the numbers are what they are: the modifier's sources (or, for spells,
+// the target's) plus anything deliberately left out. Rolls from clients that
+// predate #372 have no parts; they get no breakdown line.
+function explain(roll) {
+  const hasParts = Array.isArray(roll.parts) && roll.parts.length > 0
+  let breakdown = null
+  if (hasParts && roll.kind === 'spell') {
+    if (roll.target != null) breakdown = `target ${roll.target} = ${describeParts(roll.parts)}`
+  } else if (hasParts && !roll.isFumble) {
+    breakdown = `${signed(roll.modifier)} = ${describeParts(roll.parts)}`
+  }
+  const note = [roll.note, roll.conditionNote].filter(Boolean).join(' · ') || null
+  return { breakdown, note }
+}
+
 export function formatRoll(roll) {
+  return { ...formatRollCore(roll), ...explain(roll) }
+}
+
+function formatRollCore(roll) {
   if (roll.kind === 'initiative') {
     return {
       color: 'var(--bronze)',

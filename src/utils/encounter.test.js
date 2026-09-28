@@ -48,7 +48,7 @@ describe('encounter model (#239)', () => {
   })
 
   it('creates a player initiative payload from d10 + current AGI', () => {
-    expect(rollCharacterInitiative(pc('a', 'Ada', 12), () => 0.5)).toEqual({ roll: 6, modifier: 12, total: 18 })
+    expect(rollCharacterInitiative(pc('a', 'Ada', 12), () => 0.5)).toEqual({ roll: 6, modifier: 12, total: 18, parts: [{ label: 'Agility', value: 12 }] })
   })
 
   it('applies and replaces matched player initiative while ignoring unrelated rolls', () => {
