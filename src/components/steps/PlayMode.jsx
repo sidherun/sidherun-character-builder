@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, Fragment } from 'react'
 import { useFocusOnAdd } from '../../hooks/useFocusOnAdd.js'
 import { calcDefense, calcSkillTotal, attrTotal } from '../../utils/characterDerived.js'
+import { applyStoryPointOp } from '../../utils/storyPoints.js'
+import StoryPoints from '../StoryPoints.jsx'
 import { ITEM_DICTIONARY } from '../../utils/spellcheck.js'
 import SpellSuggest from '../SpellSuggest.jsx'
 import { getFinalSpellTarget, getSpellZone } from '../../utils/spellTarget.js'
@@ -151,11 +153,6 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
   function adjustMana(delta) {
     const newCurrent = Math.max(0, Math.min(capOf(mana.total), (mana.current || 0) + delta))
     mutate({ mana: { ...mana, current: newCurrent } })
-  }
-
-  function adjustSP(delta) {
-    const newCurrent = Math.max(0, Math.min(capOf(sp.total), (sp.current || 0) + delta))
-    mutate({ storyPoints: { ...sp, current: newCurrent } })
   }
 
   // Dice rolls are ephemeral — shown in the result banner, never persisted.
@@ -318,13 +315,16 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
               )}
             </div>
           )}
-          <Counter
-            label="Story Points"
-            current={sp.current || 0}
-            total={sp.total || 0}
-            color="var(--story)"
-            onAdjust={adjustSP}
+          <StoryPoints
+            storyPoints={sp}
+            onOp={op => mutate({ storyPoints: applyStoryPointOp(sp, op) })}
             readOnly={readOnly}
+            label="Story Points"
+            tileClassName={`${styles.counter} ${styles.spTile}`}
+            labelClassName={styles.counterLabel}
+            labelStyle={{ color: 'var(--story)' }}
+            valueClassName={styles.counterValue}
+            valueStyle={{ color: 'var(--story)' }}
           />
           {armor.type !== 'none' && (
             <div className={styles.armorCounter}>

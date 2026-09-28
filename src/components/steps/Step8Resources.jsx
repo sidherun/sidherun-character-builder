@@ -1,3 +1,5 @@
+import { applyStoryPointOp } from '../../utils/storyPoints.js'
+import StoryPoints from '../StoryPoints.jsx'
 import { calcHitPoints, calcMana } from '../../utils/characterDerived.js'
 import NumberInput from '../NumberInput.jsx'
 import xpTable from '../../data/xpTable.json'
@@ -63,9 +65,6 @@ export default function Step8Resources({ character, onUpdate }) {
   function updateMana(field, val) {
     onUpdate({ mana: { ...mana, [field]: val } })
   }
-  function updateSP(field, val) {
-    onUpdate({ storyPoints: { ...sp, [field]: val } })
-  }
 
   // Auto-sync on first visit (when total is 0, meaning never synced)
   useEffect(() => {
@@ -123,27 +122,14 @@ export default function Step8Resources({ character, onUpdate }) {
         <div className={styles.resourceCard} style={{ borderTopColor: 'var(--story)' }}>
           <div className={styles.resourceTitle} style={{ color: 'var(--story)' }}>Story Points</div>
           <div className={styles.formula}>GM awards additional points for great play</div>
-          <div className={styles.resourceRow}>
-            <div className={styles.resourceStat}>
-              <span>Total</span>
-              <NumberInput
-                value={sp.total}
-                onChange={n => updateSP('total', n)}
-                min={0}
-                showZero
-              />
-            </div>
-            <div className={styles.resourceStat}>
-              <span>Current</span>
-              <NumberInput
-                value={sp.current}
-                onChange={n => updateSP('current', n)}
-                min={0}
-                max={sp.total}
-                showZero
-              />
-            </div>
-          </div>
+          <StoryPoints
+            storyPoints={sp}
+            onOp={op => onUpdate({ storyPoints: applyStoryPointOp(sp, op) })}
+            label="Active"
+            tileClassName={styles.spTile}
+            valueClassName={styles.spValue}
+          />
+          <div className={styles.formula}>{sp.current} of {sp.total} active · tap to add points or record reasons</div>
           {sp.total > 0 && (
             <div className={styles.bar}>
               <div

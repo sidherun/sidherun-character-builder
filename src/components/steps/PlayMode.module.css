@@ -89,6 +89,14 @@
   gap: 10px;
 }
 
+/* Story Points tile (#377): the whole counter is a button that opens the
+   Story Points list, so it fills its grid cell and centers the count. */
+.spTile {
+  width: 100%;
+  align-items: center;
+  color: inherit;
+}
+
 /* A downed resource (0 HP) — make it unmissable (#218). */
 .counterDown {
   border-color: var(--danger);

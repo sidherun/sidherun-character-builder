@@ -77,7 +77,8 @@
   color: var(--bronze, #c69152);
 }
 
-.resourceChip strong {
+.resourceChip strong,
+.resourceChip .resourceValue {
   font-family: 'Newsreader', serif;
   font-size: 1.1rem;
   font-weight: 500;

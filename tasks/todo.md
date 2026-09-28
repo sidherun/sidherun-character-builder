@@ -109,3 +109,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Tarben backstory restored in production + full Notes reading surface (#355 follow-up) | #355 | 2026-09-20 |
 | Skill totals use the current attribute, not a stale snapshot (#373) | #374 | 2026-09-27 |
 | Remove retired language stub pointers from languages/HANDOFF.md (stubs deleted in Code cleanup) | #376 | 2026-09-27 |
+| Story Points as individual points with reasons; tile opens modal on sheet, Play Mode and GM Screen (#377) | #378 | 2026-09-27 |

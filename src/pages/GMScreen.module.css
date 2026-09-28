@@ -191,6 +191,15 @@
 
 .stat { display: flex; flex-direction: column; gap: 4px; align-items: center; }
 
+/* Story Points tile (#377): a button that opens the Story Points list. */
+.spTile {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 4px 12px;
+  min-height: 44px;
+}
+
 .statLabel {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;

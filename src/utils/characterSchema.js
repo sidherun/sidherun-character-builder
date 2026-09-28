@@ -172,7 +172,17 @@ export const characterSchema = z.object({
 
   hitPoints:   z.object({ total: z.number().int().default(0), current: z.number().int().default(0) }).default({ total: 0, current: 0 }),
   mana:        z.object({ total: z.number().int().default(0), current: z.number().int().default(0) }).default({ total: 0, current: 0 }),
-  storyPoints: z.object({ total: z.number().int().default(2), current: z.number().int().default(2) }).default({ total: 2, current: 2 }),
+  // entries: one row per Story Point with its reason (#377). Optional — older
+  // characters have only the counts; utils/storyPoints.js derives rows for them.
+  storyPoints: z.object({
+    total: z.number().int().default(2),
+    current: z.number().int().default(2),
+    entries: z.array(z.object({
+      id: z.string(),
+      active: z.boolean().default(true),
+      reason: z.string().default(''),
+    })).optional(),
+  }).default({ total: 2, current: 2 }),
   xp:          z.object({ current: z.number().int().default(0), needed: z.number().int().default(1000) }).default({ current: 0, needed: 1000 }),
 
   _notes:    z.array(noteSchema).default([]),
