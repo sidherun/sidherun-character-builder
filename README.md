@@ -35,7 +35,9 @@ characters, while GMs manage rosters, encounters, conditions, and shared rolls.
   the scrolling panel, and synchronizes edits with the character sheet.
 - **Dice and rules calculations.** The app calculates derived statistics and
   supports attribute, skill, weapon, damage, initiative, and spell rolls,
-  including Sidherun's critical and fumble behavior.
+  including Sidherun's critical and fumble behavior. Skill totals always use
+  the character's current attribute values, so level-ups and attribute edits
+  carry through to every skill.
 - **GM tools.** The GM Screen provides roster-wide live counters, table filters,
   conditions, roll difficulty, a shared roll feed, and a session-local encounter
   tracker with turn order and temporary NPCs.
