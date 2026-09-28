@@ -177,6 +177,10 @@ describe('Plain Roll Dice button (#370)', () => {
 })
 
 describe('Roll banner explains its numbers (#372)', () => {
+  // Fix the dice: an unpinned d100 fumbles ~5% of the time, and a fumble
+  // correctly hides the modifier breakdown these tests look for.
+  beforeEach(() => { vi.spyOn(Math, 'random').mockReturnValue(0.5) }) // d100 51, d10 6
+
   const settle = async () => { await act(async () => { rollResolvers.forEach(r => r()); await Promise.resolve() }) }
   const banner = () => container.querySelector('[role="status"][aria-live="polite"]')
 
