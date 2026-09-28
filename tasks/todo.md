@@ -113,3 +113,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Plain Roll d100 button in Play Mode (#370) | #379 | 2026-09-27 |
 | Roll results explain their numbers (modifier sources, spell targets, not-included notes) on banner, GM feed and sheet hovers; Roll d100 moved bottom-left (#372) | #381 | 2026-09-27 |
 | Fix flaky #372 banner test (pin dice; unpinned d100 fumbled on CI and blocked the deploy) | #382 | 2026-09-27 |
+| Dice results within 1.5s: reveal at settle or cap, skip animation while engine loads (#365) | #384 | 2026-09-28 |
