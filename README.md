@@ -34,10 +34,12 @@ characters, while GMs manage rosters, encounters, conditions, and shared rolls.
   Notes pins the full existing character backstory first, keeps it readable in
   the scrolling panel, and synchronizes edits with the character sheet.
 - **Story Points.** Each Story Point is tracked individually with a reason.
-  The Story Points tile on the character sheet, in Play Mode, and on the GM
-  Screen shows the number of active points; clicking it opens a list (active
-  points first) where players and GMs mark points active or spent, record why
-  each was gained, add new points, and delete points with confirmation.
+  The Story Points tile on the character sheet, in Play Mode, on the GM Screen,
+  and in the wizard's Resources step shows the number of active points;
+  clicking it opens a list (active points first) where players and GMs mark
+  points active or spent, record why each was gained, add new points (which
+  raises the maximum), and delete points with confirmation. Self-contained
+  `#play=` links carry the counts but not the reasons.
 - **Dice and rules calculations.** The app calculates derived statistics and
   supports attribute, skill, weapon, damage, initiative, and spell rolls,
   including Sidherun's critical and fumble behavior. Skill totals always use
