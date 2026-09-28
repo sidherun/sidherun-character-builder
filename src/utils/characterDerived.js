@@ -58,8 +58,19 @@ export function calcCoreAttrAverage(attributes) {
   return Math.round((sum / core.length) * 10) / 10
 }
 
-export function calcSkillTotal(skill) {
-  return (skill.attributeScore || 0) + (skill.skillPoints || 0) + (skill.tempMod || 0)
+// A skill's attribute part comes from the character's CURRENT attribute, so
+// level-ups and attribute edits flow into every skill total (#373). The stored
+// attributeScore is only a snapshot from when the skill was added; it is used
+// as a fallback when no attributes are passed or the linked name doesn't
+// resolve (names appear as both "Wisdom" and "wisdom").
+export function skillAttributeScore(skill, attributes) {
+  const key = String(skill.attributeName || '').trim().toLowerCase()
+  const attr = attributes?.[key]
+  return attr ? attrTotal(attr) : (skill.attributeScore || 0)
+}
+
+export function calcSkillTotal(skill, attributes) {
+  return skillAttributeScore(skill, attributes) + (skill.skillPoints || 0) + (skill.tempMod || 0)
 }
 
 export function calcSkillBudgetUsed(skills) {

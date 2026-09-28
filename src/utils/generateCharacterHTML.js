@@ -60,7 +60,7 @@ function sheetBody(character) {
   }
 
   const skills = (character.skills || []).map(s =>
-    `<tr><td>${s.isSpecialty ? '★ ' : ''}${esc(s.name) || '—'}</td><td>${esc(s.attributeName)}</td><td>${calcSkillTotal(s)}</td><td class="uses">${useCircles(s)}</td></tr>`
+    `<tr><td>${s.isSpecialty ? '★ ' : ''}${esc(s.name) || '—'}</td><td>${esc(s.attributeName)}</td><td>${calcSkillTotal(s, character.attributes)}</td><td class="uses">${useCircles(s)}</td></tr>`
   ).join('')
 
   const powers = (character.powers || []).map(p =>

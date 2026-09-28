@@ -107,3 +107,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Roster account-assignment label — “Authenticated As” (#357) | #358 | 2026-09-20 |
 | Bounded authenticated startup + targeted sign-in recovery (#359) | #359 | 2026-09-20 |
 | Tarben backstory restored in production + full Notes reading surface (#355 follow-up) | #355 | 2026-09-20 |
+| Skill totals use the current attribute, not a stale snapshot (#373) | #374 | 2026-09-27 |

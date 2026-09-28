@@ -262,7 +262,7 @@ export default function Step9Review({ character, onEnterPlayMode, onSaveToRoster
                       {s.isSpecialty && '★ '}{s.name || '—'}
                     </span>
                     <span className={styles.skillAttr}>{s.attributeName}</span>
-                    <span className={styles.skillTotal}>{calcSkillTotal(s)}</span>
+                    <span className={styles.skillTotal}>{calcSkillTotal(s, character.attributes)}</span>
                   </div>
                 ))
               ) : (

@@ -1,5 +1,5 @@
 import { Fragment } from 'react'
-import { calcSkillTotal, calcSkillBudgetUsed } from '../../utils/characterDerived.js'
+import { calcSkillTotal, calcSkillBudgetUsed, skillAttributeScore } from '../../utils/characterDerived.js'
 import { attrTotal } from '../../utils/characterDerived.js'
 import { poolSize, cumulativeSkillCap } from '../../utils/skillPoints.js'
 import { SKILL_DICTIONARY } from '../../utils/spellcheck.js'
@@ -128,7 +128,8 @@ export default function Step7Skills({ character, onUpdate }) {
       </div>
 
       {skills.map((s, i) => {
-        const total = calcSkillTotal(s)
+        const total = calcSkillTotal(s, attributes)
+        const attrScore = skillAttributeScore(s, attributes)
         const skillLabel = s.name || 'unnamed skill'
         return (
           <Fragment key={s.id}>
@@ -152,7 +153,7 @@ export default function Step7Skills({ character, onUpdate }) {
             >
               {ATTR_KEYS.map(a => <option key={a} value={a}>{a}</option>)}
             </select>
-            <span className={styles.attrScore} aria-label={`Attribute score: ${s.attributeScore}`}>{s.attributeScore}</span>
+            <span className={styles.attrScore} aria-label={`Attribute score: ${attrScore}`}>{attrScore}</span>
             <input
               type="number"
               value={s.skillPoints || ''}
