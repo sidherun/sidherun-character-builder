@@ -56,6 +56,7 @@ vi.mock('./utils/cloudSync.js', () => ({
     : character,
   projectLive: c => ({ hpCurrent: c.hitPoints?.current ?? 0 }),
   dataSignature: c => JSON.stringify({ name: c.name }),
+  getCloudMap: () => ({}),
 }))
 vi.mock('./utils/characterRepo.js', () => ({
   repoEnabled: () => true,

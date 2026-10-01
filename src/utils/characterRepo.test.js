@@ -4,6 +4,9 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 const h = vi.hoisted(() => ({
   result: { data: null, error: null },
   table: null, op: null, payload: null, rpc: null,
+  session: null,
+  channels: [],
+  removed: 0,
 }))
 
 vi.mock('./supabaseClient.js', () => {
@@ -33,12 +36,24 @@ vi.mock('./supabaseClient.js', () => {
     supabase: {
       from(t) { h.table = t; return builder() },
       rpc(fn, args) { h.rpc = { fn, args }; return Promise.resolve(h.result) },
-      auth: { getUser: async () => ({ data: { user: { id: 'u1' } } }) },
-      channel() {
-        const ch = { on() { return ch }, subscribe() { return ch }, send(p) { (h.sends ||= []).push(p); return ch } }
+      auth: {
+        getUser: async () => ({ data: { user: { id: 'u1' } } }),
+        getSession: async () => ({ data: { session: h.session } }),
+      },
+      realtime: { setAuth: async () => {} },
+      channel(topic, opts) {
+        const ch = {
+          topic,
+          opts,
+          subscribed: false,
+          on() { return ch },
+          subscribe() { ch.subscribed = true; return ch },
+          send(p) { (h.sends ||= []).push(p); return ch },
+        }
+        h.channels.push(ch)
         return ch
       },
-      removeChannel() {},
+      removeChannel() { h.removed += 1 },
     },
   }
 })
@@ -48,6 +63,7 @@ import {
   upsertCharacter, patchLive, assignPlayer, deleteCharacter, listPlayers, setDisplayName, reconcile,
   subscribeLive, removeLiveSubscription,
 } from './characterRepo.js'
+import { installRealtimeAuth, resetRealtimeAuthForTests } from './realtimeAuth.js'
 
 const row = (over = {}) => ({
   id: 'c1', name: 'Hero',
@@ -62,11 +78,15 @@ const row = (over = {}) => ({
 })
 
 beforeEach(() => {
+  resetRealtimeAuthForTests()
   h.result = { data: null, error: null }
   h.results = null
   h.table = h.op = h.payload = h.rpc = null
   h.eqs = []
   h.sends = []
+  h.session = null
+  h.channels = []
+  h.removed = 0
 })
 
 describe('repoEnabled', () => {
@@ -267,25 +287,36 @@ describe('reconcile (newer updated_at wins)', () => {
   })
 })
 
-describe('saveCharacterData broadcasts a structural-change nudge (inventory→GM sync)', () => {
-  it('sends a `data` broadcast on the character channel so connected viewers re-hydrate', async () => {
-    // A connected viewer/editor is subscribed, so the per-character channel exists.
+describe('private character channel', () => {
+  it('subscribes an authorized session and does not publish from the browser', async () => {
+    installRealtimeAuth({ type: 'user', key: 'user' })
+    h.session = { access_token: 'user-jwt', expires_at: Math.floor(Date.now() / 1000) + 3600 }
     subscribeLive('c1', () => {}, () => {})
+    await vi.waitFor(() => expect(h.channels[0]?.subscribed).toBe(true))
+    expect(h.channels[0].topic).toBe('char:c1')
+    expect(h.channels[0].opts).toEqual({ config: { private: true, broadcast: { self: false } } })
     h.result = { data: row(), error: null }
-    // A structural save (e.g. player added an inventory item) …
     await saveCharacterData('c1', row().data, 1)
-    // … must nudge other viewers with a payload-less `data` broadcast. Without
-    // this, structural edits persist but never reach a connected GM (the bug).
-    expect(h.sends.some(s => s.type === 'broadcast' && s.event === 'data')).toBe(true)
+    await patchLive('c1', row().data)
+    expect(h.sends).toEqual([])
     removeLiveSubscription('c1')
   })
 
-  it('does not broadcast when the update conflicts (no row returned)', async () => {
+  it('does not join when the session cannot authorize the channel', async () => {
+    installRealtimeAuth({ type: 'user', key: 'user' })
+    h.session = null
+    subscribeLive('c1', () => {}, () => {})
+    await vi.waitFor(() => expect(h.removed).toBe(1))
+    expect(h.channels[0].subscribed).toBe(false)
+    removeLiveSubscription('c1')
+  })
+
+  it('does not publish when a structural save conflicts', async () => {
     subscribeLive('c2', () => {}, () => {})
-    h.result = { data: null, error: null } // expectedRev guard failed → conflict
+    h.result = { data: null, error: null }
     const res = await saveCharacterData('c2', row().data, 5)
     expect(res).toEqual({ conflict: true })
-    expect(h.sends.some(s => s.event === 'data')).toBe(false)
+    expect(h.sends).toEqual([])
     removeLiveSubscription('c2')
   })
 })

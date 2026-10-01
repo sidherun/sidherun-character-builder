@@ -10,6 +10,7 @@ vi.mock('../utils/supabaseClient.js', async (orig) => ({ ...(await orig()), clou
 vi.mock('../utils/rollFeed.js', () => ({
   subscribeRollFeed: (fn) => { pushRoll = fn; return () => {} },
   broadcastRoll: vi.fn(),
+  adoptServerRoll: (entry) => entry,
 }))
 
 import GMScreen from './GMScreen.jsx'

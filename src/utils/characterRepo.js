@@ -11,6 +11,8 @@
 import { supabase, authEnabled } from './supabaseClient.js'
 import { foldLive, projectLive } from './cloudSync.js'
 import { migrateCharacterWeaponDamage } from './weaponDamage.js'
+import { openAuthorizedChannel } from './realtimeAuth.js'
+import { characterTopic } from '../../supabase/functions/_shared/realtimeContract.js'
 
 // True when the authenticated repo should be the source of truth. Callers fall
 // back to the localStorage path when this is false (auth off / signed out).
@@ -18,7 +20,7 @@ export function repoEnabled() {
   return Boolean(authEnabled && supabase)
 }
 
-const COLS = 'id, name, data, live, owner_user_id, assigned_player_id, data_rev, live_rev, updated_at'
+const COLS = 'id, name, data, live, owner_user_id, assigned_player_id, campaign_id, data_rev, live_rev, updated_at'
 
 // Row → character: fold live counters over the stored blob and stamp identity.
 // We also surface ownership so the UI can gate per-character actions.
@@ -30,6 +32,7 @@ function rowToCharacter(row) {
     _rosterId:          row.id,
     _ownerUserId:       row.owner_user_id ?? null,
     _assignedPlayerId:  row.assigned_player_id ?? null,
+    _campaignId:        row.campaign_id ?? null,
     _dataRev:           row.data_rev ?? 0,
     _updatedAt:         row.updated_at,
   }
@@ -42,6 +45,7 @@ function toData(character) {
   delete d._rosterId
   delete d._ownerUserId
   delete d._assignedPlayerId
+  delete d._campaignId
   delete d._dataRev
   delete d._updatedAt
   return d
@@ -131,10 +135,8 @@ export async function saveCharacterData(id, character, expectedRev) {
   const { data, error } = await q.select(COLS).maybeSingle()
   if (error) throw error
   if (expectedRev != null && !data) return { conflict: true }
-  // Nudge other viewers to re-hydrate the fresh structural data. Like patchLive's
-  // live broadcast, this is a plain pub/sub signal (no payload) — receivers refetch
-  // the authoritative row, so it can't clobber a concurrent live/data change.
-  repoChannels[id]?.send({ type: 'broadcast', event: 'data', payload: {} })
+  // Other viewers hear this from the database trigger on the private channel.
+  // The client does not publish; a forged broadcast cannot move the counters.
   return rowToCharacter(data)
 }
 
@@ -149,7 +151,8 @@ export async function patchLive(id, character) {
   const live = projectLive(character)
   const { error } = await supabase.rpc('patch_live_by_id', { p_id: id, p_patch: live })
   if (error) throw error
-  repoChannels[id]?.send({ type: 'broadcast', event: 'live', payload: { live } })
+  // The row update broadcasts `{ live, character_id }` itself. Receivers apply
+  // that payload; they do not trust a browser to name the character.
   return true
 }
 
@@ -221,30 +224,33 @@ export async function listPlayers() {
   return data || []
 }
 
-// Realtime: subscribe to a character's live-counter broadcasts. We use Supabase
-// Broadcast (not postgres_changes) on a per-character channel `char:<id>`:
-// postgres_changes must pass RLS on the realtime socket, which silently fails to
-// deliver to authenticated browsers; broadcast is plain pub/sub and just works.
-// `onLive` receives `{ live }` — the projected counters. `self:false` so a
-// sender never echoes its own change. patchLive sends on the same channel, and
-// this shares the channel name with the guest plane so the two interoperate.
-const repoChannels = {} // id -> RealtimeChannel
+// Realtime: subscribe to a character's private channel `char:<id>`. The
+// database trigger is the publisher. A payload whose character_id does not
+// match this subscription is ignored. Authorization is the signed-in session
+// (or the page's guest grant); there is no public fallback.
+const repoChannels = {} // id -> { stop }
+
+function sameCharacter(payload, id) {
+  return !payload?.character_id || payload.character_id === id
+}
 
 // `onData` (optional) fires on a structural-change nudge; the caller should
 // refetch via getCharacter(id) and adopt the fresh row.
 export function subscribeLive(id, onLive, onData) {
   if (!repoEnabled() || !id || repoChannels[id]) return repoChannels[id] || null
-  const ch = supabase.channel(`char:${id}`, { config: { broadcast: { self: false } } })
-  ch.on('broadcast', { event: 'live' }, ({ payload }) => onLive(payload))
-  if (onData) ch.on('broadcast', { event: 'data' }, () => onData())
-  ch.subscribe()
-  repoChannels[id] = ch
-  return ch
+  const stop = openAuthorizedChannel(characterTopic(id), {
+    events: {
+      live: ({ payload }) => { if (sameCharacter(payload, id)) onLive(payload) },
+      ...(onData ? { data: ({ payload }) => { if (sameCharacter(payload, id)) onData() } } : {}),
+    },
+  })
+  repoChannels[id] = { stop }
+  return repoChannels[id]
 }
 
 export function removeLiveSubscription(id) {
-  const ch = repoChannels[id]
-  if (ch && supabase) { supabase.removeChannel(ch); delete repoChannels[id] }
+  repoChannels[id]?.stop()
+  delete repoChannels[id]
 }
 
 // Reconcile an authoritative cloud character against a cached local copy:

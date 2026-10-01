@@ -1,0 +1,7 @@
+# Edge Function config for `supabase functions deploy`.
+# Guests have no user session — the capability token or GM key in the body is
+# the credential, checked inside the function. The gateway JWT check would
+# reject those calls.
+
+[functions.realtime-token]
+verify_jwt = false
