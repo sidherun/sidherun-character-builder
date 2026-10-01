@@ -12,6 +12,8 @@
 
 import { supabase } from './supabaseClient.js'
 import { encodeCloudLink, encodeCharacterToPlayURL } from './urlState.js'
+import { openAuthorizedChannel, refreshRealtimeAuth } from './realtimeAuth.js'
+import { characterTopic } from '../../supabase/functions/_shared/realtimeContract.js'
 
 const KEY_GM   = 'sidherun_gm_key'
 const KEY_MAP  = 'sidherun_cloud_map' // { [_rosterId]: { id, token } }
@@ -136,6 +138,7 @@ export function dataSignature(c) {
   delete x._rosterId
   delete x._ownerUserId
   delete x._assignedPlayerId
+  delete x._campaignId
   delete x._dataRev
   delete x._updatedAt
   delete x.wizardStep
@@ -174,11 +177,15 @@ async function rpc(fn, params) {
   return data
 }
 
-// ── realtime (client-side broadcast on a per-character channel) ───────────────
-// One channel per open cloud character, topic `char:<cloudId>`. self:false means
-// we never receive our own broadcasts (built-in echo suppression). Persistence
-// is the DB patch; this is just the instant nudge to other connected viewers.
-const channels = {} // rosterId -> supabase RealtimeChannel
+// ── realtime (private channel; the database is the publisher) ────────────────
+// One channel per open cloud character, topic `char:<cloudId>`. The page's
+// realtime auth (capability token or GM key) has to be installed first.
+// Persistence is the DB patch; the trigger is the instant nudge.
+const channels = {} // rosterId -> { stop }
+
+function sameCharacter(payload, id) {
+  return !payload?.character_id || payload.character_id === id
+}
 
 // `onData` (optional) fires on a structural-change nudge; the caller should
 // refetch via hydrateCharacter(rosterId) and adopt the fresh character.
@@ -186,12 +193,14 @@ export function subscribeCharacter(rosterId, onLivePayload, onData) {
   if (!supabase || !rosterId || channels[rosterId]) return channels[rosterId] || null
   const entry = getCloudMap()[rosterId]
   if (!entry) return null
-  const ch = supabase.channel(`char:${entry.id}`, { config: { broadcast: { self: false } } })
-  ch.on('broadcast', { event: 'live' }, ({ payload }) => onLivePayload(payload))
-  if (onData) ch.on('broadcast', { event: 'data' }, () => onData())
-  ch.subscribe()
-  channels[rosterId] = ch
-  return ch
+  const stop = openAuthorizedChannel(characterTopic(entry.id), {
+    events: {
+      live: ({ payload }) => { if (sameCharacter(payload, entry.id)) onLivePayload(payload) },
+      ...(onData ? { data: ({ payload }) => { if (sameCharacter(payload, entry.id)) onData() } } : {}),
+    },
+  })
+  channels[rosterId] = { stop }
+  return channels[rosterId]
 }
 
 // Refetch the authoritative cloud character for a mapped roster id and adopt it
@@ -209,8 +218,8 @@ export async function hydrateCharacter(rosterId) {
 }
 
 export function unsubscribeCharacter(rosterId) {
-  const ch = channels[rosterId]
-  if (ch && supabase) { supabase.removeChannel(ch); delete channels[rosterId] }
+  channels[rosterId]?.stop()
+  delete channels[rosterId]
 }
 
 function invalidateCloudMapping(rosterId) {
@@ -249,16 +258,11 @@ export async function syncCharacter(character) {
       p_data: character, p_expected_rev: -1,
     })
     if (!rows?.length) return handleDeadMapping(character)
-    // Nudge other viewers to re-hydrate the fresh structural data (parity with the
-    // live broadcast below). Payload-less signal → receivers refetch the row.
-    channels[character._rosterId]?.send({ type: 'broadcast', event: 'data', payload: {} })
+    // The database trigger nudges other viewers. This client does not publish.
   } else if (chosen === 'live') {
     const live = projectLive(character)
     const rows = await rpc('patch_live', { p_token: entry.token, p_patch: live })
     if (!rows?.length) return handleDeadMapping(character)
-    // Nudge other connected viewers instantly (best-effort; persistence is the
-    // patch above, so offline peers still catch up on their next hydrate).
-    channels[character._rosterId]?.send({ type: 'broadcast', event: 'live', payload: { live } })
   }
   lastSnapshot[character._rosterId] = character
   return { channel: chosen }
@@ -273,6 +277,9 @@ export async function rotateCloudLink(rosterId) {
   const rows = await rpc('rotate_token', { p_gm_key: ensureGmKey(), p_id: entry.id })
   if (!rows?.length) return null
   setCloudMapEntry(rosterId, { id: entry.id, token: rows[0].token })
+  // The old capability JWT stops being issued and, within its TTL, stops
+  // authorizing the private channel once this page pushes a replacement.
+  await refreshRealtimeAuth()
   return getCloudLink(rosterId)
 }
 

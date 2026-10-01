@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { loadRoster, loadCharacterFromRoster, saveCharacterToRoster, saveCurrent } from '../utils/rosterStorage.js'
 import { cloudEnabled } from '../utils/supabaseClient.js'
-import { getCloudMap, subscribeCharacter, unsubscribeCharacter, syncCharacter, mergeRemote, hydrateCharacter } from '../utils/cloudSync.js'
+import { getCloudMap, getGmKey, cloudIdForRoster, subscribeCharacter, unsubscribeCharacter, syncCharacter, mergeRemote, hydrateCharacter } from '../utils/cloudSync.js'
 import {
   repoEnabled, listCharacters, listPlayers, assignPlayer, patchLive,
   subscribeLive, removeLiveSubscription, getCharacter, saveCharacterData,
@@ -10,7 +10,8 @@ import { useAuth, isGmOrAdmin } from '../auth/useAuth.js'
 import { applyAdjust, saveStoryPointOp } from '../utils/gmAdjust.js'
 import { applyStoryPointOp } from '../utils/storyPoints.js'
 import StoryPoints from '../components/StoryPoints.jsx'
-import { subscribeRollFeed } from '../utils/rollFeed.js'
+import { subscribeRollFeed, adoptServerRoll } from '../utils/rollFeed.js'
+import { installRealtimeAuth } from '../utils/realtimeAuth.js'
 import { formatRoll } from '../utils/rollFormat.js'
 import { listTables, visibleForTable, visibleRollsForTable, deriveRegistry, mergeRegistry, loadTableFilter, saveTableFilter } from '../utils/tables.js'
 import TableFilter from '../components/TableFilter.jsx'
@@ -158,7 +159,7 @@ function ConditionEditor({ c, onAdd, onRemove }) {
 }
 
 export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
-  const { role, signOut } = useAuth()
+  const { user, role, signOut } = useAuth()
   const useRepo = repoEnabled()
   // Authenticated GM/admin pull the whole campaign from the cloud (RLS-scoped);
   // the legacy localStorage path is unchanged when auth is off.
@@ -176,6 +177,14 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
   const [loadState, setLoadState] = useState(useRepo ? 'loading' : 'ready')
   const charsRef = useRef(chars)
   charsRef.current = chars
+  // Declared before the channel effects below so the identity is installed
+  // first. Keyed by user id so a different sign-in never reuses a cached token.
+  const realtimeUserId = user?.id || null
+  useEffect(() => {
+    installRealtimeAuth(useRepo
+      ? { type: 'user', key: `user:${realtimeUserId}` }
+      : (cloudEnabled ? { type: 'gm', key: 'gm', secret: getGmKey } : null))
+  }, [useRepo, realtimeUserId])
 
   // Table filter (#175): show only a chosen named table's characters. The
   // selection persists so it survives a reload mid-session. '' = show all. The
@@ -188,19 +197,36 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
     setSelectedTable(saveTableFilter(id))
   }
 
-  // Live dice-roll feed from the whole table (#148). One shared channel; every
-  // player's roll lands here. Ephemeral — keep the last 20 in view only.
+  // Live dice-roll feed. Signed-in GMs join each loaded character's campaign
+  // channel. The legacy GM-key screen joins the campaigns that key still owns.
+  // Same-device rolls (no cloud character) arrive on the local channel either way.
+  const campaignKey = (useRepo ? chars : [])
+    .map(c => c._campaignId)
+    .filter(Boolean)
+    .sort()
+    .join(',')
   useEffect(() => {
-    if (!cloudEnabled) return
-    return subscribeRollFeed(entry => {
-      if (entry.kind === 'initiative') setInitiativeRoll(entry)
+    const handler = (entry) => {
+      const adopted = adoptServerRoll(entry, charsRef.current, cloudIdForRoster)
+      if (adopted.kind === 'initiative') setInitiativeRoll(adopted)
       setRollFeed(prev => [{
-        ...entry,
+        ...adopted,
         gmTarget: difficultyTargetRef.current,
-        _key: `${entry.ts}-${entry.actor}-${entry.roll}`,
+        _key: `${adopted.ts}-${adopted.actor}-${adopted.roll}`,
       }, ...prev].slice(0, 20))
-    })
-  }, [])
+    }
+    const stops = [subscribeRollFeed(handler, { local: true })]
+    if (cloudEnabled) {
+      if (useRepo) {
+        for (const id of campaignKey ? campaignKey.split(',') : []) {
+          stops.push(subscribeRollFeed(handler, { campaignId: id }))
+        }
+      } else {
+        stops.push(subscribeRollFeed(handler, { campaignsFromAuth: true }))
+      }
+    }
+    return () => stops.forEach(stop => stop())
+  }, [useRepo, campaignKey])
 
   // Cloud-first load (authenticated). Falls back to localStorage when auth off.
   useEffect(() => {
@@ -460,7 +486,7 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
             </button>
           </div>
         </section>
-        {cloudEnabled && rollFeed.length > 0 && (
+        {rollFeed.length > 0 && (
           <section className={styles.rollFeed} aria-label="Live roll feed" aria-live="polite">
             <h2 className={styles.feedTitle}>Live Rolls{filtering ? ` · ${tables.find(t => t.id === activeTable)?.name}` : ''}</h2>
             <ul className={styles.feedList}>

@@ -119,6 +119,43 @@ want player/GM/admin accounts with cloud-as-source-of-truth.
    161 bytes. Run both `verify_function_permissions.sql` and
    `verify_anonymous_creation_controls.sql` afterward.
 
+9. Authenticate realtime channels (`migrations/0007_realtime_authorization.sql`,
+   issue #332). **Order matters.** The migration does not turn off public
+   channels, so the live table keeps working on the old frontend. Do not flip
+   Realtime's "Allow public access" setting until the new frontend is what
+   players are running.
+
+   1. Apply `migrations/0007_realtime_authorization.sql` in the SQL Editor (after
+      0006). It adds the home campaign, private-channel policies, server-side
+      roll publish, and the character-change broadcast trigger. Old clients
+      ignore the new private broadcasts and keep using public topics.
+   2. Run `verify_realtime_authorization.sql`. It rolls back. The last row
+      should be `realtime_authorization_ok = true`. Leave the
+      `sidherun.realtime_test_stub` setting unset — that path is for CI only.
+   3. Deploy the `realtime-token` Edge Function (`supabase/functions/realtime-token`).
+      `supabase/config.toml` sets `verify_jwt = false` for this function because
+      guests have no user session; the capability token or GM key is the
+      credential. Set the function secret `REALTIME_GUEST_JWT_SECRET` to the
+      project's **legacy JWT secret** (Project Settings → API), which Realtime
+      already trusts. Do not rotate or revoke signing keys as part of this
+      step. If the legacy secret has already been revoked, import a new HS256
+      shared secret as a JWT signing key, rotate it into use **without
+      revoking the previous key**, and use that same secret here.
+   4. Release the frontend. Signed-in play uses the session JWT. Guest live
+      links exchange their capability token for a 10-minute `realtime_guest`
+      JWT. Rolls and character nudges are published by the database; the
+      browser only subscribes to private channels.
+   5. Ask the table to reload so no old tab is still on a public topic. Then,
+      in Realtime Settings, turn **Allow public access** off. That is the step
+      that closes `session:default`. Doing it earlier drops live updates for
+      anyone still on the previous frontend.
+
+   A guest token that is rotated stops being exchangeable immediately. A socket
+   that already presented the old JWT keeps its cached policy until that JWT
+   expires (10 minutes) or the client sends a replacement, whichever comes
+   first. Same-device play with cloud off uses a browser broadcast channel and
+   does not require this setup.
+
 ### RLS smoke test (two planes)
 - As **anon** from the app JS: `supabase.from('characters').select('*')` still
   returns 0 rows / permission denied, and `get_character('<token>')` still works
