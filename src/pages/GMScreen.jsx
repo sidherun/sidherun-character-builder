@@ -481,7 +481,7 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
             </button>
           </div>
         </section>
-        {cloudEnabled && rollFeed.length > 0 && (
+        {rollFeed.length > 0 && (
           <section className={styles.rollFeed} aria-label="Live roll feed" aria-live="polite">
             <h2 className={styles.feedTitle}>Live Rolls{filtering ? ` · ${tables.find(t => t.id === activeTable)?.name}` : ''}</h2>
             <ul className={styles.feedList}>
