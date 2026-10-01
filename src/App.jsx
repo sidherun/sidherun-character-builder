@@ -168,22 +168,21 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
   const liveCapabilityToken = cloudToken
     ? (getCloudMap()[cloudRosterId]?.token || cloudToken)
     : null
-  installRealtimeAuth(liveCapabilityToken
-    ? {
-        type: 'capability',
-        key: liveCapabilityToken,
-        secret: () => getCloudMap()[cloudRosterId]?.token || cloudToken,
-      }
-    : (useRepoPlane && user ? { type: 'user', key: `user:${user.id}` } : null))
-  bindRollPublisher({
-    characterId: cloudId || (useRepoPlane ? character._rosterId : null),
-    capabilityToken: liveCapabilityToken,
-  })
-
+  const realtimeUserId = user?.id || null
   useEffect(() => {
-    if (!liveCapabilityToken && !(useRepoPlane && user)) return
-    void ensureRealtimeAuth()
-  }, [liveCapabilityToken, useRepoPlane, user])
+    installRealtimeAuth(liveCapabilityToken
+      ? {
+          type: 'capability',
+          key: liveCapabilityToken,
+          secret: () => getCloudMap()[cloudRosterId]?.token || cloudToken,
+        }
+      : (useRepoPlane && realtimeUserId ? { type: 'user', key: `user:${realtimeUserId}` } : null))
+    bindRollPublisher({
+      characterId: cloudId || (useRepoPlane ? character._rosterId : null),
+      capabilityToken: liveCapabilityToken,
+    })
+    if (liveCapabilityToken || (useRepoPlane && realtimeUserId)) void ensureRealtimeAuth()
+  }, [liveCapabilityToken, useRepoPlane, realtimeUserId, cloudRosterId, cloudToken, cloudId, character._rosterId])
 
   // Apply remote live-counter broadcasts (another viewer's HP/mana/etc. change)
   // to local state in real time. No-op for non-cloud characters.

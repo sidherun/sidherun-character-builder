@@ -159,7 +159,7 @@ function ConditionEditor({ c, onAdd, onRemove }) {
 }
 
 export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
-  const { role, signOut } = useAuth()
+  const { user, role, signOut } = useAuth()
   const useRepo = repoEnabled()
   // Authenticated GM/admin pull the whole campaign from the cloud (RLS-scoped);
   // the legacy localStorage path is unchanged when auth is off.
@@ -177,9 +177,14 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
   const [loadState, setLoadState] = useState(useRepo ? 'loading' : 'ready')
   const charsRef = useRef(chars)
   charsRef.current = chars
-  installRealtimeAuth(useRepo
-    ? { type: 'user', key: 'user' }
-    : (cloudEnabled ? { type: 'gm', key: 'gm', secret: getGmKey } : null))
+  // Declared before the channel effects below so the identity is installed
+  // first. Keyed by user id so a different sign-in never reuses a cached token.
+  const realtimeUserId = user?.id || null
+  useEffect(() => {
+    installRealtimeAuth(useRepo
+      ? { type: 'user', key: `user:${realtimeUserId}` }
+      : (cloudEnabled ? { type: 'gm', key: 'gm', secret: getGmKey } : null))
+  }, [useRepo, realtimeUserId])
 
   // Table filter (#175): show only a chosen named table's characters. The
   // selection persists so it survives a reload mid-session. '' = show all. The
