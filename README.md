@@ -208,6 +208,13 @@ npm run preview   # serve the production build locally
 
 Run lint, tests, and a production build before opening a pull request.
 
+### Browsers
+
+Desktop Firefox 155 and Chromium 153 were exercised against a local cloud-off
+build (Playwright, headless) on 2026-10-02, including the Session Notes save
+path. Safari, Edge, and Android Firefox were not part of that pass. Magic-link
+email and hosted live sync need the cloud project and were not exercised here.
+
 ## Architecture
 
 The client is a React 19 single-page application built with Vite. It has two
