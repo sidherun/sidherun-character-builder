@@ -96,6 +96,7 @@ async function boot() {
     '0005_character_update_authorization.sql',
     '0006_anonymous_creation_controls.sql',
     '0007_realtime_authorization.sql',
+    '0008_home_campaign_insert.sql',
   ]) {
     const sql = file.startsWith('0003') ? withoutModdatetime(migration(file)) : migration(file)
     await db.exec(sql)
@@ -117,6 +118,96 @@ describe('realtime authorization matrix', () => {
     const result = await db.exec(readFileSync('supabase/verify_realtime_authorization.sql', 'utf8'))
     const rows = result.find(entry => entry.rows?.some(row => 'realtime_authorization_ok' in row))
     expect(rows?.rows?.[0]?.realtime_authorization_ok).toBe(true)
+    await db.close()
+  }, 60000)
+
+  it('lets a non-GM with no characters insert into the home campaign only', async () => {
+    const db = await boot()
+    const result = await db.exec(`
+      begin;
+
+      insert into auth.users (
+        instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+        raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+        confirmation_token, email_change, email_change_token_new, recovery_token
+      ) values (
+        '00000000-0000-0000-0000-000000000000',
+        '00800000-0000-4000-8000-0000000000a1',
+        'authenticated', 'authenticated', 'issue008-player@example.invalid', '', now(),
+        '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''
+      );
+
+      insert into public.campaigns (id, slug, name)
+      values ('00800000-0000-4000-8000-0000000000c2', 'issue008-other', 'Other table');
+
+      -- Hosted Supabase grants this. The invoker guard calls auth.uid().
+      grant usage on schema auth to authenticated;
+
+      select set_config('request.jwt.claim.sub', '00800000-0000-4000-8000-0000000000a1', true);
+      select set_config('request.jwt.claim.role', 'authenticated', true);
+      select set_config(
+        'request.jwt.claims',
+        '{"sub":"00800000-0000-4000-8000-0000000000a1","role":"authenticated"}',
+        true
+      );
+      set local role authenticated;
+
+      do $$
+      declare
+        visible int;
+        placed uuid;
+        home uuid;
+      begin
+        select count(*) into visible from public.campaigns;
+        if visible <> 0 then
+          raise exception 'new player can see campaigns (%); the rls blind spot was not reproduced', visible;
+        end if;
+
+        -- Same shape as the app: campaign_id omitted, column default applies.
+        insert into public.characters (name, data, owner_user_id)
+        values ('First', '{"version":0}', '00800000-0000-4000-8000-0000000000a1');
+
+        select c.campaign_id, home_row.id
+          into placed, home
+          from public.characters c
+          join public.campaigns home_row on home_row.slug = 'home'
+         where c.name = 'First';
+        if placed is distinct from home then
+          raise exception 'first character landed on %, home is %', placed, home;
+        end if;
+
+        begin
+          insert into public.characters (name, data, owner_user_id, campaign_id)
+          values (
+            'Elsewhere', '{"version":0}',
+            '00800000-0000-4000-8000-0000000000a1',
+            '00800000-0000-4000-8000-0000000000c2'
+          );
+          raise exception 'non-home insert was allowed';
+        exception
+          when insufficient_privilege then
+            if sqlerrm not like '%another campaign%' then
+              raise;
+            end if;
+        end;
+
+        insert into public.characters (name, data, owner_user_id, campaign_id)
+        values (
+          'Explicit null', '{"version":0}',
+          '00800000-0000-4000-8000-0000000000a1',
+          null
+        );
+        select campaign_id into placed from public.characters where name = 'Explicit null';
+        if placed is distinct from home then
+          raise exception 'null campaign_id was not resolved to home: %', placed;
+        end if;
+      end $$;
+
+      select true as first_character_insert_ok;
+      rollback;
+    `)
+    const rows = result.find(entry => entry.rows?.some(row => 'first_character_insert_ok' in row))
+    expect(rows?.rows?.[0]?.first_character_insert_ok).toBe(true)
     await db.close()
   }, 60000)
 })
