@@ -18,6 +18,24 @@ exception
 end
 $$;
 
+-- Hosted Realtime grants anon SELECT (and INSERT/UPDATE) on realtime.messages.
+-- A subscribe check is denied when that SELECT returns no rows. A database
+-- without the grant denies it with insufficient_privilege instead. Either one
+-- is a denial. A count above zero is a leak.
+create or replace function pg_temp.expect_no_rows(p_label text, p_statement text)
+returns void language plpgsql security invoker as $$
+declare
+  n bigint;
+begin
+  execute p_statement into n;
+  if n is distinct from 0 then
+    raise exception '%: expected 0 rows, got %', p_label, n;
+  end if;
+exception
+  when insufficient_privilege then null;
+end
+$$;
+
 create or replace function pg_temp.expect_eq(p_label text, p_got text, p_want text)
 returns void language plpgsql as $$
 begin
@@ -27,7 +45,10 @@ begin
 end
 $$;
 
-grant execute on function pg_temp.expect_denied(text), pg_temp.expect_eq(text, text, text)
+grant execute on function
+  pg_temp.expect_denied(text),
+  pg_temp.expect_eq(text, text, text),
+  pg_temp.expect_no_rows(text, text)
   to anon, authenticated, realtime_guest;
 
 insert into auth.users (
@@ -261,10 +282,15 @@ select set_config('realtime.topic', 'char:33200000-0000-4000-8000-000000000010',
 set local role realtime_guest;
 select pg_temp.expect_eq('rotated guest subscribe', (select count(*)::text from realtime.messages), '0');
 
+-- anon keeps Supabase's default SELECT. RLS (no anon policy) hides every row.
+-- A missing grant is also acceptable. Seeing a row is not.
 reset role;
 select set_config('realtime.topic', 'char:33200000-0000-4000-8000-000000000010', true);
 set local role anon;
-select pg_temp.expect_denied($sql$ select count(*) from realtime.messages $sql$);
+select pg_temp.expect_no_rows(
+  'anon cannot read realtime.messages',
+  $sql$ select count(*) from realtime.messages $sql$
+);
 
 -- Publish RPCs reject callers who do not hold the character.
 reset role;

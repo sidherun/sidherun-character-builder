@@ -128,10 +128,23 @@ want player/GM/admin accounts with cloud-as-source-of-truth.
    1. Apply `migrations/0007_realtime_authorization.sql` in the SQL Editor (after
       0006). It adds the home campaign, private-channel policies, server-side
       roll publish, and the character-change broadcast trigger. Old clients
-      ignore the new private broadcasts and keep using public topics.
-   2. Run `verify_realtime_authorization.sql`. It rolls back. The last row
-      should be `realtime_authorization_ok = true`. Leave the
-      `sidherun.realtime_test_stub` setting unset — that path is for CI only.
+      ignore the new private broadcasts and keep using public topics. This
+      step has already been applied on the hosted project; do not run it again.
+   2. Run the updated `verify_realtime_authorization.sql`. The first run failed
+      on `select count(*) from realtime.messages` as `anon`: Realtime's own
+      grants give `anon` SELECT, INSERT, and UPDATE on the parent table, so
+      Postgres does not raise a missing-privilege error. Row level security
+      still returns zero rows (there is no anon policy), and a client INSERT
+      still fails with `42501` (there is no INSERT policy). The script now
+      accepts either a privilege error or zero visible rows as a denial, and
+      still fails if anon can see a row. It rolls back. The last row should be
+      `realtime_authorization_ok = true`. There is no migration 0008. Do not
+      revoke those default grants from the SQL editor: `postgres` did not grant
+      them, `authenticated` and `realtime_guest` need SELECT for a private
+      subscribe to be allowed or denied by the policy, and Realtime treats a
+      missing INSERT privilege the same as an RLS violation (the client cannot
+      publish). Leave `sidherun.realtime_test_stub` unset — that path is for
+      CI only.
    3. Deploy the `realtime-token` Edge Function (`supabase/functions/realtime-token`).
       `supabase/config.toml` sets `verify_jwt = false` for this function because
       guests have no user session; the capability token or GM key is the

@@ -58,6 +58,9 @@ async function boot() {
 
     create publication supabase_realtime;
     create schema if not exists realtime;
+    -- Hosted shape: partitioned parent with RLS, daily partitions without it,
+    -- and no grants on the partitions. Parent policies still filter a query
+    -- of the parent.
     create table realtime.messages (
       id uuid default gen_random_uuid(),
       topic text not null,
@@ -67,7 +70,9 @@ async function boot() {
       private boolean default false,
       inserted_at timestamptz not null default now(),
       updated_at timestamptz not null default now()
-    );
+    ) partition by range (inserted_at);
+    create table realtime.messages_2026 partition of realtime.messages
+      for values from ('2020-01-01') to ('2030-01-01');
     alter table realtime.messages enable row level security;
     revoke all on realtime.messages from public, anon, authenticated;
     create or replace function realtime.topic() returns text
@@ -95,6 +100,13 @@ async function boot() {
     const sql = file.startsWith('0003') ? withoutModdatetime(migration(file)) : migration(file)
     await db.exec(sql)
   }
+  // Realtime's own migration grants these on the parent. anon can run SELECT;
+  // the policies are what hide the rows. CI used to model a missing grant,
+  // which is not what hosted Supabase does.
+  await db.exec(`
+    grant usage on schema realtime to anon;
+    grant select, insert, update on realtime.messages to anon, authenticated;
+  `)
   return db
 }
 
