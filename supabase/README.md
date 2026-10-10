@@ -138,7 +138,7 @@ want player/GM/admin accounts with cloud-as-source-of-truth.
       still fails with `42501` (there is no INSERT policy). The script now
       accepts either a privilege error or zero visible rows as a denial, and
       still fails if anon can see a row. It rolls back. The last row should be
-      `realtime_authorization_ok = true`. There is no migration 0008. Do not
+      `realtime_authorization_ok = true`. Do not
       revoke those default grants from the SQL editor: `postgres` did not grant
       them, `authenticated` and `realtime_guest` need SELECT for a private
       subscribe to be allowed or denied by the policy, and Realtime treats a
@@ -168,6 +168,13 @@ want player/GM/admin accounts with cloud-as-source-of-truth.
    expires (10 minutes) or the client sends a replacement, whichever comes
    first. Same-device play with cloud off uses a browser broadcast channel and
    does not require this setup.
+
+10. Repair first-character inserts (`migrations/0008_home_campaign_insert.sql`).
+    Apply after 0007, including on a project where 0007 is already live. A
+    non-GM whose insert omits `campaign_id` was rejected because the guard
+    looked up the home campaign under that user's row-level security and saw
+    no row. 0008 resolves the home campaign in a definer helper and does not
+    change Realtime grants, policies, or "Allow public access".
 
 ### RLS smoke test (two planes)
 - As **anon** from the app JS: `supabase.from('characters').select('*')` still
