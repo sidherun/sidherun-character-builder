@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client'
 import { renderToStaticMarkup } from 'react-dom/server'
 import GMScreen from './GMScreen.jsx'
 import { applyAdjust } from '../utils/gmAdjust.js'
+import { publishLocalRoll } from '../utils/rollFeed.js'
 import { saveCharacterToRoster, loadCharacterFromRoster } from '../utils/rosterStorage.js'
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
@@ -186,5 +187,21 @@ describe('GMScreen', () => {
     act(() => button('Clear all conditions on rest').click())
     expect(confirm).toHaveBeenCalledOnce()
     expect(loadCharacterFromRoster('r1').conditions).toEqual([])
+  })
+
+  it('shows a same-device roll when cloud sync is off', async () => {
+    vi.stubGlobal('BroadcastChannel', undefined)
+    await act(async () => {
+      root.render(<GMScreen onNavigate={() => {}} theme="dark" onToggleTheme={() => {}} />)
+    })
+    expect(container.querySelector('[aria-label="Live roll feed"]')).toBeNull()
+    await act(async () => {
+      publishLocalRoll({
+        kind: 'total', label: 'Roll Dice', actor: 'Mira', roll: 42, total: 42, ts: 9,
+      })
+    })
+    const feed = container.querySelector('[aria-label="Live roll feed"]')
+    expect(feed?.textContent).toContain('Mira')
+    expect(feed?.textContent).toContain('Roll Dice')
   })
 })

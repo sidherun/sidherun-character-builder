@@ -1,8 +1,9 @@
 import { uuid } from './uuid.js'
 
-// Named tables (#175) — a persistent, reusable grouping of characters. "Table"
-// (not "session") deliberately avoids colliding with the roll-feed broadcast
-// channel (session:<id>) and the app's word for a game night.
+// Named tables (#175) — a persistent, reusable grouping of characters. These
+// ids are a display filter. They are not the roll-feed channel: that topic is
+// `table:<campaign uuid>`, authorized by campaign membership. A local id here
+// (`t_…`) must never be used as a realtime topic.
 //
 // Split of concerns:
 //   * Membership (which tables a character is in) lives on the character blob as

@@ -133,10 +133,12 @@ The production build uses role-based access:
 - **GM:** views and manages every campaign character, including assignments.
 - **Admin:** has GM access and may manage user display names and roles.
 
-Tables organize a campaign roster; they do not grant or restrict character
-access. Supabase Row Level Security enforces ownership, assignment, and role
-permissions at the database boundary. New cloud characters require a signed-in
-user. Anonymous character creation is disabled.
+Named tables organize a campaign roster for filtering; they do not grant or
+restrict character access. The realtime roll feed is scoped to a campaign
+(one home campaign by default) and only members of that campaign can join it.
+Supabase Row Level Security enforces ownership, assignment, role, and
+capability-token permissions at the database boundary. New cloud characters
+require a signed-in user. Anonymous character creation is disabled.
 
 ### Play links and live links
 
@@ -152,10 +154,10 @@ The roster exposes two sharing options:
 
 A live link is a bearer capability: anyone who has it receives its guest
 permissions. Share it only with the intended player. **Reset link** rotates its
-secret and revokes the old link's database/RPC access. Realtime Broadcast is not
-yet an authorization boundary, so an old recipient who retained the character
-UUID may still observe or inject channel messages; hardening is tracked in
-[#332](https://github.com/sidherun/sidherun-character-builder/issues/332).
+secret and revokes the old link's database access. Realtime channels are
+private: a rotated link stops authorizing new sockets immediately, and an
+already-open socket drops when its short-lived guest token expires (10 minutes).
+The rollout order for that boundary is in the [Supabase runbook](supabase/README.md).
 
 Roster backup JSON may include the GM key and guest-link credentials. Treat it
 as sensitive: store it securely and share it only with someone who should retain

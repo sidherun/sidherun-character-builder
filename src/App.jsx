@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import { createDefaultCharacter } from './utils/defaultCharacter.js'
 import { loadCurrent, saveCharacterToRoster, saveCurrent, loadCharacterFromRoster, loadRoster, getLastSaveStatus } from './utils/rosterStorage.js'
 import { decodeCharacterFromURL, getPlayLinkId, parseCloudLink } from './utils/urlState.js'
-import { registerCloudLink, fetchCloudCharacter, mergeRemote, rosterIdForCloudId, projectLive, dataSignature, hydrateCharacter } from './utils/cloudSync.js'
+import { registerCloudLink, fetchCloudCharacter, mergeRemote, rosterIdForCloudId, projectLive, dataSignature, hydrateCharacter, getCloudMap } from './utils/cloudSync.js'
 import { repoEnabled, upsertCharacter, getCharacter, saveCharacterData, patchLive, subscribeLive, removeLiveSubscription } from './utils/characterRepo.js'
 import { useAuth, isGmOrAdmin } from './auth/useAuth.js'
 import { safeParseCharacter } from './utils/characterSchema.js'
@@ -30,7 +30,8 @@ import Step7Skills from './components/steps/Step7Skills.jsx'
 import Step8Resources from './components/steps/Step8Resources.jsx'
 import Step9Review from './components/steps/Step9Review.jsx'
 import PlayMode from './components/steps/PlayMode.jsx'
-import { broadcastRoll } from './utils/rollFeed.js'
+import { broadcastRoll, bindRollPublisher } from './utils/rollFeed.js'
+import { installRealtimeAuth, ensureRealtimeAuth } from './utils/realtimeAuth.js'
 import { trackPush } from './utils/cloudStatus.js'
 import { appCharacterSyncScopes } from './utils/characterSyncScope.js'
 import styles from './App.module.css'
@@ -164,6 +165,24 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
     capabilityToken: cloudToken,
   }, pendingWrites)
   const useRepoPlane = cloudWritePlane === 'repo'
+  const liveCapabilityToken = cloudToken
+    ? (getCloudMap()[cloudRosterId]?.token || cloudToken)
+    : null
+  const realtimeUserId = user?.id || null
+  useEffect(() => {
+    installRealtimeAuth(liveCapabilityToken
+      ? {
+          type: 'capability',
+          key: liveCapabilityToken,
+          secret: () => getCloudMap()[cloudRosterId]?.token || cloudToken,
+        }
+      : (useRepoPlane && realtimeUserId ? { type: 'user', key: `user:${realtimeUserId}` } : null))
+    bindRollPublisher({
+      characterId: cloudId || (useRepoPlane ? character._rosterId : null),
+      capabilityToken: liveCapabilityToken,
+    })
+    if (liveCapabilityToken || (useRepoPlane && realtimeUserId)) void ensureRealtimeAuth()
+  }, [liveCapabilityToken, useRepoPlane, realtimeUserId, cloudRosterId, cloudToken, cloudId, character._rosterId])
 
   // Apply remote live-counter broadcasts (another viewer's HP/mana/etc. change)
   // to local state in real time. No-op for non-cloud characters.
