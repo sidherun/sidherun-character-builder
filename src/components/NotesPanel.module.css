@@ -202,5 +202,16 @@
 .editorActions {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
+}
+
+.saveHint {
+  flex: 1 1 140px;
+  margin: 0;
+  font-family: 'Spectral', serif;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--ink-500);
 }

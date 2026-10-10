@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { noteTitleForSave } from '../utils/noteTitle.js'
 import { uuid } from '../utils/uuid.js'
 import styles from './NotesPanel.module.css'
 
@@ -8,6 +9,7 @@ export default function NotesPanel({ notes, backstory = '', onChange, onBackstor
   const [editing, setEditing] = useState(null)
   const [draft, setDraft] = useState({ title: '', body: '' })
   const hasBackstory = Boolean(backstory.trim())
+  const saveDisabled = editing !== BACKSTORY_NOTE_ID && !noteTitleForSave(draft)
 
   function startNew() {
     setEditing('new')
@@ -30,12 +32,14 @@ export default function NotesPanel({ notes, backstory = '', onChange, onBackstor
       setEditing(null)
       return
     }
-    if (!draft.title.trim()) return
+    const title = noteTitleForSave(draft)
+    if (!title) return
     const now = new Date().toISOString()
+    const saved = { title, body: draft.body, lastEdited: now }
     if (editing === 'new') {
-      onChange([...notes, { id: uuid(), ...draft, lastEdited: now }])
+      onChange([...notes, { id: uuid(), ...saved }])
     } else {
-      onChange(notes.map(n => n.id === editing ? { ...n, ...draft, lastEdited: now } : n))
+      onChange(notes.map(n => n.id === editing ? { ...n, ...saved } : n))
     }
     setEditing(null)
   }
@@ -56,7 +60,7 @@ export default function NotesPanel({ notes, backstory = '', onChange, onBackstor
       >
         <div className={styles.header}>
           <h3 id="notes-panel-heading">Session Notes</h3>
-          <button className={styles.close} onClick={onClose} aria-label="Close session notes">✕</button>
+          <button type="button" className={styles.close} onClick={onClose} aria-label="Close session notes">✕</button>
         </div>
 
         {editing ? (
@@ -80,13 +84,24 @@ export default function NotesPanel({ notes, backstory = '', onChange, onBackstor
               rows={8}
             />
             <div className={styles.editorActions}>
-              <button className="btn-secondary" onClick={() => setEditing(null)}>Cancel</button>
-              <button className="btn-primary" onClick={save} disabled={!draft.title.trim()}>Save</button>
+              {saveDisabled && (
+                <p className={styles.saveHint} id="note-save-hint">Add a title or some note text to save.</p>
+              )}
+              <button type="button" className="btn-secondary" onClick={() => setEditing(null)}>Cancel</button>
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={save}
+                disabled={saveDisabled}
+                aria-describedby={saveDisabled ? 'note-save-hint' : undefined}
+              >
+                Save
+              </button>
             </div>
           </div>
         ) : (
           <>
-            <button className={`btn-primary ${styles.newBtn}`} onClick={startNew}>+ New Note</button>
+            <button type="button" className={`btn-primary ${styles.newBtn}`} onClick={startNew}>+ New Note</button>
             <div className={styles.list}>
               {!hasBackstory && notes.length === 0 && <p className={styles.empty}>No notes yet.</p>}
               {hasBackstory && (
@@ -98,6 +113,7 @@ export default function NotesPanel({ notes, backstory = '', onChange, onBackstor
                   <div className={`${styles.noteBody} ${styles.backstoryBody}`}>{backstory}</div>
                   <div className={styles.noteActions}>
                     <button
+                      type="button"
                       className="btn-secondary"
                       onClick={startEditBackstory}
                       aria-label="Edit character backstory"
@@ -113,6 +129,7 @@ export default function NotesPanel({ notes, backstory = '', onChange, onBackstor
                   <div className={styles.noteBody}>{n.body}</div>
                   <div className={styles.noteActions}>
                     <button
+                      type="button"
                       className="btn-secondary"
                       onClick={() => startEdit(n)}
                       aria-label={`Edit note: ${n.title}`}
@@ -120,6 +137,7 @@ export default function NotesPanel({ notes, backstory = '', onChange, onBackstor
                       Edit
                     </button>
                     <button
+                      type="button"
                       className="btn-danger"
                       onClick={() => remove(n.id)}
                       aria-label={`Delete note: ${n.title}`}
