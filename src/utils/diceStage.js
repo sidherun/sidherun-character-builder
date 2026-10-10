@@ -4,6 +4,11 @@
 // mid-roll on iOS (spike finding); we own the sound layer separately (diceSound).
 const STAGE_ID = 'sidherun-dice-stage'
 let boxPromise = null
+let ready = false // true once the engine has loaded and initialised
+
+// Whether a roll can animate right now. A roll made before the engine is ready
+// skips the animation instead of waiting on the download/init (#365).
+export function diceReady() { return ready }
 
 export function stageId() { return STAGE_ID }
 
@@ -21,8 +26,9 @@ async function getBox() {
         gravity_multiplier: 400,
       })
       await box.initialize()
+      ready = true
       return box
-    })().catch((err) => { boxPromise = null; throw err }) // allow a retry after a failed init
+    })().catch((err) => { boxPromise = null; ready = false; throw err }) // allow a retry after a failed init
   }
   return boxPromise
 }
@@ -38,8 +44,9 @@ export function preloadDice() { getBox().catch(() => {}) }
 // start of the next throw).
 let clearTimer = null
 
-// Roll the given engine notation; resolves when the dice settle. Best-effort —
-// the caller swallows errors and falls back to revealing the result instantly.
+// Roll the given engine notation; resolves when the dice settle (~3s). Best-effort —
+// callers must not wait on it unboundedly: a roll interrupted by the next throw
+// never resolves (measured, #365), so PlayMode races it against a short cap.
 export async function rollDice(notation) {
   const box = await getBox()
   if (clearTimer) { clearTimeout(clearTimer); clearTimer = null }

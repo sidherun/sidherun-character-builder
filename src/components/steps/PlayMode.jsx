@@ -11,7 +11,7 @@ import { parseDamageDice, weaponDamageLabel } from '../../utils/weaponDamage.js'
 import { rollCharacterInitiative } from '../../utils/encounter.js'
 import { formatRoll, describeParts } from '../../utils/rollFormat.js'
 import { rollToDiceSpec } from '../../utils/diceNotation.js'
-import { rollDice, preloadDice } from '../../utils/diceStage.js'
+import { rollDice, preloadDice, diceReady } from '../../utils/diceStage.js'
 import { playRollSound, playSettleSound, preloadSound } from '../../utils/diceSound.js'
 import { animationsOn, soundOn, setAnimations, setSound } from '../../utils/diceSettings.js'
 import CloudStatus from '../CloudStatus.jsx'
@@ -164,10 +164,11 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
 
   // Dice rolls are ephemeral — shown in the result banner, never persisted.
   // Broadcast the result to the shared feed IMMEDIATELY (the GM never waits on a
-  // player's local animation). Then, if the 3D animation is on, tumble the dice
-  // and reveal the banner when they settle; otherwise reveal instantly. The
-  // animation/sound are a flourish — the banner + feed are the source of truth,
-  // so a failed or blocked animation still shows the result.
+  // player's local animation). Then, if the 3D animation is on and the engine is
+  // loaded, tumble the dice and reveal the banner when they settle or after
+  // REVEAL_CAP_MS, whichever is first (#365: settling takes ~3s, a cold engine
+  // or a dropped roll far longer). The dice keep tumbling after the reveal. The
+  // animation/sound are a flourish — the banner + feed are the source of truth.
   const emitRoll = (rolled) => {
     let entry = rolled
     if (rollingRef.current) return // a roll is already tumbling — ignore the repeat (#218)
@@ -178,21 +179,25 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
     // GM condition chips are reminders, not applied to totals — say so (#372).
     const conditionNote = entry.kind !== 'damage' ? conditionsNotIncluded(character.conditions) : null
     if (conditionNote) entry = { ...entry, conditionNote }
-    const spec = animOn ? rollToDiceSpec(entry) : null
+    // Engine still loading → skip the animation rather than wait on it (#365).
+    const spec = animOn && diceReady() ? rollToDiceSpec(entry) : null
     // Instant (no-animation) path: reveal + broadcast immediately, nothing to guard.
     if (!spec) {
       onRoll?.({ ...entry, ...identity })
       setLastRoll(entry)
       return
     }
-    // Animated path: hold the gate from first click until the dice settle, so a
-    // second click during the tumble can't fire or broadcast a duplicate roll.
+    // Animated path: hold the gate from first click until the result is
+    // revealed, so a double-click can't fire or broadcast a duplicate roll (#218).
+    // The gate opens at the reveal, never later, so a slow or dropped animation
+    // can't lock the roll buttons.
     rollingRef.current = true
     setRolling(true)
     onRoll?.({ ...entry, ...identity })
     if (sndOn) playRollSound()
-    rollDice(spec.notation)
-      .catch(() => {}) // engine failure → still reveal the result below
+    const settled = rollDice(spec.notation).catch(() => {}) // engine failure → reveal anyway
+    const capped = new Promise(resolve => setTimeout(resolve, REVEAL_CAP_MS))
+    Promise.race([settled, capped])
       .finally(() => {
         if (sndOn) playSettleSound()
         setLastRoll(entry)
@@ -676,6 +681,10 @@ function Counter({ label, current, total, color, onAdjust, readOnly = false, zer
 // Shared roll-result banner. For skills/attacks it shows the total to read aloud
 // (the GM adjudicates); for spells it resolves pass/fail against the known target.
 // "Not included: −10 Frightened, +5 Blessed" for conditions that carry a modifier.
+// Longest a player waits for the 3D dice before the result shows (#365). The
+// roll sound is ~1.9s; the result lands just before it ends.
+export const REVEAL_CAP_MS = 1500
+
 function conditionsNotIncluded(conditions) {
   const withMods = (conditions || []).filter(c => c.modifier != null && c.modifier !== 0)
   if (!withMods.length) return null
