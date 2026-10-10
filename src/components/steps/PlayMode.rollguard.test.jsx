@@ -9,8 +9,10 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true
 // window that WebGL (unavailable in jsdom) would otherwise make un-observable.
 // rollDice() returns a promise we resolve manually to "settle" the dice.
 const rollResolvers = []
+const engine = { ready: true } // flip per test to simulate a still-loading engine
 vi.mock('../../utils/diceStage.js', () => ({
   preloadDice: vi.fn(),
+  diceReady: () => engine.ready,
   rollDice: vi.fn(() => new Promise((res) => rollResolvers.push(res))),
 }))
 vi.mock('../../utils/diceSound.js', () => ({
@@ -23,7 +25,8 @@ vi.mock('../../utils/diceSettings.js', () => ({
 // The overlay would touch canvas/WebGL on mount; not needed for this test.
 vi.mock('../DiceOverlay.jsx', () => ({ default: () => null }))
 
-import PlayMode from './PlayMode.jsx'
+import PlayMode, { REVEAL_CAP_MS } from './PlayMode.jsx'
+import { rollDice } from '../../utils/diceStage.js'
 
 const D = () => ({ skillBonus: 0, misc: 0 })
 const character = () => ({
@@ -45,6 +48,7 @@ const character = () => ({
 let container, root
 beforeEach(() => {
   rollResolvers.length = 0
+  engine.ready = true
   container = document.createElement('div')
   document.body.appendChild(container)
   root = createRoot(container)
@@ -223,5 +227,53 @@ describe('Roll banner explains its numbers (#372)', () => {
     })
     expect(attackButton().getAttribute('aria-label')).toBe('Attack with Quarterstaff: d100 + 2, modifier included')
     expect(attackButton().title).toBe("d100 + 2 (weapon skill 2) · Strength 3 not added (doesn't stack)")
+  })
+})
+
+describe('Dice result speed (#365)', () => {
+  const banner = () => container.querySelector('[role="status"][aria-live="polite"]')
+  const render = async (onRoll = () => {}) => {
+    await act(async () => {
+      root.render(<PlayMode character={character()} onUpdate={() => {}} onExit={() => {}} onToggleNotes={() => {}} onRoll={onRoll} />)
+    })
+  }
+  afterEach(() => { vi.useRealTimers() })
+
+  it('shows the result after the cap even if the dice never settle, and reopens the gate', async () => {
+    vi.useFakeTimers()
+    vi.spyOn(Math, 'random').mockReturnValue(0.5)
+    const onRoll = vi.fn()
+    await render(onRoll)
+    await act(async () => { attackButton().click() })
+    expect(banner()).toBeNull() // still tumbling
+    expect(attackButton().disabled).toBe(true)
+
+    await act(async () => { vi.advanceTimersByTime(REVEAL_CAP_MS - 1) })
+    expect(banner()).toBeNull()
+    await act(async () => { vi.advanceTimersByTime(1); await Promise.resolve() })
+    expect(banner().textContent).toContain('Quarterstaff') // revealed without a settle
+    expect(attackButton().disabled).toBe(false)
+
+    // The next roll works even though the first animation never resolved.
+    await act(async () => { attackButton().click() })
+    expect(onRoll).toHaveBeenCalledTimes(2)
+  })
+
+  it('shows the result as soon as the dice settle when that is before the cap', async () => {
+    vi.useFakeTimers()
+    await render()
+    await act(async () => { attackButton().click() })
+    await act(async () => { vi.advanceTimersByTime(300); rollResolvers.forEach(r => r()); await Promise.resolve(); await Promise.resolve() })
+    expect(banner()).not.toBeNull()
+  })
+
+  it('skips the animation and shows the result instantly while the engine is still loading', async () => {
+    engine.ready = false
+    rollDice.mockClear()
+    await render()
+    await act(async () => { attackButton().click() })
+    expect(rollDice).not.toHaveBeenCalled()
+    expect(banner()).not.toBeNull()
+    expect(attackButton().disabled).toBe(false)
   })
 })
