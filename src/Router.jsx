@@ -87,16 +87,16 @@ export default function Router() {
   }
 
   if (route === 'login') return <LoginPage />
-  if (route === 'roster') return <RosterPage onNavigate={navigate} theme={theme} onToggleTheme={toggleTheme} />
-  if (route === 'gm') return <GMScreen onNavigate={navigate} theme={theme} onToggleTheme={toggleTheme} />
-  if (route === 'admin') return <AdminRoles onNavigate={navigate} theme={theme} onToggleTheme={toggleTheme} />
+  if (route === 'roster') return <RosterPage key={user?.id || 'guest'} onNavigate={navigate} theme={theme} onToggleTheme={toggleTheme} />
+  if (route === 'gm') return <GMScreen key={user?.id || 'guest'} onNavigate={navigate} theme={theme} onToggleTheme={toggleTheme} />
+  if (route === 'admin') return <AdminRoles key={user?.id || 'guest'} onNavigate={navigate} theme={theme} onToggleTheme={toggleTheme} />
   return (
     <App
       // Key by the hash so navigating into a #play=/#c= link (an in-session
       // hash change, not a full reload) remounts App and re-initializes its
       // mount-time state (playMode, cloudLoading). Without this, isPlayMode
       // stays stuck at its first-mount value and Play Mode never shows.
-      key={hash || 'app'}
+      key={`${hash || 'app'}:${user?.id || 'guest'}`}
       onNavigate={navigate}
       shareMode={route === 'share'}
       playMode={route === 'play'}

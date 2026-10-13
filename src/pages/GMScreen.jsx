@@ -428,7 +428,7 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
     // Open the existing roster character in Play Mode directly (bare #play loads
     // the current slot). Cloud sync + realtime still work via its own _rosterId,
     // and we avoid routing through #c= which would create a duplicate entry.
-    saveCurrent({ ...fresh, wizardStep: 9 })
+    saveCurrent({ ...fresh, wizardStep: 9 }, user?.id)
     onNavigate('play')
   }
 

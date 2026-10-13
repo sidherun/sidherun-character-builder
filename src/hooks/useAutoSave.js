@@ -9,7 +9,7 @@ import { saveCurrent, saveCharacterToRoster } from '../utils/rosterStorage.js'
 // Always writes the immediate "current draft" slot. The roster write is
 // debounced, and any pending roster write is flushed on unmount so navigating
 // away within the debounce window never leaves the roster entry stale.
-export function useAutoSave(character) {
+export function useAutoSave(character, accountId = null) {
   const [status, setStatus] = useState('idle')
   const timerRef = useRef(null)
   const charRef = useRef(character)
@@ -18,7 +18,7 @@ export function useAutoSave(character) {
   const eligible = (c) => Boolean(c?.name?.trim() && c?._rosterId)
 
   useEffect(() => {
-    saveCurrent(character)
+    saveCurrent(character, accountId)
     if (!eligible(character)) {
       setStatus('unsaved')
       return
@@ -30,7 +30,7 @@ export function useAutoSave(character) {
       setStatus('saved')
     }, 1500)
     return () => clearTimeout(timerRef.current)
-  }, [character])
+  }, [character, accountId])
 
   // Flush a pending roster save on unmount (e.g. navigating away mid-debounce).
   useEffect(() => () => {

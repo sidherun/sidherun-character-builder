@@ -91,6 +91,10 @@ The **Account** control on signed-in screens shows your email address and lets
 you sign out or change accounts in this browser. Other devices stay signed in.
 If a page requires a GM or admin role, the app explains the restriction and
 offers account switching or a return to your roster.
+Current drafts are stored separately for each signed-in account. A newly
+invited player starts with their own empty roster and draft. Older browser-wide
+drafts remain in local storage but are not automatically opened after sign-in;
+load saved characters from your roster.
 
 Finishing the wizard with **Complete** saves the character and opens its
 character sheet. A new character is not added to the roster before that step.

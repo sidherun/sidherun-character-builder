@@ -291,7 +291,7 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
     // current draft so App mounts fresh: with no _rosterId it's create mode and
     // shows Welcome, rather than re-opening the last character as a sheet
     // (manage mode keys off _rosterId). Saved roster characters are untouched.
-    clearCurrent()
+    clearCurrent(user?.id)
     onNavigate('app')
   }
 
@@ -302,7 +302,7 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
       // step the character was saved at. A character at step 1 (e.g. an import
       // that omitted wizardStep, which the schema defaults to 1) would otherwise
       // land on the welcome screen instead of the sheet.
-      saveCurrent({ ...char, wizardStep: 9 })
+      saveCurrent({ ...char, wizardStep: 9 }, user?.id)
       onNavigate('app')
     }
   }
@@ -353,7 +353,7 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
   // character (loadCurrent) instead of starting blank. The roster entries
   // themselves are untouched.
   function handleNew() {
-    clearCurrent()
+    clearCurrent(user?.id)
     onNavigate('app')
   }
 

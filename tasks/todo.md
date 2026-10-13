@@ -118,3 +118,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Session Notes save a body-only note (first line becomes the title) so Save is not a dead button (#371) | #386 | 2026-10-02 |
 | First-character inserts resolve the home campaign without the inserting player's campaign visibility (#387) | #388 | 2026-10-10 |
 | Invited-email login guidance, resend/change-email, shared account controls and safe return destinations (#367) | #389 | 2026-10-12 |
+| Isolate current character drafts by signed-in account and remount views when identity changes (#390) | #389 | 2026-10-12 |
