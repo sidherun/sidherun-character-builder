@@ -1,5 +1,6 @@
 import RosterMoreActions from '../components/RosterMoreActions.jsx'
 import AccountControls from '../components/AccountControls.jsx'
+import RestoreDialog from '../components/RestoreDialog.jsx'
 import { useState, useRef, useEffect } from 'react'
 import { loadRoster, deleteCharacterFromRoster, loadCharacterFromRoster, saveCharacterToRoster, saveCurrent, clearCurrent } from '../utils/rosterStorage.js'
 import { openCharacterPrintWindow } from '../utils/printCharacters.js'
@@ -50,6 +51,9 @@ function withMembership(character, membership) {
 export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
   const { user, role } = useAuth()
   const useRepo = repoEnabled()
+  const [restorePreview, setRestorePreview] = useState(null)
+  const [restorePreparing, setRestorePreparing] = useState(false)
+  const restoreReading = useRef(false)
   const [roster, setRoster] = useState(() => (useRepo ? [] : loadRoster()))
   // Full characters by id (repo path), so onGetCharacter/handleLoad have the blob.
   const repoCharsRef = useRef({})
@@ -76,6 +80,7 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
     const byId = Object.fromEntries(chars.map(c => [c._rosterId, c]))
     setRoster(chars.map(toEntry))
     repoCharsRef.current = byId
+    return chars
   }
 
   const getCharacter = useRepo ? (id => repoCharsRef.current[id] || null) : loadCharacterFromRoster
@@ -267,6 +272,9 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
     const files = Array.from(e.target.files || [])
     e.target.value = ''
     if (files.length === 0) return
+    if (restoreReading.current || restorePreview) return
+    restoreReading.current = true
+    setRestorePreparing(true)
     const candidates = []
     let unreadable = 0
     for (const f of files) {
@@ -274,17 +282,49 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
         const parsed = JSON.parse(await f.text())
         candidates.push(...extractCharacters(parsed))
         const cloudState = extractCloudState(parsed)
-        importCloudState(cloudState) // restore GM key + cloud map if present
-        if (cloudState.tables) setLocalTables(importTables(cloudState.tables)) // restore table registry (#175)
+        if (!useRepo) {
+          importCloudState(cloudState) // guest-only credentials stay on their own plane
+          if (cloudState.tables) setLocalTables(importTables(cloudState.tables))
+        }
       } catch { unreadable++ }
     }
     const { valid, invalid } = validateCharacters(candidates)
+    if (useRepo) {
+      try {
+        const existing = await refreshRepo()
+        const characters = valid.filter(character => character.name.trim())
+        setRestorePreview({ characters, existing, invalid: invalid + valid.length - characters.length, unreadable })
+      } catch {
+        setStatus('Could not load your cloud roster. Nothing was restored. Please try again.')
+      } finally {
+        restoreReading.current = false
+        setRestorePreparing(false)
+      }
+      return
+    }
     valid.forEach(saveCharacterToRoster)
     setRoster(loadRoster())
     const parts = [`Restored ${valid.length} character${valid.length === 1 ? '' : 's'}.`]
     if (invalid) parts.push(`${invalid} invalid skipped.`)
     if (unreadable) parts.push(`${unreadable} unreadable file${unreadable === 1 ? '' : 's'}.`)
     setStatus(parts.join(' '))
+    restoreReading.current = false
+    setRestorePreparing(false)
+  }
+
+  async function finishCloudRestore(results) {
+    const saved = results.filter(result => result.status === 'saved').length
+    const failed = results.filter(result => result.status === 'failed').length
+    const summary = `${saved} saved to the cloud. ${failed} failed.`
+    try {
+      await refreshRepo()
+      setStatus(summary)
+      return null
+    } catch {
+      const message = `${summary} Could not refresh the roster. Reload to see the cloud records.`
+      setStatus(message)
+      return message
+    }
   }
 
   function handleGoHome() {
@@ -399,7 +439,7 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
                 Back up all
               </button>
             )}
-            <button className="btn-secondary" onClick={() => restoreRef.current?.click()}>
+            <button className="btn-secondary" disabled={restorePreparing || Boolean(restorePreview)} onClick={() => restoreRef.current?.click()}>
               Restore…
             </button>
             {cloudEnabled && !useRepo && (
@@ -446,7 +486,7 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
               <button className="btn-primary" onClick={handleNew}>
                 Create Your First Character
               </button>
-              <button className="btn-secondary" onClick={() => restoreRef.current?.click()}>
+              <button className="btn-secondary" disabled={restorePreparing || Boolean(restorePreview)} onClick={() => restoreRef.current?.click()}>
                 Restore from backup
               </button>
             </div>
@@ -512,6 +552,8 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
           )
         })()}
       </main>
+      {restorePreparing && <p role="status">Reading backup and loading your roster…</p>}
+      {restorePreview && <RestoreDialog preview={restorePreview} userId={user?.id} onFinish={finishCloudRestore} onClose={() => setRestorePreview(null)} />}
       {printMode && (
         <PrintDialog
           mode={printMode}

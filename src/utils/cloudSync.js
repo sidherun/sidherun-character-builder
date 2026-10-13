@@ -140,6 +140,7 @@ export function dataSignature(c) {
   delete x._assignedPlayerId
   delete x._campaignId
   delete x._dataRev
+  delete x._liveRev
   delete x._updatedAt
   delete x.wizardStep
   if (x.hitPoints)   delete x.hitPoints.current
