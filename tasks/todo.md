@@ -121,4 +121,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Isolate current character drafts by signed-in account and remount views when identity changes (#390) | #389 | 2026-10-12 |
 | Compact DM roster banner: secondary actions under More, preserved role permissions (#392) | #393 | 2026-10-12 |
 | Authenticated Restore defaults to new cloud copies; explicit confirmed replacement restores data + counters with revision guards (#337) | #391 | 2026-10-12 |
-| Required CI before merge: validate (lint, Vitest, build), Playwright smoke on Chromium/Firefox/WebKit, Pages deploy waits on that CI (#339) | #339 | 2026-10-13 |
+| Required CI before merge: validate (lint, Vitest, build), Playwright smoke on Chromium/Firefox/WebKit, Pages deploy waits on that CI (#339) | #394 | 2026-10-13 |
