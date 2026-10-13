@@ -5,7 +5,7 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 
 export default [
-  { ignores: ['dist', 'node_modules'] },
+  { ignores: ['dist', 'node_modules', 'playwright-report', 'test-results', 'blob-report'] },
   {
     files: ['**/*.{js,jsx}'],
     languageOptions: {
@@ -55,7 +55,7 @@ export default [
   },
   {
     // Vite/Node config files
-    files: ['vite.config.js', 'eslint.config.js'],
+    files: ['vite.config.js', 'eslint.config.js', 'playwright.config.js'],
     languageOptions: { globals: globals.node },
   },
 ]

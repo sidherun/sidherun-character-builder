@@ -7,5 +7,14 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
+    // Playwright specs live in e2e/ and start a browser. Keep them out of Vitest.
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/cypress/**',
+      '**/.{idea,git,cache,output,temp}/**',
+      '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*',
+      'e2e/**',
+    ],
   },
 })
