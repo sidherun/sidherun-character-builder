@@ -120,3 +120,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Invited-email login guidance, resend/change-email, shared account controls and safe return destinations (#367) | #389 | 2026-10-12 |
 | Isolate current character drafts by signed-in account and remount views when identity changes (#390) | #389 | 2026-10-12 |
 | Compact DM roster banner: secondary actions under More, preserved role permissions (#392) | #393 | 2026-10-12 |
+| Authenticated Restore defaults to new cloud copies; explicit confirmed replacement restores data + counters with revision guards (#337) | #391 | 2026-10-12 |
