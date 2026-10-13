@@ -32,6 +32,8 @@ const { fake, controls } = vi.hoisted(() => {
 
   const fake = {
     auth: {
+      signInWithOtp: vi.fn().mockResolvedValue({ error: null }),
+      signOut: vi.fn().mockResolvedValue({ error: null }),
       getSession: (...args) => getSessionImpl(...args),
       onAuthStateChange: (cb) => {
         listeners.push(cb)
@@ -71,7 +73,39 @@ function renderProbe() {
 
 beforeEach(() => {
   controls.reset()
+  fake.auth.signOut.mockReset().mockResolvedValue({ error: null })
+  fake.auth.signInWithOtp.mockReset().mockResolvedValue({ error: null })
+  window.history.replaceState(null, '', '/')
+  sessionStorage.clear()
   vi.spyOn(console, 'error').mockImplementation(() => {})
+})
+
+describe('AuthProvider login and logout', () => {
+  it('includes the allowed return destination in the emailed callback', async () => {
+    const probe = renderProbe()
+    await act(async () => {})
+    window.history.replaceState(null, '', '/?returnTo=gm#login')
+    await act(async () => probe.getAuth().signIn('gm@example.com'))
+    const options = fake.auth.signInWithOtp.mock.calls[0][0].options
+    expect(options.shouldCreateUser).toBe(false)
+    expect(new URL(options.emailRedirectTo).searchParams.get('returnTo')).toBe('gm')
+    expect(new URL(options.emailRedirectTo).hash).toBe('')
+    act(() => probe.root.unmount())
+  })
+
+  it('keeps the account when logout fails and signs out this browser on success', async () => {
+    const probe = renderProbe()
+    await act(async () => {})
+    fake.auth.signOut.mockResolvedValueOnce({ error: new Error('offline') })
+    await act(async () => {
+      await expect(probe.getAuth().signOut()).rejects.toThrow('offline')
+    })
+    expect(probe.getAuth().user.id).toBe('u1')
+    await act(async () => probe.getAuth().signOut())
+    expect(fake.auth.signOut).toHaveBeenLastCalledWith({ scope: 'local' })
+    expect(probe.getAuth().user).toBeNull()
+    act(() => probe.root.unmount())
+  })
 })
 
 afterEach(() => {

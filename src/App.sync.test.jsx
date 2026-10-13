@@ -10,6 +10,7 @@ const h = vi.hoisted(() => ({
   subscribeLive: vi.fn(),
   saveRoster: vi.fn(),
   saveCurrent: vi.fn(),
+  loadCurrent: vi.fn(),
   dataNudge: null,
   user: { id: 'owner' },
   initialCharacter: {
@@ -30,7 +31,7 @@ const h = vi.hoisted(() => ({
 const initialCharacter = h.initialCharacter
 
 vi.mock('./utils/rosterStorage.js', () => ({
-  loadCurrent: () => h.cached,
+  loadCurrent: h.loadCurrent,
   saveCharacterToRoster: c => {
     h.cached = { ...c }
     h.saveRoster(c)
@@ -113,6 +114,7 @@ beforeEach(() => {
   appCharacterSyncScopes.reset()
   h.user = { id: 'owner' }
   h.cached = { ...h.initialCharacter }
+  h.loadCurrent.mockReset().mockImplementation(() => h.cached)
   h.saveRoster.mockReset()
   h.saveCurrent.mockReset()
   h.getCharacter.mockReset().mockResolvedValue(null)
@@ -257,7 +259,7 @@ describe('App authenticated sync coordination', () => {
     await act(async () => { click(rendered.container, 'Edit one'); await Promise.resolve() })
     await act(async () => { await vi.advanceTimersByTimeAsync(1200); await Promise.resolve() })
     expect(h.cached._dataRev).toBe(5)
-    expect(h.saveCurrent).toHaveBeenCalledWith(expect.objectContaining({ _dataRev: 5 }))
+    expect(h.saveCurrent).toHaveBeenCalledWith(expect.objectContaining({ _dataRev: 5 }), 'owner')
     act(() => rendered.root.unmount())
 
     rendered = await renderApp()
@@ -316,5 +318,23 @@ describe('App authenticated sync coordination', () => {
     expect(h.saveRoster).not.toHaveBeenCalled()
     expect(h.saveCurrent).not.toHaveBeenCalled()
     act(() => root.unmount())
+  })
+})
+
+describe('App account draft selection (#390)', () => {
+  it('opens a blank new-account sheet instead of another account’s cached Oryn', async () => {
+    h.cached = { ...initialCharacter, name: 'Oryn Vesh' }
+    h.loadCurrent.mockImplementation(accountId => accountId === 'owner' ? h.cached : null)
+    h.user = { id: 'new-player' }
+    const rendered = await renderApp()
+    expect(h.loadCurrent).toHaveBeenCalledWith('new-player')
+    expect(rendered.container.textContent).not.toContain('Oryn Vesh')
+    await act(async () => { await vi.advanceTimersByTimeAsync(2000) })
+    expect(h.saveCharacterData).not.toHaveBeenCalled()
+    act(() => rendered.root.unmount())
+    h.user = { id: 'owner' }
+    const returned = await renderApp()
+    expect(returned.container.textContent).toContain('Oryn Vesh')
+    act(() => returned.root.unmount())
   })
 })

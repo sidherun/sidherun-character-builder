@@ -1,3 +1,4 @@
+import AccountControls from '../components/AccountControls.jsx'
 import { useState, useEffect, useMemo } from 'react'
 import { useAuth, isAdmin } from '../auth/useAuth.js'
 import { listPlayers, setDisplayName, setUserRole } from '../utils/characterRepo.js'
@@ -13,7 +14,7 @@ const ROLES = ['player', 'gm', 'admin']
 // is rejected and surfaced. Router gates this route to admins; the check here is
 // a defensive backstop.
 export default function AdminRoles({ onNavigate, theme, onToggleTheme }) {
-  const { user, role, signOut } = useAuth()
+  const { user, role } = useAuth()
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [query, setQuery] = useState('')
@@ -106,7 +107,7 @@ export default function AdminRoles({ onNavigate, theme, onToggleTheme }) {
             <button className="btn-secondary" onClick={onToggleTheme}>{theme === 'dark' ? 'Light' : 'Dark'}</button>
           )}
           <button className="btn-secondary" onClick={() => onNavigate('roster')}>Roster</button>
-          <button className="btn-secondary" onClick={() => { signOut(); onNavigate('app') }}>Sign out</button>
+          <AccountControls />
         </div>
       </header>
 

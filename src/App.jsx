@@ -1,3 +1,4 @@
+import AccountControls from './components/AccountControls.jsx'
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { createDefaultCharacter } from './utils/defaultCharacter.js'
 import { loadCurrent, saveCharacterToRoster, saveCurrent, loadCharacterFromRoster, loadRoster, getLastSaveStatus } from './utils/rosterStorage.js'
@@ -64,6 +65,12 @@ function visibleSteps(hasPowers, hasMagic) {
 }
 
 export default function App({ onNavigate, shareMode, playMode, theme, onToggleTheme }) {
+  const { user, role, loading: authLoading } = useAuth()
+  // Explicit guest links keep their own guest behavior. Ordinary signed-in
+  // sheets and drafts never fall back to another account's browser-wide slot.
+  const explicitGuestLink = window.location.hash.startsWith('#c=')
+    || window.location.hash.startsWith('#play=') || window.location.hash.startsWith('#share=')
+  const draftAccountId = explicitGuestLink ? null : (user?.id || null)
   // Cloud link (#c=<id>~<token>): references a server row instead of embedding
   // the character. Routed to Play Mode (Router maps #c= → 'play').
   const cloud = (shareMode || playMode) ? parseCloudLink() : null
@@ -80,7 +87,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
       // below refreshes from the cloud. First open shows a brief loading state.
       registerCloudLink(cloudRosterId, cloud)
       const existing = loadCharacterFromRoster(cloudRosterId)
-      if (existing) { saveCurrent(existing); return existing }
+      if (existing) { saveCurrent(existing, draftAccountId); return existing }
       return { ...createDefaultCharacter(), _rosterId: cloudRosterId }
     }
     if (shareMode || playMode) {
@@ -96,30 +103,29 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
             const playId = getPlayLinkId()
             const existing = playId ? loadCharacterFromRoster(playId) : null
             if (existing) {
-              saveCurrent(existing)
+              saveCurrent(existing, draftAccountId)
               return existing
             }
             const seeded = playId ? { ...result.data, _rosterId: playId } : result.data
             const saved = saveCharacterToRoster(seeded)
-            saveCurrent(saved)
+            saveCurrent(saved, draftAccountId)
             return saved
           }
           return result.data
         }
       }
     }
-    return loadCurrent() || createDefaultCharacter()
+    return loadCurrent(draftAccountId) || createDefaultCharacter()
   })
 
   const [cloudLoading, setCloudLoading] = useState(
     Boolean(cloud && playMode && !loadCharacterFromRoster(cloudRosterId)),
   )
 
-  const { user, role, loading: authLoading } = useAuth()
   const { isPlayMode, enterPlayMode, exitPlayMode } = usePlayMode(playMode)
   const { isNotesOpen, toggleNotes, closeNotes }    = useNotesPanel()
   const { toasts, addToast, removeToast }           = useToast()
-  const { startNew, loadFromRoster }                = useCharacterManagement(setCharacter)
+  const { startNew, loadFromRoster }                = useCharacterManagement(setCharacter, draftAccountId)
 
   // 'create' = the guided wizard (a new character); 'manage' = the character
   // sheet for an existing one (read view + per-section editors). Seeded from
@@ -158,7 +164,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
     return () => { mountedRef.current = false }
   }, [])
 
-  const saveStatus = useAutoSave(character)
+  const saveStatus = useAutoSave(character, draftAccountId)
   const cloudWritePlane = useCloudSync(character, {
     user,
     authLoading,
@@ -376,9 +382,9 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
             // creating another cloud save.
             const revised = { ...snapshot, ...metadata }
             saveCharacterToRoster(revised)
-            const cachedCurrent = loadCurrent()
+            const cachedCurrent = loadCurrent(draftAccountId)
             if (cachedCurrent?._rosterId === rosterId && dataSignature(cachedCurrent) === sig) {
-              saveCurrent(revised)
+              saveCurrent(revised, draftAccountId)
             }
             if (mountedRef.current) {
               setCharacter(prev => (
@@ -397,7 +403,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
       delay: 1200,
       run: push,
     })
-  }, [character, user, useRepoPlane, addToast, pendingWrites, dataRevisions, syncScope])
+  }, [character, user, useRepoPlane, addToast, pendingWrites, dataRevisions, syncScope, draftAccountId])
 
   // A character switch flushes only the character being left. The coordinator
   // consumes callbacks before starting them, so a later pagehide cannot replay A
@@ -493,7 +499,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
             // "Z", so a string compare would be wrong.
             if (!entry || Date.parse(res.updatedAt) > Date.parse(entry.savedAt)) {
               const saved = saveCharacterToRoster({ ...parsed.data, _rosterId: cloudRosterId })
-              saveCurrent(saved)
+              saveCurrent(saved, draftAccountId)
               setCharacter(saved)
             }
           }
@@ -502,7 +508,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
       })
       .catch(() => { if (alive) setCloudLoading(false) })
     return () => { alive = false }
-  }, [cloudId, cloudToken, playMode, cloudRosterId])
+  }, [cloudId, cloudToken, playMode, cloudRosterId, draftAccountId])
 
   const update = useCallback((patch) => {
     setCharacter(prev => ({ ...prev, ...patch }))
@@ -681,6 +687,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
                   </button>
                 )}
                 <div className={styles.headerActions}>
+                  <AccountControls />
                   {(saveStatus === 'saving' || saveStatus === 'saved') && (
                     <span className={styles.saveStatus}>{saveStatus === 'saving' ? 'Saving…' : 'Saved ✓'}</span>
                   )}
@@ -759,6 +766,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
             tabIndex={-1}
             aria-label="Character creation step"
           >
+            <div className={styles.headerActions}><AccountControls /></div>
             {guideOn && <OnboardingTip step={character.wizardStep} onDismiss={dismissGuide} />}
             <StepComponent
               character={character}
@@ -786,6 +794,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
                   <span className={styles.brandSub}>Character Builder</span>
                 </button>
                 <div className={styles.headerActions}>
+                  <AccountControls />
                   {(saveStatus === 'saving' || saveStatus === 'saved') && (
                     <span className={styles.saveStatus}>{saveStatus === 'saving' ? 'Saving…' : 'Saved ✓'}</span>
                   )}

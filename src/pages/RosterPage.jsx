@@ -1,3 +1,4 @@
+import AccountControls from '../components/AccountControls.jsx'
 import { useState, useRef, useEffect } from 'react'
 import { loadRoster, deleteCharacterFromRoster, loadCharacterFromRoster, saveCharacterToRoster, saveCurrent, clearCurrent } from '../utils/rosterStorage.js'
 import { openCharacterPrintWindow } from '../utils/printCharacters.js'
@@ -46,7 +47,7 @@ function withMembership(character, membership) {
 }
 
 export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
-  const { user, role, signOut } = useAuth()
+  const { user, role } = useAuth()
   const useRepo = repoEnabled()
   const [roster, setRoster] = useState(() => (useRepo ? [] : loadRoster()))
   // Full characters by id (repo path), so onGetCharacter/handleLoad have the blob.
@@ -290,7 +291,7 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
     // current draft so App mounts fresh: with no _rosterId it's create mode and
     // shows Welcome, rather than re-opening the last character as a sheet
     // (manage mode keys off _rosterId). Saved roster characters are untouched.
-    clearCurrent()
+    clearCurrent(user?.id)
     onNavigate('app')
   }
 
@@ -301,7 +302,7 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
       // step the character was saved at. A character at step 1 (e.g. an import
       // that omitted wizardStep, which the schema defaults to 1) would otherwise
       // land on the welcome screen instead of the sheet.
-      saveCurrent({ ...char, wizardStep: 9 })
+      saveCurrent({ ...char, wizardStep: 9 }, user?.id)
       onNavigate('app')
     }
   }
@@ -352,7 +353,7 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
   // character (loadCurrent) instead of starting blank. The roster entries
   // themselves are untouched.
   function handleNew() {
-    clearCurrent()
+    clearCurrent(user?.id)
     onNavigate('app')
   }
 
@@ -407,11 +408,7 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
           <button className="btn-primary" onClick={handleNew}>
             + New Character
           </button>
-          {useRepo && (
-            <button className="btn-secondary" onClick={() => { signOut(); onNavigate('app') }}>
-              Sign out
-            </button>
-          )}
+          <AccountControls />
           <input
             ref={restoreRef}
             type="file"

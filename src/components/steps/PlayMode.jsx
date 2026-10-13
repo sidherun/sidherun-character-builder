@@ -1,3 +1,4 @@
+import AccountControls from '../AccountControls.jsx'
 import { useState, useEffect, useRef, Fragment } from 'react'
 import { useFocusOnAdd } from '../../hooks/useFocusOnAdd.js'
 import { calcDefense, calcSkillTotal, attrTotal } from '../../utils/characterDerived.js'
@@ -266,6 +267,7 @@ export default function PlayMode({ character, onUpdate, onExit, onToggleNotes, t
           )}
         </div>
         <div className={styles.headerActions}>
+          <AccountControls />
           <CloudStatus />
           <button className="btn-secondary" style={{ opacity: animOn ? 1 : 0.4 }} aria-pressed={animOn}
             title={animOn ? '3D dice animation on' : '3D dice animation off'}

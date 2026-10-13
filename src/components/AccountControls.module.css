@@ -1,0 +1,5 @@
+.account { position: relative; color: var(--ink-900); font-size: 0.875rem; }
+.account summary { cursor: pointer; padding: 0.6rem; min-height: 44px; box-sizing: border-box; }
+.panel { position: absolute; right: 0; top: 100%; z-index: 50; width: min(20rem, 80vw); padding: 1rem; background: var(--card); border: 1px solid var(--ink-400); border-radius: 0.5rem; display: grid; gap: 0.75rem; box-shadow: 0 0.5rem 1.5rem var(--bg); }
+.panel strong { overflow-wrap: anywhere; }
+.panel p { color: var(--danger); margin: 0; }

@@ -10,6 +10,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [state, setState] = useState('idle') // idle | sending | sent | error
   const [error, setError] = useState('')
+  const [sentEmail, setSentEmail] = useState('')
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -17,12 +18,14 @@ export default function LoginPage() {
     if (!addr) return
     setState('sending')
     setError('')
-    const { error: err } = await signIn(addr)
-    if (err) {
+    try {
+      const { error: err } = await signIn(addr)
+      if (err) throw err
+      setSentEmail(addr)
+      setState('sent')
+    } catch (err) {
       setState('error')
       setError(friendlyAuthError(err))
-    } else {
-      setState('sent')
     }
   }
 
@@ -31,12 +34,27 @@ export default function LoginPage() {
       <div className={styles.card}>
         <h1 className={styles.brand}>Sidherun</h1>
         <p className={styles.subtitle}>Sign in to reach your characters</p>
+        <p className={styles.detail}>
+          Access is invitation-only. Use the email address your GM invited.
+          We’ll email you a sign-in link; no password or new account is needed.
+          Open the link in the browser where you want to play.
+        </p>
 
-        {state === 'sent' ? (
+        {sentEmail ? (
+          <div className={styles.form}>
           <p className={styles.sent} role="status">
-            Check <strong>{email}</strong> for a sign-in link. Open it on this
-            device to continue.
+            {state === 'sending' ? 'Sending another link to ' : 'Check '}
+            <strong>{sentEmail}</strong> for a sign-in link. Check your spam folder
+            if it hasn’t arrived. Use the most recent link.
           </p>
+          <button type="button" className="btn-primary" disabled={state === 'sending'} onClick={handleSubmit}>
+            {state === 'sending' ? 'Sending…' : 'Resend sign-in link'}
+          </button>
+          <button type="button" className="btn-secondary" disabled={state === 'sending'} onClick={() => {
+            setSentEmail(''); setState('idle'); setError('')
+          }}>Use a different email</button>
+          {error && <p className={styles.error} role="alert">{error}</p>}
+          </div>
         ) : (
           <form className={styles.form} onSubmit={handleSubmit}>
             <input
@@ -47,6 +65,7 @@ export default function LoginPage() {
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
+              disabled={state === 'sending'}
               aria-label="Email address"
             />
             <button className="btn-primary" type="submit" disabled={state === 'sending'}>

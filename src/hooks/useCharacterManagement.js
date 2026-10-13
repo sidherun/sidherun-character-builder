@@ -8,11 +8,11 @@ import { decodeCharacterFromURL } from '../utils/urlState.js'
 import { createDefaultCharacter } from '../utils/defaultCharacter.js'
 import { safeParseCharacter } from '../utils/characterSchema.js'
 
-export function useCharacterManagement(setCharacter) {
+export function useCharacterManagement(setCharacter, accountId = null) {
   const startNew = useCallback(() => {
-    clearCurrent()
+    clearCurrent(accountId)
     setCharacter(createDefaultCharacter())
-  }, [setCharacter])
+  }, [setCharacter, accountId])
 
   const loadFromRoster = useCallback(id => {
     const data = loadCharacterFromRoster(id)
