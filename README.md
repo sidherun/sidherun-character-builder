@@ -109,6 +109,8 @@ The roster is the campaign hub. From there you can:
 - use **Back up all** to preserve the roster and guest-link credentials; and
 - as an admin, open **Manage Roles** to update display names and account roles.
 
+**DM roster banner:** GM Screen, Tables, and New Character stay visible alongside Account. Open **More** for theme switching, Print, Back up all, Restore, and (for admins) Manage Roles. The guest roster also groups these secondary actions; signed-in player controls remain directly visible.
+
 New accounts are invitation-only. Add players through Supabase Authentication,
 then assign their role and characters in the app. The complete account setup and
 first-admin procedure live in the [Supabase runbook](supabase/README.md).

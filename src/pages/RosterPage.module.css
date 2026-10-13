@@ -128,3 +128,6 @@
   font-style: italic;
   font-size: 15px;
 }
+
+.header .actions { align-items: center; }
+.header .actions > button { min-height: 44px; }
