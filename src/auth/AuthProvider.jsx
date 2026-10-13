@@ -3,6 +3,7 @@
 // (supabase === null), it yields a stable anonymous value so the app behaves
 // exactly like the localStorage-only build — the guest plane is unaffected.
 import { createContext, useEffect, useState, useCallback } from 'react'
+import { signInRedirectUrl } from './returnDestination.js'
 import {
   supabase,
   authEnabled,
@@ -138,14 +139,15 @@ export function AuthProvider({ children }) {
         // server-side gate is Supabase's "disable new sign-ups" setting — see
         // README (auth section); this is the app-side half of that lockdown (#209).
         shouldCreateUser: false,
-        emailRedirectTo: window.location.origin + window.location.pathname,
+        emailRedirectTo: signInRedirectUrl(),
       },
     })
   }, [])
 
   const signOut = useCallback(async () => {
     if (!supabase) return
-    await supabase.auth.signOut()
+    const { error } = await supabase.auth.signOut({ scope: 'local' })
+    if (error) throw error
     setUser(null)
     setProfile(null)
   }, [])

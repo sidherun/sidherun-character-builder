@@ -78,10 +78,19 @@ characters, while GMs manage rosters, encounters, conditions, and shared rolls.
 1. Open the [hosted app](https://character-builder.sidherun.com/).
 2. Sign in with the email address invited by your GM. An existing play or live
    link opens without an account.
+   Use **Resend sign-in link** if the email has not arrived, or **Use a different
+   email** to correct the address. Open the newest link in the browser where
+   you want to play. Sign-in returns you to the requested app page; opening
+   the sign-in page directly defaults to your roster.
 3. Create a character with the wizard, or choose **Load** from the roster.
 4. Use **Enter Play Mode** during a session. Every saved section remains
    editable from the character sheet or Play Mode.
 5. Export JSON when you want a portable character backup.
+
+The **Account** control on signed-in screens shows your email address and lets
+you sign out or change accounts in this browser. Other devices stay signed in.
+If a page requires a GM or admin role, the app explains the restriction and
+offers account switching or a return to your roster.
 
 Finishing the wizard with **Complete** saves the character and opens its
 character sheet. A new character is not added to the roster before that step.

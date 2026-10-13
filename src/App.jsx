@@ -1,3 +1,4 @@
+import AccountControls from './components/AccountControls.jsx'
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { createDefaultCharacter } from './utils/defaultCharacter.js'
 import { loadCurrent, saveCharacterToRoster, saveCurrent, loadCharacterFromRoster, loadRoster, getLastSaveStatus } from './utils/rosterStorage.js'
@@ -681,6 +682,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
                   </button>
                 )}
                 <div className={styles.headerActions}>
+                  <AccountControls />
                   {(saveStatus === 'saving' || saveStatus === 'saved') && (
                     <span className={styles.saveStatus}>{saveStatus === 'saving' ? 'Saving…' : 'Saved ✓'}</span>
                   )}
@@ -759,6 +761,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
             tabIndex={-1}
             aria-label="Character creation step"
           >
+            <div className={styles.headerActions}><AccountControls /></div>
             {guideOn && <OnboardingTip step={character.wizardStep} onDismiss={dismissGuide} />}
             <StepComponent
               character={character}
@@ -786,6 +789,7 @@ export default function App({ onNavigate, shareMode, playMode, theme, onToggleTh
                   <span className={styles.brandSub}>Character Builder</span>
                 </button>
                 <div className={styles.headerActions}>
+                  <AccountControls />
                   {(saveStatus === 'saving' || saveStatus === 'saved') && (
                     <span className={styles.saveStatus}>{saveStatus === 'saving' ? 'Saving…' : 'Saved ✓'}</span>
                   )}

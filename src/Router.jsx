@@ -8,6 +8,8 @@ import { AuthLoadingPage, AuthRecoveryPage } from './pages/AuthGatePage.jsx'
 import { useTheme } from './hooks/useTheme.js'
 import { useAuth, isGmOrAdmin, isAdmin } from './auth/useAuth.js'
 import { authEnabled } from './utils/supabaseClient.js'
+import AccountControls from './components/AccountControls.jsx'
+import { rememberDestination, pendingDestination, clearDestination } from './auth/returnDestination.js'
 
 function getRoute(hash = window.location.hash) {
   if (hash.startsWith('#login'))  return 'login'
@@ -37,6 +39,18 @@ export default function Router() {
 
   const route = getRoute(hash)
 
+  useEffect(() => {
+    if (!authEnabled || loading || startupError) return
+    if (!user && !GUEST_ROUTES.has(route) && route !== 'login') {
+      rememberDestination(route)
+      window.location.hash = '#login'
+    } else if (user && (route === 'login' || (route === 'app' && new URL(window.location.href).searchParams.has('returnTo')))) {
+      const destination = pendingDestination() || 'roster'
+      clearDestination()
+      window.location.hash = destination === 'app' ? '' : `#${destination}`
+    }
+  }, [route, user, loading, startupError])
+
   // Give each screen its own document title — every route used to read the same
   // "Sidherun Character Builder", so tabs, history, and screen readers couldn't
   // tell them apart (#216).
@@ -56,12 +70,20 @@ export default function Router() {
   if (authEnabled && !GUEST_ROUTES.has(route)) {
     if (loading) return <AuthLoadingPage />
     if (startupError) return <AuthRecoveryPage reason={startupError} onReset={recoverAuth} />
-    if (!user && route !== 'login') { navigate('login'); return null }
-    if (user && route === 'login') { navigate('app'); return null }
-    // GM Screen is GM/admin only; players are redirected to their roster.
-    if (route === 'gm' && !isGmOrAdmin(role)) { navigate('roster'); return null }
-    // Manage Roles is admin-only.
-    if (route === 'admin' && !isAdmin(role)) { navigate('roster'); return null }
+    if (!user && route !== 'login') return <AuthLoadingPage />
+    if (user && route === 'login') return <AuthLoadingPage />
+    // Explain role restrictions and let the player choose their next action.
+    if ((route === 'gm' && !isGmOrAdmin(role)) || (route === 'admin' && !isAdmin(role))) {
+      return (
+        <main className="auth-permission">
+          <h1>Account access</h1>
+          <p>This page requires {route === 'admin' ? 'an admin' : 'a GM or admin'} account.</p>
+          <p>You’re signed in as <strong>{user.email}</strong>. Use your invited account, or ask your GM to check your access.</p>
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}><AccountControls /></div>
+          <button className="btn-secondary" onClick={() => navigate('roster')}>Go to my roster</button>
+        </main>
+      )
+    }
   }
 
   if (route === 'login') return <LoginPage />

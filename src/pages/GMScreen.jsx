@@ -1,3 +1,4 @@
+import AccountControls from '../components/AccountControls.jsx'
 import { useState, useEffect, useRef } from 'react'
 import { loadRoster, loadCharacterFromRoster, saveCharacterToRoster, saveCurrent } from '../utils/rosterStorage.js'
 import { cloudEnabled } from '../utils/supabaseClient.js'
@@ -159,7 +160,7 @@ function ConditionEditor({ c, onAdd, onRemove }) {
 }
 
 export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
-  const { user, role, signOut } = useAuth()
+  const { user, role } = useAuth()
   const useRepo = repoEnabled()
   // Authenticated GM/admin pull the whole campaign from the cloud (RLS-scoped);
   // the legacy localStorage path is unchanged when auth is off.
@@ -450,9 +451,7 @@ export default function GMScreen({ onNavigate, theme, onToggleTheme }) {
           <button className="btn-secondary" onClick={() => useRepo
             ? listCharacters().then(setChars).catch(() => {})
             : setChars(loadAll())}>Refresh</button>
-          {useRepo && (
-            <button className="btn-secondary" onClick={() => { signOut(); onNavigate('app') }}>Sign out</button>
-          )}
+          <AccountControls />
         </div>
       </header>
 
