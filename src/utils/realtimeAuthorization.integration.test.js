@@ -211,3 +211,58 @@ describe('realtime authorization matrix', () => {
     await db.close()
   }, 60000)
 })
+
+describe('authenticated backup restore (#337)', () => {
+  it('updates data and live atomically, preserves identity, and refuses stale or other-user writes', async () => {
+    const db = await boot()
+    try {
+      await db.exec("select set_config('sidherun.realtime_test_stub', 'on', false)")
+      const result = await db.exec(`
+        begin;
+        insert into auth.users (id, email, raw_user_meta_data) values
+          ('33700000-0000-4000-8000-000000000001', 'restore-owner@example.invalid', '{}'),
+          ('33700000-0000-4000-8000-000000000002', 'restore-other@example.invalid', '{}');
+        insert into public.characters (id, name, data, live, owner_user_id)
+        values ('33700000-0000-4000-8000-000000000003', 'Oryn current', '{"name":"Oryn current"}', '{"hpCurrent":40}', '33700000-0000-4000-8000-000000000001');
+        grant usage on schema auth to authenticated;
+        select set_config('request.jwt.claim.sub', '33700000-0000-4000-8000-000000000001', true);
+        set local role authenticated;
+        do $$
+        declare changed int; current_row public.characters%rowtype;
+        begin
+          update public.characters
+          set name='Oryn restored', data='{"name":"Oryn restored","backstory":"Recovered history"}',
+              live='{"hpCurrent":17,"manaCurrent":8,"spCurrent":1,"armorRemaining":6}'
+          where id='33700000-0000-4000-8000-000000000003' and data_rev=0 and live_rev=0;
+          get diagnostics changed = row_count;
+          if changed <> 1 then raise exception 'restore did not update one row'; end if;
+          select * into current_row from public.characters where id='33700000-0000-4000-8000-000000000003';
+          if current_row.owner_user_id <> '33700000-0000-4000-8000-000000000001'
+            or current_row.assigned_player_id is not null
+            or current_row.data_rev <> 1 or current_row.live_rev <> 1
+            or current_row.live->>'hpCurrent' <> '17'
+            or current_row.live->>'manaCurrent' <> '8'
+            or current_row.live->>'spCurrent' <> '1'
+            or current_row.live->>'armorRemaining' <> '6'
+            or current_row.data->>'backstory' <> 'Recovered history'
+          then raise exception 'restore lost values, revisions or identity'; end if;
+          update public.characters set name='Stale overwrite'
+          where id='33700000-0000-4000-8000-000000000003' and data_rev=0 and live_rev=0;
+          get diagnostics changed = row_count;
+          if changed <> 0 then raise exception 'stale restore was accepted'; end if;
+        end $$;
+        select set_config('request.jwt.claim.sub', '33700000-0000-4000-8000-000000000002', true);
+        do $$ declare changed int; begin
+          update public.characters set name='Unauthorized overwrite', live='{"hpCurrent":1}'
+          where id='33700000-0000-4000-8000-000000000003' and data_rev=1 and live_rev=1;
+          get diagnostics changed = row_count;
+          if changed <> 0 then raise exception 'other user could replace the character'; end if;
+        end $$;
+        select true as authenticated_restore_ok;
+        rollback;
+      `)
+      const rows = result.find(entry => entry.rows?.some(row => 'authenticated_restore_ok' in row))
+      expect(rows?.rows?.[0]?.authenticated_restore_ok).toBe(true)
+    } finally { await db.close() }
+  }, 60000)
+})

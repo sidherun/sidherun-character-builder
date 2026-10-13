@@ -34,6 +34,7 @@ function rowToCharacter(row) {
     _assignedPlayerId:  row.assigned_player_id ?? null,
     _campaignId:        row.campaign_id ?? null,
     _dataRev:           row.data_rev ?? 0,
+    _liveRev:           row.live_rev ?? 0,
     _updatedAt:         row.updated_at,
   }
 }
@@ -47,11 +48,12 @@ function toData(character) {
   delete d._assignedPlayerId
   delete d._campaignId
   delete d._dataRev
+  delete d._liveRev
   delete d._updatedAt
   return d
 }
 
-async function currentUserId() {
+export async function currentUserId() {
   const { data } = await supabase.auth.getUser()
   return data?.user?.id ?? null
 }
@@ -82,10 +84,10 @@ export async function getCharacter(id) {
 // Create a character owned by the signed-in user. RLS with_check enforces that a
 // player can only create rows they own; gm/admin may also create on a player's
 // behalf (pass ownerUserId). Returns the saved character with _rosterId === id.
-export async function createCharacter(character, { ownerUserId } = {}) {
+export async function createCharacter(character, { ownerUserId, signal } = {}) {
   if (!repoEnabled()) return null
   const uid = ownerUserId || await currentUserId()
-  const { data, error } = await supabase
+  let query = supabase
     .from('characters')
     .insert({
       name: character.name || 'Unnamed',
@@ -95,7 +97,30 @@ export async function createCharacter(character, { ownerUserId } = {}) {
     })
     .select(COLS)
     .single()
+  if (signal) query = query.abortSignal(signal)
+  const { data, error } = await query
   if (error) throw error
+  return rowToCharacter(data)
+}
+
+// Restore contents and live counters together. Server identity is untouched;
+// both revision guards must still match the preview the user confirmed.
+export async function replaceCharacterFromBackup(target, character, { signal } = {}) {
+  if (!repoEnabled() || !target?._rosterId) throw new Error('The selected character is unavailable.')
+  if (!Number.isInteger(target._dataRev) || !Number.isInteger(target._liveRev)) {
+    throw new Error('Refresh the roster before replacing this character.')
+  }
+  let query = supabase.from('characters').update({
+    name: character.name || 'Unnamed',
+    data: toData(character),
+    live: projectLive(character),
+  }).eq('id', target._rosterId)
+    .eq('data_rev', target._dataRev).eq('live_rev', target._liveRev)
+    .select(COLS).maybeSingle()
+  if (signal) query = query.abortSignal(signal)
+  const { data, error } = await query
+  if (error) throw error
+  if (!data) throw new Error('The character changed or access was removed. Refresh and review it again.')
   return rowToCharacter(data)
 }
 

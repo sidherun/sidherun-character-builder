@@ -86,7 +86,7 @@ describe('dataSignature', () => {
   })
   it('ignores repository revision and ownership metadata', () => {
     const a = { ...mk(), _rosterId: 'a', _dataRev: 1, _updatedAt: 'old', _ownerUserId: 'owner-a' }
-    const b = { ...a, _dataRev: 2, _updatedAt: 'new', _ownerUserId: 'owner-b', _assignedPlayerId: 'player' }
+    const b = { ...a, _dataRev: 2, _liveRev: 9, _updatedAt: 'new', _ownerUserId: 'owner-b', _assignedPlayerId: 'player' }
     expect(dataSignature(a)).toBe(dataSignature(b))
   })
 })

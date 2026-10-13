@@ -59,7 +59,7 @@ vi.mock('./supabaseClient.js', () => {
 })
 
 import {
-  repoEnabled, listCharacters, getCharacter, createCharacter, saveCharacterData,
+  repoEnabled, listCharacters, getCharacter, createCharacter, saveCharacterData, replaceCharacterFromBackup,
   upsertCharacter, patchLive, assignPlayer, deleteCharacter, listPlayers, setDisplayName, reconcile,
   subscribeLive, removeLiveSubscription,
 } from './characterRepo.js'
@@ -318,5 +318,32 @@ describe('private character channel', () => {
     expect(res).toEqual({ conflict: true })
     expect(h.sends).toEqual([])
     removeLiveSubscription('c2')
+  })
+})
+
+describe('backup replacement (#337)', () => {
+  it('restores data and all live counters in one guarded write without changing ownership', async () => {
+    h.result = { data: row({ data_rev: 5, live_rev: 8 }), error: null }
+    const backup = {
+      name: 'Oryn restored', _rosterId: 'backup-id', _ownerUserId: 'other-owner',
+      _assignedPlayerId: 'other-player', _campaignId: 'other-campaign', _dataRev: 1, _liveRev: 2,
+      hitPoints: { current: 17 }, mana: { current: 8 }, storyPoints: { current: 1 }, armor: { remaining: 6 },
+      _notes: [{ id: 'n', title: 'Recovered', body: 'Notes' }], skills: [],
+    }
+    const saved = await replaceCharacterFromBackup({ _rosterId: 'c1', _dataRev: 4, _liveRev: 7 }, backup)
+    expect(h.eqs).toContainEqual(['id','c1'])
+    expect(h.eqs).toContainEqual(['data_rev',4])
+    expect(h.eqs).toContainEqual(['live_rev',7])
+    expect(h.payload.live).toMatchObject({ hpCurrent:17, manaCurrent:8, spCurrent:1, armorRemaining:6 })
+    expect(h.payload.data._notes).toEqual(backup._notes)
+    for (const key of ['_rosterId','_ownerUserId','_assignedPlayerId','_campaignId','_dataRev','_liveRev']) expect(h.payload.data).not.toHaveProperty(key)
+    expect(Object.keys(h.payload).sort()).toEqual(['data','live','name'])
+    expect(saved._liveRev).toBe(8)
+  })
+  it('does not report success on stale revisions or denied access', async () => {
+    h.result = { data: null, error: null }
+    await expect(replaceCharacterFromBackup({ _rosterId:'c1', _dataRev:4, _liveRev:7 }, {name:'Backup'})).rejects.toThrow('changed or access')
+    h.result = { data: null, error: new Error('Denied') }
+    await expect(replaceCharacterFromBackup({ _rosterId:'c1', _dataRev:4, _liveRev:7 }, {name:'Backup'})).rejects.toThrow('Denied')
   })
 })

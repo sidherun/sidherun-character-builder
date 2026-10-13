@@ -196,6 +196,19 @@ For local-only use, browser storage is the only saved copy until you export it.
 Use JSON for individual characters and **Back up all** for the complete roster.
 Imports and share-link data are validated before loading.
 
+When signed in, **Restore…** previews a backup before saving anything. The
+default **Import new copies** creates cloud characters owned by your account,
+leaving existing characters unchanged. **Replace existing characters** is a
+separate option: choose each target, review the named replacements, and confirm
+the overwrite. Replacement restores character details and live counters while
+preserving the target’s ownership and player assignment. If the target changes
+after the preview, the replacement is refused; reload and review it again.
+
+Restore results list each saved, skipped, or failed character. The roster
+refreshes from the cloud, so imported copies survive reload and can be loaded
+and printed. Guest-link credentials in a backup are not imported into a
+signed-in account. Local-only Restore continues to use browser storage.
+
 ## Run locally
 
 Prerequisites:
