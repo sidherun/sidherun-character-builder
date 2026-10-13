@@ -1,0 +1,10 @@
+.disclosure { position: relative; }
+.disclosure summary { cursor: pointer; font-family: 'JetBrains Mono', monospace; border-radius: 6px; min-height: 44px; display: flex; align-items: center; gap: 8px; list-style: none; }
+.disclosure summary::-webkit-details-marker { display: none; }
+.disclosure summary::after { content: '▾'; }
+.disclosure[open] summary::after { content: '▴'; }
+.panel { position: absolute; top: calc(100% + 8px); right: 0; z-index: 50; width: min(15rem, 80vw); padding: 8px; display: grid; gap: 4px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 8px 24px var(--bg); }
+.panel button { width: 100%; min-height: 44px; text-align: left; }
+@media (max-width: 600px) {
+  .panel { right: auto; left: 0; }
+}

@@ -1,3 +1,4 @@
+import RosterMoreActions from '../components/RosterMoreActions.jsx'
 import AccountControls from '../components/AccountControls.jsx'
 import { useState, useRef, useEffect } from 'react'
 import { loadRoster, deleteCharacterFromRoster, loadCharacterFromRoster, saveCharacterToRoster, saveCurrent, clearCurrent } from '../utils/rosterStorage.js'
@@ -369,17 +370,9 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
           <span>Character Roster</span>
         </button>
         <div className={styles.actions}>
-          {onToggleTheme && (
-            <button className="btn-secondary" onClick={onToggleTheme}>{theme === 'dark' ? 'Light' : 'Dark'}</button>
-          )}
           {roster.length > 0 && (!useRepo || isGmOrAdmin(role)) && (
             <button className="btn-secondary" onClick={() => onNavigate('gm')}>
               GM Screen
-            </button>
-          )}
-          {useRepo && isAdmin(role) && (
-            <button className="btn-secondary" onClick={() => onNavigate('admin')}>
-              Manage Roles
             </button>
           )}
           {roster.length > 0 && (!useRepo || isGmOrAdmin(role)) && (
@@ -387,24 +380,34 @@ export default function RosterPage({ onNavigate, theme, onToggleTheme }) {
               Tables ({tables.length})
             </button>
           )}
-          {roster.length > 0 && (
-            <button className="btn-secondary" onClick={() => setPrintMode('choose')}>
-              Print…
+          <RosterMoreActions grouped={!useRepo || isGmOrAdmin(role)}>
+            {onToggleTheme && (
+              <button className="btn-secondary" onClick={onToggleTheme}>{theme === 'dark' ? 'Light' : 'Dark'}</button>
+            )}
+            {useRepo && isAdmin(role) && (
+              <button className="btn-secondary" onClick={() => onNavigate('admin')}>
+                Manage Roles
+              </button>
+            )}
+            {roster.length > 0 && (
+              <button className="btn-secondary" onClick={() => setPrintMode('choose')}>
+                Print…
+              </button>
+            )}
+            {roster.length > 0 && (
+              <button className="btn-secondary" onClick={handleBackup}>
+                Back up all
+              </button>
+            )}
+            <button className="btn-secondary" onClick={() => restoreRef.current?.click()}>
+              Restore…
             </button>
-          )}
-          {roster.length > 0 && (
-            <button className="btn-secondary" onClick={handleBackup}>
-              Back up all
-            </button>
-          )}
-          <button className="btn-secondary" onClick={() => restoreRef.current?.click()}>
-            Restore…
-          </button>
-          {cloudEnabled && !useRepo && (
-            <button className="btn-secondary" onClick={handleCopyGmKey}>
-              Copy GM key
-            </button>
-          )}
+            {cloudEnabled && !useRepo && (
+              <button className="btn-secondary" onClick={handleCopyGmKey}>
+                Copy GM key
+              </button>
+            )}
+          </RosterMoreActions>
           <button className="btn-primary" onClick={handleNew}>
             + New Character
           </button>
