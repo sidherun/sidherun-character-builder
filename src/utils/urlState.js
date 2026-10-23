@@ -10,9 +10,35 @@ const ATTR_KEYS = [
 // JSON.stringify of a character produces a 2,000+ char compressed URL, which
 // yields a QR-version-39 code that's too dense to scan when printed. This
 // compact form (arrays instead of keyed objects, defaults dropped) cuts the
-// payload ~3-4x, bringing the QR down to a scannable version. It only carries
-// what Play Mode and the printout need; expand() reconstructs the full schema
-// shape (ids, defaults) so safeParse still validates on decode.
+// structural payload ~3-4x. Backstory and session notes are appended after
+// playerName, and omitted entirely when both are empty, so links minted before
+// they were carried still decode. The text is kept in full — never truncated.
+// A history of several thousand characters can outgrow one printed QR; the
+// URL still has it. fromCompact() rebuilds the schema shape so safeParse
+// validates on decode.
+function historyTail(c) {
+  const backstory = typeof c.backstory === 'string' ? c.backstory : ''
+  const notes = Array.isArray(c._notes)
+    ? c._notes.map(n => [n?.id || '', n?.title || '', n?.body || '', n?.lastEdited || ''])
+    : []
+  if (!backstory && notes.length === 0) return []
+  // Backstory occupies the slot even when blank so notes stay at the next index.
+  return notes.length ? [backstory, notes] : [backstory]
+}
+
+function notesFromTail(raw) {
+  if (!Array.isArray(raw)) return []
+  return raw.map((row, i) => {
+    const x = Array.isArray(row) ? row : []
+    return {
+      id: x[0] || ('n' + i),
+      title: x[1] || '',
+      body: x[2] || '',
+      lastEdited: x[3] || '',
+    }
+  })
+}
+
 function toCompact(c) {
   const at  = ATTR_KEYS.map(k => c.attributes?.[k]?.base || 0)
   const w   = (c.weapons || []).map(raw => {
@@ -38,7 +64,8 @@ function toCompact(c) {
     pw, cr, sk, inv,
     [c.hitPoints?.total || 0, c.hitPoints?.current || 0, c.mana?.total || 0, c.mana?.current || 0,
      c.storyPoints?.total || 0, c.storyPoints?.current || 0, c.xp?.current || 0, c.xp?.needed || 0],
-    c.playerName || '', // appended last for back-compat with older links
+    c.playerName || '', // index 16; absent on the oldest links
+    ...historyTail(c),  // index 17 backstory, index 18 notes; absent when empty
   ]
 }
 
@@ -51,7 +78,10 @@ function fromCompact(a) {
     wizardStep: 9, _rosterId: null,
     name: name || '', playerName: playerName || '', race: race || 'human', raceType: 'healthy', raceValue: 20, raceSize: 'medium',
     archetype: archetype || 'worldly', hasPowers: !!(flags & 1), hasMagic: !!(flags & 2),
-    magicAttribute: magicAttribute || null, level: level || 1, ageCategory: 'adult', backstory: '',
+    // Index 17 is backstory only when it is a string. Older links stop at
+    // playerName (or before it) and must not treat a missing slot as text.
+    magicAttribute: magicAttribute || null, level: level || 1, ageCategory: 'adult',
+    backstory: typeof a[17] === 'string' ? a[17] : '',
     attributes,
     // usesSkill (x[5]) is only present on links minted after the flag shipped;
     // omit it for older links so the schema migrates them from the skill bonus.
@@ -78,7 +108,7 @@ function fromCompact(a) {
     mana:        { total: (res && res[2]) || 0, current: (res && res[3]) || 0 },
     storyPoints: { total: (res && res[4]) || 0, current: (res && res[5]) || 0 },
     xp:          { current: (res && res[6]) || 0, needed: (res && res[7]) || 0 },
-    _notes: [], _tracking: { hp: 0, mana: 0, storyPoints: (res && res[4]) || 0 },
+    _notes: notesFromTail(a[18]), _tracking: { hp: 0, mana: 0, storyPoints: (res && res[4]) || 0 },
   }
 }
 
@@ -89,7 +119,8 @@ export function encodeCharacterToURL(character) {
 }
 
 export function encodeCharacterToPlayURL(character) {
-  // Compact form keeps the QR scannable (see toCompact).
+  // Compact form keeps a normal sheet's QR scannable (see toCompact). History
+  // is included in full; a very long backstory may no longer fit one QR.
   const json = JSON.stringify(toCompact(character))
   const encoded = LZString.compressToEncodedURIComponent(json)
   return `${window.location.origin}${window.location.pathname}#play=${encoded}`

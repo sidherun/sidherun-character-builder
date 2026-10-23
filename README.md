@@ -160,9 +160,12 @@ require a signed-in user. Anonymous character creation is disabled.
 The roster exposes two sharing options:
 
 - **Copy play link** creates a self-contained `#play=` snapshot. It embeds the
-  character data in the URL and attempts to shorten that URL through TinyURL.
+  character data in the URL, including the full backstory and session notes,
+  and attempts to shorten that URL through TinyURL.
   The recipient gets an independent local copy, so later edits do not stay in
-  sync with the sender.
+  sync with the sender. A history of several thousand characters can outgrow
+  one printed QR; the link still carries the full text, and the sheet says so
+  instead of printing a partial code. Cloud-synced sheets keep the short live QR.
 - **Copy live link** appears for a character with an existing capability mapping
   and creates a short `#c=` link. The recipient's permitted edits write back to
   that cloud character and update other connected views.

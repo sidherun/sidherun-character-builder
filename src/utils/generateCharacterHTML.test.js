@@ -129,6 +129,27 @@ describe('generateCharacterHTML', () => {
     expect(generateCharacterHTML(mk('Dulu', { playerName: 'Ed' }))).toContain('played by Ed')
     expect(generateCharacterHTML(mk('Dulu'))).not.toContain('played by')
   })
+
+  it('prints a Tarben-length backstory whole and says when the QR cannot hold it', () => {
+    let x = 123456789
+    let backstory = ''
+    while (backstory.length < 4930) {
+      x = (1103515245 * x + 12345) & 0x7fffffff
+      backstory += String.fromCharCode(65 + (x % 26))
+      if (backstory.length % 48 === 0) backstory += ' Æsir 北風 '
+    }
+    backstory += 'ENDMARK'
+    const html = generateCharacterHTML(mk('Tarben Jarlson', {
+      backstory,
+      _notes: [{ id: 'n1', title: 'Watch', body: 'The south gate', lastEdited: '2026-06-14' }],
+    }))
+    expect(html).toContain('ENDMARK')
+    expect(html).toContain('北風')
+    expect(html).toContain('Play link is too long to print as a QR')
+    expect(html).toContain('full backstory and notes')
+    expect(html).not.toContain('<svg')
+    expect(html).not.toContain('Scan to play')
+  })
 })
 
 describe('generateBatchHTML', () => {
