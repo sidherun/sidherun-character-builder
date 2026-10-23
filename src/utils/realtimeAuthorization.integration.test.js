@@ -210,6 +210,29 @@ describe('realtime authorization matrix', () => {
     expect(rows?.rows?.[0]?.first_character_insert_ok).toBe(true)
     await db.close()
   }, 60000)
+
+  // The SQL file is the same matrix run by hand in the Supabase SQL Editor.
+  // It covers an assigned player editing the character, a GM reassigning it,
+  // and an admin transferring ownership. The non-GM first-character insert is
+  // the test above. Hosted Supabase grants usage on schema auth; PGlite does not.
+  it('lets an assignee edit an assigned character and lets a GM reassign it', async () => {
+    const db = await boot()
+    try {
+      await db.exec(`
+        grant usage on schema auth to anon, authenticated;
+        -- 0004 revokes the default PUBLIC execute grant for functions this
+        -- session creates afterwards. The verifier's pg_temp helpers are
+        -- called after SET ROLE anon/authenticated, so hand that execute back
+        -- for this disposable database only.
+        alter default privileges grant execute on functions to anon, authenticated;
+      `)
+      const result = await db.exec(readFileSync('supabase/verify_character_update_authorization.sql', 'utf8'))
+      const rows = result.find(entry => entry.rows?.some(row => 'character_update_authorization_verified' in row))
+      expect(rows?.rows?.[0]?.character_update_authorization_verified).toBe(true)
+    } finally {
+      await db.close()
+    }
+  }, 60000)
 })
 
 describe('authenticated backup restore (#337)', () => {

@@ -237,9 +237,12 @@ npm run lint      # ESLint, with warnings treated as failures
 npm test          # Vitest suite
 npm run build     # production build in dist/
 npm run preview   # serve the production build locally
+npm run test:e2e  # Playwright smoke tests (Chromium, Firefox, and WebKit)
 ```
 
-Run lint, tests, and a production build before opening a pull request.
+The first Playwright run needs browser binaries: `npx playwright install --with-deps`.
+Smoke tests build with cloud sync and auth forced off, then drive the production
+preview. Pull requests run the same lint, Vitest, build, and smoke checks.
 
 ### Browsers
 
@@ -247,6 +250,10 @@ Desktop Firefox 155 and Chromium 153 were exercised against a local cloud-off
 build (Playwright, headless) on 2026-10-02, including the Session Notes save
 path. Safari, Edge, and Android Firefox were not part of that pass. Magic-link
 email and hosted live sync need the cloud project and were not exercised here.
+
+Pull requests run a shorter Playwright smoke pass on Chromium, Firefox, and
+WebKit: the app loads, the roster opens, the creation wizard finishes, a
+body-only session note saves, and a Play Mode d100 shows a result.
 
 ## Architecture
 
@@ -273,6 +280,7 @@ source of truth while channel authorization work continues in
 ### Project structure
 
 ```text
+e2e/             Playwright smoke tests
 src/
   auth/          authentication provider and role helpers
   components/    wizard, sheet, Play Mode, and shared UI
@@ -309,10 +317,22 @@ content contracts and are protected game content; see
 
 ## Deployment
 
-Pushes to `main` trigger the GitHub Pages workflow. It installs with `npm ci`,
-runs lint and tests, builds `dist/`, and deploys only after those checks pass.
-The production site uses the custom domain
+Pull requests and pushes to `main` run `.github/workflows/ci.yml`. The
+`validate` job lints, runs the Vitest suite (including the PGlite authorization
+tests), and builds a cloud-off production bundle. Separate `smoke (chromium)`,
+`smoke (firefox)`, and `smoke (webkit)` jobs run the Playwright smoke tests.
+
+A push to `main` publishes to GitHub Pages only after that CI run succeeds
+(`.github/workflows/deploy.yml`). The deploy rebuilds with the repository
+variables below so the published site is the authenticated production bundle.
+It does not repeat lint or tests. A manual deploy runs the CI workflow first.
+The production site stays on GitHub Pages at
 [`character-builder.sidherun.com`](https://character-builder.sidherun.com/).
+
+Branch protection is set in the GitHub repository settings, not in this repo.
+On `main`, require a pull request, require the `validate`, `smoke (chromium)`,
+`smoke (firefox)`, and `smoke (webkit)` checks, and require branches to be up
+to date before merging.
 
 Cloud deployments require these GitHub Actions repository variables:
 

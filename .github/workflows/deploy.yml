@@ -1,7 +1,13 @@
 name: Deploy to GitHub Pages
 
+# Pages publishes only after CI has succeeded on a push to main. This workflow
+# does not repeat lint, Vitest, or Playwright. A manual run re-invokes CI
+# first, so a dispatched publish cannot skip those checks. Hosting is unchanged:
+# the github-pages environment and actions/deploy-pages.
 on:
-  push:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
     branches: [main]
   workflow_dispatch:
 
@@ -15,18 +21,59 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  validate:
+    name: validate
+    if: github.event_name == 'workflow_dispatch'
+    uses: ./.github/workflows/ci.yml
+
   build:
+    needs: validate
+    if: |
+      always() &&
+      !cancelled() &&
+      (needs.validate.result == 'success' || needs.validate.result == 'skipped') &&
+      (
+        github.event_name == 'workflow_dispatch' ||
+        (
+          github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.event == 'push' &&
+          github.event.workflow_run.head_branch == 'main' &&
+          github.event.workflow_run.head_repository.full_name == github.repository
+        )
+      )
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      deploy: ${{ steps.current.outputs.deploy }}
     steps:
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.sha || github.event.workflow_run.head_sha }}
+      - name: Publish only if this commit is still the main tip
+        id: current
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git fetch origin main
+          tip=$(git rev-parse origin/main)
+          head=$(git rev-parse HEAD)
+          if [ "$tip" = "$head" ]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+            echo "origin/main is $tip; not publishing stale $head"
+          fi
       - uses: actions/setup-node@v5
+        if: steps.current.outputs.deploy == 'true'
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
-      - run: npm run lint
-      - run: npm test
-      - run: npm run build
+      - if: steps.current.outputs.deploy == 'true'
+        run: npm ci
+      - if: steps.current.outputs.deploy == 'true'
+        run: npm run build
         env:
           # Public by design (anon/publishable key); security is via RLS + tokens.
           # See epics #71 (guest cloud) and #109 (auth). Vite embeds these at build
@@ -37,6 +84,7 @@ jobs:
           VITE_CLOUD_SYNC: ${{ vars.VITE_CLOUD_SYNC }}
           VITE_AUTH: ${{ vars.VITE_AUTH }}
       - uses: actions/upload-pages-artifact@v5
+        if: steps.current.outputs.deploy == 'true'
         with:
           path: ./dist
 
@@ -46,6 +94,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
+    if: needs.build.result == 'success' && needs.build.outputs.deploy == 'true'
     steps:
       - uses: actions/deploy-pages@v5
         id: deployment
