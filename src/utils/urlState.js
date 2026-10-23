@@ -6,16 +6,13 @@ const ATTR_KEYS = [
   'wisdom', 'thaumaturgy', 'enlightenment', 'charisma', 'comeliness', 'fame',
 ]
 
-// Compact, positional representation of a character for the #play= URL. Full
-// JSON.stringify of a character produces a 2,000+ char compressed URL, which
-// yields a QR-version-39 code that's too dense to scan when printed. This
-// compact form (arrays instead of keyed objects, defaults dropped) cuts the
-// structural payload ~3-4x. Backstory and session notes are appended after
-// playerName, and omitted entirely when both are empty, so links minted before
-// they were carried still decode. The text is kept in full — never truncated.
-// A history of several thousand characters can outgrow one printed QR; the
-// URL still has it. fromCompact() rebuilds the schema shape so safeParse
-// validates on decode.
+// Compact, positional #play= payload. LZString-compressed JSON array: structural
+// fields in indices 0–15, playerName at 16, backstory string at 17, and session
+// notes at 18 as [id, title, body, lastEdited] rows. Empty history is omitted.
+// Arrays minted before that tail still decode, with no backstory or notes.
+// The text is never truncated. A long history makes the printed QR too dense;
+// past about 6,000 characters it no longer fits one code. fromCompact() rebuilds
+// the schema shape so safeParse validates on decode.
 function historyTail(c) {
   const backstory = typeof c.backstory === 'string' ? c.backstory : ''
   const notes = Array.isArray(c._notes)

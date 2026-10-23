@@ -122,4 +122,4 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Compact DM roster banner: secondary actions under More, preserved role permissions (#392) | #393 | 2026-10-12 |
 | Authenticated Restore defaults to new cloud copies; explicit confirmed replacement restores data + counters with revision guards (#337) | #391 | 2026-10-12 |
 | Required CI before merge: validate (lint, Vitest, build), Playwright smoke on Chromium/Firefox/WebKit, Pages deploy waits on that CI (#339) | #394 | 2026-10-13 |
-| Self-contained play links keep the full backstory and session notes; older #play= links still decode (#361) | #395 | 2026-10-23 |
+| Self-contained #play= links include backstory and session notes; older links open without history; long histories can outgrow the printed QR, and Copy play link still has the full character (#361) | #395 | 2026-10-23 |

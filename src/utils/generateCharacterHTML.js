@@ -18,11 +18,13 @@ function esc(v) {
 }
 
 // QR code generated at export time as an inline SVG so the printed sheet stays
-// self-contained (no CDN/API). For a cloud-synced character this encodes the
-// short, live #c= link (always scannable; opens the live character); otherwise
-// the self-contained embedded #play= link. Either way it uses the origin the
-// sheet was exported from. A play link that no longer fits one QR (a long
-// backstory or many notes) is not shortened or truncated — the sheet says so.
+// self-contained (no CDN/API). A cloud-synced character gets the short live
+// #c= link. Otherwise the QR is the self-contained #play= link, which includes
+// backstory and session notes. A long history is too dense to scan. Past about
+// 6,000 characters the link no longer fits one code; the sheet says it is too
+// long to print as a QR and does not truncate the character. Copy play link
+// still carries the full text. Either QR uses the origin the sheet was exported
+// from.
 function qrBlock(character) {
   try {
     const url = qrLinkFor(character)

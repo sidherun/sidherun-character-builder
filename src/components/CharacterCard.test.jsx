@@ -105,6 +105,8 @@ describe('CharacterCard action collapsing (#158)', () => {
       <CharacterCard entry={entry()} onLoad={noop} onDelete={noop} onGetCharacter={noop} onPrint={onPrint} />,
     ))
     act(() => container.querySelector('button[aria-label="More options for Thorin"]').click())
+    const playLink = [...container.querySelectorAll('button')].find(button => button.textContent === 'Copy play link')
+    expect(playLink.getAttribute('title')).toBe('Includes backstory and session notes. Links from before this change open without them.')
     const print = [...container.querySelectorAll('button')].find(button => button.textContent === 'Print sheet')
     act(() => print.click())
     expect(onPrint).toHaveBeenCalledWith('abc')

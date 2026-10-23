@@ -87,7 +87,9 @@ export function cloudIdForRoster(rosterId) {
 
 // The best link to put behind a printout QR: the short, live cloud link if the
 // character is synced (always scannable; opens the live character), otherwise
-// the self-contained embedded #play= link. Both use the current origin.
+// the self-contained #play= link, which includes backstory and session notes.
+// A long unsynced history can make that QR too dense to scan, or too long to
+// print. Both links use the current origin.
 export function qrLinkFor(character) {
   return getCloudLink(character?._rosterId) || encodeCharacterToPlayURL(character)
 }
