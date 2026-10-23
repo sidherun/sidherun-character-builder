@@ -115,6 +115,7 @@ export default function CharacterCard({
                   className={styles.menuItem}
                   onClick={handleCopyPlayLink}
                   disabled={linkState === 'loading'}
+                  title="Includes backstory and session notes. Links from before this change open without them."
                 >
                   {btnLabel[linkState]}
                 </button>

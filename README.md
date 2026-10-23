@@ -39,7 +39,7 @@ characters, while GMs manage rosters, encounters, conditions, and shared rolls.
   clicking it opens a list (active points first) where players and GMs mark
   points active or spent, record why each was gained, add new points (which
   raises the maximum), and delete points with confirmation. Self-contained
-  `#play=` links carry the counts but not the reasons.
+  `#play=` links carry the Story Point counts but not each point's reason.
 - **Dice and rules calculations.** The app calculates derived statistics and
   supports attribute, skill, weapon, damage, initiative, and spell rolls,
   including Sidherun's critical and fumble behavior. With the 3D dice on, a
@@ -65,7 +65,11 @@ characters, while GMs manage rosters, encounters, conditions, and shared rolls.
   access is governed by character ownership and assignment.
 - **Import, export, and printing.** Characters can be imported and exported as
   validated JSON, printed individually or by roster/table, and exported as
-  self-contained HTML with a scan-to-play QR code.
+  self-contained HTML with a scan-to-play QR code. Cloud-synced sheets keep
+  the short live QR. A self-contained QR includes backstory and session notes.
+  A long history is too dense to scan, and past about 6,000 characters the
+  sheet says the link is too long to print as a QR. Copy play link still
+  carries the full character.
 - **Optional accounts and live sharing.** Supabase provides role-based player,
   GM, and admin accounts, cloud persistence, realtime updates, and guest links
   with rotatable database credentials. The app also supports a localStorage-only
@@ -160,12 +164,23 @@ require a signed-in user. Anonymous character creation is disabled.
 The roster exposes two sharing options:
 
 - **Copy play link** creates a self-contained `#play=` snapshot. It embeds the
-  character data in the URL and attempts to shorten that URL through TinyURL.
-  The recipient gets an independent local copy, so later edits do not stay in
-  sync with the sender.
+  character, including the full backstory and session notes, and attempts to
+  shorten that URL through TinyURL. The recipient gets an independent local
+  copy, so later edits do not stay in sync with the sender. Links generated
+  before this change still open, without backstory or session notes. A long
+  history makes the printed QR too dense to scan. Past about 6,000 characters
+  the sheet shows “Play link is too long to print as a QR” instead of a code.
+  **Copy play link** always carries the full character. Cloud-synced sheets
+  keep the short live QR.
 - **Copy live link** appears for a character with an existing capability mapping
   and creates a short `#c=` link. The recipient's permitted edits write back to
   that cloud character and update other connected views.
+
+`#play=` is an LZString-compressed JSON array
+([`src/utils/urlState.js`](src/utils/urlState.js)). Index 17 is the backstory
+string. Index 18 is session notes, each `[id, title, body, lastEdited]`. Both
+are omitted when empty. Older arrays end at the player name (index 16) or
+before it, and still decode.
 
 A live link is a bearer capability: anyone who has it receives its guest
 permissions. Share it only with the intended player. **Reset link** rotates its
@@ -253,7 +268,8 @@ email and hosted live sync need the cloud project and were not exercised here.
 
 Pull requests run a shorter Playwright smoke pass on Chromium, Firefox, and
 WebKit: the app loads, the roster opens, the creation wizard finishes, a
-body-only session note saves, and a Play Mode d100 shows a result.
+body-only session note saves, a self-contained play link keeps backstory and
+notes, and a Play Mode d100 shows a result.
 
 ## Architecture
 
@@ -320,7 +336,9 @@ content contracts and are protected game content; see
 Pull requests and pushes to `main` run `.github/workflows/ci.yml`. The
 `validate` job lints, runs the Vitest suite (including the PGlite authorization
 tests), and builds a cloud-off production bundle. Separate `smoke (chromium)`,
-`smoke (firefox)`, and `smoke (webkit)` jobs run the Playwright smoke tests.
+`smoke (firefox)`, and `smoke (webkit)` jobs run the Playwright smoke tests
+inside `mcr.microsoft.com/playwright:v1.64.0-noble`, so WebKit's system
+libraries are not apt-installed on the runner.
 
 A push to `main` publishes to GitHub Pages only after that CI run succeeds
 (`.github/workflows/deploy.yml`). The deploy rebuilds with the repository

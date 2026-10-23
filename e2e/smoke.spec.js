@@ -73,6 +73,57 @@ test('saves a session note that has a body and no title', async ({ page }) => {
   await expect(dialog.getByText('Watch the south road')).toBeVisible()
 })
 
+test('a self-contained play link keeps backstory and session notes', async ({ page }) => {
+  const backstory = 'Raised beside the 北風 café — Æsir kin, and the jarl’s oath.'
+  const notes = [
+    { title: 'Watch the 北 gate', body: 'Left open — riders at dusk.' },
+    { title: 'Oath', body: 'Do not break bread with the jarl’s rivals.' },
+  ]
+  await createCharacter(page, 'Link Runner')
+
+  await page.getByRole('button', { name: /Edit identity/ }).click()
+  await page.getByLabel(/Backstory/).fill(backstory)
+  await page.getByRole('button', { name: 'Done — back to character sheet' }).click()
+  await expect(page.getByText(backstory)).toBeVisible()
+
+  await page.getByRole('button', { name: 'Notes', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Session Notes' })
+  await expect(dialog.getByText(backstory)).toBeVisible()
+  for (const note of notes) {
+    await dialog.getByRole('button', { name: '+ New Note' }).click()
+    await dialog.getByLabel('Note title').fill(note.title)
+    await dialog.getByLabel('Note body').fill(note.body)
+    await dialog.getByRole('button', { name: 'Save' }).click()
+    await expect(dialog.getByText(note.body)).toBeVisible()
+  }
+  await dialog.getByRole('button', { name: 'Close session notes' }).click()
+
+  await page.getByRole('button', { name: 'Back to roster' }).click()
+  await expect(page.getByText('Link Runner')).toBeVisible()
+
+  let playUrl = ''
+  await page.route('https://tinyurl.com/**', async route => {
+    playUrl = new URL(route.request().url()).searchParams.get('url') || ''
+    await route.fulfill({ status: 500, body: 'shortener unavailable' })
+  })
+  await page.getByRole('button', { name: 'More options for Link Runner' }).click()
+  await page.getByRole('menuitem', { name: 'Copy play link' }).click()
+  await expect(page.getByRole('menuitem', { name: 'Copied (long)' })).toBeVisible()
+  expect(playUrl).toContain('#play=')
+
+  await page.goto(playUrl)
+  await expect(page).toHaveTitle('Play Mode · Sidherun')
+  await expect(page.getByRole('heading', { level: 1, name: 'Link Runner' })).toBeVisible()
+  await page.getByRole('button', { name: 'Notes', exact: true }).click()
+  const opened = page.getByRole('dialog', { name: 'Session Notes' })
+  await expect(opened.getByText(backstory)).toBeVisible()
+  await expect(opened.getByText('Backstory')).toBeVisible()
+  for (const note of notes) {
+    await expect(opened.getByRole('button', { name: `Edit note: ${note.title}` })).toBeVisible()
+    await expect(opened.getByText(note.body)).toBeVisible()
+  }
+})
+
 test('play mode shows a d100 result', async ({ page }) => {
   await createCharacter(page, 'Roll Runner')
   await page.getByRole('button', { name: 'Enter Play Mode' }).click()

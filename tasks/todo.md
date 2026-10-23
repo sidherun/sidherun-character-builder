@@ -122,3 +122,6 @@ or issue (see `AGENTS.md` § Multi-agent coordination).
 | Compact DM roster banner: secondary actions under More, preserved role permissions (#392) | #393 | 2026-10-12 |
 | Authenticated Restore defaults to new cloud copies; explicit confirmed replacement restores data + counters with revision guards (#337) | #391 | 2026-10-12 |
 | Required CI before merge: validate (lint, Vitest, build), Playwright smoke on Chromium/Firefox/WebKit, Pages deploy waits on that CI (#339) | #394 | 2026-10-13 |
+| Self-contained #play= links include backstory and session notes; older links open without history; long histories can outgrow the printed QR, and Copy play link still has the full character (#361) | #395 | 2026-10-23 |
+| WebKit smoke runs in the Playwright image instead of apt-installing browser libraries; that install was cancelled at the job timeout before tests started (#361) | #395 | 2026-10-23 |
+| Firefox smoke in the Playwright image sets HOME=/root; Actions runs the container as root while /github/home belongs to pwuser (#361) | #395 | 2026-10-23 |

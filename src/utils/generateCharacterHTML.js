@@ -18,10 +18,13 @@ function esc(v) {
 }
 
 // QR code generated at export time as an inline SVG so the printed sheet stays
-// self-contained (no CDN/API). For a cloud-synced character this encodes the
-// short, live #c= link (always scannable; opens the live character); otherwise
-// the self-contained embedded #play= link. Either way it uses the origin the
-// sheet was exported from. Returns '' if the URL is too large for a single QR.
+// self-contained (no CDN/API). A cloud-synced character gets the short live
+// #c= link. Otherwise the QR is the self-contained #play= link, which includes
+// backstory and session notes. A long history is too dense to scan. Past about
+// 6,000 characters the link no longer fits one code; the sheet says it is too
+// long to print as a QR and does not truncate the character. Copy play link
+// still carries the full text. Either QR uses the origin the sheet was exported
+// from.
 function qrBlock(character) {
   try {
     const url = qrLinkFor(character)
@@ -31,8 +34,9 @@ function qrBlock(character) {
     const svg = qr.createSvgTag({ cellSize: 2, margin: 2, scalable: true })
     if (!svg || !svg.includes('<svg')) return ''
     return `<div class="qr">${svg}<div class="qr-label">Scan to play</div></div>`
-  } catch {
-    return ''
+  } catch (err) {
+    if (!/overflow/i.test(String(err?.message || err))) return ''
+    return `<div class="qr"><p class="qr-note">Play link is too long to print as a QR. Copy the play link instead. It includes the full backstory and notes.</p></div>`
   }
 }
 
@@ -135,6 +139,7 @@ const SHEET_CSS = `
   .qr { text-align: center; flex-shrink: 0; }
   .qr svg { width: 180px; height: 180px; display: block; background: #fff; padding: 6px; }
   .qr-label { font-family: 'Cinzel', serif; font-size: 8px; text-transform: uppercase; letter-spacing: 0.08em; color: #6b520f; margin-top: 2px; }
+  .qr-note { font-family: 'EB Garamond', serif; font-size: 12px; line-height: 1.4; color: var(--ink); max-width: 180px; text-align: left; }
   .resources { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
   .res { text-align: center; border: 1px solid var(--gold); padding: 8px 16px; border-radius: 4px; }
   .res-label { font-family: 'Cinzel', serif; font-size: 10px; text-transform: uppercase; color: #6b520f; display: block; }
