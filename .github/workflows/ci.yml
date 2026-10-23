@@ -47,7 +47,16 @@ jobs:
   smoke:
     name: smoke (${{ matrix.browser }})
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # Run 39895254662 cancelled smoke (webkit) at this job's old 15-minute
+    # limit while `playwright install --with-deps webkit` was still fetching
+    # apt packages (GTK, GStreamer, ffmpeg). The tests had not started, so
+    # there was no Playwright trace. The image below matches the locked
+    # Playwright version and already contains those libraries. Keep the tag in
+    # sync with @playwright/test in package-lock.json.
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.0-noble
+      options: --ipc=host --init
     strategy:
       fail-fast: false
       matrix:
@@ -59,7 +68,11 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      # Do not pass --with-deps. That apt-installs WebKit's OS libraries from
+      # the Ubuntu archive, and a slow mirror does not finish inside the job
+      # budget. The browser binary is already in the image when versions match;
+      # this only downloads one if the image and the package ever drift.
+      - run: npx playwright install ${{ matrix.browser }}
       - run: npm run test:e2e -- --project=${{ matrix.browser }}
         env:
           CI: true

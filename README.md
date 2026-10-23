@@ -336,7 +336,9 @@ content contracts and are protected game content; see
 Pull requests and pushes to `main` run `.github/workflows/ci.yml`. The
 `validate` job lints, runs the Vitest suite (including the PGlite authorization
 tests), and builds a cloud-off production bundle. Separate `smoke (chromium)`,
-`smoke (firefox)`, and `smoke (webkit)` jobs run the Playwright smoke tests.
+`smoke (firefox)`, and `smoke (webkit)` jobs run the Playwright smoke tests
+inside `mcr.microsoft.com/playwright:v1.64.0-noble`, so WebKit's system
+libraries are not apt-installed on the runner.
 
 A push to `main` publishes to GitHub Pages only after that CI run succeeds
 (`.github/workflows/deploy.yml`). The deploy rebuilds with the repository
